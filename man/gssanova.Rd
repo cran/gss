@@ -34,7 +34,7 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
     \item{offset}{Optional offset term with known parameter 1.}
     \item{na.action}{Function which indicates what should happen when
 	the data contain NAs.}
-    \item{partial}{Optional extra fixed effect terms in partial spline
+    \item{partial}{Optional extra unpenalized terms in partial spline
 	models.}
     \item{method}{Score used to drive the performance-oriented
 	iteration.  Supported are \code{method="v"} for GCV,

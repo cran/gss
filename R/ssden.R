@@ -137,7 +137,7 @@ ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
         desc <- rbind(desc,as.numeric(c(term[[label]][c("nphi","nrk")])))
     desc <- rbind(desc,apply(desc,2,sum))
     rownames(desc) <- c(term$labels,"total")
-    colnames(desc) <- c("Fixed","Random")
+    colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
     obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,alpha=alpha,
                   domain=domain,quad=quadrature,id.basis=id.basis),z)

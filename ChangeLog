@@ -1,3 +1,19 @@
+Sat Aug 16 01:31:27 EST 2003, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.8-6.
+
+	* R: i) Added mkran and released the mixed-effect model
+	functionality in ssanova1 and gssanova1.  ii) Fixed
+	project.ssanova1 and project.gssanova1 to treat random effects (in
+	mixed-effect models) as offset.
+
+	* data: Added bacteriuria.
+
+	* man: i) Added mkran.Rd.  ii) Added mixed-effect example in
+	gssanova1.Rd.  iii) To avoid confusion with the random effects in
+	mixed-effect models, changed "fixed effects" to "unpenalized
+	terms" and "random effects" to "penalized terms" throughout.
+
 Mon Jul 14 13:59:43 EST 2003, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.8-5.

@@ -31,7 +31,7 @@ summary.gssanova1 <- function(object,diagnostics=FALSE,...)
     penalty <- sum(obj.wk$c*predict(obj.wk,obj.wk$mf[object$id.basis,]))
     penalty <- as.vector(10^object$nlambda*penalty)
     if (!is.null(object$random)) {
-        p.ran <- t(object$b)%*%object$random$sigma(object$zeta)%*%object$b
+        p.ran <- t(object$b)%*%object$random$sigma$fun(object$zeta,object$random$sigma$env)%*%object$b
         penalty <- penalty + p.ran
     }
     ## Calculate the diagnostics

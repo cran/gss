@@ -35,8 +35,8 @@ getsms(obj)
     fitted terms.
 }
 \arguments{
-    \item{s}{Design matrix of fixed effects.}
-    \item{q}{Inverse variance-covariance matrices of random effects.}
+    \item{s}{Design matrix of unpenalized terms.}
+    \item{q}{Penalty matrices of penalized terms.}
     \item{y}{Model response.}
     \item{method}{Method for smoothing parameter selection.}
     \item{varht}{Assumed dispersion parameter, needed only for

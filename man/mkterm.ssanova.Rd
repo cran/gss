@@ -42,8 +42,8 @@ mkterm.tp(mf, order, mesh, weight)
 \value{
     A list object with a component \code{labels} containing the labels
     of all model terms.  For each of the model terms, there is a
-    component holding the numerical functions for calculating the fixed
-    and random effects within the term.
+    component holding the numerical functions for calculating the
+    unpenalized and penalized parts within the term.
 }
 \note{
     The numerical functions are assembled using building blocks crafted

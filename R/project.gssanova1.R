@@ -8,7 +8,12 @@ project.gssanova1 <- function(object,include,...)
     eta <- object$eta
     y <- model.response(object$mf,"numeric")
     wt <- model.weights(object$mf)
+    if(is.null(wt)) wt <- rep(1,nobs)
     offset <- model.offset(object$mf)
+    if (!is.null(object$random)) {
+        if (is.null(offset)) offset <- 0
+        offset <- offset + random$z%*%object$b
+    }
     nu <- object$nu
     dat <- switch(family,
                   binomial=proj0.binomial(y,eta,wt,offset),
@@ -17,7 +22,6 @@ project.gssanova1 <- function(object,include,...)
     fit0 <- dat[c("mu","theta","b")]
     y0 <- fit0$mu
     if (family=="binomial") {
-        if (is.null(wt)) wt <- rep(1,nobs)
         if (!is.vector(y)) wt <- as.vector(wt*(y[,1]+y[,2]))
     }
     if (family=="nbinomial") {
@@ -70,17 +74,23 @@ project.gssanova1 <- function(object,include,...)
             philist <- c(philist,object$term$partial$iphi+(i-1))
         s <- cbind(s,object$mf$partial)
     }
-    if (!is.null(object$random)) s <- cbind(s,object$random$z)
     ## calculate projection
     my.wls <- function(theta1=NULL) {
-        theta.wk <- 1:nq
-        theta.wk[fix] <- theta[fix]
-        if (nq-1) theta.wk[-fix] <- theta1
-        sr <- 0
-        for (i in 1:nq) sr <- sr + 10^theta.wk[i]*r[,,i]
-        q <- sr[object$id.basis,]
-        sr <- cbind(s,sr)
-        z <- ngreg.proj(dc,family,sr,q,fit0,wt,offset,nu)
+        if (!nq) {
+            q <- matrix(0)
+            sr <- cbind(s,0)
+            z <- ngreg.proj(dc,family,sr,q,fit0,wt,offset,nu)
+        }
+        else {
+            theta.wk <- 1:nq
+            theta.wk[fix] <- theta[fix]
+            if (nq-1) theta.wk[-fix] <- theta1
+            sr <- 0
+            for (i in 1:nq) sr <- sr + 10^theta.wk[i]*r[,,i]
+            q <- sr[object$id.basis,]
+            sr <- cbind(s,sr)
+            z <- ngreg.proj(dc,family,sr,q,fit0,wt,offset,nu)
+        }
         assign("dc",z$dc,inherit=TRUE)
         assign("fit1",z[c("mu","theta","b")],inherit=TRUE)
         mean(wt*(fit0$mu*(fit0$theta-fit1$theta)+fit1$b-fit0$b))
@@ -96,9 +106,10 @@ project.gssanova1 <- function(object,include,...)
     for (i in 1:nq) tmp <- c(tmp,10^theta[i]*sum(r[cbind(object$id.basis,1:nxi,i)]))
     fix <- rev(order(tmp))[1]
     ## projection
-    dc <- c(object$d[philist],object$b,10^(-theta.wk)*object$c)
+    if (nq) dc <- c(object$d[philist],10^(-theta.wk)*object$c)
+    else dc <- c(object$d[philist],0)
     fit1 <- NULL
-    if (nq-1) {
+    if (nq>1) {
         ## scale and shift cv
         tmp <- abs(my.wls(theta[-fix]))
         cv.scale <- 1

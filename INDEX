@@ -57,6 +57,8 @@ mkrk.tp.p                   Making pseudo RK functions for thin-plate splines
 mkrk.nominal                Making RK function for nominal factors
 mkrk.ordinal                Making RK function for ordinal factors
 
+mkran                       Generating random effects in mixed-effect models
+
 ## UTILITIES FOR DISTRIBUTION FAMILIES
 mkdata.binomial             Making pseudo data for logistic regression
 dev.resid.binomial          Deviance residuals for logistic regression

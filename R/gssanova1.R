@@ -40,6 +40,10 @@ gssanova1 <- function(formula,family,type="cubic",data=list(),
     if (type=="linear") term <- mkterm.linear(mf,ext)
     if (type=="tp") term <- mkterm.tp(mf,order,mf[id.basis,],1)
     if (is.null(term)) stop("gss error in gssanova1: unknown type")
+    ## Generate random
+    if (!is.null(random)) {
+        if (class(random)=="formula") random <- mkran(random,data)
+    }
     ## Generate s, r, q, and y
     s <- r <- NULL
     nq <- 0
@@ -101,7 +105,7 @@ gssanova1 <- function(formula,family,type="cubic",data=list(),
         desc <- rbind(desc,as.numeric(c(term[[label]][c("nphi","nrk")])))
     desc <- rbind(desc,apply(desc,2,sum))
     rownames(desc) <- c(term$labels,"total")
-    colnames(desc) <- c("Fixed","Random")
+    colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
     obj <- c(list(call=match.call(),family=family,mf=mf,terms=term,desc=desc,
                   alpha=alpha,id.basis=id.basis,random=random),z)

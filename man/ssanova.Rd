@@ -27,8 +27,8 @@ ssanova(formula, type="cubic", data=list(), weights, subset,
     \item{offset}{Optional offset term with known parameter 1.}
     \item{na.action}{Function which indicates what should happen when
 	the data contain NAs.}
-    \item{partial}{Optional extra fixed effect terms in partial spline
-	models.}
+    \item{partial}{Optional extra unpenalized terms in partial spline
+        models.}
     \item{method}{Method for smoothing parameter selection.  Supported
 	are \code{method="v"} for GCV, \code{method="m"} for GML (REML),
 	and \code{method="u"} for Mallow's CL.}
@@ -77,10 +77,10 @@ ssanova(formula, type="cubic", data=list(), weights, subset,
     The penalized least squares problem is equivalent to a certain
     empirical Bayes model or a mixed effect model, and the model terms
     themselves are generally sums of finer terms of two types, the
-    unpenalized \emph{fixed effects} and the penalized \emph{random}
-    \emph{effects}.  Attached to every random effect there is a
-    smoothing parameter, and the model complexity is largely determined
-    by the number of smoothing parameters.
+    unpenalized terms (fixed effects) and the penalized terms (random
+    effects).  Attached to every penalized term there is a smoothing
+    parameter, and the model complexity is largely determined by the
+    number of smoothing parameters.
 
     The method \code{predict} can be used to evaluate the sum of
     selected or all model terms at arbitrary points within the domain,
@@ -114,7 +114,7 @@ ssanova(formula, type="cubic", data=list(), weights, subset,
 }
 \section{Factors}{
     Factors are accepted as predictors.  When a factor has 3 or more
-    levels, all terms involving it are treated as random effects, with
+    levels, all terms involving it are treated as penalized terms, with
     the "level means" being shrunk towards each other.  The shrinking is
     done differently for nominal and ordinal factors; see
     \code{\link{mkrk.factor}} for details.

@@ -51,12 +51,15 @@ project.sshzd(object, include, mesh=FALSE, ...)
     For regression fits, smoothness safe-guard is used to prevent
     interpolation, and KL(fit0,fit1)+KL(fit1,null) may not match
     KL(fit0,null) perfectly.
+
+    For mixed-effect models from \code{ssanova1} and \code{gssanova1},
+    the estimated random effects are treated as offset.
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (2003), \emph{Model Diagnostics for Smoothing Spline ANOVA
     Models}.  Available at
-  \url{http://stat.purdue.edu/~chong/manu.html}.
+    \url{http://stat.purdue.edu/~chong/manu.html}.
 }
 \seealso{
     Fitting functions \code{\link{ssanova1}}, \code{\link{gssanova1}},

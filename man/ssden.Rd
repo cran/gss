@@ -67,10 +67,10 @@ ssden(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
     given x1.  Currently, up to four variables are supported.
 
     Parallel to those in a \code{\link{ssanova}} object, the model terms
-    are sums of unpenalized \emph{fixed effects} and the penalized
-    \emph{random effects}.  Attached to every random effect there is a
-    smoothing parameter, and the model complexity is largely determined
-    by the number of smoothing parameters.
+    are sums of unpenalized and penalized terms.  Attached to every
+    penalized term there is a smoothing parameter, and the model
+    complexity is largely determined by the number of smoothing
+    parameters.
 
     The selection of smoothing parameters is through a cross-validation
     mechanism described in the references, with a parameter

@@ -28,13 +28,13 @@ msphzd(s,r,q,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     parameters.
 }
 \arguments{
-    \item{s}{Fixed effects evaluated at data points.}
-    \item{r}{Basis of random effects evaluated at data points.}
+    \item{s}{Unpenalized terms evaluated at data points.}
+    \item{r}{Basis of penalized terms evaluated at data points.}
     \item{q}{Penalty matrix.}
     \item{Nobs}{Total number of lifetime observations.}
     \item{cnt}{Bin-counts for histogram data.}
-    \item{qd.s}{Fixed effects evaluated at quadrature nodes.}
-    \item{qd.r}{Basis of random effects evaluated at quadrature nodes.}
+    \item{qd.s}{Unpenalized terms evaluated at quadrature nodes.}
+    \item{qd.r}{Basis of penalized terms evaluated at quadrature nodes.}
     \item{qd.wt}{Quadrature weights.}
     \item{prec}{Precision requirement for internal iterations.}
     \item{maxiter}{Maximum number of iterations allowed for

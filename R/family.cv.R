@@ -22,6 +22,7 @@ cv.binomial <- function(y,eta,wt,hat,alpha)
     lkhd <- -sum(wtt*(y*eta+log(1-p)))/sum(wtt)
     aux1 <- sum(hat/w)/(sum(wtt)-sum(hat))
     aux2 <- sum(wtt*y*(1-p))/sum(wtt)
+alpha <- 1    
     list(score=lkhd+abs(alpha)*aux1*aux2,varht=1,w=as.vector(wtt*w))
 }
 

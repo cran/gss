@@ -5,7 +5,6 @@ project.ssanova1 <- function(object,include,...)
     nxi <- length(object$id.basis)
     ## evaluate full model
     mf <- object$mf
-    if (!is.null(object$random)) mf$random <- object$random$z
     yy <- predict(object,mf)
     wt <- model.weights(object$mf)
     offset <- model.offset(object$mf)
@@ -41,16 +40,21 @@ project.ssanova1 <- function(object,include,...)
         }
     }
     if (any(include=="partial")) s <- cbind(s,object$mf$partial)
-    if (!is.null(object$random)) s <- cbind(s,object$random$z)
     ## calculate projection
     my.ls <- function(theta1=NULL) {
-        theta.wk <- 1:nq
-        theta.wk[fix] <- theta[fix]
-        if (nq-1) theta.wk[-fix] <- theta1
-        sr <- 0
-        for (i in 1:nq) sr <- sr + 10^theta.wk[i]*r[,,i]
-        q <- 10^(-5)*sr[object$id.basis,]
-        sr <- cbind(s,sr)
+        if (!nq) {
+            q <- matrix(0)
+            sr <- cbind(s,0)
+        }
+        else {
+            theta.wk <- 1:nq
+            theta.wk[fix] <- theta[fix]
+            if (nq-1) theta.wk[-fix] <- theta1
+            sr <- 0
+            for (i in 1:nq) sr <- sr + 10^theta.wk[i]*r[,,i]
+            q <- 10^(-5)*sr[object$id.basis,]
+            sr <- cbind(s,sr)
+        }
         nn <- ncol(as.matrix(sr))
         nnull <- nn-nxi
         if (!is.null(wt)) {
@@ -82,7 +86,7 @@ project.ssanova1 <- function(object,include,...)
     fix <- rev(order(tmp))[1]
     ## projection    
     yhat <- NULL
-    if (nq-1) {
+    if (nq>1) {
         ## scale and shift cv
         tmp <- abs(my.ls(theta[-fix]))
         cv.scale <- 1

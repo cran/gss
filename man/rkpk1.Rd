@@ -43,8 +43,8 @@ ngreg.proj(dc,family,sr,q,fit0,wt,offset,nu)
     \item{family}{Description of the error distribution.  Supported
 	are exponential families \code{"binomial"}, \code{"poisson"},
 	and \code{"Gamma"}}.
-    \item{s}{Fixed effects evaluated at data points.}
-    \item{r}{Basis of random effects evaluated at data points.}
+    \item{s}{Unpenalized terms evaluated at data points.}
+    \item{r}{Basis of penalized terms evaluated at data points.}
     \item{q}{Penalty matrix.}
     \item{y}{Response vector.}
     \item{wt}{Model weights.}

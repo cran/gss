@@ -22,7 +22,8 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         else {
             q.wk <- matrix(0,nxiz,nxiz)
             q.wk[1:nxi,1:nxi] <- 10^(lambda[1]+theta)*q
-            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <- random$sigma(lambda[-1])
+            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(lambda[-1],random$sigma$env)
         }
         if (qr.trace) {
             qq.wk <- chol(q.wk,pivot=TRUE)
@@ -85,7 +86,11 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     if (is.null(s)) theta <- 0
     else theta <- log10(sum(s^2)/nnull/tmp*nxi) / 2
     log.la0 <- log10(tmp/sum(diag(q))) + theta
-    if (!is.null(random)) r <- cbind(r,10^(-theta)*random$z)
+        if (!is.null(random)) {
+        ran.scal <- theta - log10(sum(random$z^2)/nz/tmp*nxi) / 2
+        r <- cbind(r,10^(ran.scal-theta)*random$z)
+    }
+    else ran.scal <- NULL
     ## lambda search
     return.fit <- FALSE
     fit <- NULL
@@ -132,7 +137,8 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     else {
         q.wk <- matrix(0,nxiz,nxiz)
         q.wk[1:nxi,1:nxi] <- 10^theta*q
-        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <- 10^(-zz$est[1])*random$sigma(zz$est[-1])
+        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+            10^(2*ran.scal-zz$est[1])*random$sigma$fun(zz$est[-1],random$sigma$env)
     }
     zzz <- La.eigen(q.wk,TRUE)
     rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
@@ -143,9 +149,10 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
-    if (nz) b <- fit$dc[nnull+nxi+(1:nz)]
+    if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
-    c(list(method=method,theta=theta,c=c,d=d,b=b,nlambda=zz$est[1],zeta=zz$est[-1]),
+    c(list(method=method,theta=theta,ran.scal=ran.scal,c=c,d=d,b=b,
+           nlambda=zz$est[1],zeta=zz$est[-1]),
       fit[-3],list(qinv=qinv,se.aux=se.aux))
 }
 
@@ -177,10 +184,11 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         }
         if (is.null(random)) q.wk <- 10^nlambda*qq.wk
         else {
-            r.wk <- cbind(r.wk,random$z)
+            r.wk <- cbind(r.wk,10^(ran.scal)*random$z)
             q.wk <- matrix(0,nxiz,nxiz)
             q.wk[1:nxi,1:nxi] <- 10^nlambda*qq.wk
-            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <- random$sigma(theta[-(1:nq)])
+            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(theta[-(1:nq)],random$sigma$env)
         }
         if (qr.trace) {
             qq.wk <- chol(q.wk,pivot=TRUE)
@@ -262,6 +270,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     nlambda <- z$nlambda
     log.th0 <- log.th0 + z$lambda
     theta <- theta + z$theta
+    if (!is.null(random)) ran.scal <- z$ran.scal
     ## theta search
     fit <- NULL
     if (!is.null(random)) theta <- c(theta,z$zeta)
@@ -298,10 +307,11 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     }
     if (is.null(random)) q.wk <- qq.wk
     else {
-        r.wk <- cbind(r.wk,random$z)
+        r.wk <- cbind(r.wk,10^(ran.scal)*random$z)
         q.wk <- matrix(0,nxiz,nxiz)
         q.wk[1:nxi,1:nxi] <- qq.wk
-        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <- 10^(-nlambda)*random$sigma(zz$est[-(1:nq)])
+        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+            10^(2*ran.scal-nlambda)*random$sigma$fun(zz$est[-(1:nq)],random$sigma$env)
     }
     zzz <- La.eigen(q.wk,TRUE)
     rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
@@ -312,7 +322,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
-    if (nz) b <- fit$dc[nnull+nxi+(1:nz)]
+    if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
     c(list(method=method,theta=zz$est[1:nq],c=c,d=d,b=b,nlambda=nlambda,zeta=zz$est[-(1:nq)]),
       fit[-3],list(qinv=qinv,se.aux=se.aux))

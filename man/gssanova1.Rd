@@ -32,7 +32,7 @@ gssanova1(formula, family, type="cubic", data=list(), weights, subset,
     \item{offset}{Optional offset term with known parameter 1.}
     \item{na.action}{Function which indicates what should happen when
 	the data contain NAs.}
-    \item{partial}{Optional extra fixed effect terms in partial spline
+    \item{partial}{Optional extra unpenalized terms in partial spline
 	models.}
     \item{alpha}{Tuning parameter defining cross-validation; larger
         values yield smoother fits.  Defaults are \code{alpha=1} for
@@ -46,8 +46,7 @@ gssanova1(formula, family, type="cubic", data=list(), weights, subset,
     \item{seed}{Seed for reproducible random selection of "knots".
 	Ignored when \code{id.basis} is supplied.}
     \item{random}{Input for parametric random effects in nonparametric
-        mixed-effect models.  The utility is not yet ready for public
-	use.}
+        mixed-effect models.  See \code{\link{mkran}} for details.}
     \item{ext}{For cubic spline and linear spline marginals, this option
 	specifies how far to extend the domain beyond the minimum and
 	the maximum as a percentage of the range.  The default
@@ -126,8 +125,18 @@ lines(x,p,col=1)
 lines(x,1-1/(1+exp(est$fit)),col=2)
 lines(x,1-1/(1+exp(est$fit+1.96*est$se)),col=3)
 lines(x,1-1/(1+exp(est$fit-1.96*est$se)),col=3)
+
+## Fit a mixed-effect logistic model
+data(bacteriuria)
+bact.fit <- gssanova1(infect~trt+time,family="binomial",data=bacteriuria,
+                     id.basis=(1:820)[bacteriuria$id\%in\%c(3,38)],random=~1|id)
+## Predict fixed effects
+predict(bact.fit,data.frame(time=2:16,trt=as.factor(rep(1,15))),se=TRUE)
+## Estimated random effects
+bact.fit$b
+
 ## Clean up
-\dontrun{rm(test,x,p,y,logit.fit,logit.fit1,est)
+\dontrun{rm(test,x,p,y,logit.fit,logit.fit1,est,bacteriuria,bact.fit)
 dev.off()}
 }
 \keyword{models}

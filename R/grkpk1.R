@@ -18,7 +18,8 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         else {
             q.wk <- matrix(0,nxiz,nxiz)
             q.wk[1:nxi,1:nxi] <- 10^(lambda[1]+theta)*q
-            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <- random$sigma(lambda[-1])
+            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(lambda[-1],random$sigma$env)
         }
         alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
@@ -33,7 +34,11 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     if (is.null(s)) theta <- 0
     else theta <- log10(sum(s^2)/nnull/tmp*nxi) / 2
     log.la0 <- log10(tmp/sum(diag(q))) + theta
-    if (!is.null(random)) r <- cbind(r,10^(-theta)*random$z)
+    if (!is.null(random)) {
+        ran.scal <- theta - log10(sum(random$z^2)/nz/tmp*nxi) / 2
+        r <- cbind(r,10^(ran.scal-theta)*random$z)
+    }
+    else ran.scal <- NULL
     ## lambda search
     dc <- rep(0,nn)
     fit <- NULL
@@ -79,7 +84,8 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     else {
         q.wk <- matrix(0,nxiz,nxiz)
         q.wk[1:nxi,1:nxi] <- 10^theta*q
-        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <- 10^(-zz$est[1])*random$sigma(zz$est[-1])
+        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+            10^(2*ran.scal-zz$est[1])*random$sigma$fun(zz$est[-1],random$sigma$env)
     }
     zzz <- La.eigen(q.wk,TRUE)
     rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
@@ -90,9 +96,9 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
-    if (nz) b <- fit$dc[nnull+nxi+(1:nz)]
+    if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
-    c(list(theta=theta,c=c,d=d,b=b,nlambda=zz$est[1],zeta=zz$est[-1]),
+    c(list(theta=theta,ran.scal=ran.scal,c=c,d=d,b=b,nlambda=zz$est[1],zeta=zz$est[-1]),
       fit[-1],list(qinv=qinv,se.aux=se.aux))
 }
 
@@ -120,10 +126,11 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         }
         if (is.null(random)) q.wk <- 10^nlambda*qq.wk
         else {
-            r.wk <- cbind(r.wk,random$z)
+            r.wk <- cbind(r.wk,10^(ran.scal)*random$z)
             q.wk <- matrix(0,nxiz,nxiz)
             q.wk[1:nxi,1:nxi] <- 10^nlambda*qq.wk
-            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <- random$sigma(theta[-(1:nq)])
+            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(theta[-(1:nq)],random$sigma$env)
         }
         alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
@@ -156,6 +163,7 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     nlambda <- z$nlambda
     log.th0 <- log.th0 + z$lambda
     theta <- theta + z$theta
+    if (!is.null(random)) ran.scal <- z$ran.scal
     ## theta search
     dc <- rep(0,nn)
     fit <- NULL
@@ -191,10 +199,11 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     }
     if (is.null(random)) q.wk <- qq.wk
     else {
-        r.wk <- cbind(r.wk,random$z)
+        r.wk <- cbind(r.wk,10^(ran.scal)*random$z)
         q.wk <- matrix(0,nxiz,nxiz)
         q.wk[1:nxi,1:nxi] <- qq.wk
-        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <- 10^(-nlambda)*random$sigma(zz$est[-(1:nq)])
+        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+            10^(2*ran.scal-nlambda)*random$sigma$fun(zz$est[-(1:nq)],random$sigma$env)
     }
     zzz <- La.eigen(q.wk,TRUE)
     rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
@@ -205,7 +214,7 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
-    if (nz) b <- fit$dc[nnull+nxi+(1:nz)]
+    if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
     c(list(theta=zz$est[1:nq],c=c,d=d,b=b,nlambda=nlambda,zeta=zz$est[-(1:nq)]),
       fit[-1],list(qinv=qinv,se.aux=se.aux))
@@ -219,12 +228,23 @@ ngreg1 <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
     nxi <- nrow(q)
     nnull <- nn - nxi
     ## initialization
+    cc <- dc[nnull+(1:nxi)]
     eta <- sr%*%dc
     if (!is.null(offset)) eta <- eta + offset
     if (family=="nbinomial") nu <- NULL
     else nu <- list(nu,is.null(nu))
     iter <- 0
     flag <- 0
+    dev <- switch(family,
+                  binomial=dev.resid.binomial(y,eta,wt),
+                  nbinomial=dev.resid.nbinomial(y,eta,wt),
+                  poisson=dev.resid.poisson(y,eta,wt),
+                  inverse.gaussian=dev.resid.inverse.gaussian(y,eta,wt),
+                  Gamma=dev.resid.Gamma(y,eta,wt),
+                  weibull=dev.resid.weibull(y,eta,wt),
+                  lognorm=dev.resid.lognorm(y,eta,wt),
+                  loglogis=dev.resid.loglogis(y,eta,wt))
+    dev <- sum(dev^2) + t(cc)%*%q%*%cc
     ## Newton iteration
     repeat {
         iter <- iter+1
@@ -259,8 +279,27 @@ ngreg1 <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
                       as.integer(c(rep(1,nnull),rep(0,nxi))),
                       double(max(nobs,nn)), integer(1), integer(1),
                       PACKAGE="gss")["dc"]
-        eta.new <- sr%*%z$dc
-        if (!is.null(offset)) eta.new <- eta.new + offset
+        dc.diff <- z$dc-dc
+        adj <- 0
+        repeat {
+            dc.new <- dc + dc.diff
+            cc <- dc.new[nnull+(1:nxi)]
+            eta.new <- sr%*%dc.new
+            if (!is.null(offset)) eta.new <- eta.new + offset
+            dev.new <- switch(family,
+                              binomial=dev.resid.binomial(y,eta.new,wt),
+                              nbinomial=dev.resid.nbinomial(y,eta.new,wt),
+                              poisson=dev.resid.poisson(y,eta.new,wt),
+                              inverse.gaussian=dev.resid.inverse.gaussian(y,eta.new,wt),
+                              Gamma=dev.resid.Gamma(y,eta.new,wt),
+                              weibull=dev.resid.weibull(y,eta.new,wt),
+                              lognorm=dev.resid.lognorm(y,eta.new,wt),
+                              loglogis=dev.resid.loglogis(y,eta.new,wt))
+            dev.new <- sum(dev.new^2) + t(cc)%*%q%*%cc
+            if (dev.new-dev<(1+abs(dev))*1e-1) break
+            adj <- 1
+            dc.diff <- dc.diff/2
+        }
         disc <- sum(dat$wt*((eta-eta.new)/(1+abs(eta)))^2)/sum(dat$wt)
         if (!is.finite(disc)) {
             if (flag) stop("gss error in gssanova1: Newton iteration diverges")
@@ -269,7 +308,10 @@ ngreg1 <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
             flag <- 1
             next
         }
+        dc <- dc.new
         eta <- eta.new
+        dev <- dev.new
+        if (adj) next
         if (disc<1e-7) break
         if (iter<=30) next
         if (!flag) {
