@@ -11,11 +11,9 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
     ## extract terms in subspace
     nqd <- length(quad.pt)
     nxi <- length(object$id.basis)
-    qd.s <- matrix(1,nqd,nx)
+    d <- qd.s <- q <- theta <- NULL
     qd.r <- as.list(NULL)
-    q <- NULL
-    theta <- d <- NULL
-    n0.wk <- nq.wk <- nu <- nq <- 0
+    n0.wk <- nu <- nq.wk <- nq <- 0
     for (label in object$terms$labels) {
         vlist <- object$terms[[label]]$vlist
         x.list <- object$xnames[object$xnames%in%vlist]
@@ -31,6 +29,13 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
             phi <- object$terms[[label]]$phi
             for (i in 1:nphi) {
                 n0.wk <- n0.wk + 1
+                if (label=="1") {
+                    d <- object$d[n0.wk]
+                    nu <- nu + 1
+                    qd.wk <- matrix(1,nqd,nx)
+                    qd.s <- array(c(qd.s,qd.wk),c(nqd,nx,nu))
+                    next
+                }
                 if (!any(label==include)) next
                 d <- c(d,object$d[n0.wk])
                 nu <- nu + 1

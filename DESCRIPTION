@@ -1,5 +1,5 @@
 Package: gss
-Version: 0.8-3
+Version: 0.8-4
 Depends: R (>= 1.5.0)
 Title: General Smoothing Splines
 Author: Chong Gu <chong@stat.purdue.edu>
