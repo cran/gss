@@ -1,3 +1,9 @@
+Tue May 14 06:35:45 EST 2002, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.6-5.
+
+	* src: Removed BLAS routines, as suggested by Brian Ripley.
+
 Thu Apr 25 23:41:09 EST 2002, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.6-4.
