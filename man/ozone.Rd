@@ -25,12 +25,12 @@
     Unknown.
 }
 \references{
-    Breiman, L. and Friedman, J. H. (1985).  Estimating optimal
+    Breiman, L. and Friedman, J. H. (1985), Estimating optimal
     transformations for multiple regression and correlation.
     \emph{Journal of the American Statistical Association}, \bold{80},
     580--598.
 
-    Hastie, T. and Tibshirani, R. (1990).  \emph{Generalized Additive
+    Hastie, T. and Tibshirani, R. (1990), \emph{Generalized Additive
     Models}. Chapman and Hall.
 }
 \keyword{datasets}

@@ -5,7 +5,7 @@
     Calculate various summaries of smoothing spline ANOVA fits.
 }
 \usage{
-summary[.ssanova](obj, diagnostics=FALSE)
+summary.ssanova(obj, diagnostics=FALSE)
 }
 \arguments{
     \item{obj}{Object of class \code{"ssanova"}.}

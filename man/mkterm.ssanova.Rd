@@ -1,4 +1,5 @@
 \name{mkterm.ssanova}
+\alias{mkterm.ssanova}
 \alias{mkterm.linear}
 \alias{mkterm.cubic}
 \alias{mkterm.tp}
@@ -22,6 +23,8 @@ mkterm.tp(mf, order, mesh, weight)
     \item{weight}{Normalizing weights.}
 }
 \details{
+    These are not to be called by the user.
+
     For polynomial splines, \code{ext} specifies how far to go beyond
     the data range percentage wise.  For example, if the minimum and
     maximum values of a variable in \code{mf} is 0 and 1 and
@@ -42,4 +45,4 @@ mkterm.tp(mf, order, mesh, weight)
     by \code{\link{mkfun.poly}}, \code{\link{mkfun.tp}},
     \code{\link{mkrk.factor}}.
 }
-\keyword{smooth}
+\keyword{internal}

@@ -1,4 +1,5 @@
 \name{mkfun.poly}
+\alias{mkfun.poly}
 \alias{mkrk.linear}
 \alias{mkrk.cubic}
 \alias{mkphi.cubic}
@@ -34,4 +35,7 @@ mkphi.cubic(range)
 \seealso{
     \code{\link{mkfun.tp}}, \code{\link{mkrk.factor}}.
 }
-\keyword{smooth}
+\details{
+    These are not to be called by the user.
+}  
+\keyword{internal}

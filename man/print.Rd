@@ -6,13 +6,14 @@
     Print functions for Smoothing Spline ANOVA models.
 }
 \usage{
-print[.ssanova](obj)
-print[.summary.ssanova](obj)
-print[.summary.gssanova](obj)
+print.ssanova(obj)
+print.summary.ssanova(obj, digits=6)
+print.summary.gssanova(obj, digits=6)
 }
 \arguments{
     \item{obj}{Object of class \code{ssanova}, \code{summary.ssanova},
-	or \code{summary.gssanova}.}
+        or \code{summary.gssanova}.}
+    \item{digits}{Number of significant digits to be printed in values.}
 }
 \seealso{
     \code{\link{ssanova}}, \code{\link{gssanova}},

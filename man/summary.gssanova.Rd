@@ -6,7 +6,7 @@
     Gaussian responses.
 }
 \usage{
-summary[.gssanova](obj, diagnostics=FALSE)
+summary.gssanova(obj, diagnostics=FALSE)
 }
 \arguments{
     \item{obj}{Object of class \code{"gssanova"}.}
@@ -28,6 +28,10 @@ summary[.gssanova](obj, diagnostics=FALSE)
     \item{dev.resid}{Deviance residuals.}
     \item{deviance}{Deviance of the fit.}
     \item{dev.null}{Deviance of the null model.}
+    \item{alpha}{Estimated size for \code{family="nbinomial"} with one
+        column responses.  Estimated inverse scale of log life time for
+	\code{family="nbinomial"}, \code{"lognorm"}, or
+	\code{"loglogis"}.}
     \item{penalty}{Roughness penalty associated with the fit.}
     \item{pi}{"Percentage decomposition" of "explained variance" into
 	model terms.}

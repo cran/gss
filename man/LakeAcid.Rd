@@ -23,13 +23,13 @@
     code given in the Example section.
 }
 \source{
-    Douglas, A. and Delampady, M. (1990).  \emph{Eastern Lake Survey --
+    Douglas, A. and Delampady, M. (1990), \emph{Eastern Lake Survey --
 	Phase I: Documentation for the Data Base and the Derived Data
 	sets.} Tech Report 160 (SIMS), Dept. Statistics, University of
         British Columbia.
 }
 \references{
-    Gu, C. and Wahba, G. (1993).  Semiparametric analysis of variance
+    Gu, C. and Wahba, G. (1993), Semiparametric analysis of variance
     with tensor product thin plate splines.  \emph{Journal of the Royal
 	Statistical Society Ser. B}, \bold{55}, 353--368.
 }

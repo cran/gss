@@ -17,23 +17,23 @@
     }
 }
 \source{
-    Wang, Y. (1997).  GRKPACK: Fitting smoothing spline ANOVA models for
+    Wang, Y. (1997), GRKPACK: Fitting smoothing spline ANOVA models for
     exponential families.  \emph{Communications in Statistics --
     Simulations and Computation}, \bold{26}, 765--782.
 }
 \references{
     Klein, R., Klein, B. E. K., Moss, S. E., Davis, M. D., and DeMets,
-    D. L. (1988).  Glycosylated hemoglobin predicts the incidence and
+    D. L. (1988), Glycosylated hemoglobin predicts the incidence and
     progression of diabetic retinopathy.  \emph{Journal of the American
     Medical Association}, \bold{260}, 2864--2871.
 
     Klein, R., Klein, B. E. K., Moss, S. E., Davis, M. D., and DeMets,
-    D. L. (1989).  The Wisconsin Epidemiologic Study of Diabetic
+    D. L. (1989), The Wisconsin Epidemiologic Study of Diabetic
     Retinopathy. X. Four incidence and progression of diabetic
     retinopathy when age at diagnosis is 30 or more years.
     \emph{Archive Ophthalmology}, \bold{107}, 244--249.
 
-    Wahba, G., Wang, Y., Gu, C., Klein, R., and Klein, B. E. K. (1995).
+    Wahba, G., Wang, Y., Gu, C., Klein, R., and Klein, B. E. K. (1995),
     Smoothing spline ANOVA for exponential families, with application to
     the Wisconsin Epidemiological Study of Diabetic
     Retinopathy. \emph{The Annals of Statistics}, \bold{23}, 1865--1895.

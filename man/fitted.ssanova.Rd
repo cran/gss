@@ -8,11 +8,11 @@
     spline ANOVA fits.
 }
 \usage{
-fitted[.ssanova](obj)
-residuals[.ssanova](obj)
+fitted.ssanova(obj)
+residuals.ssanova(obj)
 
-fitted[.gssanova](obj)
-residuals[.gssanova](obj,type="working")
+fitted.gssanova(obj)
+residuals.gssanova(obj,type="working")
 }
 \arguments{
     \item{obj}{Object of class \code{"ssanova"} or \code{"gssanova"}.}

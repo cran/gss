@@ -1,4 +1,5 @@
 \name{mkfun.tp}
+\alias{mkfun.tp}
 \alias{mkrk.tp}
 \alias{mkrk.tp.p}
 \alias{mkphi.tp}
@@ -24,6 +25,8 @@ mkphi.tp.p(dm,order)
     \item{weight}{Normalizing weights.}
 }
 \details{
+    These are not to be called by the user.
+
     Thin-plate splines are defined for \eqn{2m>d}.
 
     \code{mkrk.tp.p} generates the pseudo kernel, and \code{mkphi.tp.p}
@@ -58,4 +61,4 @@ mkphi.tp.p(dm,order)
 \seealso{
     \code{\link{mkfun.poly}}, \code{\link{mkrk.factor}}.
 }
-\keyword{smooth}
+\keyword{internal}

@@ -21,54 +21,54 @@ print.ssanova <- function(obj)
 }
 
 ## Print function for summary.ssanova objects
-print.summary.ssanova <- function (x,digits=6)
+print.summary.ssanova <- function (obj,digits=6)
 {
     ## call
-    cat("\nCall:\n",deparse(x$call),"\n",sep="")
-    cat("\nEstimate of error standard deviation:",x$sigma,"\n")
+    cat("\nCall:\n",deparse(obj$call),"\n",sep="")
+    cat("\nEstimate of error standard deviation:",obj$sigma,"\n")
     ## residuals
-    res <- x$res
+    res <- obj$res
     cat("\nResiduals:\n")
     nam <- c("Min", "1Q", "Median", "3Q", "Max")
     rq <- structure(quantile(res), names = nam)
     print(rq,digits=digits)
-    cat("Residual sum of squares:",x$rss)
-    cat("\nR square:",x$r.squared)
+    cat("Residual sum of squares:",obj$rss)
+    cat("\nR square:",obj$r.squared)
     ## selected summaries
-    cat("\n\nPenalty associated with the fit:",x$pen)
+    cat("\n\nPenalty associated with the fit:",obj$pen)
     cat("\n\n")
     invisible()
 }
 
 ## Print function for summary.gssanova objects
-print.summary.gssanova <- function (x,digits=6)
+print.summary.gssanova <- function (obj,digits=6)
 {
     ## call
-    cat("\nCall:\n",deparse(x$call),"\n",sep="")
-    if (x$method=="u")
-        cat("\n(Dispersion parameter for ",x$family,
-            " family taken to be ",format(x$dispersion),")\n\n",sep="")
-    if (x$method=="v")
-        cat("\n(Dispersion parameter for ",x$family,
-            " family estimated to be ",format(x$dispersion),")\n\n",sep="")
+    cat("\nCall:\n",deparse(obj$call),"\n",sep="")
+    if (obj$method=="u")
+        cat("\n(Dispersion parameter for ",obj$family,
+            " family taken to be ",format(obj$dispersion),")\n\n",sep="")
+    if (obj$method=="v")
+        cat("\n(Dispersion parameter for ",obj$family,
+            " family estimated to be ",format(obj$dispersion),")\n\n",sep="")
     ## residuals
-    res <- x$res
+    res <- obj$res
     cat("Working residuals:\n")
     nam <- c("Min", "1Q", "Median", "3Q", "Max")
     rq <- structure(quantile(res), names = nam)
     print(rq,digits=digits)
-    cat("Residual sum of squares:",x$rss,"\n")
+    cat("Residual sum of squares:",obj$rss,"\n")
     ## deviance residuals
-    res <- x$dev.res
+    res <- obj$dev.res
     cat("\nDeviance residuals:\n")
     nam <- c("Min", "1Q", "Median", "3Q", "Max")
     rq <- structure(quantile(res), names = nam)
     print(rq,digits=digits)
-    cat("Deviance:",x$deviance)
-    cat("\nNull deviance:",x$dev.null)
+    cat("Deviance:",obj$deviance)
+    cat("\nNull deviance:",obj$dev.null)
     ## selected summaries
-    cat("\n\nPenalty associated with the fit:",x$pen)
-    cat("\n\nNumber of performance-oriented iterations:",x$iter)
+    cat("\n\nPenalty associated with the fit:",obj$pen)
+    cat("\n\nNumber of performance-oriented iterations:",obj$iter)
     cat("\n\n")
     invisible()
 }

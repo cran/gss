@@ -1,4 +1,5 @@
 \name{mkrk.factor}
+\alias{mkrk.factor}
 \alias{mkrk.nominal}
 \alias{mkrk.ordinal}
 \title{
@@ -16,6 +17,8 @@ mkrk.ordinal(levels)
     \item{levels}{Levels of the factor.}
 }
 \details{
+    These are not to be called by the user.
+
     For a nominal factor with levels \eqn{1,2,\dots,k}, the level means
     \eqn{f(i)} will be shrunk towards each other through a penalty
     proportional to
@@ -41,4 +44,4 @@ mkrk.ordinal(levels)
     \code{\link{mkterm.ssanova}}, \code{\link{mkfun.poly}},
     \code{\link{mkfun.tp}}.
 }
-\keyword{smooth}
+\keyword{internal}

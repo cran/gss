@@ -14,7 +14,7 @@
     }
 }
 \source{
-  Miller, R. G. and Halpern, J. (1982).  Regression with censored data.
+  Miller, R. G. and Halpern, J. (1982), Regression with censored data.
   \emph{Biometrika}, \bold{69}, 521--531.
 }
 \keyword{datasets}

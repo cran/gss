@@ -16,17 +16,17 @@
     }
 }
 \source{
-    Brinkman, N. D. (1981).  Ethanol fuel -- a single-cylinder engine
+    Brinkman, N. D. (1981), Ethanol fuel -- a single-cylinder engine
     study of efficiency and exhaust emissions.  \emph{SAE Transactions},
     \bold{90}, 1410--1424.
 }
 \references{
-    Cleveland, W. S. and Devlin, S. J. (1988).  Locally weighted
+    Cleveland, W. S. and Devlin, S. J. (1988), Locally weighted
     regression: An approach to regression analysis by local fitting.
     \emph{Journal of the American Statistical Association}, \bold{83},
     596--610.
 
-    Breiman, L. (1991).  The pi method for estimating multivariate
+    Breiman, L. (1991), The pi method for estimating multivariate
     functions from noisy data.  \emph{Technometrics}, \bold{33},
     125--160. 
 }

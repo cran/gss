@@ -75,7 +75,7 @@ summary.gssanova <- function(obj,diagnostics=FALSE)
     ## Return the summaries
     z <- list(call=obj$call,family=obj$family,method=obj$method,iter=obj$iter,
               fitted=fitted,dispersion=sigma2,residuals=res/sqrt(w),rss=rss,
-              deviance=dev,dev.resid=sqrt(dev.resid)*sign(res),
+              deviance=dev,dev.resid=sqrt(dev.resid)*sign(res),alpha=obj$alpha,
               dev.null=dev.null,penalty=penalty,
               pi=decom,kappa=kappa,cosines=cosines,roughness=rough)
     class(z) <- "summary.gssanova"

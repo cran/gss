@@ -19,7 +19,8 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
 	are exponential families \code{"binomial"}, \code{"poisson"},
 	\code{"Gamma"}, \code{"inverse.gaussian"}, and
 	\code{"nbinomial"}.  Also supported are accelerated life model
-	families \code{weibull}, \code{lognorm}, and \code{loglogis}.}
+	families \code{"weibull"}, \code{"lognorm"}, and
+	\code{"loglogis"}.}
     \item{type}{Type of numerical marginals to be used.  Supported
 	are \code{type="cubic"} for cubic spline marginals,
 	\code{type="linear"} for linear spline marginals, and
@@ -41,7 +42,7 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
     \item{varht}{Dispersion parameter needed for \code{method="u"}.
 	Ignored when \code{method="v"} or \code{method="m"} are
 	specified.}
-    \item{alpha}{Inverse scale parameter in accelerate life model
+    \item{alpha}{Inverse scale parameter in accelerated life model
         families.  Ignored for exponential families.}
     \item{prec}{Precision requirement for the iterations.}
     \item{maxiter}{Maximum number of iterations allowed for
@@ -63,15 +64,17 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
     performance-oriented iteration, as described in the reference cited
     below.
 
-    Only one link is implemented for each \code{\link{family}}.  It is the
-    logit link for \code{"binomial"}, and the log link for
+    Only one link is implemented for each \code{\link{family}}.  It is
+    the logit link for \code{"binomial"}, and the log link for
     \code{"poisson"}, \code{"Gamma"}, and \code{"inverse.gaussian"}.
     For \code{"nbinomial"}, the working parameter is the logit of the
-    probability \eqn{p}; see \code{\link{NegBinomial}}.
+    probability \eqn{p}; see \code{\link{NegBinomial}}.  For
+    \code{"weibull"}, \code{"lognorm"}, and \code{"loglogis"}, it is the
+    location parameter for the log life time.
 
     For \code{family="binomial"}, \code{"poisson"}, \code{"nbinomial"},
     \code{"weibull"}, \code{"lognorm"}, and \code{"loglogis"}, the score
-    driving the performance-oriented     iteration defaults to
+    driving the performance-oriented iteration defaults to
     \code{method="u"} with \code{varht=1}.  For \code{family="Gamma"}
     and \code{"inverse.gaussian"}, the default is \code{method="v"}.
 
@@ -80,8 +83,9 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
 }
 \note{
     For \code{family="binomial"}, the response can be specified either
-    as two columns of counts or as a column of sample proportion plus a
-    column of weights, as in \code{\link{glm}}.
+    as two columns of counts or as a column of sample proportions plus a
+    column of total counts entered through the argument \code{weights},
+    as in \code{\link{glm}}.
 
     For \code{family="nbinomial"}, the response may be specified as two
     columns with the second being the known sizes, or simply as a single
