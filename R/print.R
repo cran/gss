@@ -72,3 +72,22 @@ print.summary.gssanova <- function (x,digits=6,...)
     cat("\n\n")
     invisible()
 }
+
+## Print function for ssden objects
+print.ssden <- function(x,...)
+{
+    ## call
+    cat("\nCall:\n",deparse(x$call),"\n\n",sep="")
+    ## terms
+    cat("Terms:\n")
+    print.default(x$terms$labels)
+    cat("\n")
+    ## terms overview
+    cat("Number of fixed and random effects:\n\n")
+    print.default(x$desc)
+    cat("\n")
+    cat("Smoothing parameters are selected by CV with alpha=",x$alpha,".",sep="")
+    cat("\n")
+    ## the rest are suppressed
+    invisible()
+}

@@ -136,6 +136,9 @@ lines(x,p,col=1)
 lines(x,1-1/(1+exp(est$fit)),col=2)
 lines(x,1-1/(1+exp(est$fit+1.96*est$se)),col=3)
 lines(x,1-1/(1+exp(est$fit-1.96*est$se)),col=3)
+## Clean up
+\dontrun{rm(test,x,p,y,logit.fit,logit.fit1,est)
+dev.off()}
 }
 \keyword{models}
 \keyword{regression}

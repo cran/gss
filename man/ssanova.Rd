@@ -154,9 +154,12 @@ est <- predict(cubic.fit,new,se=TRUE)
 plot(x,y,col=1); lines(new$x,est$fit,col=2)
 lines(new$x,est$fit+1.96*est$se,col=3)
 lines(new$x,est$fit-1.96*est$se,col=3)
+## Clean up
+\dontrun{rm(x,y,cubic.fit,tp.fit,new,est)
+dev.off()}
 
-data(nox)
 ## Fit a tensor product cubic spline
+data(nox)
 nox.fit <- ssanova(log10(nox)~comp*equi,data=nox)
 ## Fit a spline with cubic and nominal marginals
 nox$comp<-as.factor(nox$comp)
@@ -164,6 +167,8 @@ nox.fit.n <- ssanova(log10(nox)~comp*equi,data=nox)
 ## Fit a spline with cubic and ordinal marginals
 nox$comp<-as.ordered(nox$comp)
 nox.fit.o <- ssanova(log10(nox)~comp*equi,data=nox)
+## Clean up
+\dontrun{rm(nox,nox.fit,nox.fit.n,nox.fit.o)}
 }
 \keyword{smooth}
 \keyword{models}

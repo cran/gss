@@ -60,6 +60,9 @@ est <- predict(fit,new,se=TRUE,inc="geog")
 par(pty="s")
 contour(grid,grid,matrix(est$fit,21,21),col=1)
 contour(grid,grid,matrix(est$se,21,21),add=TRUE,col=2)
+## Clean up
+\dontrun{rm(LakeAcidity,fit,new,grid,est)
+dev.off()}
 }
 \keyword{models}
 \keyword{regression}

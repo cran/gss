@@ -1,7 +1,9 @@
 \name{mkterm.ssanova}
 \alias{mkterm.ssanova}
 \alias{mkterm.linear}
+\alias{mkterm.linear1}
 \alias{mkterm.cubic}
+\alias{mkterm.cubic1}
 \alias{mkterm.tp}
 \title{
     Assembling Model Terms for Smoothing Spline ANOVA Models
@@ -12,12 +14,15 @@
 }
 \usage{
 mkterm.linear(mf, ext)
+mkterm.linear1(mf, range)
 mkterm.cubic(mf, ext)
+mkterm.cubic1(mf, range)
 mkterm.tp(mf, order, mesh, weight)
 }
 \arguments{
     \item{mf}{Model frame of the model formula.}
     \item{ext}{Size of the "buffer zone" beyond the data range.}
+    \item{range}{Data frame specifying domain range.}
     \item{order}{Order of the differential operator.}
     \item{mesh}{Normalizing mesh.}
     \item{weight}{Normalizing weights.}

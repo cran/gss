@@ -1,4 +1,4 @@
-## SSANOVA AND GSSANOVA SUITES
+## SSANOVA, GSSANOVA, AND SSDEN SUITES
 ssanova                     Fitting smoothing spline ANOVA models
 predict.ssanova             Predicting from ssanova fits
 summary.ssanova             Summarizing ssanova fits
@@ -13,12 +13,23 @@ residuals.gssanova          Extracting the residuals from gssanova objects
 fitted.gssanova             Extracting the fitted values from gssanova objects
 print.summary.gssanova      Print function for summary.gssanova objects
 
+ssden                       Estimating Probability Density Using Smoothing Splines
+dssden                      Evaluating pdf of ssden estimates
+pssden                      Evaluating cdf of 1-D ssden estimates
+qssden                      Evaluating quantiles of 1-D ssden estimates
+cdssden                     Evaluating conditional pdf of ssden estimates
+cpssden                     Evaluating 1-D conditional cdf of ssden estimates
+cqssden                     Evaluating 1-D conditional quantiles of ssden estimates
+print.ssden                 Print function for ssden objects
+
 ## UTILITIES FOR MAKING MODEL TERMS
 mkterm.cubic                Making model terms for cubic spline marginals
+mkterm.cubic1               Making model terms for cubic spline marginals
 mkphi.cubic                 Making phi function for cubic splines
 mkrk.cubic                  Making RK function for cubic splines
 
 mkterm.linear               Making model terms for linear spline marginals
+mkterm.linear1              Making model terms for linear spline marginals
 mkrk.linear                 Making RK function for linear splines
 
 mkterm.tp                   Making model terms for thin-plate spline marginals
@@ -63,6 +74,11 @@ mkdata.loglogis             Making pseudo data for log logistic regression
 dev.resid.loglogis          Deviance residuals for log logistic regression
 dev.null.loglogis           Null model deviance for log logistic regression
 
+## UTILITIES FOR NUMERICAL INTEGRATION
+gauss.quad                  Generating Gauss-Legendre quadrature
+smolyak.quad                Generating Smolyak cubature
+smolyak.size                Getting the size of Smolyak cubature
+
 ## NUMERICAL ENGINE
 sspreg                      An interface to RKPACK driver DSIDR
 sspregpoi                   Performance-oriented iteration using RKPACK driver DSIDR
@@ -70,3 +86,6 @@ mspreg                      An interface to RKPACK driver DMUDR
 mspregpoi                   Performance-oriented iteration using RKPACK driver DMUDR
 getcrdr                     An interface to RKPACK utility DCRDR
 getsms                      An interface to RKPACK utility DSMS
+
+sspdsty                     Compute density estimate with single smoothing parameter
+mspdsty                     Compute density estimate with multiple smoothing parameters

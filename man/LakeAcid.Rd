@@ -44,6 +44,9 @@
     y <- sin(lat-m.lat)
     cbind(x,y)
 }
-convert(LakeAcidity$lat,LakeAcidity$lon)}
+data(LakeAcidity)
+convert(LakeAcidity$lat,LakeAcidity$lon)
+## Clean up
+rm(LakeAcidity,convert)}
 }
 \keyword{datasets}

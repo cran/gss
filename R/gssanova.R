@@ -14,6 +14,7 @@ gssanova <- function(formula,family,type="cubic",data=list(),
     if (type=="cubic") term <- mkterm.cubic(mf,ext)
     if (type=="linear") term <- mkterm.linear(mf,ext)
     if (type=="tp") term <- mkterm.tp(mf,order,mf,1)
+    if (is.null(term)) stop("gss error in gssanova: unknown type")
     ## Specify default method
     if (is.null(method)) {
         method <- switch(family,
@@ -55,7 +56,7 @@ gssanova <- function(formula,family,type="cubic",data=list(),
     if (!is.null(partial)) {
         if (is.vector(partial)) partial <- as.matrix(partial)
         if (dim(partial)[1]!=dim(mf)[1])
-            stop("gss error: partial data are of wrong size")
+            stop("gss error in gssanova: partial data are of wrong size")
         term$labels <- c(term$labels,"partial")
         term$partial <- list(nphi=dim(partial)[2],nrk=0,
                              iphi=ifelse(is.null(s),0,dim(s)[2])+1)
@@ -63,7 +64,7 @@ gssanova <- function(formula,family,type="cubic",data=list(),
         mf$partial <- partial
     }
     if (qr(s)$rank<dim(s)[2])
-        stop("gss error: fixed effects are linearly dependent")
+        stop("gss error in gssanova: fixed effects are linearly dependent")
     y <- model.response(mf,"numeric")
     wt <- model.weights(mf)
     offset <- model.offset(mf)
@@ -71,7 +72,7 @@ gssanova <- function(formula,family,type="cubic",data=list(),
         term$labels <- c(term$labels,"offset")
         term$offset <- list(nphi=0,nrk=0)
     }
-    if (!nq) stop("use glm for models with only fixed effects")
+    if (!nq) stop("gss error in gssanova: use glm for models with only fixed effects")
     ## Fit the model
     if (nq==1) {
         q <- q[,,1]

@@ -29,7 +29,7 @@ sspreg <- function(s,q,y,method="v",varht=1)
                   c=double(nobs), d=double(nnull),
                   qraux=double(nnull), jpvt=integer(nnull),
                   double(3*nobs),
-                  info=integer(1))
+                  info=integer(1),PACKAGE="gss")
     ## Check info for error
     if (info<-z$info) {               
         if (info>0)
@@ -81,7 +81,7 @@ mspreg <- function(s,q,y,method="v",varht=1,prec=1e-7,maxiter=30)
                   score=double(1), varht=as.double(varht),
                   c=double(nobs), d=double(nnull),
                   double(nobs*nobs*(nq+2)),
-                  info=integer(1))[c("theta","info")]
+                  info=integer(1),PACKAGE="gss")[c("theta","info")]
     ## Check info for error
     if (info<-z$info) {               
         if (info>0)
@@ -111,7 +111,7 @@ mspreg <- function(s,q,y,method="v",varht=1,prec=1e-7,maxiter=30)
                    c=double(nobs), d=double(nnull),
                    qraux=double(nnull), jpvt=integer(nnull),
                    double(3*nobs),
-                   info=integer(1))
+                   info=integer(1),PACKAGE="gss")
     ## Return the fit
     c(list(method=method,theta=z$theta),
       zz[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])
@@ -141,7 +141,7 @@ getcrdr <- function(obj,r)
                   as.double(r), as.integer(nobs), as.integer(nr),
                   cr=double(nobs*nr), as.integer(nobs),
                   dr=double(nnull*nr), as.integer(nnull),
-                  double(2*nobs), integer(1))[c("cr","dr")]
+                  double(2*nobs), integer(1),PACKAGE="gss")[c("cr","dr")]
     ## Return cr and dr
     z$cr <- matrix(z$cr,nobs,nr)
     z$dr <- matrix(z$dr,nnull,nr)
@@ -165,7 +165,7 @@ getsms <- function(obj)
                   as.double(obj$qwk), as.integer(nobs),
                   as.double(obj$nlambda),
                   sms=double(nnull*nnull), as.integer(nnull),
-                  double(2*nobs), integer(1))["sms"]
+                  double(2*nobs), integer(1),PACKAGE="gss")["sms"]
     ## Return the nnull-by-nnull matrix
     matrix(z$sms,nnull,nnull)
 }

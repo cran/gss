@@ -1,3 +1,17 @@
+Mon Jun 24 16:44:38 EST 2002, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.7-2.
+
+	* INDEX: Added ssden and related functions.
+
+	* R: Added the ssden suite for density estimation.
+
+	* data: Added buffalo, aids.
+
+	* man: Added documentations for the new entries in R and data.
+
+	* src: Added routines to support the ssden suite.
+
 Tue May 14 06:35:45 EST 2002, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.6-5.

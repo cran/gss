@@ -52,7 +52,7 @@ sspregpoi <- function(family,s,q,y,wt,offset,method="u",
                       c=double(nobs), d=double(nnull),
                       qraux=double(nnull), jpvt=integer(nnull),
                       double(3*nobs),
-                      info=integer(1))
+                      info=integer(1),PACKAGE="gss")
         ## Check info for error
         if (info<-z$info) {               
             if (info>0)
@@ -70,7 +70,7 @@ sspregpoi <- function(family,s,q,y,wt,offset,method="u",
         limnla <- pmax(z$nlambda+c(-.5,.5),nla0-5)
         if (disc<prec) break
         if (iter>=maxiter) {
-            warning("gss warning: performance-oriented iteration fails to converge")
+            warning("gss warning in gssanova: performance-oriented iteration fails to converge")
             break
         }
         eta <- eta.new
@@ -141,7 +141,7 @@ mspregpoi <- function(family,s,q,y,wt,offset,method="u",
                       score=double(1), varht=as.double(varht),
                       c=double(nobs), d=double(nnull),
                       double(nobs*nobs*(nq+2)),
-                      info=integer(1))[c("theta","nlambda","c","info")]
+                      info=integer(1),PACKAGE="gss")[c("theta","nlambda","c","info")]
         ## Check info for error
         if (info<-z$info) {               
             if (info>0)
@@ -162,7 +162,7 @@ mspregpoi <- function(family,s,q,y,wt,offset,method="u",
         disc <- sum(dat$wt*((eta-eta.new)/(1+abs(eta)))^2)/sum(dat$wt)
         if (disc<prec) break
         if (iter>=maxiter) {
-            warning("gss warning: performance-oriented iteration fails to converge")
+            warning("gss warning in gssanova: performance-oriented iteration fails to converge")
             break
         }
         init <- 1
@@ -183,7 +183,7 @@ mspregpoi <- function(family,s,q,y,wt,offset,method="u",
                   c=double(nobs), d=double(nnull),
                   qraux=double(nnull), jpvt=integer(nnull),
                   double(3*nobs),
-                  info=integer(1))
+                  info=integer(1),PACKAGE="gss")
     ## Check info for error
     if (info<-z$info) {               
         if (info>0)

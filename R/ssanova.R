@@ -13,6 +13,7 @@ ssanova <- function(formula,type="cubic",data=list(),
     if (type=="cubic") term <- mkterm.cubic(mf,ext)
     if (type=="linear") term <- mkterm.linear(mf,ext)
     if (type=="tp") term <- mkterm.tp(mf,order,mf,1)
+    if (is.null(term)) stop("gss error in ssanova: unknown type")
     ## Generate s, q, and y
     nobs <- dim(mf)[1]
     s <- q <- NULL
@@ -42,7 +43,7 @@ ssanova <- function(formula,type="cubic",data=list(),
     if (!is.null(partial)) {
         if (is.vector(partial)) partial <- as.matrix(partial)
         if (dim(partial)[1]!=dim(mf)[1])
-            stop("gss error: partial data are of wrong size")
+            stop("gss error in ssanova: partial data are of wrong size")
         term$labels <- c(term$labels,"partial")
         term$partial <- list(nphi=dim(partial)[2],nrk=0,
                              iphi=ifelse(is.null(s),0,dim(s)[2])+1)
@@ -65,8 +66,8 @@ ssanova <- function(formula,type="cubic",data=list(),
         for (i in 1:nq) q[,,i] <- w*t(w*q[,,i])
     }
     if (qr(s)$rank<dim(s)[2])
-        stop("gss error: fixed effects are linearly dependent")
-    if (!nq) stop("use lm for models with only fixed effects")
+        stop("gss error in ssanova: fixed effects are linearly dependent")
+    if (!nq) stop("gss error in ssanova: use lm for models with only fixed effects")
     ## Fit the model
     if (nq==1) {
         q <- q[,,1]

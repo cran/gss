@@ -40,7 +40,7 @@ summary.ssanova <- function(object,diagnostics=FALSE,...)
         term.label <- object$terms$labels[object$terms$labels!="1"]
         term.label <- term.label[term.label!="offset"]
         if (any(outer(term.label,c("yhat","y","e"),"==")))
-            warning("gss warning: avoid using yhat, y, or e as variable names")
+            warning("gss warning in summary.ssanova: avoid using yhat, y, or e as variable names")
         colnames(comp) <- c(term.label,"yhat","y","e")
         ## Sweep out constant
         if (!is.null(w))
