@@ -89,7 +89,7 @@ sshzd <- function(formula,type="cubic",data=list(),alpha=1.4,
         x.pt <- unique(xx)
         nx <- dim(x.pt)[1]
         x.dup.ind <- duplicated(xx)
-        x.dup <- xx[x.dup.ind,drop=FALSE]
+        x.dup <- xx[x.dup.ind,,drop=FALSE]
         ## xx[i,]==x.pt[x.ind[i],]
         x.ind <- 1:nobs
         x.ind[!x.dup.ind] <- 1:nx
@@ -246,7 +246,7 @@ msphzd <- function(s,r,q,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         for (i in 1:nq) {
             r.wk <- r.wk + 10^theta[i]*r[,,i]
             q.wk <- q.wk + 10^theta[i]*q[,,i]
-            if (dim(qd.r[[i]])==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
+            if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
             else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
         }
         qd.r.wk <- aperm(qd.r.wk,c(1,3,2))
@@ -278,7 +278,7 @@ msphzd <- function(s,r,q,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     nq <- length(theta)
     qd.r.wk <- array(0,c(nqd,nxi,nx))
     for (i in 1:nq) {
-        if (dim(qd.r[[i]])==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
+        if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
         else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
     }
     v.s <- v.r <- 0
@@ -318,7 +318,7 @@ msphzd <- function(s,r,q,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     qd.r.wk <- array(0,c(nqd,nxi,nx))
     for (i in 1:nq) {
         theta[i] <- 2*theta[i] + log10(t(cd[1:nxi])%*%q[,,i]%*%cd[1:nxi])
-        if (dim(qd.r[[i]])==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
+        if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
         else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
     }
     v.s <- v.r <- 0

@@ -5,7 +5,7 @@
     Survival of gastric cancer patients under chemotherapy and
     chemotherapy-radiotherapy combination.
 }
-\usage{data(stan)}
+\usage{data(gastric)}
 \format{
     A data frame containing 90 observations on the following variables.
     \tabular{ll}{

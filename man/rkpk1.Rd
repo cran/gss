@@ -5,7 +5,7 @@
 \alias{mspngreg1}
 \alias{ngreg1}
 \alias{ngreg.proj}
-\title{Numerical Engine for ssanova1}
+\title{Numerical Engine for ssanova1 and gssanova1}
 \description{
     Calculate penalized least squares regression estimates via the
     normal equation and evaluate the GCV, GML, or Mallows' CL scores, as

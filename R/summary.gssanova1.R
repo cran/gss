@@ -49,6 +49,8 @@ summary.gssanova1 <- function(object,diagnostics=FALSE,...)
         term.label <- object$terms$labels[object$terms$labels!="1"]
         term.label <- term.label[term.label!="offset"]
         if (!is.null(object$random)) {
+            mf <- object$mf
+            mf$random <- object$random$z
             comp <- cbind(comp,predict(object,mf,inc=NULL))
             p.dec <- c(p.dec,p.ran)
             term.label <- c(term.label,"random")

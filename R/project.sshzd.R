@@ -82,7 +82,7 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
         if (nq-1) theta.wk[-fix] <- theta1
         qd.r.wk <- array(0,c(nqd,nxi,nx))
         for (i in 1:nq) {
-            if (dim(qd.r[[i]])==3) qd.r.wk <- qd.r.wk + 10^theta.wk[i]*qd.r[[i]]
+            if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta.wk[i]*qd.r[[i]]
             else qd.r.wk <- qd.r.wk + as.vector(10^theta.wk[i]*qd.r[[i]])
         }
         qd.r.wk <- aperm(qd.r.wk,c(1,3,2))
@@ -107,7 +107,7 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
     ## initialization
     qd.r.wk <- array(0,c(nqd,nxi,nx))
     for (i in 1:nq) {
-        if (dim(qd.r[[i]])==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
+        if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
         else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
     }
     v.s <- v.r <- 0

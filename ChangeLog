@@ -1,3 +1,10 @@
+Thu Jun 26 11:31:14 EST 2003, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.8-3.
+
+	* R: i) Bug fixes in sshzd and project.sshzd.  ii) Miner fixes in
+	documentation.
+
 Sun Mar  2 10:43:35 EST 2003, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.8-2.

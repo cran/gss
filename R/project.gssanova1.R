@@ -70,6 +70,7 @@ project.gssanova1 <- function(object,include,...)
             philist <- c(philist,object$term$partial$iphi+(i-1))
         s <- cbind(s,object$mf$partial)
     }
+    if (!is.null(object$random)) s <- cbind(s,object$random$z)
     ## calculate projection
     my.wls <- function(theta1=NULL) {
         theta.wk <- 1:nq
@@ -94,7 +95,7 @@ project.gssanova1 <- function(object,include,...)
     for (i in 1:nq) tmp <- c(tmp,10^theta[i]*sum(r[cbind(object$id.basis,1:nxi,i)]))
     fix <- rev(order(tmp))[1]
     ## projection
-    dc <- c(object$d[philist],10^(-theta.wk)*object$c)
+    dc <- c(object$d[philist],object$b,10^(-theta.wk)*object$c)
     fit1 <- NULL
     if (nq-1) {
         zz <- nlm(my.wls,theta[-fix],stepmax=.5,ndigit=7)
