@@ -14,6 +14,7 @@
 
 # include <math.h>
 # include <stdio.h>
+# include <stdlib.h>
 
 /* replace # include "smolyak.h" by one line -- C. Gu */
 # define maxdim 40
@@ -205,7 +206,6 @@ double eval(int k)
 void eval1(int k, double *pt, double *wt)
 {
     int i;
-    double dummy;
     if (k==0)     eval1(1,pt,wt);
     else if (k==d+1) {
 	wtt = coeff(); 
@@ -228,7 +228,7 @@ double coeff ( )
      /* looks for existing coefficient or calls its
 	calculation                                         */
 {
-  int r,i,j,l;
+  int i,j;
   struct tnode *p, *pt;
   p=root;
 
@@ -441,7 +441,6 @@ double fsum (int k)
 void fsum1 (int k, double *pt, double *wt)
 {
     int i;
-    double dummy;
     if (k==0)       fsum1(1,pt,wt);
     else if (k==d+1)
     {

@@ -41,7 +41,7 @@ sspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     la <- log.la0
     counter <- 0
     repeat {
-        fit <- nlm(cv,log.la0,stepmax=1,ndigit=7)
+        fit <- nlm(cv,la,stepmax=1,ndigit=7)
         if (fit$code<=3) break
         la <- fit$est
         counter <- counter + 1
@@ -71,9 +71,7 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     if (is.null(cnt)) cnt <- 0
     ## cv function
     cv <- function(theta) {
-        r.wk <- matrix(0,dim(r)[1],dim(r)[2])
-        q.wk <- matrix(0,dim(q)[1],dim(q)[2])
-        qd.r.wk <- matrix(0,dim(qd.r)[1],dim(qd.r)[2])
+        r.wk <- q.wk <- qd.r.wk <- 0
         for (i in 1:nq) {
             r.wk <- r.wk + 10^theta[i]*r[,,i]
             q.wk <- q.wk + 10^theta[i]*q[,,i]
@@ -102,9 +100,7 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     }
     ## initialization
     theta <- -log10(apply(q,3,function(x)sum(diag(x))))
-    r.wk <- matrix(0,dim(r)[1],dim(r)[2])
-    q.wk <- matrix(0,dim(q)[1],dim(q)[2])
-    qd.r.wk <- matrix(0,dim(qd.r)[1],dim(qd.r)[2])
+    r.wk <- q.wk <- qd.r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^theta[i]*r[,,i]
         q.wk <- q.wk + 10^theta[i]*q[,,i]

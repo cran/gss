@@ -1,3 +1,14 @@
+Thu Jun 27 12:03:26 EST 2002, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.7-3.
+
+	* R: Minor changes in ssden and related functions.
+
+	* man: Minor changes to reflect code change.
+
+	* src: Removed dchdc.f and dtrsl.f.  Added an include line as
+	suggested by Kurt Hornik.
+
 Mon Jun 24 16:44:38 EST 2002, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.7-2.

@@ -13,7 +13,7 @@ ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
     mf$prec <- mf$maxiter <- mf$order <- NULL
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf,sys.frame(sys.parent()))
-    cnt <- weight
+    cnt <- model.weights(mf)
     if (is.null(domain)) {
         mn <- apply(mf,2,min)
         mx <- apply(mf,2,max)
@@ -27,7 +27,7 @@ ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
     if (type=="tp") {
         if (is.null(quadrature))
             stop("gss error in ssden: quadrature needed for type tp")
-        term <- mkterm.tp(mf,order,mf,1)
+        term <- mkterm.tp(mf,order,mf[id.basis,],1)
     }
     if (is.null(term)) stop("gss error in ssden: unknown type")
     term$labels <- term$labels[term$labels!="1"]
@@ -39,7 +39,11 @@ ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
         if (!is.null(seed))  set.seed(seed)
         id.basis <- sample(nobs,nbasis,prob=cnt)
     }
-    else nbasis <- length(id.basis)
+    else {
+        if (max(id.basis)>nobs|min(id.basis)<1)
+            stop("gss error in ssden: id.basis out of range")
+        nbasis <- length(id.basis)
+    }
     ## Generate default quadrature
     if (is.null(quadrature)) {
         ## TO DO: HANDLING OF FACTORS
