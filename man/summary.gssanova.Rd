@@ -1,49 +1,57 @@
 \name{summary.gssanova}
+\alias{summary.gssanova}
 \title{Assessing Smoothing Spline ANOVA Fits with Non Gaussian Responses}
+\description{
+    Calculate various summaries of smoothing spline ANOVA fits with non
+    Gaussian responses.
+}
 \usage{
 summary[.gssanova](obj, diagnostics=FALSE)
 }
 \arguments{
-    \item{obj}{an object of class \code{"gssanova"}.}
-    \item{diagnostics}{a logical flag.}
-}
-\description{
-    \code{summary.gssanova} calculates various summaries of smoothing
-    spline ANOVA fits with non Gaussian responses.
+    \item{obj}{Object of class \code{"gssanova"}.}
+    \item{diagnostics}{Flag indicating if diagnostics are required.}
 }
 \value{
     \code{summary.gssanova} returns a list object of \code{\link{class}}
     \code{"summary.gssanova"} consisting of the following components.
-    The entries \code{kappa}, \code{cosines}, and \code{roughness} are
-    only calculated for \code{diagnostics=TRUE}.
-    \item{call}{the fitting call.}
-    \item{family}{the error distribution.}
-    \item{method}{the smoothing parameter selection method.}
-    \item{dispersion}{the assumed or estimated dispersion parameter.}
-    \item{iter}{the number of performance-oriented iterations performed.}
-    \item{fitted}{the fitted values on the scale of link.}
-    \item{residuals}{the working residuals.}
-    \item{rss}{the residual sum of squares.}
-    \item{dev.resid}{the deviance residuals.}
-    \item{deviance}{the deviance of the fit.}
-    \item{dev.null}{the deviance of the null model.}
-    \item{penalty}{the penalty associated with the fit.}
-    \item{kappa}{the concurvity diagnostics for model terms.  These are
-	virtually the variance inflation factors of a retrospective
+    The entries \code{pi}, \code{kappa}, \code{cosines}, and
+    \code{roughness} are only calculated if \code{diagnostics=TRUE}.
+    \item{call}{Fitting call.}
+    \item{family}{Error distribution.}
+    \item{method}{Method for smoothing parameter selection.}
+    \item{dispersion}{Assumed or estimated dispersion parameter.}
+    \item{iter}{Number of performance-oriented iterations performed.}
+    \item{fitted}{Fitted values on the scale of the link.}
+    \item{residuals}{Working residuals on the link scale.}
+    \item{rss}{Residual sum of squares.}
+    \item{dev.resid}{Deviance residuals.}
+    \item{deviance}{Deviance of the fit.}
+    \item{dev.null}{Deviance of the null model.}
+    \item{penalty}{Roughness penalty associated with the fit.}
+    \item{pi}{"Percentage decomposition" of "explained variance" into
+	model terms.}
+    \item{kappa}{Concurvity diagnostics for model terms.  Virtually the
+	square roots of variance inflation factors of a retrospective
 	linear model.}
-    \item{cosines}{the cosine diagnostics for practical significance of
-	the model terms.}
-    \item{roughness}{the roughness of individual model terms as
-	percentages of the overall roughness, which is proportional to
-	\code{penalty}.}
+    \item{cosines}{Cosine diagnostics for practical significance of
+	model terms.}
+    \item{roughness}{Percentage decomposition of the roughness penalty
+	\code{penalty} into model terms.}
+}
+\details{
+    Similar to the iterated weighted least squares fitting of
+    \code{\link{glm}}, penalized likelihood regression fit can be calculated
+    through iterated penalized weighted least squares.
+
+    The diagnostics are based on the "pseudo" Gaussian response model
+    behind the weighted least squares problem at convergence.
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \seealso{
-    The model fitting function \code{\link{gssanova}} and the predicting
-    function \code{\link{predict.ssanova}}.
+    Fitting function \code{\link{gssanova}} and methods
+    \code{\link{predict.ssanova}}, \code{\link{fitted.gssanova}}.
 }
-\keyword{gssanova}
 \keyword{models}
 \keyword{regression}
-\keyword{smoothing}
-\keyword{spline}
+\keyword{smooth}

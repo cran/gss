@@ -27,6 +27,9 @@ mkphi.tp.p                  Making pseudo phi functions for thin-plate splines
 mkrk.tp                     Making RK functions for thin-plate splines
 mkrk.tp.p                   Making pseudo RK functions for thin-plate splines
 
+mkrk.nominal                Making RK function for nominal factors
+mkrk.ordinal                Making RK function for ordinal factors
+
 ## UTILITIES FOR DISTRIBUTION FAMILIES
 mkdata.binomial             Making pseudo data for logistic regression
 dev.resid.binomial          Deviance residuals for logistic regression

@@ -1,46 +1,50 @@
 \name{summary.ssanova}
+\alias{summary.ssanova}
 \title{Assessing Smoothing Spline ANOVA Fits}
+\description{
+    Calculate various summaries of smoothing spline ANOVA fits.
+}
 \usage{
 summary[.ssanova](obj, diagnostics=FALSE)
 }
 \arguments{
-    \item{obj}{an object of class \code{"ssanova"}.}
-    \item{diagnostics}{a logical flag.}
-}
-\description{
-    \code{summary.ssanova} calculates various summaries of smoothing
-    spline ANOVA fits.
+    \item{obj}{Object of class \code{"ssanova"}.}
+    \item{diagnostics}{Flag indicating if diagnostics are required.}
 }
 \value{
     \code{summary.ssanova} returns a list object of \code{\link{class}}
     \code{"summary.ssanova"} consisting of the following components.
-    The entries \code{kappa}, \code{cosines}, and \code{roughness} are
-    only calculated for \code{diagnostics=TRUE}.
-    \item{call}{the fitting call.}
-    \item{method}{the smoothing parameter selection method.}
-    \item{fitted}{the fitted values.}
-    \item{residuals}{the residuals.}
-    \item{sigma}{the square root of the estimated variance of the random
-	error.}
-    \item{r.squared}{the "fraction of variance explained by the model".}
-    \item{rss}{the residual sum of squares.}
-    \item{penalty}{the penalty associated with the fit.}
-    \item{kappa}{the concurvity diagnostics for model terms.  These are
-	virtually the variance inflation factors of a retrospective
+    The entries \code{pi}, \code{kappa}, \code{cosines}, and
+    \code{roughness} are only calculated if \code{diagnostics=TRUE}; see
+    the reference below for details concerning the diagnostics.
+    \item{call}{Fitting call.}
+    \item{method}{Method for smoothing parameter selection.}
+    \item{fitted}{Fitted values.}
+    \item{residuals}{Residuals.}
+    \item{sigma}{Assumed or estimated error standard deviation.}
+    \item{r.squared}{Fraction of "explained variance" by the fitted model.}
+    \item{rss}{Residual sum of squares.}
+    \item{penalty}{Roughness penalty associated with the fit.}
+    \item{pi}{"Percentage decomposition" of "explained variance" into
+	model terms.}
+    \item{kappa}{Concurvity diagnostics for model terms.  Virtually the
+	square roots of variance inflation factors of a retrospective
 	linear model.}
-    \item{cosines}{the cosine diagnostics for practical significance of
-	the model terms.}
-    \item{roughness}{the roughness of individual model terms as
-	percentages of the overall roughness, which is proportional to
-	\code{penalty}.}
+    \item{cosines}{Cosine diagnostics for practical significance of
+	model terms.}
+    \item{roughness}{Percentage decomposition of the roughness penalty
+	\code{penalty} into model terms.}
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
-\seealso{
-    The model fitting function \code{\link{ssanova}} and the predicting
-    function \code{\link{predict.ssanova}}.
+\references{
+    Gu, C. (1992), Diagnostics for nonparametric regression models with
+    additive terms.  \emph{Journal of the American Statistical
+	Association}, \bold{87}, 1051--1058.
 }
-\keyword{ssanova}
+\seealso{
+    Fitting function \code{\link{ssanova}} and methods
+    \code{\link{predict.ssanova}}, \code{\link{fitted.ssanova}}.
+}
 \keyword{models}
 \keyword{regression}
-\keyword{smoothing}
-\keyword{spline}
+\keyword{smooth}

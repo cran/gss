@@ -1,55 +1,56 @@
 \name{ssanova}
+\alias{ssanova}
 \title{Fitting Smoothing Spline ANOVA Models}
+\description{
+    Fit smoothing spline ANOVA models with cubic spline, linear spline,
+    or thin-plate spline marginals for numerical variables.  Factors are
+    also accepted.  The symbolic model specification via \code{formula}
+    follows the same rules as in \code{\link{lm}}.
+}
 \usage{
 ssanova(formula, type="cubic", data=list(), weights, subset,
         offset, na.action=na.omit, partial=NULL, method="v",
         varht=1, prec=1e-7, maxiter=30, ext=.05, order=2)
 }
 \arguments{
-    \item{formula}{a symbolic description of the model to be fit.}
-    \item{type}{the type of marginals to be used.  Supported currently
-	are \code{type="cubic"} for cubic spline marginals,
+    \item{formula}{Symbolic description of the model to be fit.}
+    \item{type}{Type of numerical marginals to be used.  Supported are
+	\code{type="cubic"} for cubic spline marginals,
 	\code{type="linear"} for linear spline marginals, and
 	\code{type="tp"} for thin-plate spline marginals.}
-    \item{data}{an optional data frame containing the variables in the
+    \item{data}{Optional data frame containing the variables in the
 	model.}
-    \item{weights}{an optional vector of weights to be used in the
+    \item{weights}{Optional vector of weights to be used in the
 	fitting process.}
-    \item{subset}{an optional vector specifying a subset of observations
+    \item{subset}{Optional vector specifying a subset of observations
 	to be used in the fitting process.}
-    \item{offset}{an optional offset term with known parameter 1.}
-    \item{na.action}{a function which indicates what should happen when
+    \item{offset}{Optional offset term with known parameter 1.}
+    \item{na.action}{Function which indicates what should happen when
 	the data contain NAs.}
-    \item{partial}{optional extra fixed effect terms in partial spline
+    \item{partial}{Optional extra fixed effect terms in partial spline
 	models.}
-    \item{method}{the method for smoothing parameter selection.
-	Supported are \code{method="v"} for GCV, \code{method="m"} for
-	type-II ML, and \code{method="u"} for Mallow's CL.}
-    \item{varht}{an external variance estimate needed for
-	\code{method="u"}.  It is ignored when \code{method="v"} or
+    \item{method}{Method for smoothing parameter selection.  Supported
+	are \code{method="v"} for GCV, \code{method="m"} for GML (REML),
+	and \code{method="u"} for Mallow's CL.}
+    \item{varht}{External variance estimate needed for
+	\code{method="u"}.  Ignored when \code{method="v"} or
 	\code{method="m"} are specified.}
-    \item{prec}{the precision in the fit required to stop the iteration
-	for multiple smoothing parameter selection.  It is ignored when
-	only one smoothing parameter is involved.}
-    \item{maxiter}{the maximum number of iterations allowed for multiple
-	smoothing parameter selection.  It is ignored when only one
-	smoothing parameter is involved.}
-    \item{ext}{for cubic spline and linear spline marginals, this option
+    \item{prec}{Precision requirement in the iteration for multiple
+	smoothing parameter selection.  Ignored when only one smoothing
+	parameter is involved.}
+    \item{maxiter}{Maximum number of iterations allowed for multiple
+	smoothing parameter selection.  Ignored when only one smoothing
+	parameter is involved.}
+    \item{ext}{For cubic spline and linear spline marginals, this option
 	specifies how far to extend the domain beyond the minimum and
 	the maximum as a percentage of the range.  The default
 	\code{ext=.05} specifies marginal domains of lengths 110 percent
 	of their respective ranges.  Prediction outside of the domain
-	will result in an error.  It is ignored if \code{type="tp"} is
+	will result in an error.  Ignored if \code{type="tp"} is
 	specified.}
-    \item{order}{for thin-plate spline marginals, this option specifies
-	the order of the marginal penalties.  It is ignored
-	if \code{type="cubic"} or \code{type="linear"} are specified.}
-}
-\description{
-    \code{ssanova} fits smoothing spline ANOVA models with cubic spline,
-    linear spline, or thin-plate spline marginals.  The symbolic model
-    specification via \code{formula} follows the same rule as in
-    \code{\link{lm}}.
+    \item{order}{For thin-plate spline marginals, this option specifies
+	the order of the marginal penalties.  Ignored if
+	\code{type="cubic"} or \code{type="linear"} are specified.}
 }
 \details{
     \code{ssanova} and the affiliated \code{\link{methods}} provide a
@@ -107,9 +108,16 @@ ssanova(formula, type="cubic", data=list(), weights, subset,
     Mathematically, the domain (through \code{ext} for
     \code{type="cubic"}) or the order (through \code{order} for
     \code{type="tp"}) could be specified individually for each of the
-    variables.  No option is provided in our implementation,
-    however, as it would be more a source for confusion rather than a
-    practical utility.
+    variables.  Such flexibility is not provided in our implementation,
+    however, as it would be more a source for confusion than a practical
+    utility.
+}
+\section{Factors}{
+    Factors are accepted as predictors.  When a factor has 3 or more
+    levels, all terms involving it are treated as random effects, with
+    the "level means" being shrunk towards each other.  The shrinking is
+    done differently for nominal and ordinal factors; see
+    \code{\link{mkrk.factor}} for details.
 }
 \value{
     \code{ssanova} returns a list object of \code{\link{class} "ssanova"}.
@@ -122,33 +130,42 @@ ssanova(formula, type="cubic", data=list(), weights, subset,
     respective traits from the fits.
 }
 \seealso{
-    \code{\link{predict.ssanova}} for predictions and
-    \code{\link{summary.ssanova}} for summaries.
+    Methods \code{\link{predict.ssanova}},
+    \code{\link{summary.ssanova}}, and \code{\link{fitted.ssanova}}.
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Wahba, G. (1990), \emph{Spline Models for Observational Data},
+    Wahba, G. (1990), \emph{Spline Models for Observational Data}.
     Philadelphia: SIAM.
+
+    Gu, C. (2000), Multivariate spline regression. In M.~G. Schimek
+    (Ed.), \emph{Smoothing and Regression: Approaches, Computation and
+	Application}.  New York: Wiley.
 }
 \examples{
-## Fit a cubic smoothing spline
+## Fit a cubic spline
 x <- runif(100); y <- 5 + 3*sin(2*pi*x) + rnorm(x)
 cubic.fit <- ssanova(y~x,method="m")
-
 ## The same fit with different internal makes
 tp.fit <- ssanova(y~x,"tp",method="m")
-
 ## Obtain estimates and standard errors on a grid
 new <- data.frame(x=seq(min(x),max(x),len=50))
 est <- predict(cubic.fit,new,se=TRUE)
-
 ## Plot the fit and the Bayesian confidence intervals
 plot(x,y,col=1); lines(new$x,est$fit,col=2)
 lines(new$x,est$fit+1.96*est$se,col=3)
 lines(new$x,est$fit-1.96*est$se,col=3)
+
+data(nox)
+## Fit a tensor product cubic spline
+nox.fit <- ssanova(log10(nox)~comp*equi,data=nox)
+## Fit a spline with cubic and nominal marginals
+nox$comp<-as.factor(nox$comp)
+nox.fit.n <- ssanova(log10(nox)~comp*equi,data=nox)
+## Fit a spline with cubic and ordinal marginals
+nox$comp<-as.ordered(nox$comp)
+nox.fit.o <- ssanova(log10(nox)~comp*equi,data=nox)
 }
-\keyword{ssanova}
-\keyword{model}
+\keyword{smooth}
+\keyword{models}
 \keyword{regression}
-\keyword{smoothing}
-\keyword{spline}

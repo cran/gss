@@ -1,35 +1,35 @@
       subroutine dmudr1 (vmu, s, lds, nobs, nnull, q, ldqr, ldqc, nq, y,
-     * tol, init, prec, maxite, theta, nlaht, score, varht, c, d, qraux,
-     * jpvt, twk, traux, qwk, ywk, thewk, hes, gra, hwk1, hwk2, gwk1, 
-     *gwk2, pvtwk, kwk, work1, work2, info)
+     & tol, init, prec, maxite, theta, nlaht, score, varht, c, d, qraux,
+     & jpvt, twk, traux, qwk, ywk, thewk, hes, gra, hwk1, hwk2, gwk1, 
+     &gwk2, pvtwk, kwk, work1, work2, info)
       integer lds, nobs, nnull, ldqr, ldqc, nq, init, maxite, jpvt(*), 
-     *pvtwk(*), info
+     &pvtwk(*), info
       double precision s(lds,*), q(ldqr,ldqc,*), y(*), tol, prec, theta(
-     **), nlaht, score, varht, c(*), d(*), qraux(*), traux(*), twk(2,*),
-     * qwk(ldqr,*), ywk(*), thewk(*), hes(nq,*), gra(*), hwk1(nq,*), 
-     *hwk2(nq,*), gwk1(*), gwk2(*), kwk(nobs-nnull,nobs-nnull,*), work1(
-     **), work2(*)
+     &*), nlaht, score, varht, c(*), d(*), qraux(*), traux(*), twk(2,*),
+     & qwk(nobs,*), ywk(*), thewk(*), hes(nq,*), gra(*), hwk1(nq,*), 
+     &hwk2(nq,*), gwk1(*), gwk2(*), kwk(nobs-nnull,nobs-nnull,*), work1(
+     &*), work2(*)
       character*1 vmu
       double precision alph, scrold, scrwk, nlawk, limnla(2), tmp, 
-     *dasum, ddot
+     &dasum, ddot
       integer n, n0, i, j, iwk, maxitwk, idamax, job
       info = 0
       n0 = nnull
       n = nobs - nnull
       maxitwk = maxite
       if(.not.( (vmu .ne. 'v' .and. vmu .ne. 'm' .and. vmu .ne. 'u') 
-     *.or. (init .ne. 0 .and. init .ne. 1) .or. (maxitwk .le.0) .or. (
-     *prec .le. 0.d0) ))goto 23000
+     &.or. (init .ne. 0 .and. init .ne. 1) .or. (maxitwk .le.0) .or. (
+     &prec .le. 0.d0) ))goto 23000
       info = -3
       return
 23000 continue
       if(.not.( lds .lt. nobs .or. nobs .le. n0 .or. n0 .lt. 1 .or. 
-     *ldqr .lt. nobs .or. ldqc .lt. nobs .or. nq .le. 0 ))goto 23002
+     &ldqr .lt. nobs .or. ldqc .lt. nobs .or. nq .le. 0 ))goto 23002
       info = -1
       return
 23002 continue
       call dstup (s, lds, nobs, n0, qraux, jpvt, y, q, ldqr, ldqc, nq, 
-     *info, work1)
+     &info, work1)
       if(.not.( info .ne. 0 ))goto 23004
       return
 23004 continue
@@ -64,19 +64,19 @@
       goto 23016
 23018 continue
       call dcopy (nobs, y, 1, ywk, 1)
-      call dcore (vmu, qwk, ldqr, nobs, n0, tol, ywk, 0, limnla, nlawk, 
-     *scrwk, varht, info, twk, work1)
+      call dcore (vmu, qwk, nobs, nobs, n0, tol, ywk, 0, limnla, nlawk, 
+     &scrwk, varht, info, twk, work1)
       if(.not.(info .ne. 0 ))goto 23022
       return
 23022 continue
-      call dcoef (s, lds, nobs, n0, qraux, jpvt, ywk, qwk, ldqr, nlawk, 
-     *c, d, info, twk)
+      call dcoef (s, lds, nobs, n0, qraux, jpvt, ywk, qwk, nobs, nlawk, 
+     &c, d, info, twk)
       call dqrsl (s, lds, nobs, n0, qraux, c, tmp, c, tmp, tmp, tmp, 
-     *01000, info)
+     &01000, info)
       i=1
 23024 if(.not.(i.le.nq))goto 23026
       call dsymv('l', n, thewk(i), q(n0+1,n0+1,i), ldqr, c(n0+1), 1, 0.
-     *d0, work1, 1)
+     &d0, work1, 1)
       thewk(i) = ddot (n, c(n0+1), 1, work1, 1) * thewk(i)
       if(.not.( thewk(i) .gt. 0.d0 ))goto 23027
       thewk(i) = dlog10 (thewk(i))
@@ -116,8 +116,8 @@
       goto 23037
 23039 continue
       call dcopy (nobs, y, 1, ywk, 1)
-      call dcore (vmu, qwk, ldqr, nobs, n0, tol, ywk, job, limnla, 
-     *nlawk, scrwk, varht, info, twk, work1)
+      call dcore (vmu, qwk, nobs, nobs, n0, tol, ywk, job, limnla, 
+     &nlawk, scrwk, varht, info, twk, work1)
       if(.not.(info .ne. 0 ))goto 23045
       return
 23045 continue
@@ -137,13 +137,13 @@
       goto 23030
 23047 continue
       maxitwk = maxitwk - 1
-      call dcopy (n-2, qwk(n0+2,n0+1), ldqr+1, traux, 1)
-      call dcopy (n, qwk(n0+1,n0+1), ldqr+1, twk(2,1), 2)
-      call dcopy (n-1, qwk(n0+1,n0+2), ldqr+1, twk(1,2), 2)
+      call dcopy (n-2, qwk(n0+2,n0+1), nobs+1, traux, 1)
+      call dcopy (n, qwk(n0+1,n0+1), nobs+1, twk(2,1), 2)
+      call dcopy (n-1, qwk(n0+1,n0+2), nobs+1, twk(1,2), 2)
       call ddeev (vmu, nobs, q(n0+1,n0+1,1), ldqr, ldqc, n, nq, qwk(n0+
-     *2,n0+1), ldqr, traux, twk, ywk(n0+1), thewk, nlawk, scrwk, varht, 
-     *hes, nq, gra, hwk1, hwk2, gwk1, gwk2, kwk, n, work1, work2, c, 
-     *info)
+     &2,n0+1), nobs, traux, twk, ywk(n0+1), thewk, nlawk, scrwk, varht, 
+     &hes, nq, gra, hwk1, hwk2, gwk1, gwk2, kwk, n, work1, work2, c, 
+     &info)
       iwk = 0
       i=1
 23054 if(.not.(i.le.nq))goto 23056
@@ -209,8 +209,8 @@
       call dcopy (nq, thewk, 1, theta, 1)
       tmp = gra(idamax (nq, gra, 1)) ** 2
       if(.not.( tmp .lt. prec ** 2 .or. scrold - scrwk .lt. prec * (
-     *scrwk + 1.d0) .and. tmp .lt. prec * (scrwk + 1.d0) ** 2 ))goto 230
-     *79
+     &scrwk + 1.d0) .and. tmp .lt. prec * (scrwk + 1.d0) ** 2 ))goto 230
+     &79
       goto 23031
 23079 continue
       if(.not.( maxitwk .lt. 1 ))goto 23081
@@ -250,12 +250,12 @@
       goto 23089
 23091 continue
       call dcopy (nobs, y, 1, ywk, 1)
-      call dcore (vmu, qwk, ldqr, nobs, n0, tol, ywk, job, limnla, 
-     *nlaht, score, varht, info, twk, work1)
+      call dcore (vmu, qwk, nobs, nobs, n0, tol, ywk, job, limnla, 
+     &nlaht, score, varht, info, twk, work1)
       if(.not.(info .ne. 0 ))goto 23097
       return
 23097 continue
-      call dcoef (s, lds, nobs, n0, qraux, jpvt, ywk, qwk, ldqr, nlaht, 
-     *c, d, info, twk)
+      call dcoef (s, lds, nobs, n0, qraux, jpvt, ywk, qwk, nobs, nlaht, 
+     &c, d, info, twk)
       return
       end

@@ -1,4 +1,22 @@
-Wed Jun 23 20:22:12  Chong Gu  <chong@stat.purdue.edu>
+Thu Dec 21 19:35:38 EST 2000, Chong Gu  <chong@stat.purdue.edu>
+	
+	* DESCRIPTION: Version 0.5-2.  Moved the Title in here according
+	to the new format requirement by R-1.2.0.
+	
+	* INDEX: Added new functions mkrk.nominal and mkrk.ordinal.
+	
+	* R: i) Added support for factors; ii) corrected minor bugs; iii)
+	grouped functions into smaller number of files.
+	
+	* data: Replaced lake.acid by LakeAcidity.
+
+	* man: Expanded to cover all objects.  Revised existing ones to
+	reflect code expansion/revision.
+
+	* src: Fixed an inconsequential bug in dmudr1.f.
+
+	
+Wed Jun 23 20:22:12 EST 1999, Chong Gu  <chong@stat.purdue.edu>
 	
 	* DESCRIPTION (Version): First Public Release is 0.4-1
 	
@@ -10,6 +28,7 @@ Wed Jun 23 20:22:12  Chong Gu  <chong@stat.purdue.edu>
 	
 	* man: Expanded/revised to reflect the code expansion/revision.
 
-Fri May 28 00:31:24  Chong Gu  <chong@stat.purdue.edu>
+	
+Fri May 28 00:31:24 EST 1999, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION (Version): First Release is 0.3-1
