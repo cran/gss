@@ -2,3 +2,7 @@
 {
     library.dynam("gss", pkg, lib)
 }
+project <- function (object,...)
+{
+    UseMethod("project")
+}

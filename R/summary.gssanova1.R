@@ -1,27 +1,30 @@
-## Summarize ssanova objects
-summary.ssanova1 <- function(object,diagnostics=FALSE,...)
+## Summarize gssanova1 objects
+summary.gssanova1 <- function(object,diagnostics=FALSE,...)
 {
     y <- model.response(object$mf,"numeric")
-    w <- model.weights(object$mf)
+    wt <- model.weights(object$mf)
     offset <- model.offset(object$mf)
-    if (is.null(offset)) offset <- rep(0,length(y))
+    dev.null <- switch(object$family,
+                       binomial=dev.null.binomial(y,wt,offset),
+                       nbinomial=dev.null.nbinomial(y,wt,offset),
+                       poisson=dev.null.poisson(y,wt,offset),
+                       inverse.gaussian=dev.null.inverse.gaussian(y,wt,offset),
+                       Gamma=dev.null.Gamma(y,wt,offset),
+                       weibull=dev.null.weibull(y,wt,offset,object$nu),
+                       lognorm=dev.null.lognorm(y,wt,offset,object$nu),
+                       loglogis=dev.null.loglogis(y,wt,offset,object$nu))
+    w <- object$w
+    if (is.null(offset)) offset <- rep(0,length(object$eta))
     ## Residuals
-    mf <- object$mf
-    if (!is.null(object$random)) mf$random <- object$random$z
-    res <- y - predict(object,mf)
+    res <- residuals(object)*sqrt(w)
+    dev.resid <- residuals(object,"deviance")
     ## Fitted values
-    fitted <- as.numeric(y-res)
-    ## (estimated) sigma
-    sigma <- sqrt(object$varht)
-    ## R^2
-    if (!is.null(w)) {
-        r.squared <- sum(w*(fitted-sum(w*fitted)/sum(w))^2)
-        r.squared <- r.squared/sum(w*(y-sum(w*y)/sum(w))^2)
-    }
-    else r.squared <- var(fitted)/var(y)       
-    ## Residual sum of squares
-    if (is.null(w)) rss <- sum(res^2)
-    else rss <- sum(w*res^2)
+    fitted <- fitted(object)
+    ## dispersion
+    sigma2 <- object$varht
+    ## RSS, deviance
+    rss <- sum(res^2)
+    dev <- sum(dev.resid^2)
     ## Penalty associated with the fit
     obj.wk <- object
     obj.wk$d[] <- 0
@@ -51,20 +54,18 @@ summary.ssanova1 <- function(object,diagnostics=FALSE,...)
             term.label <- c(term.label,"random")
         }
         fitted.off <- fitted-offset
-        comp <- cbind(comp,yhat=fitted.off,y=fitted.off+res,e=res)
+        comp <- cbind(comp,yhat=fitted.off,y=fitted.off+res/sqrt(w),e=res/sqrt(w))
         if (any(outer(term.label,c("yhat","y","e"),"==")))
-            warning("gss warning in summary.ssanova1: avoid using yhat, y, or e as variable names")
+            warning("gss warning in summary.gssanova1: avoid using yhat, y, or e as variable names")
         colnames(comp) <- c(term.label,"yhat","y","e")
         ## Sweep out constant
-        if (!is.null(w))
-            comp <- sqrt(w)*comp - outer(sqrt(w),apply(w*comp,2,sum))/sum(w)
-        else comp <- sweep(comp,2,apply(comp,2,mean))
+        comp <- sqrt(w)*comp - outer(sqrt(w),apply(w*comp,2,sum))/sum(w)
         ## Obtain pi
         comp1 <- comp[,c(term.label,"yhat")]
         decom <- t(comp1) %*% comp1[,"yhat"]
         names(decom) <- c(term.label,"yhat")
         decom <- decom[term.label]/decom["yhat"]
-        ## Obtain kappa, norm, and cosines
+        ## Obtain kappa, norm, and cosines        
         corr <- t(comp)%*%comp
         corr <- t(corr/sqrt(diag(corr)))/sqrt(diag(corr))
         norm <- apply(comp,2,function(x){sqrt(sum(x^2))})
@@ -80,9 +81,11 @@ summary.ssanova1 <- function(object,diagnostics=FALSE,...)
     }
     else decom <- kappa <- cosines <- rough <- NULL
     ## Return the summaries
-    z <- list(call=object$call,method=object$method,fitted=fitted,residuals=res,
-              sigma=sigma,r.squared=r.squared,rss=rss,penalty=penalty,
+    z <- list(call=object$call,family=object$family,alpha=object$alpha,
+              fitted=fitted,dispersion=sigma2,residuals=res/sqrt(w),rss=rss,
+              deviance=dev,dev.resid=dev.resid,nu=object$nu,
+              dev.null=dev.null,penalty=penalty,
               pi=decom,kappa=kappa,cosines=cosines,roughness=rough)
-    class(z) <- "summary.ssanova"
+    class(z) <- "summary.gssanova1"
     z
 }

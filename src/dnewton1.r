@@ -14,7 +14,7 @@ double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,*), qdwt(*), prec, mchpr
                   fitnew(*), wk(*)
 
 integer  i, j, k, iter, flag, rkv, idamax, infowk
-double precision  wtsum, tmp, ddot, fitmean, lkhd, mumax, wtsumnew, lkhdnew, disc, trc
+double precision  wtsum, tmp, ddot, fitmean, lkhd, mumax, wtsumnew, lkhdnew, disc, disc0, trc
 
 #   Calculate constants
 info = 0
@@ -65,7 +65,7 @@ repeat {
     }
     call  daxpy (nxis, 1.d0, mrs, 1, mu, 1)
     call  dsymv ('u', nxi, -1.d0, q, nxi, cd, 1, 1.d0, mu, 1)
-    mumax = mu(idamax(nxis, mu, 1))
+    mumax = dabs(mu(idamax(nxis, mu, 1)))
     #   Cholesky factorization
     for (i=1;i<=nxis;i=i+1)  jpvt(i) = 0
     call  dchdc (v, nxis, nxis, wk, jpvt, 1, rkv)
@@ -101,8 +101,10 @@ repeat {
         }
         if (cntsum==0)  fitmean = fitmean / dfloat (nobs)
         else  fitmean = fitmean / dfloat (cntsum)
+        call  dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
+        lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean
+        #   Reset iteration with uniform starting value
         if (flag==1) {
-            #   Reset iteration with uniform starting value
             call  dset (nxis, 0.d0, cd, 1)
             wtsum = 0.d0
             for (i=1;i<=nqd;i=i+1) {
@@ -115,10 +117,10 @@ repeat {
             iter = 0
             break
         }
-        call  dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
-        lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean
-        if (lkhdnew-lkhd<2.d0*(1.d0+dabs(lkhd))*mchpr)  break
+        if (flag==3)  break
+        if (lkhdnew-lkhd<1.d1*(1.d0+dabs(lkhd))*mchpr)  break
         call  dscal (nxis, .5d0, mu, 1)
+        if (dabs(mu(idamax(nxis, mu, 1))/mumax)<1.d1*mchpr)  break
     }
     if (flag==1) {
         flag = 2
@@ -134,7 +136,8 @@ repeat {
         disc = dmax1 (disc, dabs(wt(i)-wtnew(i))/(1.d0+dabs(wt(i))))
     for (i=1;i<=nobs;i=i+1)
         disc = dmax1 (disc, dabs(fit(i)-fitnew(i))/(1.d0+dabs(fit(i))))
-    disc = dmax1 (disc, (mumax/(1.d0+lkhd))**2)
+    disc = dmax1 (disc, (mumax/(1.d0+dabs(lkhd)))**2)
+    disc0 = dmax1 ((mumax/(1.d0+lkhd))**2, dabs(lkhd-lkhdnew)/(1+dabs(lkhd)))
     #   Set to new values
     call  dcopy (nxis, cdnew, 1, cd, 1)
     call  dcopy (nqd, wtnew, 1, wt, 1)
@@ -142,6 +145,7 @@ repeat {
     call  dcopy (nobs, fitnew, 1, fit, 1)
     lkhd = lkhdnew
     #   Check convergence
+    if (disc0<prec)  break
     if (disc<prec)  break
     if (iter<maxiter)  next
     if (flag==0) {

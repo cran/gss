@@ -41,13 +41,11 @@ function (object,x,cond,int=NULL) {
             xmesh <- data.frame(quad$pt)
             colnames(xmesh) <- colnames(x)
         }
-        xx <- NULL
-        for (i in 1:nrow(xmesh)) xx <- rbind(xx,cond)
+        xx <- cond[rep(1,nrow(xmesh)),,drop=FALSE]
         int <- sum(dssden(object,cbind(xmesh,xx))*quad$wt)
     }
     ## Return value
-    xx <- NULL
-    for (i in 1:nrow(x)) xx <- rbind(xx,cond)
+    xx <- cond[rep(1,nrow(x)),,drop=FALSE]
     list(pdf=dssden(object,cbind(x,xx))/int,int=int)
 }
 

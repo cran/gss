@@ -2,7 +2,7 @@
 ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
                   weights=NULL,subset,na.action=na.omit,
                   id.basis=NULL,nbasis=NULL,seed=NULL,
-                  domain=NULL,quadrature=NULL,ext=.05,order=2,
+                  domain=as.list(NULL),quadrature=NULL,ext=.05,order=2,
                   prec=1e-7,maxiter=30)
 {
     ## Obtain model frame and model terms
@@ -15,14 +15,21 @@ ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
     mf <- eval(mf,sys.frame(sys.parent()))
     cnt <- model.weights(mf)
     mf$"(weights)" <- NULL
-    if (is.null(domain)) {
-        mn <- apply(mf,2,min)
-        mx <- apply(mf,2,max)
-        range <- mx-mn
-        mn <- mn - ext*range
-        mx <- mx + ext*range
-        domain <- data.frame(rbind(mn,mx))
+    ## set domain
+    for (i in names(mf)) {
+        if (is.factor(mf[[i]])) domain[[i]] <- levels(mf[[i]])[1:2]
+        else {
+            if (is.null(domain[[i]])) {
+                mn <- min(mf[[i]])
+                mx <- max(mf[[i]])
+                range <- mx-mn
+                mn <- mn - ext*range
+                mx <- mx + ext*range
+                domain[[i]] <- c(mn,mx)
+            }
+        }
     }
+    domain <- as.data.frame(domain)
     ## Generate sub-basis
     nobs <- dim(mf)[1]
     if (is.null(id.basis)) {

@@ -26,7 +26,7 @@ sspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         assign("cd",fit$cd,inherit=TRUE)
         assign("int",fit$wk[3],inherit=TRUE)
         cv <- alpha*fit$wk[2]-fit$wk[1]
-        alpha.wk <- max(0,log.la0-lambda-3.5)*(3-alpha) + alpha
+        alpha.wk <- max(0,log.la0-lambda-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
         adj <- ifelse (alpha.wk>alpha,(alpha.wk-alpha)*fit$wk[2],0)
         cv+adj
@@ -43,23 +43,19 @@ sspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     cd <- rep(0,nxi+nnull)
     int <- NULL
     la <- log.la0
-    counter <- 0
     repeat {
-        fit <- nlm(cv,la,stepmax=1,ndigit=7)
-        if (fit$code<=3) break
-        la <- fit$est
-        counter <- counter + 1
-        if (counter>=5) {
-            warning("gss warning in ssden: CV iteration fails to converge")
-            break
-        }
+        mn <- la-1
+        mx <- la+1
+        zz <- nlm0(cv,c(mn,mx))
+        if (min(zz$est-mn,mx-zz$est)>=1e-3) break
+        else la <- zz$est
     }
     ## return
-    jk1 <- cv(fit$est)
+    jk1 <- cv(zz$est)
     c <- cd[1:nxi]
     if (nnull) d <- cd[nxi+(1:nnull)]
     else d <- NULL
-    list(lambda=fit$est,theta=theta,c=c,d=d,int=int,cv=fit$min)
+    list(lambda=zz$est,theta=theta,c=c,d=d,int=int,cv=zz$min)
 }
 
 ## Fit multiple smoothing parameter density
@@ -97,7 +93,7 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         assign("cd",fit$cd,inherit=TRUE)
         assign("int",fit$wk[3],inherit=TRUE)
         cv <- alpha*fit$wk[2]-fit$wk[1]
-        alpha.wk <- max(0,theta-log.th0-3.5)*(3-alpha) + alpha
+        alpha.wk <- max(0,theta-log.th0-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
         adj <- ifelse (alpha.wk>alpha,(alpha.wk-alpha)*fit$wk[2],0)
         cv+adj
@@ -133,9 +129,9 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     ## theta search
     counter <- 0
     repeat {
-        fit <- nlm(cv,theta,stepmax=1,ndigit=7)
-        if (fit$code<=3)  break
-        theta <- fit$est        
+        zz <- nlm(cv,theta,stepmax=1,ndigit=7)
+        if (zz$code<=3)  break
+        theta <- zz$est        
         counter <- counter + 1
         if (counter>=5) {
             warning("gss warning in ssden: CV iteration fails to converge")
@@ -143,9 +139,9 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         }
     }
     ## return
-    jk1 <- cv(fit$est)
+    jk1 <- cv(zz$est)
     c <- cd[1:nxi]
     if (nnull) d <- cd[nxi+(1:nnull)]
     else d <- NULL
-    list(lambda=lambda,theta=fit$est,c=c,d=d,int=int,cv=fit$min)
+    list(lambda=lambda,theta=zz$est,c=c,d=d,int=int,cv=zz$min)
 }

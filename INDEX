@@ -1,10 +1,11 @@
-## SSANOVA, GSSANOVA, AND SSDEN SUITES
+## SSANOVA, GSSANOVA, SSDEN, AND SSHZD SUITES
 ssanova                     Fitting smoothing spline ANOVA models
 predict.ssanova             Predicting from ssanova fits
 summary.ssanova             Summarizing ssanova fits
 ssanova1                    Fitting smoothing spline ANOVA models
 predict.ssanova1            Predicting from ssanova1 fits
 summary.ssanova1            Summarizing ssanova1 fits
+project.ssanova1            Projecting ssanova1 fits for model diagnostic
 residuals.ssanova           Extracting the residuals from ssanova objects
 fitted.ssanova              Extracting the fitted values from ssanova objects
 print.ssanova               Print function for ssanova objects
@@ -12,18 +13,30 @@ print.summary.ssanova       Print function for summary.ssanova objects
 
 gssanova                    Fitting smoothing spline ANOVA models with non Gaussian data
 summary.gssanova            Summarizing gssanova fits
+gssanova1                   Fitting smoothing spline ANOVA models with non Gaussian data
+summary.gssanova1           Summarizing gssanova1 fits
+project.gssanova1           Projecting gssanova1 fits for model diagnostic
 residuals.gssanova          Extracting the residuals from gssanova objects
 fitted.gssanova             Extracting the fitted values from gssanova objects
 print.summary.gssanova      Print function for summary.gssanova objects
+print.summary.gssanova1     Print function for summary.gssanova1 objects
 
-ssden                       Estimating Probability Density Using Smoothing Splines
+ssden                       Estimating probability density using smoothing splines
 dssden                      Evaluating pdf of ssden estimates
 pssden                      Evaluating cdf of 1-D ssden estimates
 qssden                      Evaluating quantiles of 1-D ssden estimates
 cdssden                     Evaluating conditional pdf of ssden estimates
 cpssden                     Evaluating 1-D conditional cdf of ssden estimates
 cqssden                     Evaluating 1-D conditional quantiles of ssden estimates
+project.ssden               Projecting ssden fits for model diagnostic
 print.ssden                 Print function for ssden objects
+
+sshzd                       Estimating hazard function using smoothing splines
+hzdrate.sshzd               Evaluating hazard estimates
+hzdcurve.sshzd              Evaluating hazard curves
+survexp.sshzd               Computing expected survivals
+project.ssden               Projecting sshzd fits for model diagnostic
+print.ssden                 Print function for sshzd objects
 
 ## UTILITIES FOR MAKING MODEL TERMS
 mkterm.cubic                Making model terms for cubic spline marginals
@@ -48,14 +61,20 @@ mkrk.ordinal                Making RK function for ordinal factors
 mkdata.binomial             Making pseudo data for logistic regression
 dev.resid.binomial          Deviance residuals for logistic regression
 dev.null.binomial           Null model deviance for logistic regression
+cv.binomial                 CV score for logistic regression
+proj0.binomial              Making pseudo data for projecting logistic fit
 
 mkdata.poisson              Making pseudo data for Poisson regression
 dev.resid.poisson           Deviance residuals for Poisson regression
 dev.null.poisson            Null model deviance for Poisson regression
+cv.binomial                 CV score for Poisson regression
+proj0.binomial              Making pseudo data for projecting Poisson fit
 
 mkdata.Gamma                Making pseudo data for gamma regression
 dev.resid.Gamma             Deviance residuals for gamma regression
 dev.null.Gamma              Null model deviance for gamma regression
+cv.binomial                 CV score for gamma regression
+proj0.binomial              Making pseudo data for projecting gamma fit
 
 mkdata.inverse.gaussian     Making pseudo data for IG regression
 dev.resid.inverse.gaussian  Deviance residuals for IG regression
@@ -82,6 +101,9 @@ gauss.quad                  Generating Gauss-Legendre quadrature
 smolyak.quad                Generating Smolyak cubature
 smolyak.size                Getting the size of Smolyak cubature
 
+## UTILITY FOR OPTIMIZATION
+nlm0                        Minimizing univariate functions on finite intervals
+
 ## NUMERICAL ENGINE
 sspreg                      An interface to RKPACK driver DSIDR
 sspregpoi                   Performance-oriented iteration using RKPACK driver DSIDR
@@ -94,3 +116,8 @@ sspreg1                     Compute regression estimate with single smoothing pa
 mspreg1                     Compute regression estimate with multiple smoothing parameters
 sspdsty                     Compute density estimate with single smoothing parameter
 mspdsty                     Compute density estimate with multiple smoothing parameters
+
+sspngreg1                   Compute NG regression estimate with single smoothing parameter
+mspngreg1                   Compute NG regression estimate with single smoothing parameter
+ngreg1                      Newton iteration for NG regression with fixed smoothing parameter
+ngreg.proj                  Calculate Kullback-Leibler projection for NG regression

@@ -1,10 +1,30 @@
+Sun Mar  2 10:43:35 EST 2003, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.8-2.
+
+	* INDEX: Added gssanova1, sshzd, project.x, and related
+	functions.
+
+	* R: i) Added the gssanova1 suite for scalable non Gaussian
+	regression. ii) Added the sshzd suite for hazard estimation. iii)
+	Added code for Kullback-Leibler projection model diagnostics. iv)
+	Code modifications and bug fixes in ssanova1 and ssden suites;
+	added nlm0 for univariate optimization.
+
+	* data: Added gastric.
+
+	* man: Added documentations for the new entries in R.
+
+	* src: Added routines to support the gssanova1 suite, the sshzd
+	suite, and the projection code.
+
 Tue Dec 31 10:16:37 EST 2002, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.7-4.
 
 	* INDEX: Added ssanova1 and related functions.
 
-	* R: i) Added ssanova1 suite for scalable Gaussian regression,
+	* R: i) Added the ssanova1 suite for scalable Gaussian regression,
 	with modifications in fitted.R to accommodate ssanova1. ii) Minor
 	bug fixes in ssden suite.
 

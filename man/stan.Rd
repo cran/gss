@@ -10,7 +10,8 @@
     \tabular{ll}{
 	\code{time} \tab Follow-up time after transplant, in days.\cr
 	\code{status} \tab Censoring status.\cr
-	\code{age} \tab Age at transplant.
+	\code{age} \tab Age at transplant.\cr
+	\code{futime} \tab Square root of \code{time}.
     }
 }
 \source{

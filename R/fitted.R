@@ -12,24 +12,37 @@ residuals.ssanova <- function(object,...)
 }
 
 ## Obtain fitted values in working scale from gssanova objects
-fitted.gssanova <- function(object,...) object$eta
+fitted.gssanova <- function(object,...)
+{
+    as.numeric(object$eta)
+}
 
 ## Obtain residuals from gssanova objects
 residuals.gssanova <- function(object,type="working",...)
 {
-    res <- 10^object$nlambda*object$c/sqrt(object$w)
+    y <- model.response(object$mf,"numeric")
+    wt <- model.weights(object$mf)
+    offset <- model.offset(object$mf)
+    dat <- switch(object$family,
+                  binomial=mkdata.binomial(y,object$eta,wt,offset),
+                  nbinomial=mkdata.nbinomial(y,object$eta,wt,offset,nu),
+                  poisson=mkdata.poisson(y,object$eta,wt,offset),
+                  inverse.gaussian=mkdata.inverse.gaussian(y,object$eta,wt,offset),
+                  Gamma=mkdata.Gamma(y,object$eta,wt,offset),
+                  weibull=mkdata.weibull(y,object$eta,wt,offset,object$nu),
+                  lognorm=mkdata.lognorm(y,object$eta,wt,offset,object$nu),
+                  loglogis=mkdata.loglogis(y,object$eta,wt,offset,object$nu))
+    res <- as.numeric(dat$ywk - object$eta)
     if (!is.na(charmatch(type,"deviance"))) {
-        y <- model.response(object$mf,"numeric")
-        wt <- model.weights(object$mf)
         dev.resid <- switch(object$family,
                             binomial=dev.resid.binomial(y,object$eta,wt),
-                            poisson=dev.resid.poisson(y,object$eta,wt),
+                            nbinomial=dev.resid.nbinomial(y,object$eta,wt),
                             poisson=dev.resid.poisson(y,object$eta,wt),
                             inverse.gaussian=dev.resid.inverse.gaussian(y,object$eta,wt),
                             Gamma=dev.resid.Gamma(y,object$eta,wt),
-                            weibull=dev.resid.weibull(y,object$eta,wt,object$alpha),
-                            lognorm=dev.resid.lognorm(y,object$eta,wt,object$alpha),
-                            loglogis=dev.resid.loglogis(y,object$eta,wt,object$alpha))
+                            weibull=dev.resid.weibull(y,object$eta,wt,object$nu),
+                            lognorm=dev.resid.lognorm(y,object$eta,wt,object$nu),
+                            loglogis=dev.resid.loglogis(y,object$eta,wt,object$nu))
         res <- sqrt(dev.resid)*sign(res)
     }
     res

@@ -2,12 +2,18 @@
 \alias{mkdata.binomial}
 \alias{dev.resid.binomial}
 \alias{dev.null.binomial}
+\alias{cv.binomial}
+\alias{proj0.binomial}
 \alias{mkdata.poisson}
 \alias{dev.resid.poisson}
 \alias{dev.null.poisson}
+\alias{cv.poisson}
+\alias{proj0.poisson}
 \alias{mkdata.Gamma}
 \alias{dev.resid.Gamma}
 \alias{dev.null.Gamma}
+\alias{cv.Gamma}
+\alias{proj0.Gamma}
 \alias{mkdata.inverse.gaussian}
 \alias{dev.resid.inverse.gaussian}
 \alias{dev.null.inverse.gaussian}
@@ -32,14 +38,20 @@
 mkdata.binomial(y, eta, wt, offset)
 dev.resid.binomial(y, eta, wt)
 dev.null.binomial(y, wt, offset)
+cv.binomial(y, eta, wt, hat, alpha)
+proj0.binomial(y, eta, wt, offset)
 
 mkdata.poisson(y, eta, wt, offset)
 dev.resid.poisson(y, eta, wt)
 dev.null.poisson(y, wt, offset)
+cv.poisson(y, eta, wt, hat, alpha, sr, q)
+proj0.poisson(y, eta, wt, offset)
 
 mkdata.Gamma(y, eta, wt, offset)
 dev.resid.Gamma(y, eta, wt)
 dev.null.Gamma(y, wt, offset)
+cv.Gamma(y, eta, wt, hat, rss, alpha)
+proj0.Gamma(y, eta, wt, offset)
 
 mkdata.inverse.gaussian(y, eta, wt, offset)
 dev.resid.inverse.gaussian(y, eta, wt)

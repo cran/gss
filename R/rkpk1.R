@@ -34,7 +34,7 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         if (z$info) stop("gss error in ssanova: evaluation of GML score fails")
         assign("fit",z[c(1:5,7)],inherit=TRUE)
         score <- z$score
-        alpha.wk <- max(0,log.la0-lambda[1]-3.5)*(3-alpha) + alpha
+        alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
         if (alpha.wk>alpha) {
             if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*z$wk[2]
@@ -52,15 +52,26 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     fit <- NULL
     if (is.null(random)) la <- log.la0
     else la <- c(log.la0,random$init)
-    counter <- 0
-    repeat {
-        zz <- nlm(cv,la,stepmax=1,ndigit=7)
-        if (zz$code<=3) break
-        la <- zz$est
-        counter <- counter + 1
-        if (counter>=5) {
-            warning("gss warning in ssanova: iteration for model selection fails to converge")
-            break
+    if (length(la)-1) {
+        counter <- 0
+        repeat {
+            zz <- nlm(cv,la,stepmax=1,ndigit=7)
+            if (zz$code<=3) break
+            la <- zz$est
+            counter <- counter + 1
+            if (counter>=5) {
+                warning("gss warning in ssanova1: iteration for model selection fails to converge")
+                break
+            }
+        }
+    }
+    else {
+        repeat {
+            mn <- la-1
+            mx <- la+1
+            zz <- nlm0(cv,c(mn,mx))
+            if (min(zz$est-mn,mx-zz$est)>=1e-3) break
+            else la <- zz$est
         }
     }
     ## return
@@ -129,7 +140,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         if (z$info) stop("gss error in ssanova: evaluation of GML score fails")
         assign("fit",z[c(1:5,7)],inherit=TRUE)
         score <- z$score
-        alpha.wk <- max(0,theta[1:nq]-log.th0-3.5)*(3-alpha) + alpha
+        alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
         if (alpha.wk>alpha) {
             if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*z$wk[2]
@@ -170,7 +181,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         theta <- zz$est        
         counter <- counter + 1
         if (counter>=5) {
-            warning("gss warning in ssanova: iteration for model selection fails to converge")
+            warning("gss warning in ssanova1: iteration for model selection fails to converge")
             break
         }
     }

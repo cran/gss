@@ -72,7 +72,7 @@ mkdata.poisson <- function(y,eta,wt,offset)
     if (is.null(wt)) wt <- rep(1,length(y))
     if (is.null(offset)) offset <- rep(0,length(y))
     if (min(y)<0)
-        stop("gss error: paired binomial response should be nonnegative")
+        stop("gss error: Poisson response should be nonnegative")
     lambda <- exp(eta)
     u <- lambda - y
     w <- lambda

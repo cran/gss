@@ -78,7 +78,7 @@ sspregpoi <- function(family,s,q,y,wt,offset,method="u",
     ## Return the fit
     if (is.list(alpha)) alpha <- alpha[[1]]
     c(list(method=method,theta=0,w=as.vector(dat$wt),
-           eta=as.vector(eta),iter=iter,alpha=alpha),
+           eta=as.vector(eta),iter=iter,nu=alpha),
       z[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])
 }
 
@@ -198,6 +198,6 @@ mspregpoi <- function(family,s,q,y,wt,offset,method="u",
     ## Return the fit
     if (is.list(alpha)) alpha <- alpha[[1]]
     c(list(method=method,theta=theta,w=as.vector(dat$wt),
-           eta=as.vector(eta),iter=iter,alpha=alpha),
+           eta=as.vector(eta),iter=iter,nu=alpha),
       z[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])
 }

@@ -9,7 +9,7 @@ C Output from Public domain Ratfor, version 1.0
      *wtnew(*), fitnew(*), wk(*)
       integer i, j, k, iter, flag, rkv, idamax, infowk
       double precision wtsum, tmp, ddot, fitmean, lkhd, mumax, wtsumnew,
-     * lkhdnew, disc, trc
+     * lkhdnew, disc, disc0, trc
       info = 0
       i=1
 23000 if(.not.(i.le.nxis))goto 23002
@@ -94,7 +94,7 @@ C Output from Public domain Ratfor, version 1.0
 23029 continue
       call daxpy (nxis, 1.d0, mrs, 1, mu, 1)
       call dsymv ('u', nxi, -1.d0, q, nxi, cd, 1, 1.d0, mu, 1)
-      mumax = mu(idamax(nxis, mu, 1))
+      mumax = dabs(mu(idamax(nxis, mu, 1)))
       i=1
 23038 if(.not.(i.le.nxis))goto 23040
       jpvt(i) = 0
@@ -151,6 +151,8 @@ C Output from Public domain Ratfor, version 1.0
       else
       fitmean = fitmean / dfloat (cntsum)
       endif
+      call dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
+      lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean
       if(flag.eq.1)then
       call dset (nxis, 0.d0, cd, 1)
       wtsum = 0.d0
@@ -167,12 +169,16 @@ C Output from Public domain Ratfor, version 1.0
       iter = 0
       goto 23048
       endif
-      call dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
-      lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean
-      if(lkhdnew-lkhd.lt.2.d0*(1.d0+dabs(lkhd))*mchpr)then
+      if(flag.eq.3)then
+      goto 23048
+      endif
+      if(lkhdnew-lkhd.lt.1.d1*(1.d0+dabs(lkhd))*mchpr)then
       goto 23048
       endif
       call dscal (nxis, .5d0, mu, 1)
+      if(dabs(mu(idamax(nxis, mu, 1))/mumax).lt.1.d1*mchpr)then
+      goto 23048
+      endif
 23047 goto 23046
 23048 continue
       if(flag.eq.1)then
@@ -185,23 +191,28 @@ C Output from Public domain Ratfor, version 1.0
       endif
       disc = 0.d0
       i=1
-23072 if(.not.(i.le.nqd))goto 23074
+23076 if(.not.(i.le.nqd))goto 23078
       disc = dmax1 (disc, dabs(wt(i)-wtnew(i))/(1.d0+dabs(wt(i))))
-23073 i=i+1
-      goto 23072
-23074 continue
+23077 i=i+1
+      goto 23076
+23078 continue
       i=1
-23075 if(.not.(i.le.nobs))goto 23077
+23079 if(.not.(i.le.nobs))goto 23081
       disc = dmax1 (disc, dabs(fit(i)-fitnew(i))/(1.d0+dabs(fit(i))))
-23076 i=i+1
-      goto 23075
-23077 continue
-      disc = dmax1 (disc, (mumax/(1.d0+lkhd))**2)
+23080 i=i+1
+      goto 23079
+23081 continue
+      disc = dmax1 (disc, (mumax/(1.d0+dabs(lkhd)))**2)
+      disc0 = dmax1 ((mumax/(1.d0+lkhd))**2, dabs(lkhd-lkhdnew)/(1+dabs(
+     *lkhd)))
       call dcopy (nxis, cdnew, 1, cd, 1)
       call dcopy (nqd, wtnew, 1, wt, 1)
       wtsum = wtsumnew
       call dcopy (nobs, fitnew, 1, fit, 1)
       lkhd = lkhdnew
+      if(disc0.lt.prec)then
+      goto 23023
+      endif
       if(disc.lt.prec)then
       goto 23023
       endif
@@ -212,12 +223,12 @@ C Output from Public domain Ratfor, version 1.0
       call dset (nxis, 0.d0, cd, 1)
       wtsum = 0.d0
       i=1
-23084 if(.not.(i.le.nqd))goto 23086
+23090 if(.not.(i.le.nqd))goto 23092
       wt(i) = qdwt(i)
       wtsum = wtsum + wt(i)
-23085 i=i+1
-      goto 23084
-23086 continue
+23091 i=i+1
+      goto 23090
+23092 continue
       call dset (nobs, 1.d0/wtsum, fit, 1)
       fitmean = - dlog (wtsum)
       lkhd = - fitmean
@@ -230,36 +241,36 @@ C Output from Public domain Ratfor, version 1.0
 23022 goto 23021
 23023 continue
       i=1
-23087 if(.not.(i.le.nobs))goto 23089
+23093 if(.not.(i.le.nobs))goto 23095
       call daxpy (nxis, -1.d0, mrs, 1, rs(1,i), 1)
       call dprmut (rs(1,i), nxis, jpvt, 0)
       if(cntsum.ne.0)then
       call dscal (nxis, dsqrt(dfloat(cnt(i))), rs(1,i), 1)
       endif
       call dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
-23088 i=i+1
-      goto 23087
-23089 continue
+23094 i=i+1
+      goto 23093
+23095 continue
       trc = ddot (nobs*nxis, rs, 1, rs, 1)
       if(cntsum.eq.0)then
       trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
       lkhd = 0.d0
       i=1
-23094 if(.not.(i.le.nobs))goto 23096
+23100 if(.not.(i.le.nobs))goto 23102
       lkhd = lkhd + dlog (fit(i))
-23095 i=i+1
-      goto 23094
-23096 continue
+23101 i=i+1
+      goto 23100
+23102 continue
       lkhd = lkhd / dfloat (nobs)
       else
       trc = trc / dfloat(cntsum) / (dfloat(cntsum)-1.d0)
       lkhd = 0.d0
       i=1
-23097 if(.not.(i.le.nobs))goto 23099
+23103 if(.not.(i.le.nobs))goto 23105
       lkhd = lkhd + dfloat (cnt(i)) * dlog (fit(i))
-23098 i=i+1
-      goto 23097
-23099 continue
+23104 i=i+1
+      goto 23103
+23105 continue
       lkhd = lkhd / dfloat (cntsum)
       endif
       mrs(1) = lkhd
