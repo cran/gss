@@ -4,19 +4,25 @@ summary.gssanova <- function(obj,diagnostics=FALSE)
     y <- model.response(obj$mf,"numeric")
     wt <- model.weights(obj$mf)
     offset <- model.offset(obj$mf)
-    if (!is.null(obj$alpha)) y <- cbind(y,obj$alpha)
+    if ((obj$family=="nbinomial")&(!is.null(obj$alpha))) y <- cbind(y,obj$alpha)
     dev.resid <- switch(obj$family,
                         binomial=dev.resid.binomial(y,obj$eta,wt),
                         nbinomial=dev.resid.nbinomial(y,obj$eta,wt),
                         poisson=dev.resid.poisson(y,obj$eta,wt),
                         inverse.gaussian=dev.resid.inverse.gaussian(y,obj$eta,wt),
-                        Gamma=dev.resid.Gamma(y,obj$eta,wt))
+                        Gamma=dev.resid.Gamma(y,obj$eta,wt),
+                        weibull=dev.resid.weibull(y,obj$eta,wt,obj$alpha),
+                        lognorm=dev.resid.lognorm(y,obj$eta,wt,obj$alpha),
+                        loglogis=dev.resid.loglogis(y,obj$eta,wt,obj$alpha))
     dev.null <- switch(obj$family,
                        binomial=dev.null.binomial(y,wt,offset),
                        nbinomial=dev.null.nbinomial(y,wt,offset),
                        poisson=dev.null.poisson(y,wt,offset),
                        inverse.gaussian=dev.null.inverse.gaussian(y,wt,offset),
-                       Gamma=dev.null.Gamma(y,wt,offset))
+                       Gamma=dev.null.Gamma(y,wt,offset),
+                       weibull=dev.null.weibull(y,wt,offset,obj$alpha),
+                       lognorm=dev.null.lognorm(y,wt,offset,obj$alpha),
+                       loglogis=dev.null.loglogis(y,wt,offset,obj$alpha))
     w <- obj$w
     if (is.null(offset)) offset <- rep(0,length(obj$eta))
     ## Residuals

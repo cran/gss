@@ -51,6 +51,18 @@ mkdata.nbinomial            Making pseudo data for negative binomial regression
 dev.resid.nbinomial         Deviance residuals for negative binomial regression
 dev.null.nbinomial          Null model deviance for negative binomial regression
 
+mkdata.weibull              Making pseudo data for Weibull regression
+dev.resid.weibull           Deviance residuals for Weibull regression
+dev.null.weibull            Null model deviance for Weibull regression
+
+mkdata.lognorm              Making pseudo data for log normal regression
+dev.resid.lognorm           Deviance residuals for log normal regression
+dev.null.lognorm            Null model deviance for log normal regression
+
+mkdata.loglogis             Making pseudo data for log logistic regression
+dev.resid.loglogis          Deviance residuals for log logistic regression
+dev.null.loglogis           Null model deviance for log logistic regression
+
 ## NUMERICAL ENGINE
 sspreg                      An interface to RKPACK driver DSIDR
 sspregpoi                   Performance-oriented iteration using RKPACK driver DSIDR

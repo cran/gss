@@ -32,7 +32,10 @@ residuals.gssanova <- function(obj,type="working")
                             poisson=dev.resid.poisson(y,obj$eta,wt),
                             poisson=dev.resid.poisson(y,obj$eta,wt),
                             inverse.gaussian=dev.resid.inverse.gaussian(y,obj$eta,wt),
-                            Gamma=dev.resid.Gamma(y,obj$eta,wt))
+                            Gamma=dev.resid.Gamma(y,obj$eta,wt),
+                            weibull=dev.resid.weibull(y,obj$eta,wt,obj$alpha),
+                            lognorm=dev.resid.lognorm(y,obj$eta,wt,obj$alpha),
+                            loglogis=dev.resid.loglogis(y,obj$eta,wt,obj$alpha))
         res <- sqrt(dev.resid)*sign(res)
     }
     res

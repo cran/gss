@@ -1,6 +1,6 @@
 ## Fit Single Smoothing Parameter REGression by Performance-Oriented Iteration
 sspregpoi <- function(family,s,q,y,wt,offset,method="u",
-                      varht=1,prec=1e-7,maxiter=30)
+                      varht=1,alpha,prec=1e-7,maxiter=30)
 {
     ## Check inputs
     if (is.vector(s)) s <- as.matrix(s)
@@ -22,7 +22,8 @@ sspregpoi <- function(family,s,q,y,wt,offset,method="u",
     nla0 <- log10(mean(abs(diag(q))))
     limnla <- nla0+c(-.5,.5)
     iter <- 0
-    alpha <- NULL
+    if (family=="nbinomial") alpha <- NULL
+    else alpha <- list(alpha,is.null(alpha))
     repeat {
         iter <- iter+1
         dat <- switch(family,
@@ -30,7 +31,10 @@ sspregpoi <- function(family,s,q,y,wt,offset,method="u",
                       nbinomial=mkdata.nbinomial(y,eta,wt,offset,alpha),
                       poisson=mkdata.poisson(y,eta,wt,offset),
                       inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
-                      Gamma=mkdata.Gamma(y,eta,wt,offset))
+                      Gamma=mkdata.Gamma(y,eta,wt,offset),
+                      weibull=mkdata.weibull(y,eta,wt,offset,alpha),
+                      lognorm=mkdata.lognorm(y,eta,wt,offset,alpha),
+                      loglogis=mkdata.loglogis(y,eta,wt,offset,alpha))
         alpha <- dat$alpha
         w <- as.vector(sqrt(dat$wt))
         ywk <- w*dat$ywk
@@ -72,6 +76,7 @@ sspregpoi <- function(family,s,q,y,wt,offset,method="u",
         eta <- eta.new
     }
     ## Return the fit
+    if (is.list(alpha)) alpha <- alpha[[1]]
     c(list(method=method,theta=0,w=as.vector(dat$wt),
            eta=as.vector(eta),iter=iter,alpha=alpha),
       z[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])
@@ -79,7 +84,7 @@ sspregpoi <- function(family,s,q,y,wt,offset,method="u",
 
 ## Fit Multiple Smoothing Parameter REGression by Performance-Oriented Iteration
 mspregpoi <- function(family,s,q,y,wt,offset,method="u",
-                      varht=1,prec=1e-7,maxiter=30)
+                      varht=1,alpha,prec=1e-7,maxiter=30)
 {
     ## Check inputs
     if (is.vector(s)) s <- as.matrix(s)
@@ -103,7 +108,8 @@ mspregpoi <- function(family,s,q,y,wt,offset,method="u",
     init <- 0
     theta <- rep(0,nq)
     iter <- 0
-    alpha <- NULL
+    if (family=="nbinomial") alpha <- NULL
+    else alpha <- list(alpha,is.null(alpha))
     qwk <- array(0,c(nobs,nobs,nq))
     repeat {
         iter <- iter+1
@@ -112,7 +118,10 @@ mspregpoi <- function(family,s,q,y,wt,offset,method="u",
                       nbinomial=mkdata.nbinomial(y,eta,wt,offset,alpha),
                       poisson=mkdata.poisson(y,eta,wt,offset),
                       inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
-                      Gamma=mkdata.Gamma(y,eta,wt,offset))
+                      Gamma=mkdata.Gamma(y,eta,wt,offset),
+                      weibull=mkdata.weibull(y,eta,wt,offset,alpha),
+                      lognorm=mkdata.lognorm(y,eta,wt,offset,alpha),
+                      loglogis=mkdata.loglogis(y,eta,wt,offset,alpha))
         alpha <- dat$alpha
         w <- as.vector(sqrt(dat$wt))
         ywk <- w*dat$ywk
@@ -187,6 +196,7 @@ mspregpoi <- function(family,s,q,y,wt,offset,method="u",
             stop("gss error in sspregpoi: unknown method for smoothing parameter selection.")
     }
     ## Return the fit
+    if (is.list(alpha)) alpha <- alpha[[1]]
     c(list(method=method,theta=theta,w=as.vector(dat$wt),
            eta=as.vector(eta),iter=iter,alpha=alpha),
       z[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])

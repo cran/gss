@@ -1,3 +1,18 @@
+Thu Jul  5 16:05:21 EST 2001, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.6-2.
+
+	* INDEX: Added mkdata.x, dev.resid.x, and dev.null.x for weibull,
+	lognorm, and loglogis.
+
+	* R: Added support for accelerated life model families weibull,
+	lognorm, and loglogis for censored data regression.
+
+	* data: Added ozone, stan, wesdr.
+
+	* man: Revised relevant files to reflect the added support for
+	accelerated life model families.
+
 Mon May 14 13:18:12 EST 2001, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.5-3.  Added Maintainer field per the new

@@ -14,9 +14,9 @@
 sspreg(s, q, y, method="v", varht=1)
 mspreg(s, q, y, method="v", varht=1, prec=1e-7, maxiter=30)
 sspregpoi(family, s, q, y, wt, offset, method="u",
-          varht=1, prec=1e-7, maxiter=30)
+          varht=1, alpha, prec=1e-7, maxiter=30)
 mspregpoi(family, s, q, y, wt, offset, method="u",
-          varht=1, prec=1e-7, maxiter=30)
+          varht=1, alpha, prec=1e-7, maxiter=30)
 getcrdr(obj, r)
 getsms(obj)
 }

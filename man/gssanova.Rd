@@ -11,13 +11,15 @@
 \usage{
 gssanova(formula, family, type="cubic", data=list(), weights, subset,
         offset, na.action=na.omit, partial=NULL, method=NULL,
-        varht=1, prec=1e-7, maxiter=30, ext=.05, order=2)
+        varht=1, alpha=NULL, prec=1e-7, maxiter=30, ext=.05, order=2)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
     \item{family}{Description of the error distribution.  Supported
-	are \code{"binomial"}, \code{"poisson"}, \code{"Gamma"},
-	\code{"inverse.gaussian"}, and \code{"nbinomial"}.}
+	are exponential families \code{"binomial"}, \code{"poisson"},
+	\code{"Gamma"}, \code{"inverse.gaussian"}, and
+	\code{"nbinomial"}.  Also supported are accelerated life model
+	families \code{weibull}, \code{lognorm}, and \code{loglogis}.}
     \item{type}{Type of numerical marginals to be used.  Supported
 	are \code{type="cubic"} for cubic spline marginals,
 	\code{type="linear"} for linear spline marginals, and
@@ -39,6 +41,8 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
     \item{varht}{Dispersion parameter needed for \code{method="u"}.
 	Ignored when \code{method="v"} or \code{method="m"} are
 	specified.}
+    \item{alpha}{Inverse scale parameter in accelerate life model
+        families.  Ignored for exponential families.}
     \item{prec}{Precision requirement for the iterations.}
     \item{maxiter}{Maximum number of iterations allowed for
 	performance-oriented iteration, and for inner-loop multiple
@@ -65,11 +69,11 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
     For \code{"nbinomial"}, the working parameter is the logit of the
     probability \eqn{p}; see \code{\link{NegBinomial}}.
 
-    For \code{family} \code{"binomial"}, \code{"poisson"}, and
-    \code{"nbinomial"}, the score driving the performance-oriented
-    iteration defaults to \code{method="u"} with \code{varht=1}.  For
-    \code{family} \code{"Gamma"} and \code{"inverse.gaussian"}, the
-    default is \code{method="v"}.
+    For \code{family="binomial"}, \code{"poisson"}, \code{"nbinomial"},
+    \code{"weibull"}, \code{"lognorm"}, and \code{"loglogis"}, the score
+    driving the performance-oriented     iteration defaults to
+    \code{method="u"} with \code{varht=1}.  For \code{family="Gamma"}
+    and \code{"inverse.gaussian"}, the default is \code{method="v"}.
 
     See \code{\link{ssanova}} for details and notes concerning smoothing
     spline ANOVA models.
@@ -83,6 +87,12 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
     columns with the second being the known sizes, or simply as a single
     column with the common unknown size to be estimated through the
     maximum likelihood method.
+
+    For \code{family="weibull"}, \code{"lognorm"}, or \code{"loglogis"},
+    the response consists of three columns, with the first giving the
+    follow-up time, the second the censoring status, and the third the
+    left-truncation time.  For data with no truncation, the third column
+    can be omitted.
 }
 \value{
     \code{gssanova} returns a list object of \code{\link{class}}

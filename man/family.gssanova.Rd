@@ -14,6 +14,15 @@
 \alias{mkdata.nbinomial}
 \alias{dev.resid.nbinomial}
 \alias{dev.null.nbinomial}
+\alias{mkdata.weibull}
+\alias{dev.resid.weibull}
+\alias{dev.null.weibull}
+\alias{mkdata.lognorm}
+\alias{dev.resid.lognorm}
+\alias{dev.null.lognorm}
+\alias{mkdata.loglogis}
+\alias{dev.resid.loglogis}
+\alias{dev.null.loglogis}
 \title{Utility Functions for Error Families}
 \description{
     Utility functions for fitting Smoothing Spline ANOVA models with
@@ -27,18 +36,25 @@ dev.null.[family](y, wt, offset)
 \details{
     \code{family} appearing in the function names is to be substituted
     by \code{binomial}, \code{poisson}, \code{Gamma},
-    \code{inverse.gaussian}, or \code{nbinomial}.
+    \code{inverse.gaussian}, \code{nbinomial}, \code{weibull},
+    \code{lognorm}, or \code{loglogis}.
     
     Only one link is implemented for each \code{family}.  It is the
     logit link for \code{binomial}, and the log link for
     \code{poisson}, \code{Gamma}, and \code{inverse.gaussian}.
     For \code{nbinomial}, the working parameter is the logit of the
-    probability \eqn{p}; see \code{\link{NegBinomial}}.
+    probability \eqn{p}; see \code{\link{NegBinomial}}.  For
+    \code{weibull}, \code{lognorm}, and \code{loglogis}, it is the
+    location parameter for the log life time.
 
     \code{mkdata.x} create the pseudo data to be used in iterated
     penalized least squares fitting.  \code{dev.resid.x} calculate the
     deviance residuals.  \code{dev.null.x} calculate the deviance of the
     constant null model.
+
+    For \code{weibull}, \code{lognorm}, and \code{loglogis}, an extra
+    argument \code{alpha} appears in the argument lists.  The argument
+    \code{alpha} also appears in \code{mkdata.nbinomial}.
 }
 \arguments{
     \item{y}{Model response.}
