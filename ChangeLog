@@ -1,0 +1,15 @@
+Wed Jun 23 20:22:12  Chong Gu  <chong@stat.purdue.edu>
+	
+	* DESCRIPTION (Version): First Public Release is 0.4-1
+	
+	* INDEX: Expanded and reorganized.
+	
+	* R: i) Added support for partial and offset terms; ii) added
+	linear splines; iii) added the gssanova suite for non Gaussian
+	regression.
+	
+	* man: Expanded/revised to reflect the code expansion/revision.
+
+Fri May 28 00:31:24  Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION (Version): First Release is 0.3-1

@@ -1,0 +1,57 @@
+## SSANOVA AND GSSANOVA SUITES
+ssanova                     Fitting smoothing spline ANOVA models
+predict.ssanova             Predicting from ssanova fits
+summary.ssanova             Summarizing ssanova fits
+residuals.ssanova           Extracting the residuals from ssanova objects
+fitted.ssanova              Extracting the fitted values from ssanova objects
+print.ssanova               Print function for ssanova objects
+print.summary.ssanova       Print function for summary.ssanova objects
+
+gssanova                    Fitting smoothing spline ANOVA models with non Gaussian data
+summary.gssanova            Summarizing gssanova fits
+residuals.gssanova          Extracting the residuals from gssanova objects
+fitted.gssanova             Extracting the fitted values from gssanova objects
+print.summary.gssanova      Print function for summary.gssanova objects
+
+## UTILITIES FOR MAKING MODEL TERMS
+mkterm.cubic                Making model terms for cubic spline marginals
+mkphi.cubic                 Making phi function for cubic splines
+mkrk.cubic                  Making RK function for cubic splines
+
+mkterm.linear               Making model terms for linear spline marginals
+mkrk.linear                 Making RK function for linear splines
+
+mkterm.tp                   Making model terms for thin-plate spline marginals
+mkphi.tp                    Making phi functions for thin-plate splines
+mkphi.tp.p                  Making pseudo phi functions for thin-plate splines
+mkrk.tp                     Making RK functions for thin-plate splines
+mkrk.tp.p                   Making pseudo RK functions for thin-plate splines
+
+## UTILITIES FOR DISTRIBUTION FAMILIES
+mkdata.binomial             Making pseudo data for logistic regression
+dev.resid.binomial          Deviance residuals for logistic regression
+dev.null.binomial           Null model deviance for logistic regression
+
+mkdata.poisson              Making pseudo data for Poisson regression
+dev.resid.poisson           Deviance residuals for Poisson regression
+dev.null.poisson            Null model deviance for Poisson regression
+
+mkdata.Gamma                Making pseudo data for gamma regression
+dev.resid.Gamma             Deviance residuals for gamma regression
+dev.null.Gamma              Null model deviance for gamma regression
+
+mkdata.inverse.gaussian     Making pseudo data for IG regression
+dev.resid.inverse.gaussian  Deviance residuals for IG regression
+dev.null.inverse.gaussian   Null model deviance for IG regression
+
+mkdata.nbinomial            Making pseudo data for negative binomial regression
+dev.resid.nbinomial         Deviance residuals for negative binomial regression
+dev.null.nbinomial          Null model deviance for negative binomial regression
+
+## NUMERICAL ENGINE
+sspreg                      An interface to RKPACK driver DSIDR
+sspregpoi                   Performance-oriented iteration using RKPACK driver DSIDR
+mspreg                      An interface to RKPACK driver DMUDR
+mspregpoi                   Performance-oriented iteration using RKPACK driver DMUDR
+getcrdr                     An interface to RKPACK utility DCRDR
+getsms                      An interface to RKPACK utility DSMS
