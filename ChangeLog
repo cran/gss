@@ -1,3 +1,10 @@
+Mon May 14 13:18:12 EST 2001, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.5-3.  Added Maintainer field per the new
+	format requirement by R-1.2.1.
+
+	* man: Fixed keywords in a few files.
+
 Thu Dec 21 19:35:38 EST 2000, Chong Gu  <chong@stat.purdue.edu>
 	
 	* DESCRIPTION: Version 0.5-2.  Moved the Title in here according
@@ -8,7 +15,7 @@ Thu Dec 21 19:35:38 EST 2000, Chong Gu  <chong@stat.purdue.edu>
 	* R: i) Added support for factors; ii) corrected minor bugs; iii)
 	grouped functions into smaller number of files.
 	
-	* data: Replaced lake.acid by LakeAcidity.
+	* data: Replaced lake.acid by LakeAcidity.  Added Nox.
 
 	* man: Expanded to cover all objects.  Revised existing ones to
 	reflect code expansion/revision.

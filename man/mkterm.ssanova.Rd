@@ -42,4 +42,4 @@ mkterm.tp(mf, order, mesh, weight)
     by \code{\link{mkfun.poly}}, \code{\link{mkfun.tp}},
     \code{\link{mkrk.factor}}.
 }
-\keyword{gss-internal}
+\keyword{smooth}

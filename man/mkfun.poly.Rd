@@ -34,4 +34,4 @@ mkphi.cubic(range)
 \seealso{
     \code{\link{mkfun.tp}}, \code{\link{mkrk.factor}}.
 }
-\keyword{gss-internal}
+\keyword{smooth}

@@ -58,4 +58,4 @@ mkphi.tp.p(dm,order)
 \seealso{
     \code{\link{mkfun.poly}}, \code{\link{mkrk.factor}}.
 }
-\keyword{gss-internal}
+\keyword{smooth}

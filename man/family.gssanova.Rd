@@ -59,4 +59,4 @@ dev.null.[family](y, wt, offset)
 \seealso{
     \code{\link{gssanova}}.
 }
-\keyword{gss-internal}
+\keyword{smooth}

@@ -54,4 +54,4 @@ getsms(obj)
     models.  In \emph{ASA Proceedings of Statistical Computing Section},
     pp. 42--51.
 }
-\keyword{gss-internal}
+\keyword{smooth}

@@ -18,4 +18,4 @@ print[.summary.gssanova](obj)
     \code{\link{ssanova}}, \code{\link{gssanova}},
     \code{\link{summary.ssanova}}, \code{\link{summary.gssanova}}.
 }
-\keyword{gss-internal}
+\keyword{smooth}

@@ -41,4 +41,4 @@ mkrk.ordinal(levels)
     \code{\link{mkterm.ssanova}}, \code{\link{mkfun.poly}},
     \code{\link{mkfun.tp}}.
 }
-\keyword{gss-internal}
+\keyword{smooth}
