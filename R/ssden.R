@@ -1,6 +1,6 @@
 ## Fit density model
 ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
-                  weight=NULL,subset,na.action=na.omit,
+                  weights=NULL,subset,na.action=na.omit,
                   id.basis=NULL,nbasis=NULL,seed=NULL,
                   domain=NULL,quadrature=NULL,ext=.05,order=2,
                   prec=1e-7,maxiter=30)
@@ -14,6 +14,7 @@ ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf,sys.frame(sys.parent()))
     cnt <- model.weights(mf)
+    mf$"(weights)" <- NULL
     if (is.null(domain)) {
         mn <- apply(mf,2,min)
         mx <- apply(mf,2,max)
@@ -22,15 +23,6 @@ ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
         mx <- mx + ext*range
         domain <- data.frame(rbind(mn,mx))
     }
-    if (type=="cubic") term <- mkterm.cubic1(mf,domain)
-    if (type=="linear") term <- mkterm.linear1(mf,domain)
-    if (type=="tp") {
-        if (is.null(quadrature))
-            stop("gss error in ssden: quadrature needed for type tp")
-        term <- mkterm.tp(mf,order,mf[id.basis,],1)
-    }
-    if (is.null(term)) stop("gss error in ssden: unknown type")
-    term$labels <- term$labels[term$labels!="1"]
     ## Generate sub-basis
     nobs <- dim(mf)[1]
     if (is.null(id.basis)) {
@@ -44,6 +36,16 @@ ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
             stop("gss error in ssden: id.basis out of range")
         nbasis <- length(id.basis)
     }
+    ## Generate terms
+    if (type=="cubic") term <- mkterm.cubic1(mf,domain)
+    if (type=="linear") term <- mkterm.linear1(mf,domain)
+    if (type=="tp") {
+        if (is.null(quadrature))
+            stop("gss error in ssden: quadrature needed for type tp")
+        term <- mkterm.tp(mf,order,mf[id.basis,],1)
+    }
+    if (is.null(term)) stop("gss error in ssden: unknown type")
+    term$labels <- term$labels[term$labels!="1"]
     ## Generate default quadrature
     if (is.null(quadrature)) {
         ## TO DO: HANDLING OF FACTORS

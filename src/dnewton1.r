@@ -69,7 +69,7 @@ repeat {
     #   Cholesky factorization
     for (i=1;i<=nxis;i=i+1)  jpvt(i) = 0
     call  dchdc (v, nxis, nxis, wk, jpvt, 1, rkv)
-    while (v(rkv,rkv)<v(1,1)*2.d0*dsqrt(mchpr))  rkv = rkv - 1
+    while (v(rkv,rkv)<v(1,1)*dsqrt(mchpr))  rkv = rkv - 1
     for (i=rkv+1;i<=nxis;i=i+1) {
         v(i,i) = v(1,1)
         call  dset (i-rkv-1, 0.d0, v(rkv+1,i), 1)
@@ -79,6 +79,7 @@ repeat {
         call  dcopy (nxis, mu, 1, cdnew, 1)
         call  dprmut (cdnew, nxis, jpvt, 0)
         call  dtrsl (v, nxis, nxis, cdnew, 11, infowk)
+        call  dset (nxis-rkv, 0.d0, cdnew(rkv+1), 1)
         call  dtrsl (v, nxis, nxis, cdnew, 01, infowk)
         call  dprmut (cdnew, nxis, jpvt, 1)
         call  daxpy (nxis, 1.d0, cd, 1, cdnew, 1)

@@ -102,7 +102,7 @@ C Output from Public domain Ratfor, version 1.0
       goto 23038
 23040 continue
       call dchdc (v, nxis, nxis, wk, jpvt, 1, rkv)
-23041 if(v(rkv,rkv).lt.v(1,1)*2.d0*dsqrt(mchpr))then
+23041 if(v(rkv,rkv).lt.v(1,1)*dsqrt(mchpr))then
       rkv = rkv - 1
       goto 23041
       endif
@@ -118,6 +118,7 @@ C Output from Public domain Ratfor, version 1.0
       call dcopy (nxis, mu, 1, cdnew, 1)
       call dprmut (cdnew, nxis, jpvt, 0)
       call dtrsl (v, nxis, nxis, cdnew, 11, infowk)
+      call dset (nxis-rkv, 0.d0, cdnew(rkv+1), 1)
       call dtrsl (v, nxis, nxis, cdnew, 01, infowk)
       call dprmut (cdnew, nxis, jpvt, 1)
       call daxpy (nxis, 1.d0, cd, 1, cdnew, 1)

@@ -2,6 +2,9 @@
 ssanova                     Fitting smoothing spline ANOVA models
 predict.ssanova             Predicting from ssanova fits
 summary.ssanova             Summarizing ssanova fits
+ssanova1                    Fitting smoothing spline ANOVA models
+predict.ssanova1            Predicting from ssanova1 fits
+summary.ssanova1            Summarizing ssanova1 fits
 residuals.ssanova           Extracting the residuals from ssanova objects
 fitted.ssanova              Extracting the fitted values from ssanova objects
 print.ssanova               Print function for ssanova objects
@@ -87,5 +90,7 @@ mspregpoi                   Performance-oriented iteration using RKPACK driver D
 getcrdr                     An interface to RKPACK utility DCRDR
 getsms                      An interface to RKPACK utility DSMS
 
+sspreg1                     Compute regression estimate with single smoothing parameter
+mspreg1                     Compute regression estimate with multiple smoothing parameters
 sspdsty                     Compute density estimate with single smoothing parameter
 mspdsty                     Compute density estimate with multiple smoothing parameters

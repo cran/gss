@@ -12,10 +12,10 @@ sspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     cv <- function(lambda) {
         fit <- .Fortran("dnewton",
                         cd=as.double(cd), as.integer(nxis),
-                        as.double(10^lambda*q), as.integer(nxi),
-                        as.double(rbind(r,s)), as.integer(nobs),
-                        as.double(sum(cnt)), as.integer(cnt),
-                        as.double(t(rbind(qd.r,qd.s))), as.integer(nqd),
+                        as.double(10^(lambda+theta)*q), as.integer(nxi),
+                        as.double(rbind(10^theta*r,s)), as.integer(nobs),
+                        as.integer(sum(cnt)), as.integer(cnt),
+                        as.double(t(rbind(10^theta*qd.r,qd.s))), as.integer(nqd),
                         as.double(qd.wt),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps),
@@ -32,9 +32,13 @@ sspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         cv+adj
     }
     ## initialization
-    mu <- apply(qd.wt*t(qd.r),2,sum)/sum(qd.wt)
-    v <- apply(qd.wt*t(qd.r^2),2,sum)/sum(qd.wt)
-    log.la0 <- log10(sum(v-mu^2)/sum(diag(q)))
+    mu.r <- apply(qd.wt*t(qd.r),2,sum)/sum(qd.wt)
+    v.r <- apply(qd.wt*t(qd.r^2),2,sum)/sum(qd.wt)
+    mu.s <- apply(qd.wt*t(qd.s),2,sum)/sum(qd.wt)
+    v.s <- apply(qd.wt*t(qd.s^2),2,sum)/sum(qd.wt)
+    if (is.null(s)) theta <- 0
+    else theta <- log10(sum(v.s-mu.s^2)/nnull/sum(v.r-mu.r^2)*nxi) / 2
+    log.la0 <- log10(sum(v.r-mu.r^2)/sum(diag(q))) + theta
     ## lambda search
     cd <- rep(0,nxi+nnull)
     int <- NULL
@@ -55,7 +59,7 @@ sspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     c <- cd[1:nxi]
     if (nnull) d <- cd[nxi+(1:nnull)]
     else d <- NULL
-    list(lambda=fit$est,theta=0,c=c,d=d,int=int,cv=fit$min)
+    list(lambda=fit$est,theta=theta,c=c,d=d,int=int,cv=fit$min)
 }
 
 ## Fit multiple smoothing parameter density
@@ -79,9 +83,9 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         }
         fit <- .Fortran("dnewton",
                         cd=as.double(cd), as.integer(nxis),
-                        as.double(q.wk), as.integer(nxi),
+                        as.double(10^lambda*q.wk), as.integer(nxi),
                         as.double(rbind(r.wk,s)), as.integer(nobs),
-                        as.double(sum(cnt)), as.integer(cnt),
+                        as.integer(sum(cnt)), as.integer(cnt),
                         as.double(t(rbind(qd.r.wk,qd.s))), as.integer(nqd),
                         as.double(qd.wt),
                         as.double(prec), as.integer(maxiter),
@@ -106,14 +110,25 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         q.wk <- q.wk + 10^theta[i]*q[,,i]
         qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[,,i]
     }
+    ## theta adjustment
+    z <- sspdsty(s,r.wk,q.wk,cnt,qd.s,qd.r.wk,qd.wt,prec,maxiter,alpha)
+    theta <- theta + z$theta
+    for (i in 1:nq) {
+        theta[i] <- 2*theta[i] + log10(t(z$c)%*%q[,,i]%*%z$c)
+        r.wk <- r.wk + 10^theta[i]*r[,,i]
+        q.wk <- q.wk + 10^theta[i]*q[,,i]
+        qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[,,i]
+    }
     mu <- apply(qd.wt*t(qd.r.wk),2,sum)/sum(qd.wt)
     v <- apply(qd.wt*t(qd.r.wk^2),2,sum)/sum(qd.wt)
     log.la0 <- log10(sum(v-mu^2)/sum(diag(q.wk)))
     log.th0 <- theta-log.la0
     ## lambda search
     z <- sspdsty(s,r.wk,q.wk,cnt,qd.s,qd.r.wk,qd.wt,prec,maxiter,alpha)
-    theta <- theta - z$lambda
-    cd <- c(z$c*10^z$lambda,z$d)
+    lambda <- z$lambda
+    log.th0 <- log.th0 + z$lambda
+    theta <- theta + z$theta
+    cd <- c(z$c,z$d)
     int <- z$int
     ## theta search
     counter <- 0
@@ -132,5 +147,5 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     c <- cd[1:nxi]
     if (nnull) d <- cd[nxi+(1:nnull)]
     else d <- NULL
-    list(lambda=0,theta=fit$est,c=c,d=d,int=int,cv=fit$min)
+    list(lambda=lambda,theta=fit$est,c=c,d=d,int=int,cv=fit$min)
 }

@@ -1,24 +1,18 @@
 ## Obtain fitted values from ssanova objects
 fitted.ssanova <- function(object,...)
 {
-    y <- model.response(object$mf,"numeric")
-    w <- model.weights(object$mf)
-    res <- 10^object$nlambda*object$c
-    if (!is.null(w)) res <- res/sqrt(w)
-    as.numeric(y-res)
+    predict(object,object$mf)
 }
-
-## Obtain fitted values in working scale from gssanova objects
-fitted.gssanova <- function(object,...) object$eta
 
 ## Obtain residuals from ssanova objects
 residuals.ssanova <- function(object,...)
 {
-    w <- model.weights(object$mf)
-    res <- 10^object$nlambda*object$c
-    if (!is.null(w)) res <- res/sqrt(w)
-    res
+    y <- model.response(object$mf,"numeric")
+    as.numeric(y-predict(object,object$mf))
 }
+
+## Obtain fitted values in working scale from gssanova objects
+fitted.gssanova <- function(object,...) object$eta
 
 ## Obtain residuals from gssanova objects
 residuals.gssanova <- function(object,type="working",...)

@@ -9,7 +9,7 @@
     with the response missing.
 }
 \usage{
-ssden(formula, type="cubic", data=list(), alpha=1.4, weight=NULL,
+ssden(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
       domain=NULL, quadrature=NULL, ext=.05, order=2, prec=1e-7,
       maxiter=30)
@@ -24,7 +24,7 @@ ssden(formula, type="cubic", data=list(), alpha=1.4, weight=NULL,
         model.}
     \item{alpha}{Parameter defining cross-validation score for smoothing
         parameter selection.}
-    \item{weight}{Optional vector of bin-counts for histogram data.}
+    \item{weights}{Optional vector of bin-counts for histogram data.}
     \item{subset}{Optional vector specifying a subset of observations
 	to be used in the fitting process.}
     \item{na.action}{Function which indicates what should happen when
@@ -130,7 +130,7 @@ data(aids)
 quad.pt <- expand.grid(incu=((1:40)-.5)/40*100,infe=((1:40)-.5)/40*100)
 quad.pt <- quad.pt[quad.pt$incu<=quad.pt$infe,]
 quad.wt <- rep(1,nrow(quad.pt))
-quad.wt[quad.pt$incu<=quad.pt$infe] <- .5
+quad.wt[quad.pt$incu==quad.pt$infe] <- .5
 quad.wt <- quad.wt/sum(quad.wt)*5e3
 ## additive model (pre-truncation independence)
 aids.fit <- ssden(~incu+infe,data=aids,subset=age>=60,

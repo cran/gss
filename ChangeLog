@@ -1,3 +1,17 @@
+Tue Dec 31 10:16:37 EST 2002, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.7-4.
+
+	* INDEX: Added ssanova1 and related functions.
+
+	* R: i) Added ssanova1 suite for scalable Gaussian regression,
+	with modifications in fitted.R to accommodate ssanova1. ii) Minor
+	bug fixes in ssden suite.
+
+	* man: Added documentations for the new entries in R.
+
+	* src: Added routines to support the ssanova1 suite.
+
 Thu Jun 27 12:03:26 EST 2002, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.7-3.
@@ -6,8 +20,8 @@ Thu Jun 27 12:03:26 EST 2002, Chong Gu  <chong@stat.purdue.edu>
 
 	* man: Minor changes to reflect code change.
 
-	* src: Removed dchdc.f and dtrsl.f.  Added an include line as
-	suggested by Kurt Hornik.
+	* src: Removed dchdc.f and dtrsl.f.  Added an include line in
+	smolyak.c as suggested by Kurt Hornik.
 
 Mon Jun 24 16:44:38 EST 2002, Chong Gu  <chong@stat.purdue.edu>
 

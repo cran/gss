@@ -16,7 +16,7 @@ mspdsty(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     \code{sspdsty} is used by \code{\link{ssden}} to compute
     cross-validated density estimate with a single smoothing
     parameter. \code{mspdsty} is used by \code{\link{ssden}} to compute
-    cross-validated density estimate with a multiple smoothing
+    cross-validated density estimate with multiple smoothing
     parameters.
 }
 \arguments{

@@ -1,5 +1,6 @@
 \name{predict.ssanova}
 \alias{predict.ssanova}
+\alias{predict.ssanova1}
 \title{Predicting from Smoothing Spline ANOVA Fits}
 \description{
     Evaluate terms in a smoothing spline ANOVA fit at arbitrary points.
@@ -9,6 +10,8 @@
 \usage{
 predict.ssanova(object, newdata, se.fit=FALSE,
                 include=object$terms$labels, ...)
+predict.ssanova1(object, newdata, se.fit=FALSE,
+                 include=object$terms$labels, ...)
 }
 \arguments{
     \item{object}{Object of class inheriting from \code{"ssanova"}.}
