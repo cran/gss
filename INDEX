@@ -64,19 +64,28 @@ mkdata.binomial             Making pseudo data for logistic regression
 dev.resid.binomial          Deviance residuals for logistic regression
 dev.null.binomial           Null model deviance for logistic regression
 cv.binomial                 CV score for logistic regression
-proj0.binomial              Making pseudo data for projecting logistic fit
+y0.binomial                 Preparing for KL projection of logistic fit
+proj0.binomial              Making pseudo data for projection of logistic fit
+kl.binomial                 Computing KL distance between logistic fits
+cfit.binomial               Computing constant logistic fit
 
 mkdata.poisson              Making pseudo data for Poisson regression
 dev.resid.poisson           Deviance residuals for Poisson regression
 dev.null.poisson            Null model deviance for Poisson regression
-cv.binomial                 CV score for Poisson regression
-proj0.binomial              Making pseudo data for projecting Poisson fit
+cv.poisson                  CV score for Poisson regression
+y0.poisson                  Preparing for KL projection of Poisson fit
+proj0.poisson               Making pseudo data for projection of Poisson fit
+kl.poisson                  Computing KL distance between Poisson fits
+cfit.poisson                Computing constant Poisson fit
 
 mkdata.Gamma                Making pseudo data for gamma regression
 dev.resid.Gamma             Deviance residuals for gamma regression
 dev.null.Gamma              Null model deviance for gamma regression
-cv.binomial                 CV score for gamma regression
-proj0.binomial              Making pseudo data for projecting gamma fit
+cv.Gamma                    CV score for gamma regression
+y0.Gamma                    Preparing for KL projection of Gamma fit
+proj0.Gamma                 Making pseudo data for projection of Gamma fit
+kl.Gamma                    Computing KL distance between Gamma fits
+cfit.Gamma                  Computing constant Gamma fit
 
 mkdata.inverse.gaussian     Making pseudo data for IG regression
 dev.resid.inverse.gaussian  Deviance residuals for IG regression
@@ -85,18 +94,40 @@ dev.null.inverse.gaussian   Null model deviance for IG regression
 mkdata.nbinomial            Making pseudo data for negative binomial regression
 dev.resid.nbinomial         Deviance residuals for negative binomial regression
 dev.null.nbinomial          Null model deviance for negative binomial regression
+cv.nbinomial                CV score for negative binomial regression
+y0.nbinomial                Preparing for KL projection of negative binomial fit
+proj0.nbinomial             Making pseudo data for projection of negative binomial fit
+kl.nbinomial                Computing KL distance between negative binomial fits
+cfit.nbinomial              Computing constant negative binomial fit
 
 mkdata.weibull              Making pseudo data for Weibull regression
 dev.resid.weibull           Deviance residuals for Weibull regression
 dev.null.weibull            Null model deviance for Weibull regression
+cv.weibull                  CV score for Weibull regression
+y0.weibull                  Preparing for KL projection of Weibull fit
+proj0.weibull               Making pseudo data for projection of Weibull fit
+kl.weibull                  Computing KL distance between Weibull fits
+cfit.weibull                Computing constant Weibull fit
 
 mkdata.lognorm              Making pseudo data for log normal regression
 dev.resid.lognorm           Deviance residuals for log normal regression
+dev0.resid.lognorm          Pseudo deviance residuals for log normal regression
 dev.null.lognorm            Null model deviance for log normal regression
+cv.lognorm                  CV score for log normal regression
+y0.lognorm                  Preparing for KL projection of log normal fit
+proj0.lognorm               Making pseudo data for projection of log normal fit
+kl.lognorm                  Computing KL distance between log normal fits
+cfit.lognorm                Computing constant log normal fit
 
 mkdata.loglogis             Making pseudo data for log logistic regression
 dev.resid.loglogis          Deviance residuals for log logistic regression
+dev0.resid.loglogis         Pseudo deviance residuals for log logistic regression
 dev.null.loglogis           Null model deviance for log logistic regression
+cv.loglogis                  CV score for log logistic regression
+y0.loglogis                  Preparing for KL projection of log logistic fit
+proj0.loglogis               Making pseudo data for projection of log logistic fit
+kl.loglogis                  Computing KL distance between log logistic fits
+cfit.loglogis                Computing constant log logistic fit
 
 ## UTILITIES FOR NUMERICAL INTEGRATION
 gauss.quad                  Generating Gauss-Legendre quadrature

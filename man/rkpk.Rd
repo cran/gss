@@ -14,9 +14,9 @@
 sspreg(s, q, y, method="v", varht=1)
 mspreg(s, q, y, method="v", varht=1, prec=1e-7, maxiter=30)
 sspregpoi(family, s, q, y, wt, offset, method="u",
-          varht=1, alpha, prec=1e-7, maxiter=30)
+          varht=1, nu, prec=1e-7, maxiter=30)
 mspregpoi(family, s, q, y, wt, offset, method="u",
-          varht=1, alpha, prec=1e-7, maxiter=30)
+          varht=1, nu, prec=1e-7, maxiter=30)
 getcrdr(obj, r)
 getsms(obj)
 }
@@ -48,7 +48,7 @@ getsms(obj)
     \item{offset}{Model offset.}
     \item{obj}{Object returned from a call to \code{sspreg},
       \code{mspreg}, \code{sspregpoi}, or \code{mspregpoi}.}
-    \item{alpha}{Optional argument for nbinomial, weibull, lognorm, and
+    \item{nu}{Optional argument for nbinomial, weibull, lognorm, and
       loglogis families.}
     \item{r}{Inputs for standard error calculation.}
 }

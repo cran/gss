@@ -11,7 +11,7 @@
 \usage{
 gssanova(formula, family, type="cubic", data=list(), weights, subset,
         offset, na.action=na.omit, partial=NULL, method=NULL,
-        varht=1, alpha=NULL, prec=1e-7, maxiter=30, ext=.05, order=2)
+        varht=1, nu=NULL, prec=1e-7, maxiter=30, ext=.05, order=2)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
@@ -42,7 +42,7 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
     \item{varht}{Dispersion parameter needed for \code{method="u"}.
 	Ignored when \code{method="v"} or \code{method="m"} are
 	specified.}
-    \item{alpha}{Inverse scale parameter in accelerated life model
+    \item{nu}{Inverse scale parameter in accelerated life model
         families.  Ignored for exponential families.}
     \item{prec}{Precision requirement for the iterations.}
     \item{maxiter}{Maximum number of iterations allowed for

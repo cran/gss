@@ -203,6 +203,8 @@ sshzd <- function(formula,type="cubic",data=list(),alpha=1.4,
     obj <- c(list(call=match.call(),mf=mf,tname=tname,xnames=xnames,
                   terms=term,desc=desc,alpha=alpha,domain=domain,cfit=cfit,
                   quad=quad,x.pt=x.pt,qd.wt=qd.wt,id.basis=id.basis),z)
+    if (is.null(cnt)) obj$se.aux$v <- sqrt(nobs)*obj$se.aux$v
+    else obj$se.aux$v <- sqrt(sum(cnt))*obj$se.aux$v
     class(obj) <- c("sshzd")
     obj
 }
@@ -312,9 +314,18 @@ msphzd <- function(s,r,q,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         else la <- zz$est
     }
     if (nq==1) {
+        lambda <- zz$est
+        se.aux <- .Fortran("hzdaux1",
+                           as.double(cd), as.integer(nxis),
+                           as.double(10^lambda*q.wk), as.integer(nxi),
+                           as.double(qd.r.wk), as.integer(nqd),
+                           as.double(qd.wt), as.integer(nx),
+                           as.double(.Machine$double.eps), double(nqd*nx),
+                           v=double(nxis*nxis), double(nxis*nxis),
+                           jpvt=integer(nxis), PACKAGE="gss")[c("v","jpvt")]
         c <- cd[1:nxi]
         if (nnull) d <- cd[nxi+(1:nnull)]
-        return(list(lambda=zz$est,theta=theta,c=c,d=d,cv=zz$min,mesh0=mesh0))
+        return(list(lambda=zz$est,theta=theta,c=c,d=d,cv=zz$min,mesh0=mesh0,se.aux=se.aux))
     }
     ## theta adjustment
     qd.r.wk <- array(0,c(nqd,nxi,nx))
@@ -375,7 +386,28 @@ msphzd <- function(s,r,q,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
             break
         }
     }
+    ## return
+    theta <- zz$est
+    cv <- (zz$min-cv.shift)/cv.scale
+    q.wk <- 0
+    qd.r.wk <- array(0,c(nqd,nxi,nx))
+    for (i in 1:nq) {
+        q.wk <- q.wk + 10^theta[i]*q[,,i]
+        if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
+        else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
+    }
+    qd.r.wk <- aperm(qd.r.wk,c(1,3,2))
+    qd.r.wk <- array(c(qd.r.wk,qd.s),c(nqd,nx,nxis))
+    qd.r.wk <- aperm(qd.r.wk,c(1,3,2))
+    se.aux <- .Fortran("hzdaux1",
+                       as.double(cd), as.integer(nxis),
+                       as.double(10^lambda*q.wk), as.integer(nxi),
+                       as.double(qd.r.wk), as.integer(nqd),
+                       as.double(qd.wt), as.integer(nx),
+                       as.double(.Machine$double.eps), double(nqd*nx),
+                       v=double(nxis*nxis), double(nxis*nxis),
+                       jpvt=integer(nxis), PACKAGE="gss")[c("v","jpvt")]
     c <- cd[1:nxi]
     if (nnull) d <- cd[nxi+(1:nnull)]
-    list(lambda=lambda,theta=zz$est,c=c,d=d,cv=zz$min,mesh0=mesh0)
+    list(lambda=lambda,theta=theta,c=c,d=d,cv=cv,mesh0=mesh0,se.aux=se.aux)
 }

@@ -5,13 +5,11 @@ gssanova1 <- function(formula,family,type="cubic",data=list(),
                       id.basis=NULL,nbasis=NULL,seed=NULL,random=NULL,
                       ext=.05,order=2)
 {
-    if (!(family%in%c("binomial","poisson","Gamma")))
+    if (!(family%in%c("binomial","poisson","Gamma","nbinomial","weibull","lognorm","loglogis")))
         stop("gss error in gssanova1: family not implemented")
     if (is.null(alpha)) {
-        alpha <- switch(family,
-                        binomial=1,
-                        poisson=1.4,
-                        Gamma=1.4)
+        alpha <- 1.4
+        if (family=="binomial") alpha <- 1
     }
     ## Obtain model frame and model terms
     mf <- match.call()
@@ -92,13 +90,19 @@ gssanova1 <- function(formula,family,type="cubic",data=list(),
         term$labels <- c(term$labels,"offset")
         term$offset <- list(nphi=0,nrk=0)
     }
+    nu.wk <- list(NULL,FALSE)
+    if ((family=="nbinomial")&is.vector(y)) nu.wk <- list(NULL,TRUE)
+    if (family%in%c("weibull","lognorm","loglogis")) {
+        if (is.null(nu)) nu.wk <- list(nu,TRUE)
+        else nu.wk <- list(nu,FALSE)
+    }
     ## Fit the model
     if (nq==1) {
         r <- r[,,1]
         q <- q[,,1]
-        z <- sspngreg1(family,s,r,q,y,wt,offset,alpha,nu,random)
+        z <- sspngreg1(family,s,r,q,y,wt,offset,alpha,nu.wk,random)
     }
-    else z <- mspngreg1(family,s,r,q,y,wt,offset,alpha,nu,random)
+    else z <- mspngreg1(family,s,r,q,y,wt,offset,alpha,nu.wk,random)
     ## Brief description of model terms
     desc <- NULL
     for (label in term$labels)

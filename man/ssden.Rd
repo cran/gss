@@ -11,8 +11,8 @@
 \usage{
 ssden(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
-      domain=NULL, quadrature=NULL, ext=.05, order=2, prec=1e-7,
-      maxiter=30)
+      domain=as.list(NULL), quadrature=NULL, ext=.05, order=2,
+      prec=1e-7, maxiter=30)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
@@ -106,9 +106,9 @@ ssden(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Gu, C. and Wang, J. (2002), \emph{Penalized Likelihood Density
-    Estimation: Direct Cross-Validation and Scalable Approximation}.
-    Available at \url{http://stat.purdue.edu/~chong/manu.html}.
+    Gu, C. and Wang, J. (2003), Penalized likelihood density
+    estimation: Direct cross-validation and scalable approximation}.
+    \emph{Statistica Sinica}, \bold{13}, 811--826.
   
     Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
     Springer-Verlag.

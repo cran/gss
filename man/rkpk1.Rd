@@ -20,7 +20,7 @@ sspngreg1(family,s,r,q,y,wt,offset,alpha,nu,random)
 mspngreg1(family,s,r,q,y,wt,offset,alpha,nu,random)
 ngreg1(dc,family,sr,q,y,wt,offset,nu,alpha)
 
-ngreg.proj(dc,family,sr,q,fit0,wt,offset,nu)
+ngreg.proj(dc,family,sr,q,y0,wt,offset,nu)
 }
 \details{
     \code{sspreg1} is used by \code{\link{ssanova1}} to compute
@@ -42,7 +42,9 @@ ngreg.proj(dc,family,sr,q,fit0,wt,offset,nu)
 \arguments{
     \item{family}{Description of the error distribution.  Supported
 	are exponential families \code{"binomial"}, \code{"poisson"},
-	and \code{"Gamma"}}.
+	\code{"Gamma"}, and \code{"nbinomial"}.  Also supported are
+	accelerated life model families \code{"weibull"},
+	\code{"lognorm"}, and \code{"loglogis"}.}
     \item{s}{Unpenalized terms evaluated at data points.}
     \item{r}{Basis of penalized terms evaluated at data points.}
     \item{q}{Penalty matrix.}
@@ -61,7 +63,7 @@ ngreg.proj(dc,family,sr,q,fit0,wt,offset,nu)
 
     \item{dc}{Coefficients of fits.}
     \item{sr}{\code{cbind(s,r)}.}
-    \item{fit0}{The fit to be projected.}
+    \item{y0}{Components of the fit to be projected.}
 }
 \references{
     Kim, Y.-J. and Gu, C. (2002) \emph{Penalized Least Squares

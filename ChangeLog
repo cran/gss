@@ -1,3 +1,28 @@
+Fri Mar 26 10:40:04 EST 2004, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.9-2.
+
+	* R: Added SE calculations to the sshzd suite.
+
+	* man: Updated hzdrate.sshzd.Rd to reflect the added SE
+	functionality.
+
+	* src: Added support for the SE calculations in the sshzd suite.
+
+Sun Oct 19 23:16:01 EST 2003, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.9-1.
+
+	* INDEX: Added new utility functions for gssanova1 and
+	project.gssanova1.
+
+	* R: i) Added supports of nbinomial, weibull, lognorm, and
+	loglogis families to gssanova1.  ii) Restructured
+	project.gssanova1 along with added family supports.
+
+	* man: Added to family.Rd the new utility functions for gssanova1
+	and project.gssanova1.
+
 Sat Aug 16 01:31:27 EST 2003, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.8-6.

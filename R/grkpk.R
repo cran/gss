@@ -1,6 +1,6 @@
 ## Fit Single Smoothing Parameter REGression by Performance-Oriented Iteration
 sspregpoi <- function(family,s,q,y,wt,offset,method="u",
-                      varht=1,alpha,prec=1e-7,maxiter=30)
+                      varht=1,nu,prec=1e-7,maxiter=30)
 {
     ## Check inputs
     if (is.vector(s)) s <- as.matrix(s)
@@ -22,20 +22,20 @@ sspregpoi <- function(family,s,q,y,wt,offset,method="u",
     nla0 <- log10(mean(abs(diag(q))))
     limnla <- nla0+c(-.5,.5)
     iter <- 0
-    if (family=="nbinomial") alpha <- NULL
-    else alpha <- list(alpha,is.null(alpha))
+    if (family=="nbinomial") nu <- NULL
+    else nu <- list(nu,is.null(nu))
     repeat {
         iter <- iter+1
         dat <- switch(family,
                       binomial=mkdata.binomial(y,eta,wt,offset),
-                      nbinomial=mkdata.nbinomial(y,eta,wt,offset,alpha),
+                      nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
                       poisson=mkdata.poisson(y,eta,wt,offset),
                       inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                       Gamma=mkdata.Gamma(y,eta,wt,offset),
-                      weibull=mkdata.weibull(y,eta,wt,offset,alpha),
-                      lognorm=mkdata.lognorm(y,eta,wt,offset,alpha),
-                      loglogis=mkdata.loglogis(y,eta,wt,offset,alpha))
-        alpha <- dat$alpha
+                      weibull=mkdata.weibull(y,eta,wt,offset,nu),
+                      lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
+                      loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
+        nu <- dat$nu
         w <- as.vector(sqrt(dat$wt))
         ywk <- w*dat$ywk
         swk <- w*s
@@ -76,15 +76,15 @@ sspregpoi <- function(family,s,q,y,wt,offset,method="u",
         eta <- eta.new
     }
     ## Return the fit
-    if (is.list(alpha)) alpha <- alpha[[1]]
+    if (is.list(nu)) nu <- nu[[1]]
     c(list(method=method,theta=0,w=as.vector(dat$wt),
-           eta=as.vector(eta),iter=iter,nu=alpha),
+           eta=as.vector(eta),iter=iter,nu=nu),
       z[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])
 }
 
 ## Fit Multiple Smoothing Parameter REGression by Performance-Oriented Iteration
 mspregpoi <- function(family,s,q,y,wt,offset,method="u",
-                      varht=1,alpha,prec=1e-7,maxiter=30)
+                      varht=1,nu,prec=1e-7,maxiter=30)
 {
     ## Check inputs
     if (is.vector(s)) s <- as.matrix(s)
@@ -108,21 +108,21 @@ mspregpoi <- function(family,s,q,y,wt,offset,method="u",
     init <- 0
     theta <- rep(0,nq)
     iter <- 0
-    if (family=="nbinomial") alpha <- NULL
-    else alpha <- list(alpha,is.null(alpha))
+    if (family=="nbinomial") nu <- NULL
+    else nu <- list(nu,is.null(nu))
     qwk <- array(0,c(nobs,nobs,nq))
     repeat {
         iter <- iter+1
         dat <- switch(family,
                       binomial=mkdata.binomial(y,eta,wt,offset),
-                      nbinomial=mkdata.nbinomial(y,eta,wt,offset,alpha),
+                      nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
                       poisson=mkdata.poisson(y,eta,wt,offset),
                       inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                       Gamma=mkdata.Gamma(y,eta,wt,offset),
-                      weibull=mkdata.weibull(y,eta,wt,offset,alpha),
-                      lognorm=mkdata.lognorm(y,eta,wt,offset,alpha),
-                      loglogis=mkdata.loglogis(y,eta,wt,offset,alpha))
-        alpha <- dat$alpha
+                      weibull=mkdata.weibull(y,eta,wt,offset,nu),
+                      lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
+                      loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
+        nu <- dat$nu
         w <- as.vector(sqrt(dat$wt))
         ywk <- w*dat$ywk
         swk <- w*s
@@ -196,8 +196,8 @@ mspregpoi <- function(family,s,q,y,wt,offset,method="u",
             stop("gss error in sspregpoi: unknown method for smoothing parameter selection.")
     }
     ## Return the fit
-    if (is.list(alpha)) alpha <- alpha[[1]]
+    if (is.list(nu)) nu <- nu[[1]]
     c(list(method=method,theta=theta,w=as.vector(dat$wt),
-           eta=as.vector(eta),iter=iter,nu=alpha),
+           eta=as.vector(eta),iter=iter,nu=nu),
       z[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])
 }

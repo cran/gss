@@ -18,7 +18,9 @@ gssanova1(formula, family, type="cubic", data=list(), weights, subset,
     \item{formula}{Symbolic description of the model to be fit.}
     \item{family}{Description of the error distribution.  Supported
 	are exponential families \code{"binomial"}, \code{"poisson"},
-	and \code{"Gamma"}.}
+	\code{"Gamma"}, and \code{"nbinomial"}.  Also supported are
+	accelerated life model families \code{"weibull"},
+	\code{"lognorm"}, and \code{"loglogis"}.}
     \item{type}{Type of numerical marginals to be used.  Supported
 	are \code{type="cubic"} for cubic spline marginals,
 	\code{type="linear"} for linear spline marginals, and

@@ -93,7 +93,7 @@ dev.resid.poisson <- function(y,eta,wt)
 dev.null.poisson <- function(y,wt,offset)
 {
     if (is.null(wt)) wt <- rep(1,length(y))
-    lambda <- mean(y)
+    lambda <- sum(wt*y)/sum(wt)
     if (!is.null(offset)) {
         eta <- log(lambda) - mean(offset)
         repeat {
@@ -202,7 +202,7 @@ dev.null.inverse.gaussian <- function(y,wt,offset)
 ##%%%%%%%%%%  Negative Binomial Family %%%%%%%%%%
 
 ## Make pseudo data for NB regression
-mkdata.nbinomial <- function(y,eta,wt,offset,alpha)
+mkdata.nbinomial <- function(y,eta,wt,offset,nu)
 {
     if (is.vector(y)) y <- as.matrix(y)
     if (is.null(wt)) wt <- rep(1,dim(y)[1])
@@ -223,21 +223,21 @@ mkdata.nbinomial <- function(y,eta,wt,offset,alpha)
         if (min(y)<0)
             stop("gss error: negative binomial response should be nonnegative")
         p <- 1-1/(1+exp(eta))
-        if (is.null(alpha)) log.alpha <- log(mean(y*exp(eta)))
-        else log.alpha <- log(alpha)
+        if (is.null(nu)) log.nu <- log(mean(y*exp(eta)))
+        else log.nu <- log(nu)
         repeat {
-            alpha <- exp(log.alpha)
-            ua <- sum(digamma(y+alpha)-digamma(alpha)+log(p))*alpha
-            wa <- sum(trigamma(y+alpha)-trigamma(alpha))*alpha*alpha+ua
-            log.alpha.new <- log.alpha - ua/wa
-            if (abs(log.alpha-log.alpha.new)/(1+abs(log.alpha))<1e-7) break
-            log.alpha <- log.alpha.new
+            nu <- exp(log.nu)
+            ua <- sum(digamma(y+nu)-digamma(nu)+log(p))*nu
+            wa <- sum(trigamma(y+nu)-trigamma(nu))*nu*nu+ua
+            log.nu.new <- log.nu - ua/wa
+            if (abs(log.nu-log.nu.new)/(1+abs(log.nu))<1e-7) break
+            log.nu <- log.nu.new
         }
-        u <- (y+alpha)*p-alpha
-        w <- (y+alpha)*p*(1-p)
+        u <- (y+nu)*p-nu
+        w <- (y+nu)*p*(1-p)
         ywk <- eta-u/w-offset
         wt <- w*wt
-        list(ywk=ywk,wt=wt,alpha=alpha)
+        list(ywk=ywk,wt=wt,nu=nu)
     }
 }
 
@@ -254,7 +254,7 @@ dev.resid.nbinomial <- function(y,eta,wt)
 dev.null.nbinomial <- function(y,wt,offset)
 {
     if (is.null(wt)) wt <- rep(1,dim(y)[1])
-    p <- sum(y[,2])/sum(y)
+    p <- sum(wt*y[,2])/sum(wt*y)
     if (!is.null(offset)) {
         eta <- log(p/(1-p)) - mean(offset)
         repeat {

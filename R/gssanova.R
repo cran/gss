@@ -1,13 +1,13 @@
 ## Fit gssanova model
 gssanova <- function(formula,family,type="cubic",data=list(),
                      weights,subset,offset,na.action=na.omit,
-                     partial=NULL,method=NULL,varht=1,alpha=NULL,
+                     partial=NULL,method=NULL,varht=1,nu=NULL,
                      prec=1e-7,maxiter=30,ext=.05,order=2)
 {
     ## Obtain model frame and model terms
     mf <- match.call()
     mf$family <- mf$type <- mf$partial <- NULL
-    mf$method <- mf$varht <- mf$alpha <- NULL
+    mf$method <- mf$varht <- mf$nu <- NULL
     mf$prec <- mf$maxiter <- mf$ext <- mf$order <- NULL
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf,sys.frame(sys.parent()))
@@ -76,9 +76,9 @@ gssanova <- function(formula,family,type="cubic",data=list(),
     ## Fit the model
     if (nq==1) {
         q <- q[,,1]
-        z <- sspregpoi(family,s,q,y,wt,offset,method,varht,alpha,prec,maxiter)
+        z <- sspregpoi(family,s,q,y,wt,offset,method,varht,nu,prec,maxiter)
     }
-    else z <- mspregpoi(family,s,q,y,wt,offset,method,varht,alpha,prec,maxiter)
+    else z <- mspregpoi(family,s,q,y,wt,offset,method,varht,nu,prec,maxiter)
     ## Brief description of model terms
     desc <- NULL
     for (label in term$labels)

@@ -1,5 +1,5 @@
 hzdrate.sshzd <- ## Evaluate hazard estimate
-function (object,x) {
+function (object,x,se=FALSE) {
     if (class(object)!="sshzd")
         stop("gss error in hzdrate.sshzd: not a sshzd object")
     if (dim(object$mf)[2]==1&is.vector(x)) {
@@ -32,11 +32,21 @@ function (object,x) {
             }
         }
     }
-    as.vector(exp(cbind(s,r)%*%c(object$d,object$c)))
+    rs <- cbind(r,s)
+    if (!se) as.vector(exp(rs%*%c(object$c,object$d)))
+    else {
+        fit <- as.vector(exp(rs%*%c(object$c,object$d)))
+        se.fit <- .Fortran("hzdaux2",
+                           as.double(object$se.aux$v), as.integer(dim(rs)[2]),
+                           as.integer(object$se.aux$jpvt),
+                           as.double(t(rs)), as.integer(dim(rs)[1]),
+                           se=double(dim(rs)[1]), PACKAGE="gss")[["se"]]
+        list(fit=fit,se.fit=se.fit)
+    }
 }
 
 hzdcurve.sshzd <- ## Evaluate hazard curve for plotting
-function (object,time,covariates=NULL) {
+function (object,time,covariates=NULL,se=FALSE) {
     tname <- object$tname
     xnames <- object$xnames
     if (class(object)!="sshzd")
@@ -54,17 +64,34 @@ function (object,time,covariates=NULL) {
         xy[,tname] <- time
     }
     else xx <- NULL
-    if (is.null(xx))
-        zz <- hzdrate.sshzd(object,time)
-    else {
-        zz <- NULL
-        for (i in 1:dim(xx)[1]) {
-            xy[,xnames] <- xx[rep(i,length(time)),]
-            zz <- cbind(zz,hzdrate.sshzd(object,xy))
+    if (!se) {
+        if (is.null(xx))
+            zz <- hzdrate.sshzd(object,time)
+        else {
+            zz <- NULL
+            for (i in 1:dim(xx)[1]) {
+                xy[,xnames] <- xx[rep(i,length(time)),]
+                zz <- cbind(zz,hzdrate.sshzd(object,xy))
+            }
+            zz <- zz[,,drop=TRUE]
         }
-        zz <- zz[,,drop=TRUE]
+        zz
     }
-    zz
+    else {
+        if (is.null(xx))
+            zz <- hzdrate.sshzd(object,time,TRUE)
+        else {
+            fit <- se.fit <- NULL
+            for (i in 1:dim(xx)[1]) {
+                xy[,xnames] <- xx[rep(i,length(time)),]
+                wk <- hzdrate.sshzd(object,xy,TRUE)
+                fit <- cbind(fit,wk$fit)
+                se.fit <- cbind(se.fit,wk$se.fit)
+            }
+            zz <- list(fit=fit[,,drop=TRUE],se.fit=se.fit[,,drop=TRUE])
+        }
+        zz
+    }
 }
 
 survexp.sshzd <- ## Compute expected survival

@@ -4,25 +4,25 @@ summary.gssanova <- function(object,diagnostics=FALSE,...)
     y <- model.response(object$mf,"numeric")
     wt <- model.weights(object$mf)
     offset <- model.offset(object$mf)
-    if ((object$family=="nbinomial")&(!is.null(object$alpha))) y <- cbind(y,object$alpha)
+    if ((object$family=="nbinomial")&(!is.null(object$nu))) y <- cbind(y,object$nu)
     dev.resid <- switch(object$family,
                         binomial=dev.resid.binomial(y,object$eta,wt),
                         nbinomial=dev.resid.nbinomial(y,object$eta,wt),
                         poisson=dev.resid.poisson(y,object$eta,wt),
                         inverse.gaussian=dev.resid.inverse.gaussian(y,object$eta,wt),
                         Gamma=dev.resid.Gamma(y,object$eta,wt),
-                        weibull=dev.resid.weibull(y,object$eta,wt,object$alpha),
-                        lognorm=dev.resid.lognorm(y,object$eta,wt,object$alpha),
-                        loglogis=dev.resid.loglogis(y,object$eta,wt,object$alpha))
+                        weibull=dev.resid.weibull(y,object$eta,wt,object$nu),
+                        lognorm=dev.resid.lognorm(y,object$eta,wt,object$nu),
+                        loglogis=dev.resid.loglogis(y,object$eta,wt,object$nu))
     dev.null <- switch(object$family,
                        binomial=dev.null.binomial(y,wt,offset),
                        nbinomial=dev.null.nbinomial(y,wt,offset),
                        poisson=dev.null.poisson(y,wt,offset),
                        inverse.gaussian=dev.null.inverse.gaussian(y,wt,offset),
                        Gamma=dev.null.Gamma(y,wt,offset),
-                       weibull=dev.null.weibull(y,wt,offset,object$alpha),
-                       lognorm=dev.null.lognorm(y,wt,offset,object$alpha),
-                       loglogis=dev.null.loglogis(y,wt,offset,object$alpha))
+                       weibull=dev.null.weibull(y,wt,offset,object$nu),
+                       lognorm=dev.null.lognorm(y,wt,offset,object$nu),
+                       loglogis=dev.null.loglogis(y,wt,offset,object$nu))
     w <- object$w
     if (is.null(offset)) offset <- rep(0,length(object$eta))
     ## Residuals
@@ -75,7 +75,7 @@ summary.gssanova <- function(object,diagnostics=FALSE,...)
     ## Return the summaries
     z <- list(call=object$call,family=object$family,method=object$method,iter=object$iter,
               fitted=fitted,dispersion=sigma2,residuals=res/sqrt(w),rss=rss,
-              deviance=dev,dev.resid=sqrt(dev.resid)*sign(res),alpha=object$alpha,
+              deviance=dev,dev.resid=sqrt(dev.resid)*sign(res),nu=object$nu,
               dev.null=dev.null,penalty=penalty,
               pi=decom,kappa=kappa,cosines=cosines,roughness=rough)
     class(z) <- "summary.gssanova"

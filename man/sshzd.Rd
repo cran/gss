@@ -107,12 +107,12 @@ sshzd(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Gu, C. and Wang, J. (2002), \emph{Penalized Likelihood Density
-    Estimation: Direct Cross-Validation and Scalable Approximation}.
-    Available at \url{http://stat.purdue.edu/~chong/manu.html}.
-  
     Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
     Springer-Verlag.
+
+    Gu, C. and Wang, J. (2003), Penalized likelihood density
+    estimation: Direct cross-validation and scalable approximation}.
+    \emph{Statistica Sinica}, \bold{13}, 811--826.
 }
 \examples{
 ## Model with interaction

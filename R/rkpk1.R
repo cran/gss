@@ -140,7 +140,7 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-zz$est[1])*random$sigma$fun(zz$est[-1],random$sigma$env)
     }
-    zzz <- La.eigen(q.wk,TRUE)
+    zzz <- eigen(q.wk,TRUE)
     rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
     val <- zzz$val[1:rkq]
     vec <- zzz$vec[,1:rkq,drop=FALSE]
@@ -313,7 +313,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-nlambda)*random$sigma$fun(zz$est[-(1:nq)],random$sigma$env)
     }
-    zzz <- La.eigen(q.wk,TRUE)
+    zzz <- eigen(q.wk,TRUE)
     rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
     val <- zzz$val[1:rkq]
     vec <- zzz$vec[,1:rkq,drop=FALSE]

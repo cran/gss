@@ -12,30 +12,35 @@ project.gssanova1 <- function(object,include,...)
     offset <- model.offset(object$mf)
     if (!is.null(object$random)) {
         if (is.null(offset)) offset <- 0
-        offset <- offset + random$z%*%object$b
+        offset <- offset + object$random$z%*%object$b
     }
     nu <- object$nu
-    dat <- switch(family,
-                  binomial=proj0.binomial(y,eta,wt,offset),
-                  poisson=proj0.poisson(y,eta,wt,offset),
-                  Gamma=proj0.Gamma(y,eta,wt,offset))
-    fit0 <- dat[c("mu","theta","b")]
-    y0 <- fit0$mu
-    if (family=="binomial") {
-        if (!is.vector(y)) wt <- as.vector(wt*(y[,1]+y[,2]))
-    }
-    if (family=="nbinomial") {
-        if (!is.vector(y)) y0 <- cbind(y0,y[,2])
-    }
+    y0 <- switch(family,
+                 binomial=y0.binomial(y,eta,wt),
+                 poisson=y0.poisson(eta),
+                 Gamma=y0.Gamma(eta),
+                 nbinomial=y0.nbinomial(y,eta,nu),
+                 weibull=y0.weibull(y,eta,nu),
+                 lognorm=y0.lognorm(y,eta,nu),
+                 loglogis=y0.loglogis(y,eta,nu))
+    # calculate constant fit
+    cfit <- switch(family,
+                   binomial=cfit.binomial(y,wt,offset),
+                   poisson=cfit.poisson(y,wt,offset),
+                   Gamma=cfit.Gamma(y,wt,offset),
+                   nbinomial=cfit.nbinomial(y,eta,wt,nu),
+                   weibull=cfit.weibull(y,wt,offset,nu),
+                   lognorm=cfit.lognorm(y,wt,offset,nu),
+                   loglogis=cfit.loglogis(y,wt,offset,nu))
+    # calculate total entropy
     kl0 <- switch(family,
-                  binomial=dev.null.binomial(y0,wt,offset),
-                  nbinomial=dev.null.nbinomial(y0,wt,offset,nu),
-                  poisson=dev.null.poisson(y0,wt,offset),
-                  inverse.gaussian=dev.null.inverse.gaussian(y0,wt,offset),
-                  Gamma=dev.null.Gamma(y0,wt,offset),
-                  weibull=dev.null.weibull(y0,wt,offset,nu),
-                  lognorm=dev.null.lognorm(y0,wt,offset,nu),
-                  loglogis=dev.null.loglogis(y0,wt,offset,nu))/2/nobs
+                  binomial=kl.binomial(eta,cfit,y0$wt),
+                  poisson=kl.poisson(eta,cfit,wt),
+                  Gamma=kl.Gamma(eta,cfit,wt),
+                  nbinomial=kl.nbinomial(eta,cfit,wt,y0$nu),
+                  weibull=kl.weibull(eta,cfit,wt,nu,y0$int),
+                  lognorm=kl.lognorm(eta,cfit,wt,nu,y0),
+                  loglogis=kl.loglogis(eta,cfit,wt,nu,y0))
     ## extract terms in subspace
     s <- matrix(1,nobs,1)
     philist <- object$term[["1"]]$iphi
@@ -79,7 +84,7 @@ project.gssanova1 <- function(object,include,...)
         if (!nq) {
             q <- matrix(0)
             sr <- cbind(s,0)
-            z <- ngreg.proj(dc,family,sr,q,fit0,wt,offset,nu)
+            z <- ngreg.proj(dc,family,sr,q,y0,wt,offset,nu)
         }
         else {
             theta.wk <- 1:nq
@@ -89,11 +94,11 @@ project.gssanova1 <- function(object,include,...)
             for (i in 1:nq) sr <- sr + 10^theta.wk[i]*r[,,i]
             q <- sr[object$id.basis,]
             sr <- cbind(s,sr)
-            z <- ngreg.proj(dc,family,sr,q,fit0,wt,offset,nu)
+            z <- ngreg.proj(dc,family,sr,q,y0,wt,offset,nu)
         }
         assign("dc",z$dc,inherit=TRUE)
-        assign("fit1",z[c("mu","theta","b")],inherit=TRUE)
-        mean(wt*(fit0$mu*(fit0$theta-fit1$theta)+fit1$b-fit0$b))
+        assign("eta1",z$eta,inherit=TRUE)
+        z$kl
     }
     cv.wk <- function(theta) cv.scale*my.wls(theta)+cv.shift
     ## initialization
@@ -108,7 +113,7 @@ project.gssanova1 <- function(object,include,...)
     ## projection
     if (nq) dc <- c(object$d[philist],10^(-theta.wk)*object$c)
     else dc <- c(object$d[philist],0)
-    fit1 <- NULL
+    eta1 <- NULL
     if (nq>1) {
         ## scale and shift cv
         tmp <- abs(my.wls(theta[-fix]))
@@ -122,7 +127,7 @@ project.gssanova1 <- function(object,include,...)
             cv.scale <- 10^2
             cv.shift <- 10
         }
-        zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
+        zz <- nlm(cv.wk,theta[-fix],stepmax=1,ndigit=7)
         if (zz$code>3)
             warning("gss warning in project.gssanova1: theta iteration fails to converge")
         kl <- my.wls(zz$est)
@@ -130,48 +135,55 @@ project.gssanova1 <- function(object,include,...)
     else kl <- my.wls()
     ## check
     kl1 <- switch(family,
-                  binomial=dev.null.binomial(fit1$mu,wt,offset),
-                  nbinomial=dev.null.nbinomial(fit1$mu,wt,offset,nu),
-                  poisson=dev.null.poisson(fit1$mu,wt,offset),
-                  inverse.gaussian=dev.null.inverse.gaussian(fit1$mu,wt,offset),
-                  Gamma=dev.null.Gamma(fit1$mu,wt,offset),
-                  weibull=dev.null.weibull(fit1$mu,wt,offset,nu),
-                  lognorm=dev.null.lognorm(fit1$mu,wt,offset,nu),
-                  loglogis=dev.null.loglogis(fit1$mu,wt,offset,nu))/2/nobs
+                  binomial=kl.binomial(eta1,cfit,y0$wt),
+                  poisson=kl.poisson(eta1,cfit,wt),
+                  Gamma=kl.Gamma(eta1,cfit,wt),
+                  nbinomial=kl.nbinomial(eta1,cfit,wt,y0$nu),
+                  weibull=kl.weibull(eta1,cfit,wt,nu,y0$int),
+                  lognorm=kl.lognorm(eta1,cfit,wt,nu,y0),
+                  loglogis=kl.loglogis(eta1,cfit,wt,nu,y0))
     list(ratio=kl/kl0,kl=kl,check=(kl+kl1)/kl0)
 }
 
 ## KL projection with Non-Gaussian regression
-ngreg.proj <- function(dc,family,sr,q,fit0,wt,offset,nu)
+ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
 {
     ## initialization
-    y <- fit0$mu
     q <- 10^(-5)*q
     eta <- sr%*%dc
-    if (!is.null(offset)) eta <- eta + offset
-    fit1 <- switch(family,
-                  binomial=proj0.binomial(y,eta,wt,offset),
-                  poisson=proj0.poisson(y,eta,wt,offset),
-                  Gamma=proj0.Gamma(y,eta,wt,offset))
-    kl <- mean(wt*(fit0$mu*(fit0$theta-fit1$theta)+fit1$b-fit0$b))
     nobs <- length(eta)
     nn <- ncol(as.matrix(sr))
     nxi <- ncol(q)
     nnull <- nn-nxi
+    if (!is.null(offset)) eta <- eta + offset
     iter <- 0
     flag <- 0
+    adj <- 0
+    fit1 <- switch(family,
+                   binomial=proj0.binomial(y0,eta,offset),
+                   poisson=proj0.poisson(y0,eta,wt,offset),
+                   Gamma=proj0.Gamma(y0,eta,wt,offset),
+                   nbinomial=proj0.nbinomial(y0,eta,wt,offset),
+                   weibull=proj0.weibull(y0,eta,wt,offset,nu),
+                   lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
+                   loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
+    kl <- fit1$kl
     ## Newton iteration
     repeat {
-        iter <- iter+1
+        if (!adj) iter <- iter+1
         ## weighted least squares fit
         if (!is.finite(sum(fit1$wt,fit1$ywk))) {
             if (flag) stop("gss error in project.gssanova1: Newton iteration diverges")
             eta <- rep(0,nobs)
             fit1 <- switch(family,
-                           binomial=proj0.binomial(y,eta,wt,offset),
-                           poisson=proj0.poisson(y,eta,wt,offset),
-                           Gamma=proj0.Gamma(y,eta,wt,offset))
-            kl <- mean(wt*(fit0$mu*(fit0$theta-fit1$theta)+fit1$b-fit0$b))
+                           binomial=proj0.binomial(y0,eta,offset),
+                           poisson=proj0.poisson(y0,eta,wt,offset),
+                           Gamma=proj0.Gamma(y0,eta,wt,offset),
+                           nbinomial=proj0.nbinomial(y0,eta,wt,offset),
+                           weibull=proj0.weibull(y0,eta,wt,offset,nu),
+                           lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
+                           loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
+            kl <- fit1$kl
             iter <- 0
             flag <- 1
             next
@@ -187,51 +199,62 @@ ngreg.proj <- function(dc,family,sr,q,fit0,wt,offset,nu)
                       double(nn*nn), double(nn), as.integer(rep(0,nn)),
                       double(max(nobs,nn)), integer(1), integer(1),
                       PACKAGE="gss")["dc"]
-        dc <- z$dc
-        eta.new <- sr%*%dc
-        if (!is.null(offset)) eta.new <- eta.new + offset
-        fit1 <- switch(family,
-                      binomial=proj0.binomial(y,eta.new,wt,offset),
-                      poisson=proj0.poisson(y,eta.new,wt,offset),
-                      Gamma=proj0.Gamma(y,eta.new,wt,offset))
-        klnew <- mean(wt*(fit0$mu*(fit0$theta-fit1$theta)+fit1$b-fit0$b))
-        disc0 <- max((mumax/(1+kl))^2,abs(klnew-kl)/(1+kl))
+        dc.diff <- z$dc-dc
+        adj <- 0
+        repeat {
+            dc.new <- dc + dc.diff
+            eta.new <- sr%*%dc.new
+            if (!is.null(offset)) eta.new <- eta.new + offset
+            fit1 <- switch(family,
+                           binomial=proj0.binomial(y0,eta.new,offset),
+                           poisson=proj0.poisson(y0,eta.new,wt,offset),
+                           Gamma=proj0.Gamma(y0,eta.new,wt,offset),
+                           nbinomial=proj0.nbinomial(y0,eta.new,wt,offset),
+                           weibull=proj0.weibull(y0,eta.new,wt,offset,nu),
+                           lognorm=proj0.lognorm(y0,eta.new,wt,offset,nu),
+                           loglogis=proj0.loglogis(y0,eta.new,wt,offset,nu))
+            kl.new <- fit1$kl
+            if (!is.finite(kl.new)) kl.new <- Inf
+            if (kl.new-kl<(1e-4+abs(kl))*1e-1) break
+            adj <- 1
+            dc.diff <- dc.diff/2
+        }
+        disc0 <- max((mumax/(1+kl))^2,abs(kl.new-kl)/(1+kl))
         disc <- sum(fit1$wt*((eta-eta.new)/(1+abs(eta)))^2)/sum(fit1$wt)
         if (is.nan(disc)) {
             if (flag) stop("gss error in project.gssanova1: Newton iteration diverges")
             eta <- rep(0,nobs)
             fit1 <- switch(family,
-                           binomial=proj0.binomial(y,eta,wt,offset),
-                           poisson=proj0.poisson(y,eta,wt,offset),
-                           Gamma=proj0.Gamma(y,eta,wt,offset))
-            kl <- mean(wt*(fit0$mu*(fit0$theta-fit1$theta)+fit1$b-fit0$b))
+                           binomial=proj0.binomial(y0,eta,offset),
+                           poisson=proj0.poisson(y0,eta,wt,offset),
+                           Gamma=proj0.Gamma(y0,eta,wt,offset),
+                           nbinomial=proj0.nbinomial(y0,eta,wt,offset),
+                           weibull=proj0.weibull(y0,eta,wt,offset,nu),
+                           lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
+                           loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
+            kl <- fit1$kl
             iter <- 0
             flag <- 1
             next
         }
+        dc <- dc.new
         eta <- eta.new
-        kl <- klnew
+        kl <- kl.new
+        if (adj) next
         if (disc0<1e-5) break
         if (disc<1e-5) break
         if (iter<=30) next
-        if (!flag) {
-            eta <- rep(0,nobs)
-            fit1 <- switch(family,
-                           binomial=proj0.binomial(y,eta,wt,offset),
-                           poisson=proj0.poisson(y,eta,wt,offset),
-                           Gamma=proj0.Gamma(y,eta,wt,offset))
-            kl <- mean(wt*(fit0$mu*(fit0$theta-fit1$theta)+fit1$b-fit0$b))
-            iter <- 0
-            flag <- 1
-        }
-        else {
-            warning("gss warning in project.gssanova1: Newton iteration fails to converge")
-            break
-        }
+        warning("gss warning in project.gssanova1: Newton iteration fails to converge")
+        break
     }
     fit1 <- switch(family,
-                  binomial=proj0.binomial(y,eta,wt,offset),
-                  poisson=proj0.poisson(y,eta,wt,offset),
-                  Gamma=proj0.Gamma(y,eta,wt,offset))
-    c(list(dc=dc),fit1[c("mu","b","theta")])
+                   binomial=proj0.binomial(y0,eta,offset),
+                   poisson=proj0.poisson(y0,eta,wt,offset),
+                   Gamma=proj0.Gamma(y0,eta,wt,offset),
+                   nbinomial=proj0.nbinomial(y0,eta,wt,offset),
+                   weibull=proj0.weibull(y0,eta,wt,offset,nu),
+                   lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
+                   loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
+    kl <- fit1$kl
+    list(dc=dc,eta=eta,kl=kl)
 }

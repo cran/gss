@@ -32,6 +32,17 @@ predict.ssanova1(object, newdata, se.fit=FALSE,
     \item{fit}{Vector of evaluated fit.}
     \item{se.fit}{Vector of standard errors.}
 }
+\note{
+    To supply the partial terms for partial spline models, add a
+    component \code{partial=I(...)} in \code{newdata}; the "as is"
+    function \code{I(...)} is necessary when \code{partial} has more
+    than one column.
+
+    For mixed-effect models through \code{\link{ssanova1}} or
+    \code{\link{gssanova1}}, the Z matrix is set to 0 if not supplied.
+    To supply the Z matrix, add a component \code{random=I(...)} in
+    \code{newdata}.
+}
 \seealso{
     Fitting functions \code{\link{ssanova}}, \code{\link{ssanova}} and
     methods \code{\link{summary.ssanova}}, \code{\link{summary.gssanova}},

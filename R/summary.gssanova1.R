@@ -4,11 +4,11 @@ summary.gssanova1 <- function(object,diagnostics=FALSE,...)
     y <- model.response(object$mf,"numeric")
     wt <- model.weights(object$mf)
     offset <- model.offset(object$mf)
+    if ((object$family=="nbinomial")&(!is.null(object$nu))) y <- cbind(y,object$nu)
     dev.null <- switch(object$family,
                        binomial=dev.null.binomial(y,wt,offset),
                        nbinomial=dev.null.nbinomial(y,wt,offset),
                        poisson=dev.null.poisson(y,wt,offset),
-                       inverse.gaussian=dev.null.inverse.gaussian(y,wt,offset),
                        Gamma=dev.null.Gamma(y,wt,offset),
                        weibull=dev.null.weibull(y,wt,offset,object$nu),
                        lognorm=dev.null.lognorm(y,wt,offset,object$nu),

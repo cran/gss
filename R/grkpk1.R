@@ -14,16 +14,24 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     nn <- nxiz + nnull
     ## cv function
     cv <- function(lambda) {
-        if (is.null(random)) q.wk <- 10^(lambda+theta)*q
+        if (nu[[2]]) {
+            la.wk <- lambda[-2]
+            nu.wk <- list(exp(lambda[2]),FALSE)
+        }
+        else {
+            la.wk <- lambda
+            nu.wk <- nu
+        }
+        if (is.null(random)) q.wk <- 10^(la.wk+theta)*q
         else {
             q.wk <- matrix(0,nxiz,nxiz)
-            q.wk[1:nxi,1:nxi] <- 10^(lambda[1]+theta)*q
+            q.wk[1:nxi,1:nxi] <- 10^(la.wk[1]+theta)*q
             q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
-                10^(2*ran.scal)*random$sigma$fun(lambda[-1],random$sigma$env)
+                10^(2*ran.scal)*random$sigma$fun(la.wk[-1],random$sigma$env)
         }
-        alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
+        alpha.wk <- max(0,log.la0-la.wk[1]-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
-        z <- ngreg1(dc,family,cbind(s,10^theta*r),q.wk,y,wt,offset,nu,alpha.wk)
+        z <- ngreg1(dc,family,cbind(s,10^theta*r),q.wk,y,wt,offset,nu.wk,alpha.wk)
         assign("dc",z$dc,inherit=TRUE)
         assign("fit",z[c(1:3,5:10)],inherit=TRUE)
         z$score
@@ -39,11 +47,21 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         r <- cbind(r,10^(ran.scal-theta)*random$z)
     }
     else ran.scal <- NULL
+    if (nu[[2]]&is.null(nu[[1]])) {
+        eta <- rep(0,nobs)
+        wk <- switch(family,
+                      nbinomial=mkdata.nbinomial(y,eta,wt,offset,NULL),
+                      weibull=mkdata.weibull(y,eta,wt,offset,nu),
+                      lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
+                      loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
+        nu[[1]] <- wk$nu[[1]]
+    }
     ## lambda search
     dc <- rep(0,nn)
     fit <- NULL
-    if (is.null(random)) la <- log.la0
-    else la <- c(log.la0,random$init)
+    la <- log.la0
+    if (nu[[2]]) la <- c(la, log(nu[[1]]))
+    if (!is.null(random)) la <- c(la,random$init)
     if (length(la)-1) {
         counter <- 0
         ## scale and shift cv
@@ -80,6 +98,11 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     }
     ## return
     jk <- cv(zz$est)
+    if (nu[[2]]) {
+        nu.wk <- exp(zz$est[2])
+        zz$est <- zz$est[-2]
+    }
+    else nu.wk <- NULL
     if (is.null(random)) q.wk <- 10^theta*q
     else {
         q.wk <- matrix(0,nxiz,nxiz)
@@ -87,7 +110,7 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-zz$est[1])*random$sigma$fun(zz$est[-1],random$sigma$env)
     }
-    zzz <- La.eigen(q.wk,TRUE)
+    zzz <- eigen(q.wk,TRUE)
     rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
     val <- zzz$val[1:rkq]
     vec <- zzz$vec[,1:rkq,drop=FALSE]
@@ -98,8 +121,8 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     else d <- NULL
     if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
-    c(list(theta=theta,ran.scal=ran.scal,c=c,d=d,b=b,nlambda=zz$est[1],zeta=zz$est[-1]),
-      fit[-1],list(qinv=qinv,se.aux=se.aux))
+    c(list(theta=theta,ran.scal=ran.scal,c=c,d=d,b=b,nlambda=zz$est[1],
+           zeta=zz$est[-1],nu=nu.wk),fit[-1],list(qinv=qinv,se.aux=se.aux))
 }
 
 ## Fit Multiple Smoothing Parameter Non-Gaussian REGression
@@ -119,10 +142,18 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     nq <- dim(q)[3]
     ## cv function
     cv <- function(theta) {
+        if (nu[[2]]) {
+            the.wk <- theta[-(nq+1)]
+            nu.wk <- list(exp(theta[nq+1]),FALSE)
+        }
+        else {
+            the.wk <- theta
+            nu.wk <- nu
+        }
         r.wk <- qq.wk <- 0
         for (i in 1:nq) {
-            r.wk <- r.wk + 10^theta[i]*r[,,i]
-            qq.wk <- qq.wk + 10^theta[i]*q[,,i]
+            r.wk <- r.wk + 10^the.wk[i]*r[,,i]
+            qq.wk <- qq.wk + 10^the.wk[i]*q[,,i]
         }
         if (is.null(random)) q.wk <- 10^nlambda*qq.wk
         else {
@@ -130,11 +161,11 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
             q.wk <- matrix(0,nxiz,nxiz)
             q.wk[1:nxi,1:nxi] <- 10^nlambda*qq.wk
             q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
-                10^(2*ran.scal)*random$sigma$fun(theta[-(1:nq)],random$sigma$env)
+                10^(2*ran.scal)*random$sigma$fun(the.wk[-(1:nq)],random$sigma$env)
         }
-        alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
+        alpha.wk <- max(0,the.wk[1:nq]-log.th0-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
-        z <- ngreg1(dc,family,cbind(s,r.wk),q.wk,y,wt,offset,nu,alpha.wk)
+        z <- ngreg1(dc,family,cbind(s,r.wk),q.wk,y,wt,offset,nu.wk,alpha.wk)
         assign("dc",z$dc,inherit=TRUE)
         assign("fit",z[c(1:3,5:10)],inherit=TRUE)
         z$score
@@ -149,6 +180,7 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     }
     ## theta adjustment
     z <- sspngreg1(family,s,r.wk,q.wk,y,wt,offset,alpha,nu,random)
+    if (nu[[2]]) nu[[1]] <- z$nu
     theta <- theta + z$theta
     r.wk <- q.wk <- 0
     for (i in 1:nq) {
@@ -160,6 +192,7 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     log.th0 <- theta-log.la0
     ## lambda search
     z <- sspngreg1(family,s,r.wk,q.wk,y,wt,offset,alpha,nu,random)
+    if (nu[[2]]) nu[[1]] <- z$nu
     nlambda <- z$nlambda
     log.th0 <- log.th0 + z$lambda
     theta <- theta + z$theta
@@ -167,6 +200,7 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     ## theta search
     dc <- rep(0,nn)
     fit <- NULL
+    if (nu[[2]]) theta <- c(theta, log(nu[[1]]))
     if (!is.null(random)) theta <- c(theta,z$zeta)
     counter <- 0
     tmp <- abs(cv(theta))
@@ -192,6 +226,11 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     }
     ## return
     jk <- cv(zz$est)
+    if (nu[[2]]) {
+        nu.wk <- exp(zz$est[nq+1])
+        zz$est <- zz$est[-(nq+1)]
+    }
+    else nu.wk <- NULL
     r.wk <- qq.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^zz$est[i]*r[,,i]
@@ -205,7 +244,7 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-nlambda)*random$sigma$fun(zz$est[-(1:nq)],random$sigma$env)
     }
-    zzz <- La.eigen(q.wk,TRUE)
+    zzz <- eigen(q.wk,TRUE)
     rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
     val <- zzz$val[1:rkq]
     vec <- zzz$vec[,1:rkq,drop=FALSE]
@@ -216,7 +255,7 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     else d <- NULL
     if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
-    c(list(theta=zz$est[1:nq],c=c,d=d,b=b,nlambda=nlambda,zeta=zz$est[-(1:nq)]),
+    c(list(theta=zz$est[1:nq],c=c,d=d,b=b,nlambda=nlambda,zeta=zz$est[-(1:nq)],nu=nu.wk),
       fit[-1],list(qinv=qinv,se.aux=se.aux))
 }
 
@@ -231,20 +270,18 @@ ngreg1 <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
     cc <- dc[nnull+(1:nxi)]
     eta <- sr%*%dc
     if (!is.null(offset)) eta <- eta + offset
-    if (family=="nbinomial") nu <- NULL
-    else nu <- list(nu,is.null(nu))
+    if ((family=="nbinomial")&is.vector(y)) y <- cbind(y,nu[[1]])
     iter <- 0
     flag <- 0
     dev <- switch(family,
                   binomial=dev.resid.binomial(y,eta,wt),
                   nbinomial=dev.resid.nbinomial(y,eta,wt),
                   poisson=dev.resid.poisson(y,eta,wt),
-                  inverse.gaussian=dev.resid.inverse.gaussian(y,eta,wt),
                   Gamma=dev.resid.Gamma(y,eta,wt),
-                  weibull=dev.resid.weibull(y,eta,wt),
-                  lognorm=dev.resid.lognorm(y,eta,wt),
-                  loglogis=dev.resid.loglogis(y,eta,wt))
-    dev <- sum(dev^2) + t(cc)%*%q%*%cc
+                  weibull=dev.resid.weibull(y,eta,wt,nu[[1]]),
+                  lognorm=dev0.resid.lognorm(y,eta,wt,nu[[1]]),
+                  loglogis=dev0.resid.loglogis(y,eta,wt,nu[[1]]))
+    dev <- sum(dev) + t(cc)%*%q%*%cc
     ## Newton iteration
     repeat {
         iter <- iter+1
@@ -252,12 +289,10 @@ ngreg1 <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
                       binomial=mkdata.binomial(y,eta,wt,offset),
                       nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
                       poisson=mkdata.poisson(y,eta,wt,offset),
-                      inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                       Gamma=mkdata.Gamma(y,eta,wt,offset),
                       weibull=mkdata.weibull(y,eta,wt,offset,nu),
                       lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
                       loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
-        nu <- dat$alpha
         ## weighted least squares fit
         w <- as.vector(sqrt(dat$wt))
         ywk <- w*dat$ywk
@@ -290,12 +325,12 @@ ngreg1 <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
                               binomial=dev.resid.binomial(y,eta.new,wt),
                               nbinomial=dev.resid.nbinomial(y,eta.new,wt),
                               poisson=dev.resid.poisson(y,eta.new,wt),
-                              inverse.gaussian=dev.resid.inverse.gaussian(y,eta.new,wt),
                               Gamma=dev.resid.Gamma(y,eta.new,wt),
-                              weibull=dev.resid.weibull(y,eta.new,wt),
-                              lognorm=dev.resid.lognorm(y,eta.new,wt),
-                              loglogis=dev.resid.loglogis(y,eta.new,wt))
-            dev.new <- sum(dev.new^2) + t(cc)%*%q%*%cc
+                              weibull=dev.resid.weibull(y,eta.new,wt,nu[[1]]),
+                              lognorm=dev0.resid.lognorm(y,eta.new,wt,nu[[1]]),
+                              loglogis=dev0.resid.loglogis(y,eta.new,wt,nu[[1]]))
+            dev.new <- sum(dev.new) + t(cc)%*%q%*%cc
+            if (!is.finite(dev.new)) dev.new <- Inf
             if (dev.new-dev<(1+abs(dev))*1e-1) break
             adj <- 1
             dc.diff <- dc.diff/2
@@ -329,12 +364,10 @@ ngreg1 <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
                   binomial=mkdata.binomial(y,eta,wt,offset),
                   nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
                   poisson=mkdata.poisson(y,eta,wt,offset),
-                  inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                   Gamma=mkdata.Gamma(y,eta,wt,offset),
                   weibull=mkdata.weibull(y,eta,wt,offset,nu),
                   lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
                   loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
-    nu <- dat$alpha
     ## weighted least squares fit
     w <- as.vector(sqrt(dat$wt))
     ywk <- w*dat$ywk
@@ -352,6 +385,10 @@ ngreg1 <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
     cv <- switch(family,
                  binomial=cv.binomial(y,eta,wt,z$hat[1:nobs],alpha),
                  poisson=cv.poisson(y,eta,wt,z$hat[1:nobs],alpha,sr,q),
-                 Gamma=cv.Gamma(y,eta,wt,z$hat[1:nobs],z$hat[nobs+1],alpha))
-    c(z,cv,list(eta=eta,nu=nu[[1]]))
+                 Gamma=cv.Gamma(y,eta,wt,z$hat[1:nobs],z$hat[nobs+1],alpha),
+                 nbinomial=cv.nbinomial(y,eta,wt,z$hat[1:nobs],alpha),
+                 weibull=cv.weibull(y,eta,wt,z$hat[1:nobs],nu[[1]],alpha),
+                 lognorm=cv.lognorm(y,eta,wt,z$hat[1:nobs],nu[[1]],alpha),
+                 loglogis=cv.loglogis(y,eta,wt,z$hat[1:nobs],nu[[1]],alpha))
+    c(z,cv,list(eta=eta))
 }
