@@ -48,7 +48,8 @@ cv.poisson <- function(y,eta,wt,hat,alpha,sr,q)
     z <- .Fortran("dchdc",
                   v=as.double(v), as.integer(nn), as.integer(nn),
                   double(nn), jpvt=as.integer(rep(0,nn)),
-                  as.integer(1), rkv=integer(1))[c("v","jpvt","rkv")]
+                  as.integer(1), rkv=integer(1),
+                  PACKAGE="base")[c("v","jpvt","rkv")]
     v <- matrix(z$v,nn,nn)
     rkv <- z$rkv
     while (v[rkv,rkv]<v[1,1]*sqrt(.Machine$double.eps)) rkv <- rkv-1

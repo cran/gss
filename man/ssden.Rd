@@ -136,10 +136,13 @@ quad.wt <- quad.wt/sum(quad.wt)*5e3
 aids.fit <- ssden(~incu+infe,data=aids,subset=age>=60,
                   domain=data.frame(incu=c(0,100),infe=c(0,100)),
                   quad=list(pt=quad.pt,wt=quad.wt))
-## conditional (marginal) density and quantiles of infe
+## conditional (marginal) density of infe
 jk <- cdssden(aids.fit,xx<-seq(0,100,len=51),data.frame(incu=50))
 plot(xx,jk$pdf,type="l")
+## conditional (marginal) quantiles of infe (TIME-CONSUMING)
+\dontrun{
 cqssden(aids.fit,c(.05,.25,.5,.75,.95),data.frame(incu=50),jk$int)
+}
 ## Clean up
 \dontrun{rm(aids,quad.pt,quad.wt,aids.fit,jk,xx)
 dev.off()}

@@ -107,6 +107,7 @@ sshzd <- function(formula,type="cubic",data=list(),alpha=1.4,
     else {
         nx <- 1
         x.ind <- rep(1,nobs)
+        x.pt <- NULL
     }
     ## integration weights at x.pt[i,]
     qd.wt <- matrix(0,nmesh,nx)
@@ -273,6 +274,7 @@ msphzd <- function(s,r,q,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         adj <- ifelse (alpha.wk>alpha,(alpha.wk-alpha)*fit$wk[2],0)
         cv+adj
     }
+    cv.wk <- function(theta) cv.scale*cv.m(theta)+cv.shift
     ## Initialization
     theta <- -log10(apply(q,3,function(x)sum(diag(x))))
     nq <- length(theta)
@@ -352,8 +354,19 @@ msphzd <- function(s,r,q,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     ## theta search
     lambda <- zz$est
     counter <- 0
+    tmp <- abs(cv.m(theta))
+    cv.scale <- 1
+    cv.shift <- 0
+    if (tmp<1&tmp>10^(-4)) {
+        cv.scale <- 10/tmp
+        cv.shift <- 0
+    }
+    if (tmp<10^(-4)) {
+        cv.scale <- 10^2
+        cv.shift <- 10
+    }
     repeat {
-        zz <- nlm(cv.m,theta,stepmax=1,ndigit=7)
+        zz <- nlm(cv.wk,theta,stepmax=1,ndigit=7)
         if (zz$code<=3)  break
         theta <- zz$est
         counter <- counter + 1

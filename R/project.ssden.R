@@ -68,6 +68,7 @@ project.ssden <- function(object,include,mesh=FALSE,...)
         assign("mesh1",z$mesh,inherit=TRUE)
         sum(qd.wt*log(mesh0/mesh1)*mesh0)
     }
+    cv.wk <- function(theta) cv.scale*rkl(theta)+cv.shift
     ## initialization
     qd.r.wk <- 0
     for (i in 1:nq) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[,,i]
@@ -86,7 +87,19 @@ project.ssden <- function(object,include,mesh=FALSE,...)
     mesh1 <- NULL
     if (nq-1) {
         if (nq-2) {
-            zz <- nlm(rkl,theta[-fix],stepmax=.5,ndigit=7)
+            ## scale and shift cv
+            tmp <- abs(rkl(theta[-fix]))
+            cv.scale <- 1
+            cv.shift <- 0
+            if (tmp<1&tmp>10^(-4)) {
+                cv.scale <- 10/tmp
+                cv.shift <- 0
+            }
+            if (tmp<10^(-4)) {
+                cv.scale <- 10^2
+                cv.shift <- 10
+            }
+            zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
             if (zz$code>3)
                 warning("gss warning in project.ssden: theta iteration fails to converge")
         }

@@ -115,7 +115,18 @@ sshzd(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
     Springer-Verlag.
 }
 \examples{
+## Model with interaction
+data(gastric)
+gastric.fit <- sshzd(Surv(futime,status)~futime*trt,data=gastric)
+## exp(-Lambda(600)), exp(-(Lambda(1200)-Lambda(600))), and exp(-Lambda(1200))
+survexp.sshzd(gastric.fit,c(600,1200,1200),data.frame(trt=as.factor(1)),c(0,600,0))
+## Clean up
+\dontrun{rm(gastric,gastric.fit)
+dev.off()}
+
+## THE FOLLOWING EXAMPLE IS TIME-CONSUMING
 ## Proportional hazard model
+\dontrun{
 data(stan)
 stan.fit <- sshzd(Surv(futime,status)~futime+age,data=stan)
 ## Evaluate fitted hazard
@@ -125,17 +136,9 @@ tt <- seq(0,60,leng=101)
 hh <- hzdcurve.sshzd(stan.fit,tt,data.frame(age=20))
 plot(tt,hh,type="l")
 ## Clean up
-\dontrun{rm(stan,stan.fit,tt,hh)
-dev.off()}
-
-## Model with interaction
-data(gastric)
-gastric.fit <- sshzd(Surv(futime,status)~futime*trt,data=gastric)
-## exp(-Lambda(600)), exp(-(Lambda(1200)-Lambda(600))), and exp(-Lambda(1200))
-survexp.sshzd(gastric.fit,c(600,1200,1200),data.frame(trt=as.factor(1)),c(0,600,0))
-## Clean up
-\dontrun{rm(gastric,gastric.fit)
-dev.off()}
+rm(stan,stan.fit,tt,hh)
+dev.off()
+}
 }
 \keyword{smooth}
 \keyword{models}

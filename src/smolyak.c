@@ -324,13 +324,17 @@ double wl(int r,int s, int l)
   if (r==s) /* one-dimensional */
     { 
       p=lookind[indeces[r]][argind[r]];
-      for (i=ninv[indeces[r]]; i<=l; i++)       
-	  if (sw[i]<fn) 
+      for (i=ninv[indeces[r]]; i<=l; i++) {     
+	  if (sw[i]<fn) {
 	    if (i==0) sum+= dnu[0][0];
-	    else 
+	    else {
 	      if (indeces[r]==0) sum+=dnu[sw[i]][0];
 	      else {
-		sum+=dnu[sw[i]][invlook[sw[i]][p]]; }
+		sum+=dnu[sw[i]][invlook[sw[i]][p]];
+	      }
+	    }
+	  }
+      }
       return sum;
     }
   else /* dimension reduction */

@@ -33,8 +33,10 @@ ssanova1(formula, type="cubic", data=list(), weights, subset,
     \item{method}{Method for smoothing parameter selection.  Supported
 	are \code{method="v"} for GCV, \code{method="m"} for GML (REML),
 	and \code{method="u"} for Mallows' CL.}
-    \item{alpha}{Parameter modifying GCV or Mallows' CL; larger values
-        yield smoother fits.  Ignored when \code{method="m"} are
+    \item{alpha}{Parameter modifying GCV or Mallows' CL; larger absolute
+        values yield smoother fits; negative value invokes a stable and
+	more accurate GCV/CL evaluation algorithm but may take two to
+	five times as long.  Ignored when \code{method="m"} are
 	specified.}
     \item{varht}{External variance estimate needed for
 	\code{method="u"}.  Ignored when \code{method="v"} or

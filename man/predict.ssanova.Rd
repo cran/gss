@@ -44,6 +44,8 @@ predict.ssanova1(object, newdata, se.fit=FALSE,
 	of Computational and Graphical Statistics}, \bold{2}, 97--117.
 }
 \examples{
+## THE FOLLOWING EXAMPLE IS TIME-CONSUMING
+\dontrun{
 ## Fit a model with thin-plate marginals, where geog is 2-D
 data(LakeAcidity)
 fit <- ssanova(ph~log(cal)*geog,"tp",LakeAcidity)
@@ -64,8 +66,9 @@ par(pty="s")
 contour(grid,grid,matrix(est$fit,21,21),col=1)
 contour(grid,grid,matrix(est$se,21,21),add=TRUE,col=2)
 ## Clean up
-\dontrun{rm(LakeAcidity,fit,new,grid,est)
-dev.off()}
+rm(LakeAcidity,fit,new,grid,est)
+dev.off()
+}
 }
 \keyword{models}
 \keyword{regression}

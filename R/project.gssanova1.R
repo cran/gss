@@ -85,6 +85,7 @@ project.gssanova1 <- function(object,include,...)
         assign("fit1",z[c("mu","theta","b")],inherit=TRUE)
         mean(wt*(fit0$mu*(fit0$theta-fit1$theta)+fit1$b-fit0$b))
     }
+    cv.wk <- function(theta) cv.scale*my.wls(theta)+cv.shift
     ## initialization
     r.wk <- 0
     for (i in 1:nq) r.wk <- r.wk + 10^theta[i]*r[,,i]
@@ -98,7 +99,19 @@ project.gssanova1 <- function(object,include,...)
     dc <- c(object$d[philist],object$b,10^(-theta.wk)*object$c)
     fit1 <- NULL
     if (nq-1) {
-        zz <- nlm(my.wls,theta[-fix],stepmax=.5,ndigit=7)
+        ## scale and shift cv
+        tmp <- abs(my.wls(theta[-fix]))
+        cv.scale <- 1
+        cv.shift <- 0
+        if (tmp<1&tmp>10^(-4)) {
+            cv.scale <- 10/tmp
+            cv.shift <- 0
+        }
+        if (tmp<10^(-4)) {
+            cv.scale <- 10^2
+            cv.shift <- 10
+        }
+        zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
         if (zz$code>3)
             warning("gss warning in project.gssanova1: theta iteration fails to converge")
         kl <- my.wls(zz$est)

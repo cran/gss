@@ -98,6 +98,7 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         adj <- ifelse (alpha.wk>alpha,(alpha.wk-alpha)*fit$wk[2],0)
         cv+adj
     }
+    cv.wk <- function(theta) cv.scale*cv(theta)+cv.shift
     ## initialization
     theta <- -log10(apply(q,3,function(x)sum(diag(x))))
     r.wk <- q.wk <- qd.r.wk <- 0
@@ -128,8 +129,20 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     int <- z$int
     ## theta search
     counter <- 0
+    ## scale and shift cv
+    tmp <- abs(cv(theta))
+    cv.scale <- 1
+    cv.shift <- 0
+    if (tmp<1&tmp>10^(-4)) {
+        cv.scale <- 10/tmp
+        cv.shift <- 0
+    }
+    if (tmp<10^(-4)) {
+        cv.scale <- 10^2
+        cv.shift <- 10
+    }
     repeat {
-        zz <- nlm(cv,theta,stepmax=1,ndigit=7)
+        zz <- nlm(cv.wk,theta,stepmax=1,ndigit=7)
         if (zz$code<=3)  break
         theta <- zz$est        
         counter <- counter + 1

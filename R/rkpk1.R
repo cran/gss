@@ -1,6 +1,10 @@
 ## Fit Single Smoothing Parameter (Gaussian) REGression
 sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
 {
+    qr.trace <- FALSE
+    if ((alpha<0)&(method%in%c("u","v"))) qr.trace <- TRUE
+    alpha <- abs(alpha)
+    ## get dimensions
     nobs <- nrow(r)
     nxi <- ncol(r)
     if (!is.null(s)) {
@@ -20,28 +24,62 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
             q.wk[1:nxi,1:nxi] <- 10^(lambda[1]+theta)*q
             q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <- random$sigma(lambda[-1])
         }
-        z <- .Fortran("reg",
-                      as.double(cbind(s,10^theta*r)), as.integer(nobs), as.integer(nnull),
-                      as.double(q.wk), as.integer(nxiz), as.double(y),
-                      as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
-                      as.double(alpha), varht=as.double(varht),
-                      score=double(1), dc=double(nn),
-                      as.double(.Machine$double.eps),
-                      chol=double(nn*nn), double(nn),
-                      jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
-                      wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
-                      PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
-        if (z$info) stop("gss error in ssanova: evaluation of GML score fails")
-        assign("fit",z[c(1:5,7)],inherit=TRUE)
-        score <- z$score
-        alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
-        alpha.wk <- min(alpha.wk,3)
-        if (alpha.wk>alpha) {
-            if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*z$wk[2]
-            if (method=="v") score <- z$wk[1]/(1-alpha.wk*z$wk[2])^2
+        if (qr.trace) {
+            qq.wk <- chol(q.wk,pivot=TRUE)
+            sr <- cbind(s,10^theta*r[,attr(qq.wk,"pivot")])
+            sr <- rbind(sr,cbind(matrix(0,nxiz,nnull),qq.wk))
+            sr <- qr(sr,tol=0)
+            rss <- mean(qr.resid(sr,c(y,rep(0,nxiz)))[1:nobs]^2)
+            trc <- sum(qr.Q(sr)[1:nobs,]^2)/nobs
+            if (method=="u") score <- rss + alpha*2*varht*trc
+            if (method=="v") score <- rss/(1-alpha*trc)^2
+            alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
+            alpha.wk <- min(alpha.wk,3)
+            if (alpha.wk>alpha) {
+                if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*trc
+                if (method=="v") score <- rss/(1-alpha.wk*trc)^2
+            }
+            if (return.fit) {
+                z <- .Fortran("reg",
+                          as.double(cbind(s,10^theta*r)), as.integer(nobs), as.integer(nnull),
+                          as.double(q.wk), as.integer(nxiz), as.double(y),
+                          as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
+                          as.double(alpha), varht=as.double(varht),
+                          score=double(1), dc=double(nn),
+                          as.double(.Machine$double.eps),
+                          chol=double(nn*nn), double(nn),
+                          jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
+                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
+                z$score <- score
+                assign("fit",z[c(1:5,7)],inherit=TRUE)
+            }
+        }
+        else {
+            z <- .Fortran("reg",
+                          as.double(cbind(s,10^theta*r)), as.integer(nobs), as.integer(nnull),
+                          as.double(q.wk), as.integer(nxiz), as.double(y),
+                          as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
+                          as.double(alpha), varht=as.double(varht),
+                          score=double(1), dc=double(nn),
+                          as.double(.Machine$double.eps),
+                          chol=double(nn*nn), double(nn),
+                          jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
+                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
+            if (z$info) stop("gss error in ssanova: evaluation of GML score fails")
+            assign("fit",z[c(1:5,7)],inherit=TRUE)
+            score <- z$score
+            alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
+            alpha.wk <- min(alpha.wk,3)
+            if (alpha.wk>alpha) {
+                if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*z$wk[2]
+                if (method=="v") score <- z$wk[1]/(1-alpha.wk*z$wk[2])^2
+            }
         }
         score
     }
+    cv.wk <- function(lambda) cv.scale*cv(lambda)+cv.shift
     ## initialization
     tmp <- sum(r^2)
     if (is.null(s)) theta <- 0
@@ -49,13 +87,26 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     log.la0 <- log10(tmp/sum(diag(q))) + theta
     if (!is.null(random)) r <- cbind(r,10^(-theta)*random$z)
     ## lambda search
+    return.fit <- FALSE
     fit <- NULL
     if (is.null(random)) la <- log.la0
     else la <- c(log.la0,random$init)
     if (length(la)-1) {
         counter <- 0
+        ## scale and shift cv
+        tmp <- abs(cv(la))
+        cv.scale <- 1
+        cv.shift <- 0
+        if (tmp<1&tmp>10^(-4)) {
+            cv.scale <- 10/tmp
+            cv.shift <- 0
+        }
+        if (tmp<10^(-4)) {
+            cv.scale <- 10^2
+            cv.shift <- 10
+        }
         repeat {
-            zz <- nlm(cv,la,stepmax=1,ndigit=7)
+            zz <- nlm(cv.wk,la,stepmax=1,ndigit=7)
             if (zz$code<=3) break
             la <- zz$est
             counter <- counter + 1
@@ -75,6 +126,7 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         }
     }
     ## return
+    return.fit <- TRUE
     jk1 <- cv(zz$est)
     if (is.null(random)) q.wk <- 10^theta*q
     else {
@@ -100,6 +152,10 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
 ## Fit Multiple Smoothing Parameter (Gaussian) REGression
 mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
 {
+    qr.trace <- FALSE
+    if ((alpha<0)&(method%in%c("u","v"))) qr.trace <- TRUE
+    alpha <- abs(alpha)
+    ## get dimensions
     nobs <- nrow(r)
     nxi <- ncol(r)
     if (!is.null(s)) {
@@ -126,28 +182,62 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
             q.wk[1:nxi,1:nxi] <- 10^nlambda*qq.wk
             q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <- random$sigma(theta[-(1:nq)])
         }
-        z <- .Fortran("reg",
-                      as.double(cbind(s,r.wk)), as.integer(nobs), as.integer(nnull),
-                      as.double(q.wk), as.integer(nxiz), as.double(y),
-                      as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
-                      as.double(alpha), varht=as.double(varht),
-                      score=double(1), dc=double(nn),
-                      as.double(.Machine$double.eps),
-                      chol=double(nn*nn), double(nn),
-                      jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
-                      wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
-                      PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
-        if (z$info) stop("gss error in ssanova: evaluation of GML score fails")
-        assign("fit",z[c(1:5,7)],inherit=TRUE)
-        score <- z$score
-        alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
-        alpha.wk <- min(alpha.wk,3)
-        if (alpha.wk>alpha) {
-            if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*z$wk[2]
-            if (method=="v") score <- z$wk[1]/(1-alpha.wk*z$wk[2])^2
+        if (qr.trace) {
+            qq.wk <- chol(q.wk,pivot=TRUE)
+            sr <- cbind(s,r.wk[,attr(qq.wk,"pivot")])
+            sr <- rbind(sr,cbind(matrix(0,nxiz,nnull),qq.wk))
+            sr <- qr(sr,tol=0)
+            rss <- mean(qr.resid(sr,c(y,rep(0,nxiz)))[1:nobs]^2)
+            trc <- sum(qr.Q(sr)[1:nobs,]^2)/nobs
+            if (method=="u") score <- rss + alpha*2*varht*trc
+            if (method=="v") score <- rss/(1-alpha*trc)^2
+            alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
+            alpha.wk <- min(alpha.wk,3)
+            if (alpha.wk>alpha) {
+                if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*trc
+                if (method=="v") score <- rss/(1-alpha.wk*trc)^2
+            }
+            if (return.fit) {
+                z <- .Fortran("reg",
+                          as.double(cbind(s,r.wk)), as.integer(nobs), as.integer(nnull),
+                          as.double(q.wk), as.integer(nxiz), as.double(y),
+                          as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
+                          as.double(alpha), varht=as.double(varht),
+                          score=double(1), dc=double(nn),
+                          as.double(.Machine$double.eps),
+                          chol=double(nn*nn), double(nn),
+                          jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
+                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
+                z$score <- score
+                assign("fit",z[c(1:5,7)],inherit=TRUE)
+            }
+        }
+        else {
+            z <- .Fortran("reg",
+                          as.double(cbind(s,r.wk)), as.integer(nobs), as.integer(nnull),
+                          as.double(q.wk), as.integer(nxiz), as.double(y),
+                          as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
+                          as.double(alpha), varht=as.double(varht),
+                          score=double(1), dc=double(nn),
+                          as.double(.Machine$double.eps),
+                          chol=double(nn*nn), double(nn),
+                          jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
+                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
+            if (z$info) stop("gss error in ssanova: evaluation of GML score fails")
+            assign("fit",z[c(1:5,7)],inherit=TRUE)
+            score <- z$score
+            alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
+            alpha.wk <- min(alpha.wk,3)
+            if (alpha.wk>alpha) {
+                if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*z$wk[2]
+                if (method=="v") score <- z$wk[1]/(1-alpha.wk*z$wk[2])^2
+            }
         }
         score
     }
+    cv.wk <- function(theta) cv.scale*cv(theta)+cv.shift
     ## initialization
     theta <- -log10(apply(q,3,function(x)sum(diag(x))))
     r.wk <- q.wk <- 0
@@ -156,6 +246,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         q.wk <- q.wk + 10^theta[i]*q[,,i]
     }
     ## theta adjustment
+    return.fit <- FALSE
     z <- sspreg1(s,r.wk,q.wk,y,method,alpha,varht,random)
     theta <- theta + z$theta
     r.wk <- q.wk <- 0
@@ -175,8 +266,20 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     fit <- NULL
     if (!is.null(random)) theta <- c(theta,z$zeta)
     counter <- 0
+    ## scale and shift cv
+    tmp <- abs(cv(theta))
+    cv.scale <- 1
+    cv.shift <- 0
+    if (tmp<1&tmp>10^(-4)) {
+        cv.scale <- 10/tmp
+        cv.shift <- 0
+    }
+    if (tmp<10^(-4)) {
+        cv.scale <- 10^2
+        cv.shift <- 10
+    }
     repeat {
-        zz <- nlm(cv,theta,stepmax=1,ndigit=7)
+        zz <- nlm(cv.wk,theta,stepmax=1,ndigit=7)
         if (zz$code<=3)  break
         theta <- zz$est        
         counter <- counter + 1
@@ -186,6 +289,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         }
     }
     ## return
+    return.fit <- TRUE
     jk1 <- cv(zz$est)
     r.wk <- qq.wk <- 0
     for (i in 1:nq) {

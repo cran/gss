@@ -70,6 +70,7 @@ project.ssanova1 <- function(object,include,...)
         assign("yhat",sr%*%z$dc,inherit=TRUE)
         mean((yy-yhat)^2)
     }
+    cv.wk <- function(theta) cv.scale*my.ls(theta)+cv.shift
     ## initialization
     r.wk <- 0
     for (i in 1:nq) r.wk <- r.wk + 10^theta[i]*r[,,i]
@@ -82,7 +83,19 @@ project.ssanova1 <- function(object,include,...)
     ## projection    
     yhat <- NULL
     if (nq-1) {
-        zz <- nlm(my.ls,theta[-fix],stepmax=.5,ndigit=7)
+        ## scale and shift cv
+        tmp <- abs(my.ls(theta[-fix]))
+        cv.scale <- 1
+        cv.shift <- 0
+        if (tmp<1&tmp>10^(-4)) {
+            cv.scale <- 10/tmp
+            cv.shift <- 0
+        }
+        if (tmp<10^(-4)) {
+            cv.scale <- 10^2
+            cv.shift <- 10
+        }
+        zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
         if (zz$code>3)
             warning("gss warning in project.ssanova1: theta iteration fails to converge")
         kl <- my.ls(zz$est)

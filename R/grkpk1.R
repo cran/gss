@@ -27,6 +27,7 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         assign("fit",z[c(1:3,5:10)],inherit=TRUE)
         z$score
     }
+    cv.wk <- function(lambda) cv.scale*cv(lambda)+cv.shift
     ## initialization
     tmp <- sum(r^2)
     if (is.null(s)) theta <- 0
@@ -40,8 +41,20 @@ sspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     else la <- c(log.la0,random$init)
     if (length(la)-1) {
         counter <- 0
+        ## scale and shift cv
+        tmp <- abs(cv(la))
+        cv.scale <- 1
+        cv.shift <- 0
+        if (tmp<1&tmp>10^(-4)) {
+            cv.scale <- 10/tmp
+            cv.shift <- 0
+        }
+        if (tmp<10^(-4)) {
+            cv.scale <- 10^2
+            cv.shift <- 10
+        }
         repeat {
-            zz <- nlm(cv,la,stepmax=1,ndigit=7)
+            zz <- nlm(cv.wk,la,stepmax=1,ndigit=7)
             if (zz$code<=3) break
             la <- zz$est
             counter <- counter + 1
@@ -119,6 +132,7 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         assign("fit",z[c(1:3,5:10)],inherit=TRUE)
         z$score
     }
+    cv.wk <- function(theta) cv.scale*cv(theta)+cv.shift
     ## initialization
     theta <- -log10(apply(q,3,function(x)sum(diag(x))))
     r.wk <- q.wk <- 0
@@ -147,8 +161,19 @@ mspngreg1 <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     fit <- NULL
     if (!is.null(random)) theta <- c(theta,z$zeta)
     counter <- 0
+    tmp <- abs(cv(theta))
+    cv.scale <- 1
+    cv.shift <- 0
+    if (tmp<1&tmp>10^(-4)) {
+        cv.scale <- 10/tmp
+        cv.shift <- 0
+    }
+    if (tmp<10^(-4)) {
+        cv.scale <- 10^2
+        cv.shift <- 10
+    }
     repeat {
-        zz <- nlm(cv,theta,stepmax=1,ndigit=7)
+        zz <- nlm(cv.wk,theta,stepmax=1,ndigit=7)
         if (zz$code<=3)  break
         theta <- zz$est        
         counter <- counter + 1
