@@ -135,12 +135,11 @@ ssanova(formula, type="cubic", data=list(), weights, subset,
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
+    Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
+    Springer-Verlag.
+    
     Wahba, G. (1990), \emph{Spline Models for Observational Data}.
     Philadelphia: SIAM.
-
-    Gu, C. (2000), Multivariate spline regression. In M.~G. Schimek
-    (Ed.), \emph{Smoothing and Regression: Approaches, Computation and
-	Application}.  New York: Wiley.
 }
 \examples{
 ## Fit a cubic spline

@@ -1,11 +1,11 @@
 ## Calculate prediction and Bayesian SE from ssanova objects
-predict.ssanova <- function(obj,newdata,se.fit=FALSE,
-                            include=obj$terms$labels)
+predict.ssanova <- function(object,newdata,se.fit=FALSE,
+                            include=object$terms$labels,...)
 {
     nnew <- dim(newdata)[1]
-    nobs <- length(obj$c)
+    nobs <- length(object$c)
     ## Extract included terms
-    term <- obj$terms
+    term <- object$terms
     philist <- rklist <- NULL
     s <- q <- NULL
     nq <- 0
@@ -18,7 +18,7 @@ predict.ssanova <- function(obj,newdata,se.fit=FALSE,
         if (label=="partial") next
         if (label=="offset") next
         xnew <- newdata[,term[[label]]$vlist]
-        x <- obj$mf[,term[[label]]$vlist]
+        x <- object$mf[,term[[label]]$vlist]
         nphi <- term[[label]]$nphi
         nrk <- term[[label]]$nrk
         if (nphi) {
@@ -49,17 +49,17 @@ predict.ssanova <- function(obj,newdata,se.fit=FALSE,
     nq <- 0
     for (i in rklist) {
         nq <- nq + 1
-        qq <- qq + 10^obj$theta[i]*q[,,nq]
+        qq <- qq + 10^object$theta[i]*q[,,nq]
     }
-    if (!is.null(obj$w)) w <- obj$w
-    else w <- model.weights(obj$mf)
+    if (!is.null(object$w)) w <- object$w
+    else w <- model.weights(object$mf)
     if (!is.null(w)) qq <- t(sqrt(w)*t(qq))
     ## Compute posterior mean
     nphi <- length(philist)
-    pmean <- as.vector(qq%*%obj$c)
-    if (nphi) pmean <- pmean + as.vector(s%*%obj$d[philist])
+    pmean <- as.vector(qq%*%object$c)
+    if (nphi) pmean <- pmean + as.vector(s%*%object$d[philist])
     if (any(include=="offset")) {
-        if (is.null(model.offset(obj$mf)))
+        if (is.null(model.offset(object$mf)))
             stop("gss error: no offset in the fit")
         offset <- newdata$offset
         if (is.null(offset)) offset <- newdata$"(offset)"
@@ -67,12 +67,12 @@ predict.ssanova <- function(obj,newdata,se.fit=FALSE,
         pmean <- pmean + offset
     }
     if (se.fit) {
-        b <- obj$varht/10^obj$nlambda
+        b <- object$varht/10^object$nlambda
         ## Get cr, dr, and sms
-        crdr <- getcrdr(obj,t(qq))
+        crdr <- getcrdr(object,t(qq))
         cr <- crdr$cr
         dr <- crdr$dr[philist,,drop=FALSE]
-        sms <- getsms(obj)[philist,philist]
+        sms <- getsms(object)[philist,philist]
         ## Compute posterior variance
         r <- 0
         for (label in include) {
@@ -84,7 +84,7 @@ predict.ssanova <- function(obj,newdata,se.fit=FALSE,
                 rk <- term[[label]]$rk
                 for (i in 1:nrk) {
                     ind <- irk+(i-1)
-                    r <- r + 10^obj$theta[ind]*rk$fun(xnew,xnew,nu=i,env=rk$env)
+                    r <- r + 10^object$theta[ind]*rk$fun(xnew,xnew,nu=i,env=rk$env)
                 }
             }
         }

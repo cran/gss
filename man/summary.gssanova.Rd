@@ -6,11 +6,12 @@
     Gaussian responses.
 }
 \usage{
-summary.gssanova(obj, diagnostics=FALSE)
+summary.gssanova(object, diagnostics=FALSE, ...)
 }
 \arguments{
-    \item{obj}{Object of class \code{"gssanova"}.}
+    \item{object}{Object of class \code{"gssanova"}.}
     \item{diagnostics}{Flag indicating if diagnostics are required.}
+    \item{...}{Ignored.}
 }
 \value{
     \code{summary.gssanova} returns a list object of \code{\link{class}}
@@ -41,7 +42,7 @@ summary.gssanova(obj, diagnostics=FALSE)
     \item{cosines}{Cosine diagnostics for practical significance of
 	model terms.}
     \item{roughness}{Percentage decomposition of the roughness penalty
-	\code{penalty} into model terms.}
+      \code{penalty} into model terms.}
 }
 \details{
     Similar to the iterated weighted least squares fitting of

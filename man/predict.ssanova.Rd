@@ -7,17 +7,18 @@
     constructing Bayesian confidence intervals.
 }
 \usage{
-predict.ssanova(obj, newdata, se.fit=FALSE,
-                include=obj$terms$labels)
+predict.ssanova(object, newdata, se.fit=FALSE,
+                include=object$terms$labels, ...)
 }
 \arguments{
-    \item{obj}{Object of class inheriting from \code{"ssanova"}.}
+    \item{object}{Object of class inheriting from \code{"ssanova"}.}
     \item{newdata}{Data frame or model frame in which to predict.}
     \item{se.fit}{Flag indicating if standard errors are required.}
     \item{include}{List of model terms to be included in the
 	prediction.  The \code{partial} and \code{offset} terms, if
 	present, are to be specified by \code{"partial"} and
 	\code{"offset"}, respectively.}
+    \item{...}{Ignored.}
 }
 \value{
     For \code{se.fit=FALSE}, \code{predict.ssanova} returns a vector of

@@ -1,3 +1,15 @@
+Thu Apr 25 23:41:09 EST 2002, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 0.6-4.
+
+	* R: Cosmetic changes to conform with the formats of generic
+	methods.
+
+	* man: Minor changes to reflect the code change and to meet
+	R-1.5.0 CMD check standard.
+
+	* src: Added the file Makevars, as suggested by Martin Maechler.
+
 Thu Jul  9 22:10:07 EST 2001, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.6-3.

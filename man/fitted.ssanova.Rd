@@ -1,4 +1,5 @@
 \name{fitted.ssanova}
+\alias{fitted.ssanova}
 \alias{residuals.ssanova}
 \alias{fitted.gssanova}
 \alias{residuals.gssanova}
@@ -8,16 +9,17 @@
     spline ANOVA fits.
 }
 \usage{
-fitted.ssanova(obj)
-residuals.ssanova(obj)
+fitted.ssanova(object, ...)
+residuals.ssanova(object, ...)
 
-fitted.gssanova(obj)
-residuals.gssanova(obj,type="working")
+fitted.gssanova(object, ...)
+residuals.gssanova(object, type="working", ...)
 }
 \arguments{
-    \item{obj}{Object of class \code{"ssanova"} or \code{"gssanova"}.}
+    \item{object}{Object of class \code{"ssanova"} or \code{"gssanova"}.}
     \item{type}{Type of residuals desired, with two alternatives
-	\code{"working"} (default) or \code{"deviance"}.}
+      \code{"working"} (default) or \code{"deviance"}.}
+    \item{...}{Ignored.}
 }
 \details{
     The fitted values for \code{"gssanova"} objects are on the link

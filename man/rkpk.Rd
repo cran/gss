@@ -47,7 +47,10 @@ getsms(obj)
     \item{wt}{Model weights.}
     \item{offset}{Model offset.}
     \item{obj}{Object returned from a call to \code{sspreg},
-	\code{mspreg}, \code{sspregpoi}, or \code{mspregpoi}.}
+      \code{mspreg}, \code{sspregpoi}, or \code{mspregpoi}.}
+    \item{alpha}{Optional argument for nbinomial, weibull, lognorm, and
+      loglogis families.}
+    \item{r}{Inputs for standard error calculation.}
 }
 \references{
     Gu, C. (1989), RKPACK and its applications: Fitting smoothing spline

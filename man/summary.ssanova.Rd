@@ -5,11 +5,12 @@
     Calculate various summaries of smoothing spline ANOVA fits.
 }
 \usage{
-summary.ssanova(obj, diagnostics=FALSE)
+summary.ssanova(object, diagnostics=FALSE, ...)
 }
 \arguments{
-    \item{obj}{Object of class \code{"ssanova"}.}
+    \item{object}{Object of class \code{"ssanova"}.}
     \item{diagnostics}{Flag indicating if diagnostics are required.}
+    \item{...}{Ignored.}
 }
 \value{
     \code{summary.ssanova} returns a list object of \code{\link{class}}
@@ -33,7 +34,7 @@ summary.ssanova(obj, diagnostics=FALSE)
     \item{cosines}{Cosine diagnostics for practical significance of
 	model terms.}
     \item{roughness}{Percentage decomposition of the roughness penalty
-	\code{penalty} into model terms.}
+      \code{penalty} into model terms.}
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{

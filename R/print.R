@@ -1,19 +1,19 @@
 ## Print function for ssanova objects
-print.ssanova <- function(obj)
+print.ssanova <- function(x,...)
 {
     ## call
-    cat("\nCall:\n",deparse(obj$call),"\n\n",sep="")
+    cat("\nCall:\n",deparse(x$call),"\n\n",sep="")
     ## terms
     cat("Terms:\n")
-    print.default(obj$terms$labels)
+    print.default(x$terms$labels)
     cat("\n")
     ## terms overview
     cat("Number of fixed and random effects:\n\n")
-    print.default(obj$desc)
+    print.default(x$desc)
     cat("\n")
-    if (obj$method=="v") Method <- "GCV.\n"
-    if (obj$method=="m") Method <- "GML.\n"
-    if (obj$method=="u") Method <- "Mallows CL.\n"
+    if (x$method=="v") Method <- "GCV.\n"
+    if (x$method=="m") Method <- "GML.\n"
+    if (x$method=="u") Method <- "Mallows CL.\n"
     cat("Smoothing parameters are selected by",Method)
     cat("\n")
     ## the rest are suppressed
@@ -21,54 +21,54 @@ print.ssanova <- function(obj)
 }
 
 ## Print function for summary.ssanova objects
-print.summary.ssanova <- function (obj,digits=6)
+print.summary.ssanova <- function (x,digits=6,...)
 {
     ## call
-    cat("\nCall:\n",deparse(obj$call),"\n",sep="")
-    cat("\nEstimate of error standard deviation:",obj$sigma,"\n")
+    cat("\nCall:\n",deparse(x$call),"\n",sep="")
+    cat("\nEstimate of error standard deviation:",x$sigma,"\n")
     ## residuals
-    res <- obj$res
+    res <- x$res
     cat("\nResiduals:\n")
     nam <- c("Min", "1Q", "Median", "3Q", "Max")
     rq <- structure(quantile(res), names = nam)
     print(rq,digits=digits)
-    cat("Residual sum of squares:",obj$rss)
-    cat("\nR square:",obj$r.squared)
+    cat("Residual sum of squares:",x$rss)
+    cat("\nR square:",x$r.squared)
     ## selected summaries
-    cat("\n\nPenalty associated with the fit:",obj$pen)
+    cat("\n\nPenalty associated with the fit:",x$pen)
     cat("\n\n")
     invisible()
 }
 
 ## Print function for summary.gssanova objects
-print.summary.gssanova <- function (obj,digits=6)
+print.summary.gssanova <- function (x,digits=6,...)
 {
     ## call
-    cat("\nCall:\n",deparse(obj$call),"\n",sep="")
-    if (obj$method=="u")
-        cat("\n(Dispersion parameter for ",obj$family,
-            " family taken to be ",format(obj$dispersion),")\n\n",sep="")
-    if (obj$method=="v")
-        cat("\n(Dispersion parameter for ",obj$family,
-            " family estimated to be ",format(obj$dispersion),")\n\n",sep="")
+    cat("\nCall:\n",deparse(x$call),"\n",sep="")
+    if (x$method=="u")
+        cat("\n(Dispersion parameter for ",x$family,
+            " family taken to be ",format(x$dispersion),")\n\n",sep="")
+    if (x$method=="v")
+        cat("\n(Dispersion parameter for ",x$family,
+            " family estimated to be ",format(x$dispersion),")\n\n",sep="")
     ## residuals
-    res <- obj$res
+    res <- x$res
     cat("Working residuals:\n")
     nam <- c("Min", "1Q", "Median", "3Q", "Max")
     rq <- structure(quantile(res), names = nam)
     print(rq,digits=digits)
-    cat("Residual sum of squares:",obj$rss,"\n")
+    cat("Residual sum of squares:",x$rss,"\n")
     ## deviance residuals
-    res <- obj$dev.res
+    res <- x$dev.res
     cat("\nDeviance residuals:\n")
     nam <- c("Min", "1Q", "Median", "3Q", "Max")
     rq <- structure(quantile(res), names = nam)
     print(rq,digits=digits)
-    cat("Deviance:",obj$deviance)
-    cat("\nNull deviance:",obj$dev.null)
+    cat("Deviance:",x$deviance)
+    cat("\nNull deviance:",x$dev.null)
     ## selected summaries
-    cat("\n\nPenalty associated with the fit:",obj$pen)
-    cat("\n\nNumber of performance-oriented iterations:",obj$iter)
+    cat("\n\nPenalty associated with the fit:",x$pen)
+    cat("\n\nNumber of performance-oriented iterations:",x$iter)
     cat("\n\n")
     invisible()
 }
