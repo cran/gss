@@ -107,7 +107,7 @@ ssden(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. and Wang, J. (2003), Penalized likelihood density
-    estimation: Direct cross-validation and scalable approximation}.
+    estimation: Direct cross-validation and scalable approximation.
     \emph{Statistica Sinica}, \bold{13}, 811--826.
   
     Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
