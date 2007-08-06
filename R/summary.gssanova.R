@@ -5,20 +5,10 @@ summary.gssanova <- function(object,diagnostics=FALSE,...)
     wt <- model.weights(object$mf)
     offset <- model.offset(object$mf)
     if ((object$family=="nbinomial")&(!is.null(object$nu))) y <- cbind(y,object$nu)
-    dev.resid <- switch(object$family,
-                        binomial=dev.resid.binomial(y,object$eta,wt),
-                        nbinomial=dev.resid.nbinomial(y,object$eta,wt),
-                        poisson=dev.resid.poisson(y,object$eta,wt),
-                        inverse.gaussian=dev.resid.inverse.gaussian(y,object$eta,wt),
-                        Gamma=dev.resid.Gamma(y,object$eta,wt),
-                        weibull=dev.resid.weibull(y,object$eta,wt,object$nu),
-                        lognorm=dev.resid.lognorm(y,object$eta,wt,object$nu),
-                        loglogis=dev.resid.loglogis(y,object$eta,wt,object$nu))
     dev.null <- switch(object$family,
                        binomial=dev.null.binomial(y,wt,offset),
                        nbinomial=dev.null.nbinomial(y,wt,offset),
                        poisson=dev.null.poisson(y,wt,offset),
-                       inverse.gaussian=dev.null.inverse.gaussian(y,wt,offset),
                        Gamma=dev.null.Gamma(y,wt,offset),
                        weibull=dev.null.weibull(y,wt,offset,object$nu),
                        lognorm=dev.null.lognorm(y,wt,offset,object$nu),
@@ -26,30 +16,49 @@ summary.gssanova <- function(object,diagnostics=FALSE,...)
     w <- object$w
     if (is.null(offset)) offset <- rep(0,length(object$eta))
     ## Residuals
-    res <- 10^object$nlambda*object$c 
+    res <- residuals(object)*sqrt(w)
+    dev.resid <- residuals(object,"deviance")
     ## Fitted values
-    fitted <- object$eta
-    fitted.off <- fitted-offset
+    fitted <- fitted(object)
     ## dispersion
     sigma2 <- object$varht
     ## RSS, deviance
     rss <- sum(res^2)
-    dev <- sum(dev.resid)
+    dev <- sum(dev.resid^2)
     ## Penalty associated with the fit
-    penalty <- sum(object$c*fitted.off*sqrt(w))
+    obj.wk <- object
+    obj.wk$d[] <- 0
+    penalty <- sum(obj.wk$c*predict(obj.wk,obj.wk$mf[object$id.basis,]))
     penalty <- as.vector(10^object$nlambda*penalty)
+    if (!is.null(object$random)) {
+        p.ran <- t(object$b)%*%object$random$sigma$fun(object$zeta,object$random$sigma$env)%*%object$b
+        penalty <- penalty + p.ran
+    }
     ## Calculate the diagnostics
     if (diagnostics) {
         ## Obtain retrospective linear model
         comp <- NULL
+        p.dec <- NULL
         for (label in object$terms$labels) {
             if (label=="1") next
             if (label=="offset") next
             comp <- cbind(comp,predict(object,object$mf,inc=label))
+            jk <- sum(obj.wk$c*predict(obj.wk,obj.wk$mf[object$id.basis,],inc=label))
+            p.dec <- c(p.dec,10^object$nlambda*jk)
         }
-        comp <- cbind(comp,yhat=fitted.off,y=fitted.off+res/sqrt(w),e=res/sqrt(w))
         term.label <- object$terms$labels[object$terms$labels!="1"]
         term.label <- term.label[term.label!="offset"]
+        if (!is.null(object$random)) {
+            mf <- object$mf
+            mf$random <- object$random$z
+            comp <- cbind(comp,predict(object,mf,inc=NULL))
+            p.dec <- c(p.dec,p.ran)
+            term.label <- c(term.label,"random")
+        }
+        fitted.off <- fitted-offset
+        comp <- cbind(comp,yhat=fitted.off,y=fitted.off+res/sqrt(w),e=res/sqrt(w))
+        if (any(outer(term.label,c("yhat","y","e"),"==")))
+            warning("gss warning in summary.gssanova: avoid using yhat, y, or e as variable names")
         colnames(comp) <- c(term.label,"yhat","y","e")
         ## Sweep out constant
         comp <- sqrt(w)*comp - outer(sqrt(w),apply(w*comp,2,sum))/sum(w)
@@ -65,17 +74,18 @@ summary.gssanova <- function(object,diagnostics=FALSE,...)
         cosines <- rbind(corr[c("y","e"),],norm)
         rownames(cosines) <- c("cos.y","cos.e","norm")
         corr <- corr[term.label,term.label,drop=FALSE]
-        if (qr(corr)$rank<dim(corr)[2]) kappa <- rep(Inf,len=dim(corr)[2])
+        if (qr(corr)$rank<dim(corr)[2])
+            kappa <- rep(Inf,len=dim(corr)[2])
         else kappa <- as.numeric(sqrt(diag(solve(corr))))
         ## Obtain decomposition of penalty
-        rough <- as.vector(10^object$nlambda*t(comp[,term.label])%*%object$c/penalty)
+        rough <- p.dec / penalty
         names(kappa) <- names(rough) <- term.label
     }
     else decom <- kappa <- cosines <- rough <- NULL
     ## Return the summaries
-    z <- list(call=object$call,family=object$family,method=object$method,iter=object$iter,
+    z <- list(call=object$call,family=object$family,alpha=object$alpha,
               fitted=fitted,dispersion=sigma2,residuals=res/sqrt(w),rss=rss,
-              deviance=dev,dev.resid=sqrt(dev.resid)*sign(res),nu=object$nu,
+              deviance=dev,dev.resid=dev.resid,nu=object$nu,
               dev.null=dev.null,penalty=penalty,
               pi=decom,kappa=kappa,cosines=cosines,roughness=rough)
     class(z) <- "summary.gssanova"

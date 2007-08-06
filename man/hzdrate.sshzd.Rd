@@ -22,24 +22,25 @@ survexp.sshzd(object, time, covariates=NULL, start=0)
 }
 \value{
     For \code{se=FALSE}, \code{hzdrate.sshzd} returns a vector of hazard
-    evaluations.  For \code{se=TRUE}, \code{hzdrate.sshzd} returns a
-    list consisting of the following components.
-    \item{fit}{Vector of hazard evaluations.}
-    \item{se.fit}{Vector of standard errors for log hazard.}
-    
-    For \code{se=FALSE}, \code{hzdcurve.sshzd} returns a vector or
-    columns of hazard curve(s) evaluated on \code{time} points at the
+    evaluations, and \code{hzdcurve.sshzd} returns a vector or columns of
+    hazard curve(s) evaluated on \code{time} points at the
     \code{covariates} values.  For \code{se=TRUE}, \code{hzdrate.sshzd}
-    returns a list consisting of the following components.
-    \item{fit}{Vector or columns of hazard curve(s).}
-    \item{se.fit}{Vector or columns of standard errors for log hazard
-      curve(s).}
+    and \code{hzdcurve.sshzd} return a list consisting of the following
+    components.
+    \item{fit}{Vector or columns of hazard.}
+    \item{se.fit}{Vector or columns of standard errors for log hazard.}
 
-    \code{survexp.sshzd} returns a vector of expected survivals, which
-    are based on the cumulative hazards over the specified intervals.
+    \code{survexp.sshzd} returns a vector of expected survivals based on
+    the cumulative hazards over (\code{start}, \code{time}), which in
+    fact are the (conditional) survival probabilities
+    \eqn{S(time)/S(start)}.
+}
+\note{
+    For left-truncated data, \code{start} must be at or after the
+    earliest truncation point.
 }
 \seealso{
-    \code{\link{sshzd}}.
+    Fitting function \code{\link{sshzd}}.
 }
 \keyword{models}
 \keyword{smooth}

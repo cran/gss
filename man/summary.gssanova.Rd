@@ -1,9 +1,9 @@
 \name{summary.gssanova}
 \alias{summary.gssanova}
-\title{Assessing Smoothing Spline ANOVA Fits with Non Gaussian Responses}
+\title{Assessing Smoothing Spline ANOVA Fits with Non-Gaussian Responses}
 \description{
-    Calculate various summaries of smoothing spline ANOVA fits with non
-    Gaussian responses.
+    Calculate various summaries of smoothing spline ANOVA fits with
+    non-Gaussian responses.
 }
 \usage{
 summary.gssanova(object, diagnostics=FALSE, ...)
@@ -20,19 +20,15 @@ summary.gssanova(object, diagnostics=FALSE, ...)
     \code{roughness} are only calculated if \code{diagnostics=TRUE}.
     \item{call}{Fitting call.}
     \item{family}{Error distribution.}
-    \item{method}{Method for smoothing parameter selection.}
+    \item{alpha}{Parameter used to define cross-validation in model
+        fitting.}
+    \item{fitted}{Fitted values on the link scale.}
     \item{dispersion}{Assumed or estimated dispersion parameter.}
-    \item{iter}{Number of performance-oriented iterations performed.}
-    \item{fitted}{Fitted values on the scale of the link.}
     \item{residuals}{Working residuals on the link scale.}
     \item{rss}{Residual sum of squares.}
     \item{dev.resid}{Deviance residuals.}
     \item{deviance}{Deviance of the fit.}
     \item{dev.null}{Deviance of the null model.}
-    \item{alpha}{Estimated size for \code{family="nbinomial"} with one
-        column responses.  Estimated inverse scale of log life time for
-	\code{family="nbinomial"}, \code{"lognorm"}, or
-	\code{"loglogis"}.}
     \item{penalty}{Roughness penalty associated with the fit.}
     \item{pi}{"Percentage decomposition" of "explained variance" into
 	model terms.}
@@ -53,9 +49,15 @@ summary.gssanova(object, diagnostics=FALSE, ...)
     behind the weighted least squares problem at convergence.
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
+\references{
+    Gu, C. (1992), Diagnostics for nonparametric regression models with
+    additive terms.  \emph{Journal of the American Statistical
+	Association}, \bold{87}, 1051--1058.
+}
 \seealso{
     Fitting function \code{\link{gssanova}} and methods
-    \code{\link{predict.ssanova}}, \code{\link{fitted.gssanova}}.
+    \code{\link{predict.ssanova}}, \code{\link{project.gssanova}},
+    \code{\link{fitted.gssanova}}. 
 }
 \keyword{models}
 \keyword{regression}

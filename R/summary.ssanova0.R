@@ -1,16 +1,16 @@
-## Summarize ssanova objects
-summary.ssanova1 <- function(object,diagnostics=FALSE,...)
+## Summarize ssanova0 objects
+summary.ssanova0 <- function(object,diagnostics=FALSE,...)
 {
     y <- model.response(object$mf,"numeric")
     w <- model.weights(object$mf)
     offset <- model.offset(object$mf)
-    if (is.null(offset)) offset <- rep(0,length(y))
+    if (is.null(offset)) offset <- rep(0,length(object$c))
     ## Residuals
-    mf <- object$mf
-    if (!is.null(object$random)) mf$random <- object$random$z
-    res <- y - predict(object,mf)
+    res <- 10^object$nlambda*object$c         
+    if (!is.null(w)) res <- res/sqrt(w)
     ## Fitted values
     fitted <- as.numeric(y-res)
+    fitted.off <- fitted-offset
     ## (estimated) sigma
     sigma <- sqrt(object$varht)
     ## R^2
@@ -23,37 +23,24 @@ summary.ssanova1 <- function(object,diagnostics=FALSE,...)
     if (is.null(w)) rss <- sum(res^2)
     else rss <- sum(w*res^2)
     ## Penalty associated with the fit
-    obj.wk <- object
-    obj.wk$d[] <- 0
-    penalty <- sum(obj.wk$c*predict(obj.wk,obj.wk$mf[object$id.basis,]))
+    if (is.null(w)) 
+        penalty <- sum(object$c*fitted.off)
+    else penalty <- sum(object$c*fitted.off*sqrt(w))
     penalty <- as.vector(10^object$nlambda*penalty)
-    if (!is.null(object$random)) {
-        p.ran <- t(object$b)%*%object$random$sigma$fun(object$zeta,object$random$sigma$env)%*%object$b
-        penalty <- penalty + p.ran
-    }
     ## Calculate the diagnostics
     if (diagnostics) {
         ## Obtain retrospective linear model
         comp <- NULL
-        p.dec <- NULL
         for (label in object$terms$labels) {
             if (label=="1") next
             if (label=="offset") next
             comp <- cbind(comp,predict(object,object$mf,inc=label))
-            jk <- sum(obj.wk$c*predict(obj.wk,obj.wk$mf[object$id.basis,],inc=label))
-            p.dec <- c(p.dec,10^object$nlambda*jk)
         }
+        comp <- cbind(comp,yhat=fitted.off,y=fitted.off+res,e=res)
         term.label <- object$terms$labels[object$terms$labels!="1"]
         term.label <- term.label[term.label!="offset"]
-        if (!is.null(object$random)) {
-            comp <- cbind(comp,predict(object,mf,inc=NULL))
-            p.dec <- c(p.dec,p.ran)
-            term.label <- c(term.label,"random")
-        }
-        fitted.off <- fitted-offset
-        comp <- cbind(comp,yhat=fitted.off,y=fitted.off+res,e=res)
         if (any(outer(term.label,c("yhat","y","e"),"==")))
-            warning("gss warning in summary.ssanova1: avoid using yhat, y, or e as variable names")
+            warning("gss warning in summary.ssanova0: avoid using yhat, y, or e as variable names")
         colnames(comp) <- c(term.label,"yhat","y","e")
         ## Sweep out constant
         if (!is.null(w))
@@ -75,7 +62,7 @@ summary.ssanova1 <- function(object,diagnostics=FALSE,...)
             kappa <- rep(Inf,len=dim(corr)[2])
         else kappa <- as.numeric(sqrt(diag(solve(corr))))
         ## Obtain decomposition of penalty
-        rough <- p.dec / penalty
+        rough <- as.vector(10^object$nlambda*t(comp[,term.label])%*%object$c/penalty)
         names(kappa) <- names(rough) <- term.label
     }
     else decom <- kappa <- cosines <- rough <- NULL

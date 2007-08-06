@@ -142,7 +142,7 @@ mkphi.tp <-  function(dm,order,mesh,weight)
         phix <- NULL
         for(i in 1:nnull)
             phix <- rbind(phix,env$phi.p$fun(x,i,env$phi.p$env))
-        t(backsolve(env$r,phix,tr=TRUE))[,nu]
+        t(backsolve(env$r,phix,tr=TRUE))[,nu+1]
     }
     ## Return the function and the environment
     list(fun=fun,env=env)
@@ -238,6 +238,53 @@ mkphi.tp.p <- function(dm,order)
             stop("gss error in phi: inputs are of wrong dimensions")
         }
         apply(t(x)^env$pol.code[,nu],2,prod)
+    }
+    ## Return the function and the environment
+    list(fun=fun,env=env)
+}
+
+## Make RK for spherical splines
+mkrk.sphere <- function(order)
+{
+    ## Create the environment
+    env <- list(order=order)
+    ## Create the rk function
+    fun <- function(x,y,env,outer.prod=FALSE) {
+        ##% Check the inputs
+        if (is.vector(x)) x <- t(as.matrix(x))
+        if (is.vector(y)) y <- t(as.matrix(y))
+        if (!(is.matrix(x)&is.matrix(y))) {
+            stop("gss error in rk: inputs are of wrong types")
+        }
+        if ((dim(x)[2]!=2)|(dim(y)[2]!=2)) {
+            stop("gss error in rk: inputs are of wrong dimensions")
+        }
+        if ((max(abs(x[,1]),abs(y[1,]))>90)|(max(abs(x[,2]),abs(y[,2]))>180)) {
+            stop("gss error in rk: inputs are out of range")
+        }
+        ##% Convert to gradient
+        lat.x <- x[,1]/180*pi; lon.x <- x[,2]/180*pi
+        lat.y <- y[,1]/180*pi; lon.y <- y[,2]/180*pi
+        ##% Return the result
+        rk <- function(lat.x,lon.x,lat.y,lon.y,order) {
+            z <- cos(lat.x)*cos(lat.y)*cos(lon.x-lon.y)+sin(lat.x)*sin(lat.y)
+            W <- ifelse(z<1-10^(-10),(1-z)/2,0)
+            A <- ifelse(W>0,log(1+1/sqrt(W)),0)
+            C <- ifelse(W>0,2*sqrt(W),0)
+            switch(order-1,
+                   (A*4*W*(3*W-1)+6*W*(1-C)+1)/2,
+                   (W*W*(A*((840*W-720)*W+72)+420*W*(1-C)+220*C-150)-4*W+3)/12,
+                   (W*W*W*(A*(((27720*W-37800)*W+12600)*W-600)+
+                           (13860*(1-C)*W+14280*C-11970)*W-2772*C+1470)+
+                    15*W*W-3*W+5)/30) - 1/(2*order-1)
+        }
+        if (outer.prod) {
+            zz <- NULL
+            for (i in 1:length(lat.y))
+                zz <- cbind(zz,rk(lat.x,lon.x,lat.y[i],lon.y[i],env$order))
+        }
+        else zz <- rk(lat.x,lon.x,lat.y,lon.y,env$order)
+        zz
     }
     ## Return the function and the environment
     list(fun=fun,env=env)

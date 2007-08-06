@@ -53,8 +53,8 @@ function (object,time,covariates=NULL,se=FALSE) {
         stop("gss error in hzdcurve.sshzd: not a sshzd object")
     if (length(xnames)&&(!all(xnames%in%names(covariates))))
         stop("gss error in survexp.sshzd: missing covariates")
-    mn <- min(object$domain[[tname]])
-    mx <- max(object$domain[[tname]])
+    mn <- min(object$tdomain)
+    mx <- max(object$tdomain)
     if ((min(time)<mn)|(max(time)>mx))
         stop("gss error in hzdcurve.sshzd: time range over the domain")
     if (length(xnames)) {
@@ -111,8 +111,8 @@ function(object,time,covariates=NULL,start=0) {
     else ncov <- dim(covariates)[1]
     if (length(xnames)&&(nt-1)&&(ncov-1)&&(nt-ncov))
         stop("gss error in survexp.sshzd: size mismatch")
-    mn <- min(object$domain[[tname]])
-    mx <- max(object$domain[[tname]])
+    mn <- min(object$tdomain)
+    mx <- max(object$tdomain)
     if ((min(start)<mn)|(max(time)>mx))
         stop("gss error in survexp.sshzd: time range over the domain")
     ## Calculate

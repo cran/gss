@@ -143,15 +143,12 @@ cfit.loglogis(y, wt, offset, nu)
     \item{offset}{Model offset.}
     \item{nu}{Size for nbinomial.  Inverse scale for log life time.}
 }
-\details{
-    These are not to be called by the user.
+\note{
+    \code{\link{gssanova0}} uses \code{mkdata.x}, \code{dev.resid.x},
+    and \code{dev.null.x}.  \code{\link{gssanova}} uses the above plus
+    \code{dev0.resid.x} and \code{cv.x}.
 
-    \code{mkdata.x} create the pseudo data to be used in iterated
-    penalized least squares fitting.  \code{dev.resid.x} calculate the
-    deviance residuals.  \code{dev.null.x} calculate the deviance of the
-    constant null model.
-}
-\seealso{
-    \code{\link{gssanova}}.
+    \code{y0.x}, \code{proj0.x}, \code{kl.x}, and \code{cfit.x} are used
+    by \code{\link{project.gssanova}}.
 }
 \keyword{internal}

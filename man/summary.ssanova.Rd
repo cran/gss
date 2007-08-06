@@ -1,13 +1,13 @@
 \name{summary.ssanova}
 \alias{summary.ssanova}
-\alias{summary.ssanova1}
+\alias{summary.ssanova0}
 \title{Assessing Smoothing Spline ANOVA Fits}
 \description{
     Calculate various summaries of smoothing spline ANOVA fits.
 }
 \usage{
 summary.ssanova(object, diagnostics=FALSE, ...)
-summary.ssanova1(object, diagnostics=FALSE, ...)
+summary.ssanova0(object, diagnostics=FALSE, ...)
 }
 \arguments{
     \item{object}{Object of class \code{"ssanova"}.}
@@ -45,8 +45,9 @@ summary.ssanova1(object, diagnostics=FALSE, ...)
 	Association}, \bold{87}, 1051--1058.
 }
 \seealso{
-    Fitting function \code{\link{ssanova}} and methods
-    \code{\link{predict.ssanova}}, \code{\link{fitted.ssanova}}.
+    Fitting functions \code{\link{ssanova}}, \code{\link{ssanova0}} and
+    methods \code{\link{predict.ssanova}},
+    \code{\link{project.ssanova}}, \code{\link{fitted.ssanova}}.
 }
 \keyword{models}
 \keyword{regression}

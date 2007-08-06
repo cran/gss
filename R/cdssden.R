@@ -16,31 +16,60 @@ function (object,x,cond,int=NULL) {
     if (!all(sort(xnames)==sort(colnames(x))))
         stop("gss error in cdssden: mismatched variable names")
     ## Calculate normalizing constant
-    if (is.null(int)) {
-        if (length(xnames)==1) {
-            ## Gauss-Legendre quadrature
-            mn <- min(object$domain[,xnames])
-            mx <- max(object$domain[,xnames])
-            quad <- gauss.quad(200,c(mn,mx))
-            xmesh <- data.frame(quad$pt)
-            colnames(xmesh) <- xnames
-        }
-        else {
-            ## Smolyak cubature
-            domain <- object$domain[,colnames(x)]
-            code <- c(15,14,13)
-            quad <- smolyak.quad(ncol(x),code[ncol(x)-1])
-            for (i in 1:ncol(x)) {
-                wk <- x[,i]
-                jk <- ssden(~wk,domain=data.frame(wk=domain[,i]),alpha=2,
-                            id.basis=object$id.basis)
-                quad$pt[,i] <- qssden(jk,quad$pt[,i])
-                quad$wt <- quad$wt/dssden(jk,quad$pt[,i])
+    while (is.null(int)) {
+        fac.list <- NULL
+        num.list <- NULL
+        for (xlab in xnames) {
+            if (is.factor(x.wk <- x[[xlab]])) fac.list <- c(fac.list,xlab)
+            else {
+                if (!is.vector(x.wk)|is.null(object$domain[[xlab]])) {
+                    warning("gss warning in cdssden: int set to 1")
+                    int <- 1
+                    next
+                }
+                else num.list <- c(num.list,xlab)
             }
-            jk <- wk <- NULL
-            xmesh <- data.frame(quad$pt)
-            colnames(xmesh) <- colnames(x)
         }
+        ## Generate quadrature for numerical variables
+        if (!is.null(num.list)) {
+            if (length(num.list)==1) {
+                ## Gauss-Legendre quadrature
+                mn <- min(object$domain[,num.list])
+                mx <- max(object$domain[,num.list])
+                quad <- gauss.quad(200,c(mn,mx))
+                quad$pt <- data.frame(quad$pt)
+                colnames(quad$pt) <- num.list
+            }
+            else {
+                ## Smolyak cubature
+                domain.wk <- object$domain[,num.list]
+                code <- c(15,14,13)
+                quad <- smolyak.quad(ncol(domain.wk),code[ncol(domain.wk)-1])
+                for (i in 1:ncol(domain.wk)) {
+                    xlab <- colnames(domain.wk)[i]
+                    wk <- object$mf[[xlab]]
+                    jk <- ssden(~wk,domain=data.frame(wk=domain.wk[,i]),alpha=2,
+                                id.basis=object$id.basis)
+                    quad$pt[,i] <- qssden(jk,quad$pt[,i])
+                    quad$wt <- quad$wt/dssden(jk,quad$pt[,i])
+                }
+                jk <- wk <- NULL
+                quad$pt <- data.frame(quad$pt)
+                colnames(quad.pt) <- colnames(domain.wk)
+            }
+        }
+        else quad <- list(pt=data.frame(dum=1),wt=1)
+        ## Incorporate factors in quadrature
+        if (!is.null(fac.list)) {
+            for (i in 1:length(fac.list)) {
+                wk <- expand.grid(levels(object$mf[[fac.list[i]]]),1:length(quad$wt))
+                quad$wt <- quad$wt[wk[,2]]
+                col.names <- c(fac.list[i],colnames(quad$pt))
+                quad$pt <- data.frame(wk[,1],quad$pt[wk[,2],])
+                colnames(quad$pt) <- col.names
+            }
+        }
+        xmesh <- quad$pt[,xnames,drop=FALSE]
         xx <- cond[rep(1,nrow(xmesh)),,drop=FALSE]
         int <- sum(dssden(object,cbind(xmesh,xx))*quad$wt)
     }
@@ -56,7 +85,7 @@ function(object,q,cond,int=NULL) {
     xnames <- NULL
     for (i in colnames(object$mf))
         if (all(i!=colnames(cond))) xnames <- c(xnames,i)
-    if (length(xnames)!=1)
+    if ((length(xnames)!=1)|!is.vector(object$mf[,xnames]))
         stop("gss error in cpssden: not a 1-D conditional density")
     mn <- min(object$domain[,xnames])
     mx <- max(object$domain[,xnames])
@@ -90,7 +119,7 @@ function(object,p,cond,int=NULL) {
     xnames <- NULL
     for (i in colnames(object$mf))
         if (all(i!=colnames(cond))) xnames <- c(xnames,i)
-    if (length(xnames)!=1)
+    if ((length(xnames)!=1)|!is.vector(object$mf[,xnames]))
         stop("gss error in cqssden: not a 1-D conditional density")
     mn <- min(object$domain[,xnames])
     mx <- max(object$domain[,xnames])

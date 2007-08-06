@@ -3,13 +3,13 @@
 \alias{smolyak.size}
 \title{Generating Smolyak Cubature}
 \description{
-    Generate Smolyak cubatures using C routines modified from
+    Generate delayed Smolyak cubatures using C routines modified from
     \code{smolyak.c} found in Knut Petras' SMOLPACK.
 }
 \usage{
-smolyak.quad(d,k)
+smolyak.quad(d, k)
 
-smolyak.size(d,k)
+smolyak.size(d, k)
 }
 \arguments{
     \item{d}{Dimension of unit cube.}
@@ -22,9 +22,5 @@ smolyak.size(d,k)
     \item{wt}{Quadrature weights.}
 
     \code{smolyak.size} returns an integer.
-}
-\details{
-    \code{smolyak.quad} and \code{smolyak.size} concern the delayed
-    Smolyak cubature.
 }
 \keyword{math}

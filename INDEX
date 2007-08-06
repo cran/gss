@@ -2,10 +2,10 @@
 ssanova                     Fitting smoothing spline ANOVA models
 predict.ssanova             Predicting from ssanova fits
 summary.ssanova             Summarizing ssanova fits
-ssanova1                    Fitting smoothing spline ANOVA models
-predict.ssanova1            Predicting from ssanova1 fits
-summary.ssanova1            Summarizing ssanova1 fits
-project.ssanova1            Projecting ssanova1 fits for model diagnostic
+project.ssanova             Projecting ssanova fits for model diagnostic
+ssanova0                    Fitting smoothing spline ANOVA models
+predict.ssanova0            Predicting from ssanova0 fits
+summary.ssanova0            Summarizing ssanova0 fits
 residuals.ssanova           Extracting the residuals from ssanova objects
 fitted.ssanova              Extracting the fitted values from ssanova objects
 print.ssanova               Print function for ssanova objects
@@ -13,13 +13,13 @@ print.summary.ssanova       Print function for summary.ssanova objects
 
 gssanova                    Fitting smoothing spline ANOVA models with non Gaussian data
 summary.gssanova            Summarizing gssanova fits
-gssanova1                   Fitting smoothing spline ANOVA models with non Gaussian data
-summary.gssanova1           Summarizing gssanova1 fits
-project.gssanova1           Projecting gssanova1 fits for model diagnostic
+project.gssanova            Projecting gssanova1 fits for model diagnostic
+gssanova0                   Fitting smoothing spline ANOVA models with non Gaussian data
+summary.gssanova0           Summarizing gssanova0 fits
 residuals.gssanova          Extracting the residuals from gssanova objects
 fitted.gssanova             Extracting the fitted values from gssanova objects
 print.summary.gssanova      Print function for summary.gssanova objects
-print.summary.gssanova1     Print function for summary.gssanova1 objects
+print.summary.gssanova0     Print function for summary.gssanova0 objects
 
 ssden                       Estimating probability density using smoothing splines
 dssden                      Evaluating pdf of ssden estimates
@@ -39,20 +39,19 @@ project.ssden               Projecting sshzd fits for model diagnostic
 print.ssden                 Print function for sshzd objects
 
 ## UTILITIES FOR MAKING MODEL TERMS
-mkterm.cubic                Making model terms for cubic spline marginals
-mkterm.cubic1               Making model terms for cubic spline marginals
+mkterm                      Making model terms
+
 mkphi.cubic                 Making phi function for cubic splines
 mkrk.cubic                  Making RK function for cubic splines
-
-mkterm.linear               Making model terms for linear spline marginals
-mkterm.linear1              Making model terms for linear spline marginals
+mkrk.cubic.per              Making RK function for periodic cubic splines
 mkrk.linear                 Making RK function for linear splines
+mkrk.linear.per             Making RK function for periodic linear splines
 
-mkterm.tp                   Making model terms for thin-plate spline marginals
 mkphi.tp                    Making phi functions for thin-plate splines
 mkphi.tp.p                  Making pseudo phi functions for thin-plate splines
 mkrk.tp                     Making RK functions for thin-plate splines
 mkrk.tp.p                   Making pseudo RK functions for thin-plate splines
+mkrk.sphere                 Making RK functions for spherical splines
 
 mkrk.nominal                Making RK function for nominal factors
 mkrk.ordinal                Making RK function for ordinal factors
@@ -138,19 +137,20 @@ smolyak.size                Getting the size of Smolyak cubature
 nlm0                        Minimizing univariate functions on finite intervals
 
 ## NUMERICAL ENGINE
-sspreg                      An interface to RKPACK driver DSIDR
+sspreg0                     An interface to RKPACK driver DSIDR
+mspreg0                     An interface to RKPACK driver DMUDR
 sspregpoi                   Performance-oriented iteration using RKPACK driver DSIDR
-mspreg                      An interface to RKPACK driver DMUDR
 mspregpoi                   Performance-oriented iteration using RKPACK driver DMUDR
 getcrdr                     An interface to RKPACK utility DCRDR
 getsms                      An interface to RKPACK utility DSMS
 
 sspreg1                     Compute regression estimate with single smoothing parameter
 mspreg1                     Compute regression estimate with multiple smoothing parameters
+sspngreg                    Compute NG regression estimate with single smoothing parameter
+mspngreg                    Compute NG regression estimate with single smoothing parameter
+ngreg                       Newton iteration for NG regression with fixed smoothing parameter
+ngreg.proj                  Calculate Kullback-Leibler projection for NG regression
+
 sspdsty                     Compute density estimate with single smoothing parameter
 mspdsty                     Compute density estimate with multiple smoothing parameters
-
-sspngreg1                   Compute NG regression estimate with single smoothing parameter
-mspngreg1                   Compute NG regression estimate with single smoothing parameter
-ngreg1                      Newton iteration for NG regression with fixed smoothing parameter
-ngreg.proj                  Calculate Kullback-Leibler projection for NG regression
+msphzd                      Compute hazard estimate with single or multiple smoothing parameters

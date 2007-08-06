@@ -23,8 +23,9 @@
     London: Chapman and Hall.
 }
 \references{
-    Gu and Ma (2003b), \emph{Generalized Nonparametric Mixed-Effect
-    Models: Computation and Smoothing Parameter Selection}.  Available
-    at \url{http://stat.purdue.edu/~chong/manu.html}.
+    Gu, C. and Ma, P. (2005), Generalized nonparametric mixed-effect
+    models: computation and smoothing parameter selection.
+    \emph{Journal of Computational and Graphical Statistics}, \bold{14},
+    485--504.
 }
 \keyword{datasets}

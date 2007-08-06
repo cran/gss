@@ -15,7 +15,7 @@
 	\code{hmdt} \tab Humidity.\cr
 	\code{sbtp} \tab Sandburg Air Base temperature, in Celsius.\cr
 	\code{ibht} \tab Inversion base height, in foot.\cr
-	\code{dgpg} \tab Dagget pressure gradient, in mmhg.\cr
+	\code{dgpg} \tab Dagget pressure gradient, in mmHg.\cr
 	\code{ibtp} \tab Inversion base temperature, in Fahrenheit.\cr
 	\code{vsty} \tab Visibility, in miles.\cr
 	\code{day} \tab Calendar day, between 1 and 366.

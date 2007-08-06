@@ -2,24 +2,19 @@
 \alias{ssden}
 \title{Estimating Probability Density Using Smoothing Splines}
 \description{
-    Estimate probability densities using smoothing spline ANOVA models
-    with cubic spline, linear spline, or thin-plate spline marginals for
-    numerical variables.  The symbolic model specification via
-    \code{formula} follows the same rules as in \code{\link{lm}}, but
-    with the response missing.
+    Estimate probability densities using smoothing spline ANOVA models.
+    The symbolic model specification via \code{formula} follows the same
+    rules as in \code{\link{lm}}, but with the response missing.
 }
 \usage{
-ssden(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
+ssden(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
-      domain=as.list(NULL), quadrature=NULL, ext=.05, order=2,
-      prec=1e-7, maxiter=30)
+      domain=as.list(NULL), quadrature=NULL, prec=1e-7, maxiter=30)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
-    \item{type}{Type of numerical marginals to be used.  Supported are
-	\code{type="cubic"} for cubic spline marginals,
-	\code{type="linear"} for linear spline marginals, and
-	\code{type="tp"} for thin-plate spline marginals.}
+    \item{type}{List specifying the type of spline for each variable.
+        See \code{\link{mkterm}} for details.}
     \item{data}{Optional data frame containing the variables in the
         model.}
     \item{alpha}{Parameter defining cross-validation score for smoothing
@@ -36,17 +31,8 @@ ssden(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
         Ignored when \code{id.basis} is specified.}
     \item{domain}{Data frame specifying marginal support of density.}
     \item{quadrature}{Quadrature for calculating integral.  Mandatory
-        for \code{type="tp"}.}
-    \item{ext}{For cubic spline and linear spline marginals, this option
-	specifies how far to extend the domain beyond the minimum and
-	the maximum as a percentage of the range.  The default
-	\code{ext=.05} specifies marginal domains of lengths 110 percent
-	of their respective ranges.  Evaluation outside of the domain
-	will result in an error.  Ignored if \code{type="tp"} or
-	\code{domain} are specified.}
-    \item{order}{For thin-plate spline marginals, this option specifies
-	the order of the marginal penalties.  Ignored if
-	\code{type="cubic"} or \code{type="linear"} are specified.}
+        if variables other than factors or numerical vectors are
+	involved.}
     \item{prec}{Precision requirement for internal iterations.}
     \item{maxiter}{Maximum number of iterations allowed for
 	internal iterations.}
@@ -64,7 +50,7 @@ ssden(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
     The selective term elimination may characterize (conditional)
     independence structures between variables.  For example,
     \code{~x1*x2+x1*x3} yields the conditional independence of x2 and x3
-    given x1.  Currently, up to four variables are supported.
+    given x1.
 
     Parallel to those in a \code{\link{ssanova}} object, the model terms
     are sums of unpenalized and penalized terms.  Attached to every
@@ -79,39 +65,45 @@ ssden(formula, type="cubic", data=list(), alpha=1.4, weights=NULL,
     larger \code{alpha} yields smoother estimates.
 
     A subset of the observations are selected as "knots."  Unless
-    specified via \code{id.basis} or \code{nbasis}, the subset size is
-    determined by \eqn{max(30,10n^(2/9))}, which is appropriate for
-    \code{type="cubic"} but not necessarily for \code{type="linear"} or
-    \code{type="tp"}.
+    specified via \code{id.basis} or \code{nbasis}, the number of
+    "knots" \eqn{q} is determined by \eqn{max(30,10n^{2/9})}, which is
+    appropriate for the default cubic splines for numerical vectors.
 }
 \note{
-    For \code{type="cubic"} and \code{type="linear"}, the quadrature
-    will be generated if not provided by the user.  The default
-    quadrature in 1-D is the 200-point Gauss-Legendre formula on the
-    domain.  The default quadratures on 2-D, 3-D, and 4-D cubes are
-    selected delayed Smolyak cubatures with 449, 2527, and 13697 points,
-    on properly scaled product domains.  See \code{\link{gauss.quad}}
-    and \code{\link{smolyak.quad}}.
+    Default quadrature will be constructed for up to 4 numerical vectors
+    on a hyper cube, then outer product with factor levels will be taken
+    if factors are involved.  The sides of the hyper cube are specified
+    by \code{domain}; for \code{domain$x} missing, the default is
+    \code{c(min(x),max(x))+c(-1,1)*(max(x)-mimn(x))*.05}.
+
+    On a 1-D interval, the quadrature is the 200-point Gauss-Legendre
+    formula returned from \code{\link{gauss.quad}}.  For 2, 3, or 4
+    numerical vectors, delayed Smolyak cubatures from
+    \code{\link{smolyak.quad}} with 449, 2527, and 13697 points are used
+    on cubes with the marginals properly transformed; see Gu and Wang
+    (2003) for the marginal transformations.
+
+    The results may vary from run to run.  For consistency, specify
+    \code{id.basis} or set \code{seed}.
 }
 \value{
     \code{ssden} returns a list object of \code{\link{class} "ssden"}.
 
     \code{\link{dssden}} and \code{\link{cdssden}} can be used to
-    evaluate the estimated joint density and conditional density.
-    \code{pssden}, \code{qssden}, \code{cpssden}, and \code{cqssden} can
-    be used to evaluate (conditional) cdf and quantiles.
-}
-\seealso{
-    \code{\link{dssden}} and \code{\link{cdssden}}.
+    evaluate the estimated joint density and conditional density;
+    \code{\link{pssden}}, \code{\link{qssden}}, \code{\link{cpssden}},
+    and \code{\link{cqssden}} can be used to evaluate (conditional) cdf
+    and quantiles.  The method \code{\link{project.ssden}} can be used
+    to calculate the Kullback-Leibler projection for model selection.
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
+    Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
+    Springer-Verlag.
+
     Gu, C. and Wang, J. (2003), Penalized likelihood density
     estimation: Direct cross-validation and scalable approximation.
     \emph{Statistica Sinica}, \bold{13}, 811--826.
-  
-    Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
-    Springer-Verlag.
 }
 \examples{
 ## 1-D estimate: Buffalo snowfall
@@ -146,6 +138,17 @@ cqssden(aids.fit,c(.05,.25,.5,.75,.95),data.frame(incu=50),jk$int)
 ## Clean up
 \dontrun{rm(aids,quad.pt,quad.wt,aids.fit,jk,xx)
 dev.off()}
+
+## One factor plus one vector
+data(gastric)
+gastric$trt
+fit <- ssden(~futime*trt,data=gastric)
+## conditional density
+cdssden(fit,c("1","2"),cond=data.frame(futime=150))
+## conditional quantiles
+cqssden(fit,c(.05,.25,.5,.75,.95),data.frame(trt="1"))
+## Clean up
+\dontrun{rm(gastric,fit)}
 }
 \keyword{smooth}
 \keyword{models}

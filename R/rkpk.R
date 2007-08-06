@@ -1,171 +1,329 @@
-## Fit Single Smoothing Parameter REGression
-sspreg <- function(s,q,y,method="v",varht=1)
+## Fit Single Smoothing Parameter (Gaussian) REGression
+sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
 {
-    ## Check inputs
-    if (is.vector(s)) s <- as.matrix(s)
-    if (!(is.matrix(s)&is.matrix(q)&is.vector(y)&is.character(method))) {
-        stop("gss error in sspreg: inputs are of wrong types")
+    qr.trace <- FALSE
+    if ((alpha<0)&(method%in%c("u","v"))) qr.trace <- TRUE
+    alpha <- abs(alpha)
+    ## get dimensions
+    nobs <- nrow(r)
+    nxi <- ncol(r)
+    if (!is.null(s)) {
+        if (is.vector(s)) nnull <- 1
+        else nnull <- ncol(s)
     }
-    nobs <- length(y)
-    nnull <- dim(s)[2]
-    if (!((dim(s)[1]==nobs)&(dim(q)[1]==nobs)&(dim(q)[2]==nobs)
-          &(nobs>=nnull)&(nnull>0))) {
-        stop("gss error in sspreg: inputs have wrong dimensions")
+    else nnull <- 0
+    if (!is.null(random)) nz <- ncol(as.matrix(random$z))
+    else nz <- 0
+    nxiz <- nxi + nz
+    nn <- nxiz + nnull
+    ## cv function
+    cv <- function(lambda) {
+        if (is.null(random)) q.wk <- 10^(lambda+theta)*q
+        else {
+            q.wk <- matrix(0,nxiz,nxiz)
+            q.wk[1:nxi,1:nxi] <- 10^(lambda[1]+theta)*q
+            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(lambda[-1],random$sigma$env)
+        }
+        if (qr.trace) {
+            qq.wk <- chol(q.wk,pivot=TRUE)
+            sr <- cbind(s,10^theta*r[,attr(qq.wk,"pivot")])
+            sr <- rbind(sr,cbind(matrix(0,nxiz,nnull),qq.wk))
+            sr <- qr(sr,tol=0)
+            rss <- mean(qr.resid(sr,c(y,rep(0,nxiz)))[1:nobs]^2)
+            trc <- sum(qr.Q(sr)[1:nobs,]^2)/nobs
+            if (method=="u") score <- rss + alpha*2*varht*trc
+            if (method=="v") score <- rss/(1-alpha*trc)^2
+            alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
+            alpha.wk <- min(alpha.wk,3)
+            if (alpha.wk>alpha) {
+                if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*trc
+                if (method=="v") score <- rss/(1-alpha.wk*trc)^2
+            }
+            if (return.fit) {
+                z <- .Fortran("reg",
+                          as.double(cbind(s,10^theta*r)), as.integer(nobs), as.integer(nnull),
+                          as.double(q.wk), as.integer(nxiz), as.double(y),
+                          as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
+                          as.double(alpha), varht=as.double(varht),
+                          score=double(1), dc=double(nn),
+                          as.double(.Machine$double.eps),
+                          chol=double(nn*nn), double(nn),
+                          jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
+                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
+                z$score <- score
+                assign("fit",z[c(1:5,7)],inherit=TRUE)
+            }
+        }
+        else {
+            z <- .Fortran("reg",
+                          as.double(cbind(s,10^theta*r)), as.integer(nobs), as.integer(nnull),
+                          as.double(q.wk), as.integer(nxiz), as.double(y),
+                          as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
+                          as.double(alpha), varht=as.double(varht),
+                          score=double(1), dc=double(nn),
+                          as.double(.Machine$double.eps),
+                          chol=double(nn*nn), double(nn),
+                          jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
+                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
+            if (z$info) stop("gss error in ssanova: evaluation of GML score fails")
+            assign("fit",z[c(1:5,7)],inherit=TRUE)
+            score <- z$score
+            alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
+            alpha.wk <- min(alpha.wk,3)
+            if (alpha.wk>alpha) {
+                if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*z$wk[2]
+                if (method=="v") score <- z$wk[1]/(1-alpha.wk*z$wk[2])^2
+            }
+        }
+        score
     }
-    ## Set method for smoothing parameter selection
-    code <- (1:3)[c("v","m","u")==method]
-    if (!length(code)) {
-        stop("gss error: unsupported method for smoothing parameter selection")
+    cv.wk <- function(lambda) cv.scale*cv(lambda)+cv.shift
+    ## initialization
+    tmp <- sum(r^2)
+    if (is.null(s)) theta <- 0
+    else theta <- log10(sum(s^2)/nnull/tmp*nxi) / 2
+    log.la0 <- log10(tmp/sum(diag(q))) + theta
+        if (!is.null(random)) {
+        ran.scal <- theta - log10(sum(random$z^2)/nz/tmp*nxi) / 2
+        r <- cbind(r,10^(ran.scal-theta)*random$z)
     }
-    ## Call RKPACK driver DSIDR
-    z <- .Fortran("dsidr0",
-                  as.integer(code),
-                  swk=as.double(s), as.integer(nobs),
-                  as.integer(nobs), as.integer(nnull),
-                  as.double(y),
-                  qwk=as.double(q), as.integer(nobs),
-                  as.double(0), as.integer(0), double(2),
-                  nlambda=double(1), score=double(1), varht=as.double(varht),
-                  c=double(nobs), d=double(nnull),
-                  qraux=double(nnull), jpvt=integer(nnull),
-                  double(3*nobs),
-                  info=integer(1),PACKAGE="gss")
-    ## Check info for error
-    if (info<-z$info) {               
-        if (info>0)
-            stop("gss error in sspreg: matrix s is rank deficient")
-        if (info==-2)
-            stop("gss error in sspreg: matrix q is indefinite")
-        if (info==-1)
-            stop("gss error in sspreg: input data have wrong dimensions")
-        if (info==-3)
-            stop("gss error in sspreg: unknown method for smoothing parameter selection.")
+    else ran.scal <- NULL
+    ## lambda search
+    return.fit <- FALSE
+    fit <- NULL
+    if (is.null(random)) la <- log.la0
+    else la <- c(log.la0,random$init)
+    if (length(la)-1) {
+        counter <- 0
+        ## scale and shift cv
+        tmp <- abs(cv(la))
+        cv.scale <- 1
+        cv.shift <- 0
+        if (tmp<1&tmp>10^(-4)) {
+            cv.scale <- 10/tmp
+            cv.shift <- 0
+        }
+        if (tmp<10^(-4)) {
+            cv.scale <- 10^2
+            cv.shift <- 10
+        }
+        repeat {
+            zz <- nlm(cv.wk,la,stepmax=1,ndigit=7)
+            if (zz$code<=3) break
+            la <- zz$est
+            counter <- counter + 1
+            if (counter>=5) {
+                warning("gss warning in ssanova: iteration for model selection fails to converge")
+                break
+            }
+        }
     }
-    ## Return the fit
-    c(list(method=method,theta=0),
-      z[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])
+    else {
+        repeat {
+            mn <- la-1
+            mx <- la+1
+            zz <- nlm0(cv,c(mn,mx))
+            if (min(zz$est-mn,mx-zz$est)>=1e-3) break
+            else la <- zz$est
+        }
+    }
+    ## return
+    return.fit <- TRUE
+    jk1 <- cv(zz$est)
+    if (is.null(random)) q.wk <- 10^theta*q
+    else {
+        q.wk <- matrix(0,nxiz,nxiz)
+        q.wk[1:nxi,1:nxi] <- 10^theta*q
+        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+            10^(2*ran.scal-zz$est[1])*random$sigma$fun(zz$est[-1],random$sigma$env)
+    }
+    zzz <- eigen(q.wk,TRUE)
+    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
+    val <- zzz$val[1:rkq]
+    vec <- zzz$vec[,1:rkq,drop=FALSE]
+    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
+    se.aux <- t(cbind(s,10^theta*r))%*%(10^theta*r)%*%qinv
+    c <- fit$dc[nnull+(1:nxi)]
+    if (nnull) d <- fit$dc[1:nnull]
+    else d <- NULL
+    if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
+    else b <- NULL
+    c(list(method=method,theta=theta,ran.scal=ran.scal,c=c,d=d,b=b,
+           nlambda=zz$est[1],zeta=zz$est[-1]),
+      fit[-3],list(qinv=qinv,se.aux=se.aux))
 }
 
-## Fit Multiple Smoothing Parameter REGression
-mspreg <- function(s,q,y,method="v",varht=1,prec=1e-7,maxiter=30)
+## Fit Multiple Smoothing Parameter (Gaussian) REGression
+mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
 {
-    ## Check inputs
-    if (is.vector(s)) s <- as.matrix(s)
-    if (!(is.matrix(s)&is.array(q)&(length(dim(q))==3)
-          &is.vector(y)&is.character(method))) {
-        stop("gss error in mspreg: inputs are of wrong types")
+    qr.trace <- FALSE
+    if ((alpha<0)&(method%in%c("u","v"))) qr.trace <- TRUE
+    alpha <- abs(alpha)
+    ## get dimensions
+    nobs <- nrow(r)
+    nxi <- ncol(r)
+    if (!is.null(s)) {
+        if (is.vector(s)) nnull <- 1
+        else nnull <- ncol(s)
     }
-    nobs <- length(y)
-    nnull <- dim(s)[2]
+    else nnull <- 0
+    if (!is.null(random)) nz <-ncol(as.matrix(random$z))
+    else nz <- 0
+    nxiz <- nxi + nz
+    nn <- nxiz + nnull
     nq <- dim(q)[3]
-    if (!((dim(s)[1]==nobs)&(dim(q)[1]==nobs)&(dim(q)[2]==nobs)
-          &(nobs>=nnull)&(nnull>0)&(nq>1))) {
-        stop("gss error in mspreg: inputs have wrong dimensions")
+    ## cv function
+    cv <- function(theta) {
+        r.wk <- qq.wk <- 0
+        for (i in 1:nq) {
+            r.wk <- r.wk + 10^theta[i]*r[,,i]
+            qq.wk <- qq.wk + 10^theta[i]*q[,,i]
+        }
+        if (is.null(random)) q.wk <- 10^nlambda*qq.wk
+        else {
+            r.wk <- cbind(r.wk,10^(ran.scal)*random$z)
+            q.wk <- matrix(0,nxiz,nxiz)
+            q.wk[1:nxi,1:nxi] <- 10^nlambda*qq.wk
+            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(theta[-(1:nq)],random$sigma$env)
+        }
+        if (qr.trace) {
+            qq.wk <- chol(q.wk,pivot=TRUE)
+            sr <- cbind(s,r.wk[,attr(qq.wk,"pivot")])
+            sr <- rbind(sr,cbind(matrix(0,nxiz,nnull),qq.wk))
+            sr <- qr(sr,tol=0)
+            rss <- mean(qr.resid(sr,c(y,rep(0,nxiz)))[1:nobs]^2)
+            trc <- sum(qr.Q(sr)[1:nobs,]^2)/nobs
+            if (method=="u") score <- rss + alpha*2*varht*trc
+            if (method=="v") score <- rss/(1-alpha*trc)^2
+            alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
+            alpha.wk <- min(alpha.wk,3)
+            if (alpha.wk>alpha) {
+                if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*trc
+                if (method=="v") score <- rss/(1-alpha.wk*trc)^2
+            }
+            if (return.fit) {
+                z <- .Fortran("reg",
+                          as.double(cbind(s,r.wk)), as.integer(nobs), as.integer(nnull),
+                          as.double(q.wk), as.integer(nxiz), as.double(y),
+                          as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
+                          as.double(alpha), varht=as.double(varht),
+                          score=double(1), dc=double(nn),
+                          as.double(.Machine$double.eps),
+                          chol=double(nn*nn), double(nn),
+                          jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
+                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
+                z$score <- score
+                assign("fit",z[c(1:5,7)],inherit=TRUE)
+            }
+        }
+        else {
+            z <- .Fortran("reg",
+                          as.double(cbind(s,r.wk)), as.integer(nobs), as.integer(nnull),
+                          as.double(q.wk), as.integer(nxiz), as.double(y),
+                          as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
+                          as.double(alpha), varht=as.double(varht),
+                          score=double(1), dc=double(nn),
+                          as.double(.Machine$double.eps),
+                          chol=double(nn*nn), double(nn),
+                          jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
+                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
+            if (z$info) stop("gss error in ssanova: evaluation of GML score fails")
+            assign("fit",z[c(1:5,7)],inherit=TRUE)
+            score <- z$score
+            alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
+            alpha.wk <- min(alpha.wk,3)
+            if (alpha.wk>alpha) {
+                if (method=="u") score <- score + (alpha.wk-alpha)*2*varht*z$wk[2]
+                if (method=="v") score <- z$wk[1]/(1-alpha.wk*z$wk[2])^2
+            }
+        }
+        score
     }
-    ## Set method for smoothing parameter selection
-    code <- (1:3)[c("v","m","u")==method]
-    if (!length(code)) {
-        stop("gss error: unsupported method for smoothing parameter selection")
+    cv.wk <- function(theta) cv.scale*cv(theta)+cv.shift
+    ## initialization
+    theta <- -log10(apply(q,3,function(x)sum(diag(x))))
+    r.wk <- q.wk <- 0
+    for (i in 1:nq) {
+        r.wk <- r.wk + 10^theta[i]*r[,,i]
+        q.wk <- q.wk + 10^theta[i]*q[,,i]
     }
-    ## Call RKPACK driver DMUDR
-    z <- .Fortran("dmudr0",
-                  as.integer(code),
-                  as.double(s),         # s
-                  as.integer(nobs), as.integer(nobs), as.integer(nnull),
-                  as.double(q),         # q
-                  as.integer(nobs), as.integer(nobs), as.integer(nq),
-                  as.double(y),         # y
-                  as.double(0), as.integer(0),
-                  as.double(prec), as.integer(maxiter),
-                  theta=double(nq), nlambda=double(1),
-                  score=double(1), varht=as.double(varht),
-                  c=double(nobs), d=double(nnull),
-                  double(nobs*nobs*(nq+2)),
-                  info=integer(1),PACKAGE="gss")[c("theta","info")]
-    ## Check info for error
-    if (info<-z$info) {               
-        if (info>0)
-            stop("gss error in mspreg: matrix s is rank deficient")
-        if (info==-2)
-            stop("gss error in mspreg: matrix q is indefinite")
-        if (info==-1)
-            stop("gss error in mspreg: input data have wrong dimensions")
-        if (info==-3)
-            stop("gss error in mspreg: unknown method for smoothing parameter selection.")
-        if (info==-4)
-            stop("gss error in mspreg: iteration fails to converge, try to increase maxiter")
-        if (info==-5)
-            stop("gss error in mspreg: iteration fails to find a reasonable descent direction")
+    ## theta adjustment
+    return.fit <- FALSE
+    z <- sspreg1(s,r.wk,q.wk,y,method,alpha,varht,random)
+    theta <- theta + z$theta
+    r.wk <- q.wk <- 0
+    for (i in 1:nq) {
+        theta[i] <- 2*theta[i] + log10(t(z$c)%*%q[,,i]%*%z$c)
+        r.wk <- r.wk + 10^theta[i]*r[,,i]
+        q.wk <- q.wk + 10^theta[i]*q[,,i]
     }
-    qwk <- 10^z$theta[1]*q[,,1]
-    for (i in 2:nq) qwk <- qwk + 10^z$theta[i]*q[,,i]
-    ## Call RKPACK driver DSIDR
-    zz <- .Fortran("dsidr0",
-                   as.integer(code),
-                   swk=as.double(s), as.integer(nobs),
-                   as.integer(nobs), as.integer(nnull),
-                   as.double(y),
-                   qwk=as.double(qwk), as.integer(nobs),
-                   as.double(0), as.integer(0), double(2),
-                   nlambda=double(1), score=double(1), varht=as.double(varht),
-                   c=double(nobs), d=double(nnull),
-                   qraux=double(nnull), jpvt=integer(nnull),
-                   double(3*nobs),
-                   info=integer(1),PACKAGE="gss")
-    ## Return the fit
-    c(list(method=method,theta=z$theta),
-      zz[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])
-}
-
-## Obtain c & d for new y's
-getcrdr <- function(obj,r)
-{
-    ## Check inputs
-    if (is.vector(r)) r <- as.matrix(r)
-    if (!(any(class(obj)=="ssanova")&is.matrix(r))) {
-        stop("gss error in getcrdr: inputs are of wrong types")
+    log.la0 <- log10(sum(r.wk^2)/sum(diag(q.wk)))
+    log.th0 <- theta-log.la0
+    ## lambda search
+    z <- sspreg1(s,r.wk,q.wk,y,method,alpha,varht,random)
+    nlambda <- z$nlambda
+    log.th0 <- log.th0 + z$lambda
+    theta <- theta + z$theta
+    if (!is.null(random)) ran.scal <- z$ran.scal
+    ## theta search
+    fit <- NULL
+    if (!is.null(random)) theta <- c(theta,z$zeta)
+    counter <- 0
+    ## scale and shift cv
+    tmp <- abs(cv(theta))
+    cv.scale <- 1
+    cv.shift <- 0
+    if (tmp<1&tmp>10^(-4)) {
+        cv.scale <- 10/tmp
+        cv.shift <- 0
     }
-    nobs <- length(obj$c)
-    nnull <- length(obj$d)
-    nr <- dim(r)[2]
-    if (!((dim(r)[1]==nobs)&(nr>0))) {
-        stop("gss error in getcrdr: inputs have wrong dimensions")
+    if (tmp<10^(-4)) {
+        cv.scale <- 10^2
+        cv.shift <- 10
     }
-    ## Call RKPACK ulitity DCRDR
-    z <- .Fortran("dcrdr",
-                  as.double(obj$swk), as.integer(nobs),
-                  as.integer(nobs), as.integer(nnull),
-                  as.double(obj$qraux), as.integer(obj$jpvt),
-                  as.double(obj$qwk), as.integer(nobs),
-                  as.double(obj$nlambda),
-                  as.double(r), as.integer(nobs), as.integer(nr),
-                  cr=double(nobs*nr), as.integer(nobs),
-                  dr=double(nnull*nr), as.integer(nnull),
-                  double(2*nobs), integer(1),PACKAGE="gss")[c("cr","dr")]
-    ## Return cr and dr
-    z$cr <- matrix(z$cr,nobs,nr)
-    z$dr <- matrix(z$dr,nnull,nr)
-    z
-}
-
-## Obtain var-cov matrix for fixed effects
-getsms <- function(obj)
-{
-    ## Check input
-    if (!any(class(obj)=="ssanova")) {
-        stop("gss error in getsms: inputs are of wrong types")
+    repeat {
+        zz <- nlm(cv.wk,theta,stepmax=1,ndigit=7)
+        if (zz$code<=3)  break
+        theta <- zz$est        
+        counter <- counter + 1
+        if (counter>=5) {
+            warning("gss warning in ssanova: iteration for model selection fails to converge")
+            break
+        }
     }
-    nobs <- length(obj$c)
-    nnull <- length(obj$d)
-    ## Call RKPACK ulitity DSMS
-    z <- .Fortran("dsms",
-                  as.double(obj$swk), as.integer(nobs),
-                  as.integer(nobs), as.integer(nnull),
-                  as.integer(obj$jpvt),
-                  as.double(obj$qwk), as.integer(nobs),
-                  as.double(obj$nlambda),
-                  sms=double(nnull*nnull), as.integer(nnull),
-                  double(2*nobs), integer(1),PACKAGE="gss")["sms"]
-    ## Return the nnull-by-nnull matrix
-    matrix(z$sms,nnull,nnull)
+    ## return
+    return.fit <- TRUE
+    jk1 <- cv(zz$est)
+    r.wk <- qq.wk <- 0
+    for (i in 1:nq) {
+        r.wk <- r.wk + 10^zz$est[i]*r[,,i]
+        qq.wk <- qq.wk + 10^zz$est[i]*q[,,i]
+    }
+    if (is.null(random)) q.wk <- qq.wk
+    else {
+        r.wk <- cbind(r.wk,10^(ran.scal)*random$z)
+        q.wk <- matrix(0,nxiz,nxiz)
+        q.wk[1:nxi,1:nxi] <- qq.wk
+        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+            10^(2*ran.scal-nlambda)*random$sigma$fun(zz$est[-(1:nq)],random$sigma$env)
+    }
+    zzz <- eigen(q.wk,TRUE)
+    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
+    val <- zzz$val[1:rkq]
+    vec <- zzz$vec[,1:rkq,drop=FALSE]
+    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
+    se.aux <- t(cbind(s,r.wk))%*%r.wk%*%qinv
+    c <- fit$dc[nnull+(1:nxi)]
+    if (nnull) d <- fit$dc[1:nnull]
+    else d <- NULL
+    if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
+    else b <- NULL
+    c(list(method=method,theta=zz$est[1:nq],c=c,d=d,b=b,nlambda=nlambda,zeta=zz$est[-(1:nq)]),
+      fit[-3],list(qinv=qinv,se.aux=se.aux))
 }

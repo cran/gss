@@ -1,6 +1,6 @@
 \name{predict.ssanova}
 \alias{predict.ssanova}
-\alias{predict.ssanova1}
+\alias{predict.ssanova0}
 \title{Predicting from Smoothing Spline ANOVA Fits}
 \description{
     Evaluate terms in a smoothing spline ANOVA fit at arbitrary points.
@@ -10,7 +10,7 @@
 \usage{
 predict.ssanova(object, newdata, se.fit=FALSE,
                 include=object$terms$labels, ...)
-predict.ssanova1(object, newdata, se.fit=FALSE,
+predict.ssanova0(object, newdata, se.fit=FALSE,
                  include=object$terms$labels, ...)
 }
 \arguments{
@@ -38,28 +38,38 @@ predict.ssanova1(object, newdata, se.fit=FALSE,
     function \code{I(...)} is necessary when \code{partial} has more
     than one column.
 
-    For mixed-effect models through \code{\link{ssanova1}} or
-    \code{\link{gssanova1}}, the Z matrix is set to 0 if not supplied.
+    For mixed-effect models through \code{\link{ssanova}} or
+    \code{\link{gssanova}}, the Z matrix is set to 0 if not supplied.
     To supply the Z matrix, add a component \code{random=I(...)} in
     \code{newdata}.
 }
 \seealso{
-    Fitting functions \code{\link{ssanova}}, \code{\link{ssanova}} and
-    methods \code{\link{summary.ssanova}}, \code{\link{summary.gssanova}},
-    \code{\link{fitted.ssanova}}.
+    Fitting functions \code{\link{ssanova}}, \code{\link{ssanova0}},
+    \code{\link{gssanova}}, \code{\link{gssanova0}} and
+    methods \code{\link{summary.ssanova}},
+    \code{\link{summary.gssanova}}, \code{\link{summary.gssanova0}},
+    \code{\link{project.ssanova}}, \code{\link{fitted.ssanova}}.
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
+    Gu, C. (1992), Penalized likelihood regression: a Bayesian
+    analysis.  \emph{Statistica Sinica}, \bold{2}, 255--264.
+
     Gu, C. and Wahba, G. (1993), Smoothing spline ANOVA with
-    component-wise Bayesian "confidence intervals".  \emph{Journal
-	of Computational and Graphical Statistics}, \bold{2}, 97--117.
+    component-wise Bayesian "confidence intervals."  \emph{Journal of
+    Computational and Graphical Statistics}, \bold{2}, 97--117.
+
+    Kim, Y.-J. and Gu, C. (2004), Smoothing spline Gaussian regression:
+    more scalable computation via efficient approximation.
+    \emph{Journal of the Royal Statistical Society, Ser. B}, \bold{66},
+    337--356.
 }
 \examples{
 ## THE FOLLOWING EXAMPLE IS TIME-CONSUMING
 \dontrun{
-## Fit a model with thin-plate marginals, where geog is 2-D
+## Fit a model with cubic and thin-plate marginals, where geog is 2-D
 data(LakeAcidity)
-fit <- ssanova(ph~log(cal)*geog,"tp",LakeAcidity)
+fit <- ssanova(ph~log(cal)*geog,,LakeAcidity)
 ## Obtain estimates and standard errors on a grid
 new <- data.frame(cal=1,geog=I(matrix(0,1,2)))
 new <- model.frame(~log(cal)+geog,new)

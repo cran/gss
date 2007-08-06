@@ -1,60 +1,73 @@
 \name{rkpk}
-\alias{sspreg}
-\alias{mspreg}
-\alias{getcrdr}
-\alias{getsms}
-\alias{sspregpoi}
-\alias{mspregpoi}
-\title{Interface to RKPACK}
+\alias{sspreg1}
+\alias{mspreg1}
+\alias{sspngreg}
+\alias{mspngreg}
+\alias{ngreg}
+\alias{ngreg.proj}
+\title{Numerical Engine for ssanova and gssanova}
 \description{
-    Call RKPACK routines for numerical calculations for fitting and
-    predicting from Smoothing Spline ANOVA models.
+    Perform numerical calculations for the \code{\link{ssanova}} and
+    \code{\link{gssanova}} suites.
 }
 \usage{
-sspreg(s, q, y, method="v", varht=1)
-mspreg(s, q, y, method="v", varht=1, prec=1e-7, maxiter=30)
-sspregpoi(family, s, q, y, wt, offset, method="u",
-          varht=1, nu, prec=1e-7, maxiter=30)
-mspregpoi(family, s, q, y, wt, offset, method="u",
-          varht=1, nu, prec=1e-7, maxiter=30)
-getcrdr(obj, r)
-getsms(obj)
+sspreg1(s, r, q, y, method, alpha, varht, random)
+mspreg1(s, r, q, y, method, alpha, varht, random)
+
+sspngreg(family, s, r, q, y, wt, offset, alpha, nu, random)
+mspngreg(family, s, r, q, y, wt, offset, alpha, nu, random)
+ngreg(dc, family, sr, q, y, wt, offset, nu, alpha)
+
+ngreg.proj(dc, family, sr, q, y0, wt, offset, nu)
 }
 \details{
-    \code{sspreg} is used by \code{\link{ssanova}} to fit Gaussian
-    models with a single smoothing parameter.  \code{mspreg} is used to
-    fit Gaussian models with multiple single smoothing parameters.
+    \code{sspreg1} is used by \code{\link{ssanova}} to compute
+    regression estimates with a single smoothing parameter.
+    \code{mspreg1} is used by \code{\link{ssanova}} to compute
+    regression estimates with multiple smoothing parameters.
 
-    \code{sspregpoi} is used by \code{\link{gssanova}} to fit non
-    Gaussian models with a single smoothing parameter.  \code{mspregpoi}
-    is used to fit non Gaussian models with multiple single smoothing
-    parameters.
+    \code{ssngpreg} is used by \code{\link{gssanova}} to compute
+    non-Gaussian regression estimates with a single smoothing
+    parameter.  \code{mspngreg} is used by \code{\link{gssanova}} to
+    compute non-Gaussian regression estimates with multiple smoothing
+    parameters.  \code{ngreg} is used by \code{ssngpreg} and
+    \code{mspngreg} to perform Newton iteration with fixed smoothing
+    parameters and to calculate cross-validation scores on return.
 
-    \code{getcrdr} and \code{getsms} are used by
-    \code{\link{predict.ssanova}} to calculate standard errors of the
-    fitted terms.
+    \code{ngreg.proj} is used by \code{\link{project.gssanova}} to
+    calculate the Kullback-Leibler projection for non-Gaussian
+    regression.
 }
 \arguments{
-    \item{s}{Design matrix of unpenalized terms.}
-    \item{q}{Penalty matrices of penalized terms.}
-    \item{y}{Model response.}
-    \item{method}{Method for smoothing parameter selection.}
-    \item{varht}{Assumed dispersion parameter, needed only for
-	\code{method="u"}.}
-    \item{prec}{Precision requirement for iterations.}
-    \item{maxiter}{Maximum number of iterations allowed.}
-    \item{family}{Error family.}	
+    \item{family}{Description of the error distribution.  Supported
+	are exponential families \code{"binomial"}, \code{"poisson"},
+	\code{"Gamma"}, and \code{"nbinomial"}.  Also supported are
+	accelerated life model families \code{"weibull"},
+	\code{"lognorm"}, and \code{"loglogis"}.}
+    \item{s}{Unpenalized terms evaluated at data points.}
+    \item{r}{Basis of penalized terms evaluated at data points.}
+    \item{q}{Penalty matrix.}
+    \item{y}{Response vector.}
     \item{wt}{Model weights.}
     \item{offset}{Model offset.}
-    \item{obj}{Object returned from a call to \code{sspreg},
-      \code{mspreg}, \code{sspregpoi}, or \code{mspregpoi}.}
-    \item{nu}{Optional argument for nbinomial, weibull, lognorm, and
-      loglogis families.}
-    \item{r}{Inputs for standard error calculation.}
+    \item{method}{\code{"v"} for GCV, \code{"m"} for GML, or \code{"u"}
+        for Mallows' CL.}
+    \item{alpha}{Parameter modifying GCV or Mallows' CL scores for
+        smoothing parameter selection.}
+    \item{nu}{Optional argument for future support of nbinomial,
+      weibull, lognorm, and loglogis families.}
+    \item{varht}{External variance estimate needed for \code{method="u"}.}
+    \item{random}{Input for parametric random effects in nonparametric
+        mixed-effect models.}
+
+    \item{dc}{Coefficients of fits.}
+    \item{sr}{\code{cbind(s,r)}.}
+    \item{y0}{Components of the fit to be projected.}
 }
 \references{
-    Gu, C. (1989), RKPACK and its applications: Fitting smoothing spline
-    models.  In \emph{ASA Proceedings of Statistical Computing Section},
-    pp. 42--51.
+    Kim, Y.-J. and Gu, C. (2004), Smoothing spline Gaussian regression:
+    more scalable computation via efficient approximation.
+    \emph{Journal of the Royal Statistical Society, Ser. B}, \bold{66},
+    337--356.
 }
-\keyword{smooth}
+\keyword{internal}

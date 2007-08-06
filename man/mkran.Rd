@@ -14,9 +14,9 @@ mkran(formula, data)
     \item{data}{Data frame containing the variables in the model.}
 }
 \details{
-    This function generates random effects terms from simple grouping
+    This function generates random effect terms from simple grouping
     variables, for use in nonparametric mixed-effect models as described
-    in Gu and Ma (2003a, b).  The syntax of the formula resembles that
+    in Gu and Ma (2005a, b).  The syntax of the formula resembles that
     of similar utilities for linear and nonlinear mixed-effect models,
     as described in Pinheiro and Bates (2000).
 
@@ -43,20 +43,21 @@ mkran(formula, data)
 }
 \note{
     One may pass a formula or a list to the argument \code{random} in
-    calls to \code{\link{ssanova1}} or\code{\link{gssanova1}} to fit
+    calls to \code{\link{ssanova}} or\code{\link{gssanova}} to fit
     nonparametric mixed-effect models.  A formula will be converted to a
     list using \code{mkran}.  A list should be of the same form as the
     value of \code{mkran}.
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Gu and Ma (2003a), \emph{Optimal Smoothing in Nonparametric
-    Mixed-Effect Models}.  Available at
-    \url{http://stat.purdue.edu/~chong/manu.html}.
+    Gu, C. and Ma, P. (2005), Optimal smoothing in nonparametric
+    mixed-effect models.  \emph{The Annals of Statistics}, \bold{33},
+    1357--1379.
 
-    Gu and Ma (2003b), \emph{Generalized Nonparametric Mixed-Effect
-    Models: Computation and Smoothing Parameter Selection}.  Available
-    at \url{http://stat.purdue.edu/~chong/manu.html}.
+    Gu, C. and Ma, P. (2005), Generalized nonparametric mixed-effect
+    models: computation and smoothing parameter selection.
+    \emph{Journal of Computational and Graphical Statistics}, \bold{14},
+    485--504.
 
     Pinheiro and Bates (2000), \emph{Mixed-Effects Models in S and
     S-PLUS}.  New York: Springer-Verlag.
@@ -75,5 +76,4 @@ ran.test$sigma$fun(c(1,2),ran.test$sigma$env) # diag(10^(-1),10^(-2))
 ## Clean up
 \dontrun{rm(test,ran.test)}
 }
-\keyword{models}
-\keyword{regression}
+\keyword{internal}

@@ -1,3 +1,22 @@
+Mon Aug  6 21:21:47 EDT 2007, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 1.0-0.
+
+	* INDEX: Edited to reflect changes in R.
+
+	* R: i) Added mkterm to replace multiple mkterm.x in earlier
+	versions, and modified the fitting functions accordingly.  ii)
+	Renamed ssanova to ssanova0, ssanova1 to ssanova, gssanova to
+	gssanova0, and gssanova1 to gssanova; renamed the respective
+	methods accordingly.  iii) Added support of factor variables in
+	ssden.
+
+	* man: Extensive editing was done to reflect changes in R, to
+	update references, and to improve readability.
+
+	* src: i) Fixed bugs in hzdnewton1 and dnewton1.  ii) Pushed
+	ratfor source code to a subdirectory ratfor.
+	
 Thu Sep 23 16:27:00 EST 2004, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.9-3.

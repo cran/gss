@@ -1,6 +1,8 @@
-## Calculate Kullback-Leibler projection from gssanova1 objects
-project.gssanova1 <- function(object,include,...)
+## Calculate Kullback-Leibler projection from gssanova objects
+project.gssanova <- function(object,include,...)
 {
+    if (class(object)=="gssanova0")
+        stop("gss error: Kullback-Leibler projection is not implemented for gssanova0")
     nobs <- nrow(object$mf)
     nxi <- length(object$id.basis)
     ## evaluate full model
@@ -129,7 +131,7 @@ project.gssanova1 <- function(object,include,...)
         }
         zz <- nlm(cv.wk,theta[-fix],stepmax=1,ndigit=7)
         if (zz$code>3)
-            warning("gss warning in project.gssanova1: theta iteration fails to converge")
+            warning("gss warning in project.gssanova: theta iteration fails to converge")
         kl <- my.wls(zz$est)
     }
     else kl <- my.wls()
@@ -173,7 +175,7 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
         if (!adj) iter <- iter+1
         ## weighted least squares fit
         if (!is.finite(sum(fit1$wt,fit1$ywk))) {
-            if (flag) stop("gss error in project.gssanova1: Newton iteration diverges")
+            if (flag) stop("gss error in project.gssanova: Newton iteration diverges")
             eta <- rep(0,nobs)
             fit1 <- switch(family,
                            binomial=proj0.binomial(y0,eta,offset),
@@ -222,7 +224,7 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
         disc0 <- max((mumax/(1+kl))^2,abs(kl.new-kl)/(1+kl))
         disc <- sum(fit1$wt*((eta-eta.new)/(1+abs(eta)))^2)/sum(fit1$wt)
         if (is.nan(disc)) {
-            if (flag) stop("gss error in project.gssanova1: Newton iteration diverges")
+            if (flag) stop("gss error in project.gssanova: Newton iteration diverges")
             eta <- rep(0,nobs)
             fit1 <- switch(family,
                            binomial=proj0.binomial(y0,eta,offset),
@@ -244,7 +246,7 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
         if (disc0<1e-5) break
         if (disc<1e-5) break
         if (iter<=30) next
-        warning("gss warning in project.gssanova1: Newton iteration fails to converge")
+        warning("gss warning in project.gssanova: Newton iteration fails to converge")
         break
     }
     fit1 <- switch(family,

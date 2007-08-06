@@ -32,7 +32,7 @@ qssden(object, p)
     densities.
 }
 \seealso{
-    \code{\link{ssden}} and \code{\link{cdssden}}.
+    Fitting function \code{\link{ssden}} and \code{\link{cdssden}}.
 }
 \keyword{models}
 \keyword{distribution}

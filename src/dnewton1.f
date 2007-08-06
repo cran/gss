@@ -203,8 +203,8 @@ C Output from Public domain Ratfor, version 1.0
       goto 23079
 23081 continue
       disc = dmax1 (disc, (mumax/(1.d0+dabs(lkhd)))**2)
-      disc0 = dmax1 ((mumax/(1.d0+lkhd))**2, dabs(lkhd-lkhdnew)/(1+dabs(
-     *lkhd)))
+      disc0 = dmax1 ((mumax/(1.d0+lkhd))**2, dabs(lkhd-lkhdnew)/(1.d0+da
+     *bs(lkhd)))
       call dcopy (nxis, cdnew, 1, cd, 1)
       call dcopy (nqd, wtnew, 1, wt, 1)
       wtsum = wtsumnew

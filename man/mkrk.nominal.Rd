@@ -1,12 +1,11 @@
-\name{mkrk.factor}
-\alias{mkrk.factor}
+\name{mkrk.nominal}
 \alias{mkrk.nominal}
 \alias{mkrk.ordinal}
 \title{
     Crafting Building Blocks for Discrete Splines
 }
 \description{
-    Craft numerical functions to be used by \code{mkterm.x} to assemble
+    Craft numerical functions to be used by \code{mkterm} to assemble
     model terms involving factors.
 }
 \usage{
@@ -17,8 +16,6 @@ mkrk.ordinal(levels)
     \item{levels}{Levels of the factor.}
 }
 \details{
-    These are not to be called by the user.
-
     For a nominal factor with levels \eqn{1,2,\dots,k}, the level means
     \eqn{f(i)} will be shrunk towards each other through a penalty
     proportional to
@@ -40,8 +37,9 @@ mkrk.ordinal(levels)
     \code{fun(x,y,env,outer=FALSE)}, where \code{x}, \code{y} are real
     arguments and local constants can be passed in through \code{env}.
 }
+\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \seealso{
-    \code{\link{mkterm.ssanova}}, \code{\link{mkfun.poly}},
-    \code{\link{mkfun.tp}}.
+    \code{\link{mkterm}}, \code{\link{mkrk.cubic}}, and
+    \code{\link{mkrk.tp}}.
 }
 \keyword{internal}

@@ -1,35 +1,20 @@
 ## Fit density model
-ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
+ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
                   weights=NULL,subset,na.action=na.omit,
                   id.basis=NULL,nbasis=NULL,seed=NULL,
-                  domain=as.list(NULL),quadrature=NULL,ext=.05,order=2,
+                  domain=as.list(NULL),quadrature=NULL,
                   prec=1e-7,maxiter=30)
 {
     ## Obtain model frame and model terms
     mf <- match.call()
     mf$type <- mf$alpha <- NULL
     mf$id.basis <- mf$nbasis <- mf$seed <- NULL
-    mf$domain <- mf$quadrature <- mf$ext  <- NULL
-    mf$prec <- mf$maxiter <- mf$order <- NULL
+    mf$domain <- mf$quadrature  <- NULL
+    mf$prec <- mf$maxiter <- NULL
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf,sys.frame(sys.parent()))
     cnt <- model.weights(mf)
     mf$"(weights)" <- NULL
-    ## set domain
-    for (i in names(mf)) {
-        if (is.factor(mf[[i]])) domain[[i]] <- levels(mf[[i]])[1:2]
-        else {
-            if (is.null(domain[[i]])) {
-                mn <- min(mf[[i]])
-                mx <- max(mf[[i]])
-                range <- mx-mn
-                mn <- mn - ext*range
-                mx <- mx + ext*range
-                domain[[i]] <- c(mn,mx)
-            }
-        }
-    }
-    domain <- as.data.frame(domain)
     ## Generate sub-basis
     nobs <- dim(mf)[1]
     if (is.null(id.basis)) {
@@ -43,36 +28,52 @@ ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
             stop("gss error in ssden: id.basis out of range")
         nbasis <- length(id.basis)
     }
-    ## Generate terms
-    if (type=="cubic") term <- mkterm.cubic1(mf,domain)
-    if (type=="linear") term <- mkterm.linear1(mf,domain)
-    if (type=="tp") {
-        if (is.null(quadrature))
-            stop("gss error in ssden: quadrature needed for type tp")
-        term <- mkterm.tp(mf,order,mf[id.basis,],1)
-    }
-    if (is.null(term)) stop("gss error in ssden: unknown type")
-    term$labels <- term$labels[term$labels!="1"]
-    ## Generate default quadrature
+    ## Set domain and/or generate quadrature
     if (is.null(quadrature)) {
-        ## TO DO: HANDLING OF FACTORS
-        domain <- domain[,colnames(mf),drop=FALSE]
-        mn <- apply(domain,2,min)
-        mx <- apply(domain,2,max)
-        if (ncol(mf)==1) {
+        ## Set domain and type
+        fac.list <- NULL
+        for (xlab in names(mf)) {
+            x <- mf[[xlab]]
+            if (is.factor(x)) {
+                fac.list <- c(fac.list,xlab)
+                domain[[xlab]] <- NULL
+            }
+            else {
+                if (!is.vector(x))
+                    stop("gss error in ssden: no default quadrature")
+                if (is.null(domain[[xlab]])) {
+                    mn <- min(x)
+                    mx <- max(x)
+                    domain[[xlab]] <- c(mn,mx)+c(-1,1)*(mx-mn)*.05
+                }
+                else domain[[xlab]] <- c(min(domain[[xlab]]),max(domain[[xlab]]))
+                if (is.null(type[[xlab]]))
+                    type[[xlab]] <- list("cubic",domain[[xlab]])
+                else {
+                    if (length(type[[xlab]])==1)
+                        type[[xlab]] <- list(type[[xlab]][[1]],domain[[xlab]])
+                }
+            }
+        }
+        ## Generate numerical quadrature
+        domain <- data.frame(domain)
+        mn <- domain[1,]
+        mx <- domain[2,]
+        if (ncol(domain)==1) {
             ## Gauss-Legendre quadrature
             quad <- gauss.quad(200,c(mn,mx))
             quad$pt <- data.frame(quad$pt)
-            colnames(quad$pt) <- colnames(mf)
+            colnames(quad$pt) <- colnames(domain)
         }
         else {
             ## Smolyak cubature
-            if (ncol(mf)>4)
+            if (ncol(domain)>4)
                 stop("gss error in ssden: dimension higher than 4 unsupported")
             code <- c(15,14,13)
-            quad <- smolyak.quad(ncol(mf),code[ncol(mf)-1])
-            for (i in 1:ncol(mf)) {
-                wk <- mf[,i]
+            quad <- smolyak.quad(ncol(domain),code[ncol(domain)-1])
+            for (i in 1:ncol(domain)) {
+                xlab <- colnames(domain)[i]
+                wk <- mf[[xlab]]
                 jk <- ssden(~wk,domain=data.frame(wk=domain[,i]),alpha=2,
                             id.basis=id.basis)
                 quad$pt[,i] <- qssden(jk,quad$pt[,i])
@@ -80,10 +81,46 @@ ssden <- function(formula,type="cubic",data=list(),alpha=1.4,
             }
             jk <- wk <- NULL
             quad$pt <- data.frame(quad$pt)
-            colnames(quad$pt) <- colnames(mf)
+            colnames(quad$pt) <- colnames(domain)
+        }
+        ## Incorporate factors in quadrature
+        if (!is.null(fac.list)) {
+            for (i in 1:length(fac.list)) {
+                wk <-
+                  expand.grid(levels(mf[[fac.list[i]]]),1:length(quad$wt))
+                quad$wt <- quad$wt[wk[,2]]
+                col.names <- c(fac.list[i],colnames(quad$pt))
+                quad$pt <- data.frame(wk[,1],quad$pt[wk[,2],])
+                colnames(quad$pt) <- col.names
+            }
         }
         quadrature <- list(pt=quad$pt,wt=quad$wt)
     }
+    else {
+        for (xlab in names(mf)) {
+            x <- mf[[xlab]]
+            if (is.vector(x)&!is.factor(x)) {
+                mn <- min(x,quadrature$pt[[xlab]])
+                mx <- max(x,quadrature$pt[[xlab]])
+                range <- c(mn,mx)+c(-1,1)*(mx-mn)*.05
+                if (is.null(type[[xlab]]))
+                    type[[xlab]] <- list("cubic",range)
+                else {
+                    if (length(type[[xlab]])==1)
+                        type[[xlab]] <- list(type[[xlab]][[1]],range)
+                    else {
+                        mn0 <- min(type[[xlab]][[2]])
+                        mx0 <- max(type[[xlab]][[2]])
+                        if ((mn0>mn)|(mx0<mx))
+                            stop("gss error in ssden: range not covering domain")
+                    }
+                }
+            }
+        }
+    }
+    ## Generate terms
+    term <- mkterm(mf,type)
+    term$labels <- term$labels[term$labels!="1"]
     ## Generate s, r, and q
     qd.pt <- quadrature$pt
     qd.wt <- quadrature$wt

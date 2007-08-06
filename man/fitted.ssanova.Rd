@@ -23,7 +23,7 @@ residuals.gssanova(object, type="working", ...)
 }
 \details{
     The fitted values for \code{"gssanova"} objects are on the link
-    scale, the same scale the \code{"working"} residuals are on.
+    scale, so are the \code{"working"} residuals.
 }
 \keyword{models}
 \keyword{regression}

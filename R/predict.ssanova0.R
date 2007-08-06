@@ -1,16 +1,13 @@
-## Calculate prediction and Bayesian SE from ssanova objects
-predict.ssanova1 <- function(object,newdata,se.fit=FALSE,
+## Calculate prediction and Bayesian SE from ssanova0 objects
+predict.ssanova0 <- function(object,newdata,se.fit=FALSE,
                              include=object$terms$labels,...)
 {
-    nnew <- nrow(newdata)
-    nbasis <- length(object$id.basis)
-    nnull <- length(object$d)
-    nz <- length(object$b)
-    nn <- nbasis + nnull + nz
+    nnew <- dim(newdata)[1]
+    nobs <- length(object$c)
     ## Extract included terms
     term <- object$terms
     philist <- rklist <- NULL
-    s <- r <- NULL
+    s <- q <- NULL
     nq <- 0
     for (label in include) {
         if (label=="1") {
@@ -21,7 +18,7 @@ predict.ssanova1 <- function(object,newdata,se.fit=FALSE,
         if (label=="partial") next
         if (label=="offset") next
         xnew <- newdata[,term[[label]]$vlist]
-        x <- object$mf[object$id.basis,term[[label]]$vlist]
+        x <- object$mf[,term[[label]]$vlist]
         nphi <- term[[label]]$nphi
         nrk <- term[[label]]$nrk
         if (nphi) {
@@ -38,7 +35,7 @@ predict.ssanova1 <- function(object,newdata,se.fit=FALSE,
             for (i in 1:nrk) {
                 rklist <- c(rklist,irk+(i-1))
                 nq <- nq+1
-                r <- array(c(r,rk$fun(xnew,x,nu=i,env=rk$env,out=TRUE)),c(nnew,nbasis,nq))
+                q <- array(c(q,rk$fun(xnew,x,nu=i,env=rk$env,out=TRUE)),c(nnew,nobs,nq))
             }
         }
     }
@@ -48,21 +45,18 @@ predict.ssanova1 <- function(object,newdata,se.fit=FALSE,
         for (i in 1:nphi) philist <- c(philist,iphi+(i-1))
         s <- cbind(s,newdata$partial)
     }
-    r.wk <- matrix(0,nnew,nbasis)
+    qq <- matrix(0,nnew,nobs)
     nq <- 0
     for (i in rklist) {
         nq <- nq + 1
-        r.wk <- r.wk + 10^object$theta[i]*r[,,nq]
+        qq <- qq + 10^object$theta[i]*q[,,nq]
     }
-    ## random effects
-    if (nz) {
-        if (is.null(newdata$random)) z.wk <- matrix(0,nnew,nz)
-        else z.wk <- newdata$random
-        r.wk <- cbind(r.wk,z.wk)
-    }
+    if (!is.null(object$w)) w <- object$w
+    else w <- model.weights(object$mf)
+    if (!is.null(w)) qq <- t(sqrt(w)*t(qq))
     ## Compute posterior mean
     nphi <- length(philist)
-    pmean <- as.vector(r.wk%*%c(object$c,object$b))
+    pmean <- as.vector(qq%*%object$c)
     if (nphi) pmean <- pmean + as.vector(s%*%object$d[philist])
     if (any(include=="offset")) {
         if (is.null(model.offset(object$mf)))
@@ -75,21 +69,27 @@ predict.ssanova1 <- function(object,newdata,se.fit=FALSE,
     if (se.fit) {
         b <- object$varht/10^object$nlambda
         ## Get cr, dr, and sms
-        z <- .Fortran("regaux",
-                      as.double(object$chol), as.integer(nn),
-                      as.integer(object$jpvt), as.integer(object$rkv),
-                      drcr=as.double(object$se.aux%*%t(r.wk)), as.integer(nnew),
-                      sms=double(nnull^2), as.integer(nnull), double(nn*nnull),
-                      PACKAGE="gss")[c("drcr","sms")]
-        drcr <- matrix(z$drcr,nn,nnew)
-        dr <- drcr[1:nnull,,drop=FALSE][philist,,drop=FALSE]
-        cr <- drcr[(nnull+1):nn,,drop=FALSE]
-        sms <- 10^object$nlambda*matrix(z$sms,nnull,nnull)[philist,philist]
+        crdr <- getcrdr(object,t(qq))
+        cr <- crdr$cr
+        dr <- crdr$dr[philist,,drop=FALSE]
+        sms <- getsms(object)[philist,philist]
         ## Compute posterior variance
-        rr <- r.wk%*%object$qinv
+        r <- 0
+        for (label in include) {
+            if (label=="1") next
+            xnew <- newdata[,term[[label]]$vlist]
+            nrk <- term[[label]]$nrk
+            if (nrk) {
+                irk <- term[[label]]$irk
+                rk <- term[[label]]$rk
+                for (i in 1:nrk) {
+                    ind <- irk+(i-1)
+                    r <- r + 10^object$theta[ind]*rk$fun(xnew,xnew,nu=i,env=rk$env)
+                }
+            }
+        }
         fn2 <- function(x,n) x[1:n]%*%x[n+(1:n)]
-        pvar <- apply(t(cbind(r.wk,rr)),2,fn2,nbasis+nz)
-        pvar <- pvar - apply(rbind(t(r.wk),cr),2,fn2,nbasis+nz)
+        pvar <- r - apply(rbind(t(qq),cr),2,fn2,nobs)
         if (nphi) {
             fn1 <- function(x,sms) t(x)%*%sms%*%x
             pvar <- pvar + apply(s,1,fn1,sms)

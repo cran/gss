@@ -8,9 +8,9 @@
     density estimates.
 }
 \usage{
-cdssden(object, x, cond, int)
-cpssden(object, q, cond, int)
-cqssden(object, p, cond, int)
+cdssden(object, x, cond, int=NULL)
+cpssden(object, q, cond, int=NULL)
+cqssden(object, p, cond, int=NULL)
 }
 \arguments{
     \item{object}{Object of class \code{"ssden"}.}
@@ -37,13 +37,16 @@ cqssden(object, p, cond, int)
     vector for 1-D conditional densities.
 
     \code{cpssden} and \code{cqssden} naturally only work for 1-D
-    conditional densities.
+    conditional densities of a numerical variable.
 }
 \note{
+    If variables other than factors or numerical vectors are involved in
+    \code{x}, the normalizing constant can not be computed.
+  
     \code{cpssden} and \code{cqssden} can be very slow.
 }
 \seealso{
-    \code{\link{ssden}} and \code{\link{dssden}}.
+    Fitting function \code{\link{ssden}} and \code{\link{dssden}}.
 }
 \keyword{models}
 \keyword{distribution}

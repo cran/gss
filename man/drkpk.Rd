@@ -4,17 +4,14 @@
 \alias{msphzd}
 \title{Numerical Engine for ssden and sshzd}
 \description{
-    Calculate penalized likelihood density estimates and hazard
-    estimates via the Newton iteration and evaluate the cross-validation
-    score, as implemented in the RATFOR routine \code{dnewton.r} and
-    \code{hzdnewton.r}, and minimize the cross-validation score using
-    \code{\link{nlm}} and \code{\link{nlm0}}.
+    Perform numerical calculations for the \code{\link{ssden}} and
+    \code{\link{sshzd}} suites.
 }
 \usage{
-sspdsty(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
-mspdsty(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
+sspdsty(s, r, q, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha)
+mspdsty(s, r, q, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha)
 
-msphzd(s,r,q,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
+msphzd(s, r, q, Nobs, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha)
 }
 \details{
     \code{sspdsty} is used by \code{\link{ssden}} to compute
@@ -43,11 +40,11 @@ msphzd(s,r,q,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
         parameter selection.}
 }
 \references{
-    Gu, C. and Wang, J. (2002), \emph{Penalized Likelihood Density
-    Estimation: Direct Cross-Validation and Scalable Approximation}.
-    Available at \url{stat.purdue.edu/~chong/manu.html}.
-
     Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
     Springer-Verlag.
+
+    Gu, C. and Wang, J. (2003), Penalized likelihood density
+    estimation: Direct cross-validation and scalable approximation.
+    \emph{Statistica Sinica}, \bold{13}, 811--826.
 }
-\keyword{smooth}
+\keyword{internal}

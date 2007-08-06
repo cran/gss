@@ -1,30 +1,25 @@
 \name{gssanova}
 \alias{gssanova}
-\title{Fitting Smoothing Spline ANOVA Models with Non Gaussian Responses}
+\title{Fitting Smoothing Spline ANOVA Models with Non-Gaussian Responses}
 \description{
-    Fit smoothing spline ANOVA models to responses from selected
-    exponential families with cubic spline, linear spline, or thin-plate
-    spline marginals for numerical variables.  Factors are also
-    accepted.  The symbolic model specification via \code{formula}
-    follows the same rules as in \code{\link{lm}} and \code{\link{glm}}.
+    Fit smoothing spline ANOVA models in non-Gaussian regression.  The
+    symbolic model specification via \code{formula} follows the same
+    rules as in \code{\link{lm}} and \code{\link{glm}}.
 }
 \usage{
-gssanova(formula, family, type="cubic", data=list(), weights, subset,
-        offset, na.action=na.omit, partial=NULL, method=NULL,
-        varht=1, nu=NULL, prec=1e-7, maxiter=30, ext=.05, order=2)
+gssanova(formula, family, type=NULL, data=list(), weights, subset,
+         offset, na.action=na.omit, partial=NULL, alpha=NULL, nu=NULL,
+         id.basis=NULL, nbasis=NULL, seed=NULL, random=NULL)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
     \item{family}{Description of the error distribution.  Supported
 	are exponential families \code{"binomial"}, \code{"poisson"},
-	\code{"Gamma"}, \code{"inverse.gaussian"}, and
-	\code{"nbinomial"}.  Also supported are accelerated life model
-	families \code{"weibull"}, \code{"lognorm"}, and
-	\code{"loglogis"}.}
-    \item{type}{Type of numerical marginals to be used.  Supported
-	are \code{type="cubic"} for cubic spline marginals,
-	\code{type="linear"} for linear spline marginals, and
-	\code{type="tp"} for thin-plate spline marginals.}
+	\code{"Gamma"}, and \code{"nbinomial"}.  Also supported are
+	accelerated life model families \code{"weibull"},
+	\code{"lognorm"}, and \code{"loglogis"}.}
+    \item{type}{List specifying the type of spline for each variable.
+        See \code{\link{mkterm}} for details.}
     \item{data}{Optional data frame containing the variables in the
 	model.}
     \item{weights}{Optional vector of weights to be used in the
@@ -36,52 +31,53 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
 	the data contain NAs.}
     \item{partial}{Optional extra unpenalized terms in partial spline
 	models.}
-    \item{method}{Score used to drive the performance-oriented
-	iteration.  Supported are \code{method="v"} for GCV,
-	\code{method="m"} for GML, and \code{method="u"} for Mallow's CL.}
-    \item{varht}{Dispersion parameter needed for \code{method="u"}.
-	Ignored when \code{method="v"} or \code{method="m"} are
-	specified.}
+    \item{alpha}{Tuning parameter defining cross-validation; larger
+        values yield smoother fits.  Defaults are \code{alpha=1} for
+	\code{family="binomial"} and \code{alpha=1.4} otherwise.}
     \item{nu}{Inverse scale parameter in accelerated life model
         families.  Ignored for exponential families.}
-    \item{prec}{Precision requirement for the iterations.}
-    \item{maxiter}{Maximum number of iterations allowed for
-	performance-oriented iteration, and for inner-loop multiple
-	smoothing parameter selection when applicable.}
-    \item{ext}{For cubic spline and linear spline marginals, this option
-	specifies how far to extend the domain beyond the minimum and
-	the maximum as a percentage of the range.  The default
-	\code{ext=.05} specifies marginal domains of lengths 110 percent
-	of their respective ranges.  Prediction outside of the domain
-	will result in an error.  Ignored if \code{type="tp"} is
-	specified.}
-    \item{order}{For thin-plate spline marginals, this option specifies
-	the order of the marginal penalties.  Ignored if
-	\code{type="cubic"} or \code{type="linear"} are specified.}
+    \item{id.basis}{Index designating selected "knots".}
+    \item{nbasis}{Number of "knots" to be selected.  Ignored when
+	\code{id.basis} is supplied.}
+    \item{seed}{Seed for reproducible random selection of "knots".
+	Ignored when \code{id.basis} is supplied.}
+    \item{random}{Input for parametric random effects in nonparametric
+        mixed-effect models.  See \code{\link{mkran}} for details.}
 }
 \details{
-    The models are fitted by penalized likelihood method through the
-    performance-oriented iteration, as described in the reference cited
-    below.
+    The model specification via \code{formula} is intuitive.  For
+    example, \code{y~x1*x2} yields a model of the form
+    \deqn{
+	y = C + f_{1}(x1) + f_{2}(x2) + f_{12}(x1,x2) + e
+    }
+    with the terms denoted by \code{"1"}, \code{"x1"}, \code{"x2"}, and
+    \code{"x1:x2"}.
 
-    Only one link is implemented for each \code{\link{family}}.  It is
-    the logit link for \code{"binomial"}, and the log link for
-    \code{"poisson"}, \code{"Gamma"}, and \code{"inverse.gaussian"}.
-    For \code{"nbinomial"}, the working parameter is the logit of the
-    probability \eqn{p}; see \code{\link{NegBinomial}}.  For
-    \code{"weibull"}, \code{"lognorm"}, and \code{"loglogis"}, it is the
-    location parameter for the log life time.
+    The model terms are sums of unpenalized and penalized
+    terms. Attached to every penalized term there is a smoothing
+    parameter, and the model complexity is largely determined by the
+    number of smoothing parameters.
 
-    For \code{family="binomial"}, \code{"poisson"}, \code{"nbinomial"},
-    \code{"weibull"}, \code{"lognorm"}, and \code{"loglogis"}, the score
-    driving the performance-oriented iteration defaults to
-    \code{method="u"} with \code{varht=1}.  For \code{family="Gamma"}
-    and \code{"inverse.gaussian"}, the default is \code{method="v"}.
+    Only one link is implemented for each \code{family}.  It is the
+    logit link for \code{"binomial"}, and the log link for
+    \code{"poisson"}, and \code{"Gamma"}.  For \code{"nbinomial"}, the
+    working parameter is the logit of the probability \eqn{p}; see
+    \code{\link{NegBinomial}}.  For \code{"weibull"}, \code{"lognorm"},
+    and \code{"loglogis"}, it is the location parameter for the log
+    lifetime.
 
-    See \code{\link{ssanova}} for details and notes concerning smoothing
-    spline ANOVA models.
+    The selection of smoothing parameters is through direct
+    cross-validation.  The cross-validation score used for
+    \code{family="poisson"} is taken from density estimation as in Gu
+    and Wang (2003), and those used for other families are derived
+    following the lines of Gu and Xiang (2001).
+
+    A subset of the observations are selected as "knots."  Unless
+    specified via \code{id.basis} or \code{nbasis}, the number of
+    "knots" \eqn{q} is determined by \eqn{max(30,10n^{2/9})}, which is
+    appropriate for the default cubic splines for numerical vectors.
 }
-\note{
+\section{Responses}{
     For \code{family="binomial"}, the response can be specified either
     as two columns of counts or as a column of sample proportions plus a
     column of total counts entered through the argument \code{weights},
@@ -90,7 +86,7 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
     For \code{family="nbinomial"}, the response may be specified as two
     columns with the second being the known sizes, or simply as a single
     column with the common unknown size to be estimated through the
-    maximum likelihood method.
+    maximum likelihood.
 
     For \code{family="weibull"}, \code{"lognorm"}, or \code{"loglogis"},
     the response consists of three columns, with the first giving the
@@ -98,25 +94,38 @@ gssanova(formula, family, type="cubic", data=list(), weights, subset,
     left-truncation time.  For data with no truncation, the third column
     can be omitted.
 }
-\value{
-    \code{gssanova} returns a list object of \code{\link{class}}
-    \code{"gssanova"} which inherits from the class \code{"ssanova"}.
+\note{
+    For simpler models and moderate sample sizes, the exact solution of
+    \code{\link{gssanova0}} can be faster.
 
-    The method \code{\link{summary}} is used to obtain summaries of the
-    fits.  The method \code{\link{predict}} can be used to evaluate the
-    fits at arbitrary points, along with the standard errors to be used
-    in Bayesian confidence intervals, both on the scale of the link.
-    The methods \code{\link{residuals}} and \code{\link{fitted.values}}
-    extract the respective traits from the fits.
+    The results may vary from run to run. For consistency, specify
+    \code{id.basis} or set \code{seed}.
+
+    In \emph{gss} versions earlier than 1.0, \code{gssanova} was under
+    the name \code{gssanova1}.
 }
-\seealso{
-    Methods \code{\link{predict.ssanova}},
-    \code{\link{summary.gssanova}}, and \code{\link{fitted.gssanova}}.
+\value{
+    \code{gssanova} returns a list object of class
+    \code{c("gssanova","ssanova")}.
+
+    The method \code{\link{summary.gssanova}} can be used to obtain
+    summaries of the fits.  The method \code{\link{predict.ssanova}} can
+    be used to evaluate the fits at arbitrary points along with standard
+    errors, on the link scale.  The method
+    \code{\link{project.gssanova}} can be used to calculate the
+    Kullback-Leibler projection for model selection.  The methods
+    \code{\link{residuals.gssanova}} and \code{\link{fitted.gssanova}}
+    extract the respective traits from the fits.
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Gu, C. (1992), Cross-validating non Gaussian data. \emph{Journal
-	of Computational and Graphical Statistics}, \bold{1}, 169-179.
+    Gu, C. and Xiang, D. (2001), Cross validating non Gaussian data:
+    generalized approximate cross validation revisited.  \emph{Journal
+    of Computational and Graphical Statistics}, \bold{10}, 581--591.
+
+    Gu, C. and Wang, J. (2003), Penalized likelihood density
+    estimation: Direct cross-validation and scalable approximation.
+    \emph{Statistica Sinica}, \bold{13}, 811--826.
 }
 \examples{
 ## Fit a cubic smoothing spline logistic regression model
@@ -127,7 +136,8 @@ p <- 1-1/(1+exp(test(x)))
 y <- rbinom(x,3,p)
 logit.fit <- gssanova(cbind(y,3-y)~x,family="binomial")
 ## The same fit
-logit.fit1 <- gssanova(y/3~x,"binomial",weights=rep(3,101))
+logit.fit1 <- gssanova(y/3~x,"binomial",weights=rep(3,101),
+                       id.basis=logit.fit$id.basis)
 ## Obtain estimates and standard errors on a grid
 est <- predict(logit.fit,data.frame(x=x),se=TRUE)
 ## Plot the fit and the Bayesian confidence intervals
@@ -136,8 +146,18 @@ lines(x,p,col=1)
 lines(x,1-1/(1+exp(est$fit)),col=2)
 lines(x,1-1/(1+exp(est$fit+1.96*est$se)),col=3)
 lines(x,1-1/(1+exp(est$fit-1.96*est$se)),col=3)
+
+## Fit a mixed-effect logistic model
+data(bacteriuria)
+bact.fit <- gssanova(infect~trt+time,family="binomial",data=bacteriuria,
+                     id.basis=(1:820)[bacteriuria$id\%in\%c(3,38)],random=~1|id)
+## Predict fixed effects
+predict(bact.fit,data.frame(time=2:16,trt=as.factor(rep(1,15))),se=TRUE)
+## Estimated random effects
+bact.fit$b
+
 ## Clean up
-\dontrun{rm(test,x,p,y,logit.fit,logit.fit1,est)
+\dontrun{rm(test,x,p,y,logit.fit,logit.fit1,est,bacteriuria,bact.fit)
 dev.off()}
 }
 \keyword{models}

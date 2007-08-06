@@ -6,7 +6,7 @@
    quadratic fit, with golden-section safe-guard.
 }
 \usage{
-nlm0(fun,range,prec=1e-7)
+nlm0(fun, range, prec=1e-7)
 }
 \arguments{
     \item{fun}{Function to be minimized.}

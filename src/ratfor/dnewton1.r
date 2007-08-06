@@ -137,7 +137,7 @@ repeat {
     for (i=1;i<=nobs;i=i+1)
         disc = dmax1 (disc, dabs(fit(i)-fitnew(i))/(1.d0+dabs(fit(i))))
     disc = dmax1 (disc, (mumax/(1.d0+dabs(lkhd)))**2)
-    disc0 = dmax1 ((mumax/(1.d0+lkhd))**2, dabs(lkhd-lkhdnew)/(1+dabs(lkhd)))
+    disc0 = dmax1 ((mumax/(1.d0+lkhd))**2, dabs(lkhd-lkhdnew)/(1.d0+dabs(lkhd)))
     #   Set to new values
     call  dcopy (nxis, cdnew, 1, cd, 1)
     call  dcopy (nqd, wtnew, 1, wt, 1)

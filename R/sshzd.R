@@ -1,8 +1,8 @@
 ## Fit hazard model
-sshzd <- function(formula,type="cubic",data=list(),alpha=1.4,
+sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
                   weights=NULL,subset,na.action=na.omit,
                   id.basis=NULL,nbasis=NULL,seed=NULL,
-                  ext=.05,order=2,prec=1e-7,maxiter=30)
+                  prec=1e-7,maxiter=30)
 {
     ## Local functions handling formula
     Surv <- function(time,status,start=0) {
@@ -24,7 +24,7 @@ sshzd <- function(formula,type="cubic",data=list(),alpha=1.4,
     mf <- match.call()
     mf$type <- mf$alpha <- NULL
     mf$id.basis <- mf$nbasis <- mf$seed <- NULL
-    mf$ext <- mf$order <- mf$prec <- mf$maxiter <- NULL
+    mf$prec <- mf$maxiter <- NULL
     term.wk <- terms.formula(mf$formula)
     ## response
     resp <- attr(term.wk,"variable")[[2]]
@@ -42,25 +42,6 @@ sshzd <- function(formula,type="cubic",data=list(),alpha=1.4,
     mf[[1]] <- as.name("model.frame")
     mf[[2]] <- eval(parse(text=paste("~",paste(term.labels,collapse="+"))))
     mf <- eval(mf,sys.frame(sys.parent()))
-    ## set domain
-    xnames <- names(mf)
-    xnames <- xnames[!xnames%in%tname]
-    domain <- as.list(NULL)
-    mn <- min(yy$start)
-    mx <- max(yy$end)
-    domain[[tname]] <- c(mn,mx)
-    for (i in xnames) {
-        if (is.factor(mf[[i]])) domain[[i]] <- levels(mf[[i]])[1:2]
-        else {
-            mn <- min(mf[[i]])
-            mx <- max(mf[[i]])
-            range <- mx-mn
-            mn <- mn - ext*range
-            mx <- mx + ext*range
-            domain[[i]] <- c(mn,mx)
-        }
-    }
-    domain <- as.data.frame(domain)
     ## Generate sub-basis
     cnt <- model.weights(mf)
     nobs <- nrow(mf)
@@ -75,15 +56,23 @@ sshzd <- function(formula,type="cubic",data=list(),alpha=1.4,
             stop("gss error in sshzd: id.basis not all at failure cases")
         nbasis <- length(id.basis)
     }
+    ## set domain and type for time
+    tdomain <- c(min(yy$start),max(yy$end))
+    if (is.null(type[[tname]])) type[[tname]] <- list("cubic",tdomain)
+    if (length(type[[tname]])==1) type[[tname]] <- c(type[[tname]],tdomain)
+    if (!(type[[tname]][[1]]%in%c("cubic","linear")))
+        stop("gss error in sshzd: wrong type")
+    if ((min(type[[tname]][[2]])>min(tdomain))|
+        (max(type[[tname]][[2]])<max(tdomain)))
+        stop("gss error in sshzd: time range not covering domain")
     ## Generate terms    
-    if (type=="cubic") term <- mkterm.cubic1(mf,domain)
-    if (type=="linear") term <- mkterm.linear1(mf,domain)
-    if (type=="tp") term <- mkterm.tp(mf,order,mf[id.basis,],1)
-    if (is.null(term)) stop("gss error in sshzd: unknown type")
+    term <- mkterm(mf,type)
     ## Generate Gauss-Legendre quadrature
     nmesh <- 200
-    quad <- gauss.quad(nmesh,domain[[tname]])
+    quad <- gauss.quad(nmesh,tdomain)
     ## obtain unique covariate observations
+    xnames <- names(mf)
+    xnames <- xnames[!xnames%in%tname]
     if (length(xnames)) {
         xx <- mf[,xnames,drop=FALSE]
         x.pt <- unique(xx)
@@ -201,7 +190,7 @@ sshzd <- function(formula,type="cubic",data=list(),alpha=1.4,
     colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
     obj <- c(list(call=match.call(),mf=mf,tname=tname,xnames=xnames,
-                  terms=term,desc=desc,alpha=alpha,domain=domain,cfit=cfit,
+                  terms=term,desc=desc,alpha=alpha,tdomain=tdomain,cfit=cfit,
                   quad=quad,x.pt=x.pt,qd.wt=qd.wt,id.basis=id.basis),z)
     if (is.null(cnt)) obj$se.aux$v <- sqrt(nobs)*obj$se.aux$v
     else obj$se.aux$v <- sqrt(sum(cnt))*obj$se.aux$v

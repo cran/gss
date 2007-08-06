@@ -140,28 +140,33 @@ C Output from Public domain Ratfor, version 1.0
 23055 i=i+1
       goto 23054
 23056 continue
+      if((flag.eq.1).or.(flag.eq.3))then
+      goto 23053
+      endif
 23052 kk=kk+1
       goto 23051
 23053 continue
+      if((flag.eq.0).or.(flag.eq.2))then
       fitmean = 0.d0
       i=1
-23059 if(.not.(i.le.nt))goto 23061
+23063 if(.not.(i.le.nt))goto 23065
       tmp = ddot (nxis, rs(1,i), 1, cdnew, 1)
       if(tmp.gt.3.d2)then
       flag = flag + 1
-      goto 23061
+      goto 23065
       endif
       fitnew(i) = dexp (tmp)
       if(cntsum.ne.0)then
       tmp = tmp * dfloat (cnt(i))
       endif
       fitmean = fitmean + tmp
-23060 i=i+1
-      goto 23059
-23061 continue
+23064 i=i+1
+      goto 23063
+23065 continue
       fitmean = fitmean / dfloat (nobs) - dasum (nqd*nx, wtnew, 1)
       call dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
       lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean
+      endif
       if(flag.eq.1)then
       call dset (nxis, 0.d0, cd, 1)
       call dcopy (nqd*nx, qdwt, 1, wt, 1)
@@ -192,26 +197,26 @@ C Output from Public domain Ratfor, version 1.0
       endif
       disc = 0.d0
       kk=1
-23078 if(.not.(kk.le.nx))goto 23080
+23082 if(.not.(kk.le.nx))goto 23084
       i=1
-23081 if(.not.(i.le.nqd))goto 23083
+23085 if(.not.(i.le.nqd))goto 23087
       disc = dmax1 (disc, dabs(wt(i,kk)-wtnew(i,kk))/(1.d0+dabs(wt(i,kk)
      *)))
-23082 i=i+1
-      goto 23081
-23083 continue
-23079 kk=kk+1
-      goto 23078
-23080 continue
+23086 i=i+1
+      goto 23085
+23087 continue
+23083 kk=kk+1
+      goto 23082
+23084 continue
       i=1
-23084 if(.not.(i.le.nt))goto 23086
+23088 if(.not.(i.le.nt))goto 23090
       disc = dmax1 (disc, dabs(fit(i)-fitnew(i))/(1.d0+dabs(fit(i))))
-23085 i=i+1
-      goto 23084
-23086 continue
+23089 i=i+1
+      goto 23088
+23090 continue
       disc = dmax1 (disc, (mumax/(1.d0+dabs(lkhd)))**2)
-      disc0 = dmax1 ((mumax/(1.d0+lkhd))**2, dabs(lkhd-lkhdnew)/(1+dabs(
-     *lkhd)))
+      disc0 = dmax1 ((mumax/(1.d0+lkhd))**2, dabs(lkhd-lkhdnew)/(1.d0+da
+     *bs(lkhd)))
       call dcopy (nxis, cdnew, 1, cd, 1)
       call dcopy (nqd*nx, wtnew, 1, wt, 1)
       call dcopy (nt, fitnew, 1, fit, 1)
@@ -238,41 +243,33 @@ C Output from Public domain Ratfor, version 1.0
       endif
 23020 goto 23019
 23021 continue
-      infowk = 0
       i=1
-23095 if(.not.(i.le.nt))goto 23097
-      call daxpy (nxis, -1.d0, mrs, 1, rs(1,i), 1)
+23099 if(.not.(i.le.nt))goto 23101
       call dprmut (rs(1,i), nxis, jpvt, 0)
       if(cntsum.ne.0)then
       call dscal (nxis, dsqrt(dfloat(cnt(i))), rs(1,i), 1)
-      infowk = infowk + cnt(i)
       endif
       call dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
-23096 i=i+1
-      goto 23095
-23097 continue
+23100 i=i+1
+      goto 23099
+23101 continue
       call dprmut (mrs, nxis, jpvt, 0)
       call dtrsl (v, nxis, nxis, mrs, 11, infowk)
-      if(cntsum.ne.0)then
-      tmp = dfloat (nobs-infowk)
-      else
-      tmp = dfloat (nobs-nt)
-      endif
-      trc = ddot (nxis*nt, rs, 1, rs, 1) + tmp * ddot (nxis, mrs, 1, mrs
-     *, 1)
+      trc = ddot (nxis*nt, rs, 1, rs, 1) - dfloat (nobs) * ddot (nxis, m
+     *rs, 1, mrs, 1)
       trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
       mrs(1) = fitmean
       mrs(2) = trc
       kk=1
-23102 if(.not.(kk.le.nx))goto 23104
+23104 if(.not.(kk.le.nx))goto 23106
       i=1
-23105 if(.not.(i.le.nqd))goto 23107
+23107 if(.not.(i.le.nqd))goto 23109
       wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1))
-23106 i=i+1
-      goto 23105
-23107 continue
-23103 kk=kk+1
-      goto 23102
-23104 continue
+23108 i=i+1
+      goto 23107
+23109 continue
+23105 kk=kk+1
+      goto 23104
+23106 continue
       return
       end

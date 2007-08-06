@@ -1,203 +1,394 @@
-## Fit Single Smoothing Parameter REGression by Performance-Oriented Iteration
-sspregpoi <- function(family,s,q,y,wt,offset,method="u",
-                      varht=1,nu,prec=1e-7,maxiter=30)
+## Fit Single Smoothing Parameter Non-Gaussian REGression
+sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
 {
-    ## Check inputs
-    if (is.vector(s)) s <- as.matrix(s)
-    if (!(is.matrix(s)&is.matrix(q)&is.character(method))) {
-        stop("gss error in sspregpoi: inputs are of wrong types")
+    nobs <- nrow(r)
+    nxi <- ncol(r)
+    if (!is.null(s)) {
+        if (is.vector(s)) nnull <- 1
+        else nnull <- ncol(s)
     }
-    nobs <- dim(s)[1]
-    nnull <- dim(s)[2]
-    if (!((dim(s)[1]==nobs)&(dim(q)[1]==nobs)&(dim(q)[2]==nobs)
-          &(nobs>=nnull)&(nnull>0))) {
-        stop("gss error in sspregpoi: inputs have wrong dimensions")
+    else nnull <- 0
+    if (!is.null(random)) nz <- ncol(as.matrix(random$z))
+    else nz <- 0
+    nxiz <- nxi + nz
+    nn <- nxiz + nnull
+    ## cv function
+    cv <- function(lambda) {
+        if (nu[[2]]) {
+            la.wk <- lambda[-2]
+            nu.wk <- list(exp(lambda[2]),FALSE)
+        }
+        else {
+            la.wk <- lambda
+            nu.wk <- nu
+        }
+        if (is.null(random)) q.wk <- 10^(la.wk+theta)*q
+        else {
+            q.wk <- matrix(0,nxiz,nxiz)
+            q.wk[1:nxi,1:nxi] <- 10^(la.wk[1]+theta)*q
+            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(la.wk[-1],random$sigma$env)
+        }
+        alpha.wk <- max(0,log.la0-la.wk[1]-5)*(3-alpha) + alpha
+        alpha.wk <- min(alpha.wk,3)
+        z <- ngreg(dc,family,cbind(s,10^theta*r),q.wk,y,wt,offset,nu.wk,alpha.wk)
+        assign("dc",z$dc,inherit=TRUE)
+        assign("fit",z[c(1:3,5:10)],inherit=TRUE)
+        z$score
     }
-    ## Set method for smoothing parameter selection
-    code <- (1:3)[c("v","m","u")==method]
-    if (!length(code)) {
-        stop("gss error: unsupported method for smoothing parameter selection")
+    cv.wk <- function(lambda) cv.scale*cv(lambda)+cv.shift
+    ## initialization
+    tmp <- sum(r^2)
+    if (is.null(s)) theta <- 0
+    else theta <- log10(sum(s^2)/nnull/tmp*nxi) / 2
+    log.la0 <- log10(tmp/sum(diag(q))) + theta
+    if (!is.null(random)) {
+        ran.scal <- theta - log10(sum(random$z^2)/nz/tmp*nxi) / 2
+        r <- cbind(r,10^(ran.scal-theta)*random$z)
     }
-    eta <- rep(0,nobs)
-    nla0 <- log10(mean(abs(diag(q))))
-    limnla <- nla0+c(-.5,.5)
-    iter <- 0
-    if (family=="nbinomial") nu <- NULL
-    else nu <- list(nu,is.null(nu))
-    repeat {
-        iter <- iter+1
-        dat <- switch(family,
-                      binomial=mkdata.binomial(y,eta,wt,offset),
-                      nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
-                      poisson=mkdata.poisson(y,eta,wt,offset),
-                      inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
-                      Gamma=mkdata.Gamma(y,eta,wt,offset),
+    else ran.scal <- NULL
+    if (nu[[2]]&is.null(nu[[1]])) {
+        eta <- rep(0,nobs)
+        wk <- switch(family,
+                      nbinomial=mkdata.nbinomial(y,eta,wt,offset,NULL),
                       weibull=mkdata.weibull(y,eta,wt,offset,nu),
                       lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
                       loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
-        nu <- dat$nu
-        w <- as.vector(sqrt(dat$wt))
-        ywk <- w*dat$ywk
-        swk <- w*s
-        qwk <- w*t(w*q)
-        ## Call RKPACK driver DSIDR
-        z <- .Fortran("dsidr0",
-                      as.integer(code),
-                      swk=as.double(swk), as.integer(nobs),
-                      as.integer(nobs), as.integer(nnull),
-                      as.double(ywk),
-                      qwk=as.double(qwk), as.integer(nobs),
-                      as.double(0), as.integer(-1), as.double(limnla),
-                      nlambda=double(1), score=double(1), varht=as.double(varht),
-                      c=double(nobs), d=double(nnull),
-                      qraux=double(nnull), jpvt=integer(nnull),
-                      double(3*nobs),
-                      info=integer(1),PACKAGE="gss")
-        ## Check info for error
-        if (info<-z$info) {               
-            if (info>0)
-                stop("gss error in sspregpoi: matrix s is rank deficient")
-            if (info==-2)
-                stop("gss error in sspregpoi: matrix q is indefinite")
-            if (info==-1)
-                stop("gss error in sspregpoi: input data have wrong dimensions")
-            if (info==-3)
-                stop("gss error in sspregpoi: unknown method for smoothing parameter selection.")
-        }
-        eta.new <- (ywk-10^z$nlambda*z$c)/w
-        if (!is.null(offset)) eta.new <- eta.new + offset
-        disc <- sum(dat$wt*((eta-eta.new)/(1+abs(eta)))^2)/sum(dat$wt)
-        limnla <- pmax(z$nlambda+c(-.5,.5),nla0-5)
-        if (disc<prec) break
-        if (iter>=maxiter) {
-            warning("gss warning in gssanova: performance-oriented iteration fails to converge")
-            break
-        }
-        eta <- eta.new
+        nu[[1]] <- wk$nu[[1]]
     }
-    ## Return the fit
-    if (is.list(nu)) nu <- nu[[1]]
-    c(list(method=method,theta=0,w=as.vector(dat$wt),
-           eta=as.vector(eta),iter=iter,nu=nu),
-      z[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])
+    ## lambda search
+    dc <- rep(0,nn)
+    fit <- NULL
+    la <- log.la0
+    if (nu[[2]]) la <- c(la, log(nu[[1]]))
+    if (!is.null(random)) la <- c(la,random$init)
+    if (length(la)-1) {
+        counter <- 0
+        ## scale and shift cv
+        tmp <- abs(cv(la))
+        cv.scale <- 1
+        cv.shift <- 0
+        if (tmp<1&tmp>10^(-4)) {
+            cv.scale <- 10/tmp
+            cv.shift <- 0
+        }
+        if (tmp<10^(-4)) {
+            cv.scale <- 10^2
+            cv.shift <- 10
+        }
+        repeat {
+            zz <- nlm(cv.wk,la,stepmax=1,ndigit=7)
+            if (zz$code<=3) break
+            la <- zz$est
+            counter <- counter + 1
+            if (counter>=5) {
+                warning("gss warning in ssanova: iteration for model selection fails to converge")
+                break
+            }
+        }
+    }
+    else {
+        repeat {
+            mn <- la-1
+            mx <- la+1
+            zz <- nlm0(cv,c(mn,mx))
+            if (min(zz$est-mn,mx-zz$est)>=1e-3) break
+            else la <- zz$est
+        }
+    }
+    ## return
+    jk <- cv(zz$est)
+    if (nu[[2]]) {
+        nu.wk <- exp(zz$est[2])
+        zz$est <- zz$est[-2]
+    }
+    else nu.wk <- NULL
+    if (is.null(random)) q.wk <- 10^theta*q
+    else {
+        q.wk <- matrix(0,nxiz,nxiz)
+        q.wk[1:nxi,1:nxi] <- 10^theta*q
+        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+            10^(2*ran.scal-zz$est[1])*random$sigma$fun(zz$est[-1],random$sigma$env)
+    }
+    zzz <- eigen(q.wk,TRUE)
+    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
+    val <- zzz$val[1:rkq]
+    vec <- zzz$vec[,1:rkq,drop=FALSE]
+    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
+    se.aux <- t(fit$w*cbind(s,10^theta*r))%*%(10^theta*r)%*%qinv
+    c <- fit$dc[nnull+(1:nxi)]
+    if (nnull) d <- fit$dc[1:nnull]
+    else d <- NULL
+    if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
+    else b <- NULL
+    c(list(theta=theta,ran.scal=ran.scal,c=c,d=d,b=b,nlambda=zz$est[1],
+           zeta=zz$est[-1],nu=nu.wk),fit[-1],list(qinv=qinv,se.aux=se.aux))
 }
 
-## Fit Multiple Smoothing Parameter REGression by Performance-Oriented Iteration
-mspregpoi <- function(family,s,q,y,wt,offset,method="u",
-                      varht=1,nu,prec=1e-7,maxiter=30)
+## Fit Multiple Smoothing Parameter Non-Gaussian REGression
+mspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
 {
-    ## Check inputs
-    if (is.vector(s)) s <- as.matrix(s)
-    if (!(is.matrix(s)&is.array(q)&(length(dim(q))==3)
-          &is.character(method))) {
-        stop("gss error in mspregpoi: inputs are of wrong types")
+    nobs <- nrow(r)
+    nxi <- ncol(r)
+    if (!is.null(s)) {
+        if (is.vector(s)) nnull <- 1
+        else nnull <- ncol(s)
     }
-    nobs <- dim(s)[1]
-    nnull <- dim(s)[2]
+    else nnull <- 0
+    if (!is.null(random)) nz <-ncol(as.matrix(random$z))
+    else nz <- 0
+    nxiz <- nxi + nz
+    nn <- nxiz + nnull
     nq <- dim(q)[3]
-    if (!((dim(s)[1]==nobs)&(dim(q)[1]==nobs)&(dim(q)[2]==nobs)
-          &(nobs>=nnull)&(nnull>0))) {
-        stop("gss error in sspregpoi: inputs have wrong dimensions")
+    ## cv function
+    cv <- function(theta) {
+        if (nu[[2]]) {
+            the.wk <- theta[-(nq+1)]
+            nu.wk <- list(exp(theta[nq+1]),FALSE)
+        }
+        else {
+            the.wk <- theta
+            nu.wk <- nu
+        }
+        r.wk <- qq.wk <- 0
+        for (i in 1:nq) {
+            r.wk <- r.wk + 10^the.wk[i]*r[,,i]
+            qq.wk <- qq.wk + 10^the.wk[i]*q[,,i]
+        }
+        if (is.null(random)) q.wk <- 10^nlambda*qq.wk
+        else {
+            r.wk <- cbind(r.wk,10^(ran.scal)*random$z)
+            q.wk <- matrix(0,nxiz,nxiz)
+            q.wk[1:nxi,1:nxi] <- 10^nlambda*qq.wk
+            q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(the.wk[-(1:nq)],random$sigma$env)
+        }
+        alpha.wk <- max(0,the.wk[1:nq]-log.th0-5)*(3-alpha) + alpha
+        alpha.wk <- min(alpha.wk,3)
+        z <- ngreg(dc,family,cbind(s,r.wk),q.wk,y,wt,offset,nu.wk,alpha.wk)
+        assign("dc",z$dc,inherit=TRUE)
+        assign("fit",z[c(1:3,5:10)],inherit=TRUE)
+        z$score
     }
-    ## Set method for smoothing parameter selection
-    code <- (1:3)[c("v","m","u")==method]
-    if (!length(code)) {
-        stop("gss error: unsupported method for smoothing parameter selection")
+    cv.wk <- function(theta) cv.scale*cv(theta)+cv.shift
+    ## initialization
+    theta <- -log10(apply(q,3,function(x)sum(diag(x))))
+    r.wk <- q.wk <- 0
+    for (i in 1:nq) {
+        r.wk <- r.wk + 10^theta[i]*r[,,i]
+        q.wk <- q.wk + 10^theta[i]*q[,,i]
     }
-    eta <- rep(0,nobs)
-    init <- 0
-    theta <- rep(0,nq)
+    ## theta adjustment
+    z <- sspngreg(family,s,r.wk,q.wk,y,wt,offset,alpha,nu,random)
+    if (nu[[2]]) nu[[1]] <- z$nu
+    theta <- theta + z$theta
+    r.wk <- q.wk <- 0
+    for (i in 1:nq) {
+        theta[i] <- 2*theta[i] + log10(t(z$c)%*%q[,,i]%*%z$c)
+        r.wk <- r.wk + 10^theta[i]*r[,,i]
+        q.wk <- q.wk + 10^theta[i]*q[,,i]
+    }
+    log.la0 <- log10(sum(r.wk^2)/sum(diag(q.wk)))
+    log.th0 <- theta-log.la0
+    ## lambda search
+    z <- sspngreg(family,s,r.wk,q.wk,y,wt,offset,alpha,nu,random)
+    if (nu[[2]]) nu[[1]] <- z$nu
+    nlambda <- z$nlambda
+    log.th0 <- log.th0 + z$lambda
+    theta <- theta + z$theta
+    if (!is.null(random)) ran.scal <- z$ran.scal
+    ## theta search
+    dc <- rep(0,nn)
+    fit <- NULL
+    if (nu[[2]]) theta <- c(theta, log(nu[[1]]))
+    if (!is.null(random)) theta <- c(theta,z$zeta)
+    counter <- 0
+    tmp <- abs(cv(theta))
+    cv.scale <- 1
+    cv.shift <- 0
+    if (tmp<1&tmp>10^(-4)) {
+        cv.scale <- 10/tmp
+        cv.shift <- 0
+    }
+    if (tmp<10^(-4)) {
+        cv.scale <- 10^2
+        cv.shift <- 10
+    }
+    repeat {
+        zz <- nlm(cv.wk,theta,stepmax=1,ndigit=7)
+        if (zz$code<=3)  break
+        theta <- zz$est        
+        counter <- counter + 1
+        if (counter>=5) {
+            warning("gss warning in gssanova: iteration for model selection fails to converge")
+            break
+        }
+    }
+    ## return
+    jk <- cv(zz$est)
+    if (nu[[2]]) {
+        nu.wk <- exp(zz$est[nq+1])
+        zz$est <- zz$est[-(nq+1)]
+    }
+    else nu.wk <- NULL
+    r.wk <- qq.wk <- 0
+    for (i in 1:nq) {
+        r.wk <- r.wk + 10^zz$est[i]*r[,,i]
+        qq.wk <- qq.wk + 10^zz$est[i]*q[,,i]
+    }
+    if (is.null(random)) q.wk <- qq.wk
+    else {
+        r.wk <- cbind(r.wk,10^(ran.scal)*random$z)
+        q.wk <- matrix(0,nxiz,nxiz)
+        q.wk[1:nxi,1:nxi] <- qq.wk
+        q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
+            10^(2*ran.scal-nlambda)*random$sigma$fun(zz$est[-(1:nq)],random$sigma$env)
+    }
+    zzz <- eigen(q.wk,TRUE)
+    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
+    val <- zzz$val[1:rkq]
+    vec <- zzz$vec[,1:rkq,drop=FALSE]
+    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
+    se.aux <- t(fit$w*cbind(s,r.wk))%*%r.wk%*%qinv
+    c <- fit$dc[nnull+(1:nxi)]
+    if (nnull) d <- fit$dc[1:nnull]
+    else d <- NULL
+    if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
+    else b <- NULL
+    c(list(theta=zz$est[1:nq],c=c,d=d,b=b,nlambda=nlambda,zeta=zz$est[-(1:nq)],nu=nu.wk),
+      fit[-1],list(qinv=qinv,se.aux=se.aux))
+}
+
+## Non-Gaussian regression with fixed smoothing parameters
+ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
+{
+    nobs <- nrow(sr)
+    nn <- ncol(sr)
+    nxi <- nrow(q)
+    nnull <- nn - nxi
+    ## initialization
+    cc <- dc[nnull+(1:nxi)]
+    eta <- sr%*%dc
+    if (!is.null(offset)) eta <- eta + offset
+    if ((family=="nbinomial")&is.vector(y)) y <- cbind(y,nu[[1]])
     iter <- 0
-    if (family=="nbinomial") nu <- NULL
-    else nu <- list(nu,is.null(nu))
-    qwk <- array(0,c(nobs,nobs,nq))
+    flag <- 0
+    dev <- switch(family,
+                  binomial=dev.resid.binomial(y,eta,wt),
+                  nbinomial=dev.resid.nbinomial(y,eta,wt),
+                  poisson=dev.resid.poisson(y,eta,wt),
+                  Gamma=dev.resid.Gamma(y,eta,wt),
+                  weibull=dev.resid.weibull(y,eta,wt,nu[[1]]),
+                  lognorm=dev0.resid.lognorm(y,eta,wt,nu[[1]]),
+                  loglogis=dev0.resid.loglogis(y,eta,wt,nu[[1]]))
+    dev <- sum(dev) + t(cc)%*%q%*%cc
+    ## Newton iteration
     repeat {
         iter <- iter+1
         dat <- switch(family,
                       binomial=mkdata.binomial(y,eta,wt,offset),
                       nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
                       poisson=mkdata.poisson(y,eta,wt,offset),
-                      inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                       Gamma=mkdata.Gamma(y,eta,wt,offset),
                       weibull=mkdata.weibull(y,eta,wt,offset,nu),
                       lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
                       loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
-        nu <- dat$nu
+        ## weighted least squares fit
         w <- as.vector(sqrt(dat$wt))
         ywk <- w*dat$ywk
-        swk <- w*s
-        for (i in 1:nq) qwk[,,i] <- w*t(w*q[,,i])
-        ## Call RKPACK driver DMUDR
-        z <- .Fortran("dmudr0",
-                      as.integer(code),
-                      as.double(swk),   # s
-                      as.integer(nobs), as.integer(nobs), as.integer(nnull),
-                      as.double(qwk),   # q
-                      as.integer(nobs), as.integer(nobs), as.integer(nq),
-                      as.double(ywk),   # y
-                      as.double(0), as.integer(init),
-                      as.double(prec), as.integer(maxiter),
-                      theta=as.double(theta), nlambda=double(1),
-                      score=double(1), varht=as.double(varht),
-                      c=double(nobs), d=double(nnull),
-                      double(nobs*nobs*(nq+2)),
-                      info=integer(1),PACKAGE="gss")[c("theta","nlambda","c","info")]
-        ## Check info for error
-        if (info<-z$info) {               
-            if (info>0)
-                stop("gss error in mspreg: matrix s is rank deficient")
-            if (info==-2)
-                stop("gss error in mspreg: matrix q is indefinite")
-            if (info==-1)
-                stop("gss error in mspreg: input data have wrong dimensions")
-            if (info==-3)
-                stop("gss error in mspreg: unknown method for smoothing parameter selection.")
-            if (info==-4)
-                stop("gss error in mspreg: iteration fails to converge, try to increase maxiter")
-            if (info==-5)
-                stop("gss error in mspreg: iteration fails to find a reasonable descent direction")
+        srwk <- w*sr
+        if (!is.finite(sum(w,ywk,srwk))) {
+            if (flag) stop("gss error in gssanova: Newton iteration diverges")
+            eta <- rep(0,nobs)
+            iter <- 0
+            flag <- 1
+            next
         }
-        eta.new <- (ywk-10^z$nlambda*z$c)/w
-        if (!is.null(offset)) eta.new <- eta.new + offset
+        z <- .Fortran("reg",
+                      as.double(srwk), as.integer(nobs), as.integer(nnull),
+                      as.double(q), as.integer(nxi), as.double(ywk),
+                      as.integer(4),
+                      double(1), double(1), double(1), dc=double(nn),
+                      as.double(.Machine$double.eps),
+                      double(nn*nn), double(nn),
+                      as.integer(c(rep(1,nnull),rep(0,nxi))),
+                      double(max(nobs,nn)), integer(1), integer(1),
+                      PACKAGE="gss")["dc"]
+        dc.diff <- z$dc-dc
+        adj <- 0
+        repeat {
+            dc.new <- dc + dc.diff
+            cc <- dc.new[nnull+(1:nxi)]
+            eta.new <- sr%*%dc.new
+            if (!is.null(offset)) eta.new <- eta.new + offset
+            dev.new <- switch(family,
+                              binomial=dev.resid.binomial(y,eta.new,wt),
+                              nbinomial=dev.resid.nbinomial(y,eta.new,wt),
+                              poisson=dev.resid.poisson(y,eta.new,wt),
+                              Gamma=dev.resid.Gamma(y,eta.new,wt),
+                              weibull=dev.resid.weibull(y,eta.new,wt,nu[[1]]),
+                              lognorm=dev0.resid.lognorm(y,eta.new,wt,nu[[1]]),
+                              loglogis=dev0.resid.loglogis(y,eta.new,wt,nu[[1]]))
+            dev.new <- sum(dev.new) + t(cc)%*%q%*%cc
+            if (!is.finite(dev.new)) dev.new <- Inf
+            if (dev.new-dev<(1+abs(dev))*1e-1) break
+            adj <- 1
+            dc.diff <- dc.diff/2
+        }
         disc <- sum(dat$wt*((eta-eta.new)/(1+abs(eta)))^2)/sum(dat$wt)
-        if (disc<prec) break
-        if (iter>=maxiter) {
-            warning("gss warning in gssanova: performance-oriented iteration fails to converge")
+        if (!is.finite(disc)) {
+            if (flag) stop("gss error in gssanova: Newton iteration diverges")
+            eta <- rep(0,nobs)
+            iter <- 0
+            flag <- 1
+            next
+        }
+        dc <- dc.new
+        eta <- eta.new
+        dev <- dev.new
+        if (adj) next
+        if (disc<1e-7) break
+        if (iter<=30) next
+        if (!flag) {
+            eta <- rep(0,nobs)
+            iter <- 0
+            flag <- 1
+        }
+        else {
+            warning("gss warning in gssanova: Newton iteration fails to converge")
             break
         }
-        init <- 1
-        theta <- z$theta
-        eta <- eta.new
     }
-    qqwk <- 10^z$theta[1]*qwk[,,1]
-    for (i in 2:nq) qqwk <- qqwk + 10^z$theta[i]*qwk[,,i]
-    ## Call RKPACK driver DSIDR
-    z <- .Fortran("dsidr0",
-                  as.integer(code),
-                  swk=as.double(swk), as.integer(nobs),
-                  as.integer(nobs), as.integer(nnull),
-                  as.double(ywk),
-                  qwk=as.double(qqwk), as.integer(nobs),
-                  as.double(0), as.integer(0), double(2),
-                  nlambda=double(1), score=double(1), varht=as.double(varht),
-                  c=double(nobs), d=double(nnull),
-                  qraux=double(nnull), jpvt=integer(nnull),
-                  double(3*nobs),
-                  info=integer(1),PACKAGE="gss")
-    ## Check info for error
-    if (info<-z$info) {               
-        if (info>0)
-            stop("gss error in sspregpoi: matrix s is rank deficient")
-        if (info==-2)
-            stop("gss error in sspregpoi: matrix q is indefinite")
-        if (info==-1)
-            stop("gss error in sspregpoi: input data have wrong dimensions")
-        if (info==-3)
-            stop("gss error in sspregpoi: unknown method for smoothing parameter selection.")
-    }
-    ## Return the fit
-    if (is.list(nu)) nu <- nu[[1]]
-    c(list(method=method,theta=theta,w=as.vector(dat$wt),
-           eta=as.vector(eta),iter=iter,nu=nu),
-      z[c("c","d","nlambda","score","varht","swk","qraux","jpvt","qwk")])
+    ## calculate cv
+    dat <- switch(family,
+                  binomial=mkdata.binomial(y,eta,wt,offset),
+                  nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
+                  poisson=mkdata.poisson(y,eta,wt,offset),
+                  Gamma=mkdata.Gamma(y,eta,wt,offset),
+                  weibull=mkdata.weibull(y,eta,wt,offset,nu),
+                  lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
+                  loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
+    ## weighted least squares fit
+    w <- as.vector(sqrt(dat$wt))
+    ywk <- w*dat$ywk
+    srwk <- w*sr
+    z <- .Fortran("reg",
+                  as.double(srwk), as.integer(nobs), as.integer(nnull),
+                  as.double(q), as.integer(nxi), as.double(ywk),
+                  as.integer(5),
+                  double(1), double(1), double(1), dc=double(nn),
+                  as.double(.Machine$double.eps),
+                  chol=double(nn*nn), double(nn),
+                  jpvt=as.integer(c(rep(1,nnull),rep(0,nxi))),
+                  hat=double(max(nobs+1,nn)), rkv=integer(1), integer(1),
+                  PACKAGE="gss")[c("dc","chol","jpvt","hat","rkv")]
+    cv <- switch(family,
+                 binomial=cv.binomial(y,eta,wt,z$hat[1:nobs],alpha),
+                 poisson=cv.poisson(y,eta,wt,z$hat[1:nobs],alpha,sr,q),
+                 Gamma=cv.Gamma(y,eta,wt,z$hat[1:nobs],z$hat[nobs+1],alpha),
+                 nbinomial=cv.nbinomial(y,eta,wt,z$hat[1:nobs],alpha),
+                 weibull=cv.weibull(y,eta,wt,z$hat[1:nobs],nu[[1]],alpha),
+                 lognorm=cv.lognorm(y,eta,wt,z$hat[1:nobs],nu[[1]],alpha),
+                 loglogis=cv.loglogis(y,eta,wt,z$hat[1:nobs],nu[[1]],alpha))
+    c(z,cv,list(eta=eta))
 }

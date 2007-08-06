@@ -1,6 +1,8 @@
-## Calculate Kullback-Leibler projection from ssanova1 objects
-project.ssanova1 <- function(object,include,...)
+## Calculate Kullback-Leibler projection from ssanova objects
+project.ssanova <- function(object,include,...)
 {
+    if (class(object)=="ssanova0")
+        stop("gss error: Kullback-Leibler projection is not implemented for ssanova0")
     nobs <- nrow(object$mf)
     nxi <- length(object$id.basis)
     ## evaluate full model
@@ -101,7 +103,7 @@ project.ssanova1 <- function(object,include,...)
         }
         zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
         if (zz$code>3)
-            warning("gss warning in project.ssanova1: theta iteration fails to converge")
+            warning("gss warning in project.ssanova: theta iteration fails to converge")
         kl <- my.ls(zz$est)
     }
     else kl <- my.ls()
