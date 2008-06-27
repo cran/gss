@@ -98,7 +98,7 @@ y0.Gamma <- function(eta0)
 }
 proj0.Gamma <- function(y0,eta,wt,offset)
 {
-    if (is.null(offset)) offset <- rep(0,length(y))
+    if (is.null(offset)) offset <- rep(0,length(eta))
     mu <- exp(eta)
     u <- 1-y0$mu/mu
     w <- y0$mu/mu

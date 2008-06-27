@@ -140,12 +140,8 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-zz$est[1])*random$sigma$fun(zz$est[-1],random$sigma$env)
     }
-    zzz <- eigen(q.wk,TRUE)
-    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
-    val <- zzz$val[1:rkq]
-    vec <- zzz$vec[,1:rkq,drop=FALSE]
-    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
-    se.aux <- t(cbind(s,10^theta*r))%*%(10^theta*r)%*%qinv
+    qinv <- eigen(q.wk,TRUE)
+    se.aux <- t(cbind(s,10^theta*r))%*%(10^theta*r)%*%qinv$vec
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
@@ -313,12 +309,8 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-nlambda)*random$sigma$fun(zz$est[-(1:nq)],random$sigma$env)
     }
-    zzz <- eigen(q.wk,TRUE)
-    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
-    val <- zzz$val[1:rkq]
-    vec <- zzz$vec[,1:rkq,drop=FALSE]
-    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
-    se.aux <- t(cbind(s,r.wk))%*%r.wk%*%qinv
+    qinv <- eigen(q.wk,TRUE)
+    se.aux <- t(cbind(s,r.wk))%*%r.wk%*%qinv$vec
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL

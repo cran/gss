@@ -28,7 +28,7 @@ residuals.gssanova <- function(object,type="working",...)
     if ((object$family=="nbinomial")&(!is.null(object$nu))) y <- cbind(y,object$nu)
     dat <- switch(object$family,
                   binomial=mkdata.binomial(y,object$eta,wt,offset),
-                  nbinomial=mkdata.nbinomial(y,object$eta,wt,offset,nu),
+                  nbinomial=mkdata.nbinomial(y,object$eta,wt,offset,object$nu),
                   poisson=mkdata.poisson(y,object$eta,wt,offset),
                   inverse.gaussian=mkdata.inverse.gaussian(y,object$eta,wt,offset),
                   Gamma=mkdata.Gamma(y,object$eta,wt,offset),

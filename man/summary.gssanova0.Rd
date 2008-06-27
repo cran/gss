@@ -6,7 +6,7 @@
     non-Gaussian responses.
 }
 \usage{
-summary.gssanova0(object, diagnostics=FALSE, ...)
+\method{summary}{gssanova0}(object, diagnostics=FALSE, ...)
 }
 \arguments{
     \item{object}{Object of class \code{"gssanova"}.}

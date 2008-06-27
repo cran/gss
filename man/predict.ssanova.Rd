@@ -8,9 +8,9 @@
     constructing Bayesian confidence intervals.
 }
 \usage{
-predict.ssanova(object, newdata, se.fit=FALSE,
+\method{predict}{ssanova}(object, newdata, se.fit=FALSE,
                 include=object$terms$labels, ...)
-predict.ssanova0(object, newdata, se.fit=FALSE,
+\method{predict}{ssanova0}(object, newdata, se.fit=FALSE,
                  include=object$terms$labels, ...)
 }
 \arguments{

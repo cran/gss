@@ -10,7 +10,7 @@ double precision  sr(nobs,*), q(nxi,*), y(*), alpha, varht, score, dc(*),
                   mchpr, v(nnull+nxi,*), mu(*), wk(*)
 integer  nobs, nnull, nxi, method, jpvt(*), rkv, info
 
-double precision  ddot, rss, trc, dum
+double precision  ddot, dasum, rss, trc, dum
 integer  i, j, nn, idamax, infowk
 
 info = 0

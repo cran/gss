@@ -11,10 +11,10 @@
 }
 \usage{
 project(object, ...)
-project.ssanova(object, include, ...)
-project.gssanova(object, include, ...)
-project.ssden(object, include, mesh=FALSE, ...)
-project.sshzd(object, include, mesh=FALSE, ...)
+\method{project}{ssanova}(object, include, ...)
+\method{project}{gssanova}(object, include, ...)
+\method{project}{ssden}(object, include, mesh=FALSE, ...)
+\method{project}{sshzd}(object, include, mesh=FALSE, ...)
 }
 \arguments{
     \item{object}{Object of class \code{"ssanova"}, \code{"gssanova"},

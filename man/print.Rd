@@ -12,14 +12,14 @@
     Print functions for Smoothing Spline ANOVA models.
 }
 \usage{
-print.ssanova(x, ...)
-print.ssanova0(x, ...)
-print.gssanova(x, ...)
-print.ssden(x, ...)
-print.sshzd(x, ...)
-print.summary.ssanova(x, digits=6, ...)
-print.summary.gssanova(x, digits=6, ...)
-print.summary.gssanova0(x, digits=6, ...)
+\method{print}{ssanova}(x, ...)
+\method{print}{ssanova0}(x, ...)
+\method{print}{gssanova}(x, ...)
+\method{print}{ssden}(x, ...)
+\method{print}{sshzd}(x, ...)
+\method{print}{summary.ssanova}(x, digits=6, ...)
+\method{print}{summary.gssanova}(x, digits=6, ...)
+\method{print}{summary.gssanova0}(x, digits=6, ...)
 }
 \arguments{
     \item{x}{Object of class \code{ssanova}, \code{summary.ssanova},

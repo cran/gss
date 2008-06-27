@@ -9,11 +9,11 @@
     spline ANOVA fits.
 }
 \usage{
-fitted.ssanova(object, ...)
-residuals.ssanova(object, ...)
+\method{fitted}{ssanova}(object, ...)
+\method{residuals}{ssanova}(object, ...)
 
-fitted.gssanova(object, ...)
-residuals.gssanova(object, type="working", ...)
+\method{fitted}{gssanova}(object, ...)
+\method{residuals}{gssanova}(object, type="working", ...)
 }
 \arguments{
     \item{object}{Object of class \code{"ssanova"} or \code{"gssanova"}.}

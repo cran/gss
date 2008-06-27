@@ -1,3 +1,16 @@
+Fri Jun 27 17:10:27 EDT 2008, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 1.0-1.
+
+	* R: Installed more stable calculations concerning standard errors
+	in predict.ssanova.
+
+	* man: Fixed format for documentation of methods.
+
+	* src: Fixed a bug in reg (undeclared dasum), which was forgiven
+	by g77 and also by gfortran on (some) 32-bit machines; revealed by
+	gfortran on 64-bit.
+	
 Mon Aug  6 21:21:47 EDT 2007, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 1.0-0.

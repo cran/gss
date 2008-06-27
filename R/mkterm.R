@@ -144,7 +144,7 @@ mkterm <- function(mf,type)
                 }
             }
             if (type.wk=="cubic") {
-                ## cubic or linear splines
+                ## cubic splines
                 range <- var.type[[vlist]][[2]]
                 ## phi
                 phi.env <- mkphi.cubic(range)
@@ -245,7 +245,7 @@ mkterm <- function(mf,type)
                     bin.fac <- c(bin.fac,!(nlevels(x[[i]])>2))
                 }
                 if (type.wk=="cubic") {
-                    ## cubic or linear splines
+                    ## cubic splines
                     range <- var.type[[vlist[i]]][[2]]
                     ## phi
                     phi.wk <- mkphi.cubic(range)
@@ -282,7 +282,7 @@ mkterm <- function(mf,type)
                     ## user-defined
                     par <- var.type[[vlist[i]]][[2]]
                     n.phi <- c(n.phi,par$nphi)
-                    if (nphi>0) phi.wk <- par$mkphi(par$env)
+                    if (par$nphi>0) phi.wk <- par$mkphi(par$env)
                     else phi.wk <- NULL
                     rk.wk <- par$mkrk(par$env)
                     bin.fac <- c(bin.fac,0)
@@ -291,7 +291,7 @@ mkterm <- function(mf,type)
                 rk.list <- c(rk.list,list(rk.wk))
             }
             ## phi
-            if (!all(n.phi+bin.fac)) nphi <- 0
+            if (!all(as.logical(n.phi+bin.fac))) nphi <- 0
             else {
                 phi.env <- list(dim=dm,phi=phi.list,n.phi=n.phi,bin.fac=bin.fac)
                 phi.fun <- function(x,nu,env) {
