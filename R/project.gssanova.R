@@ -1,7 +1,7 @@
 ## Calculate Kullback-Leibler projection from gssanova objects
 project.gssanova <- function(object,include,...)
 {
-    if (class(object)=="gssanova0")
+    if (class(object)[1]=="gssanova0")
         stop("gss error: Kullback-Leibler projection is not implemented for gssanova0")
     nobs <- nrow(object$mf)
     nxi <- length(object$id.basis)

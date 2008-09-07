@@ -1,10 +1,10 @@
-C Output from Public domain Ratfor, version 1.0
+C Output from Public domain Ratfor, version 1.01
       subroutine reg (sr, nobs, nnull, q, nxi, y, method, alpha, varht, 
      *score, dc, mchpr, v, mu, jpvt, wk, rkv, info)
       double precision sr(nobs,*), q(nxi,*), y(*), alpha, varht, score, 
      *dc(*), mchpr, v(nnull+nxi,*), mu(*), wk(*)
       integer nobs, nnull, nxi, method, jpvt(*), rkv, info
-      double precision ddot, rss, trc, dum
+      double precision ddot, dasum, rss, trc, dum
       integer i, j, nn, idamax, infowk
       info = 0
       nn = nnull + nxi

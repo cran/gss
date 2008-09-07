@@ -35,6 +35,7 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     attach(data)
     yy <- eval(resp)
     tname <- yy$tname
+    detach(data)
     ## model frame
     term.labels <- attr(term.wk,"term.labels")
     if (!(tname%in%term.labels))

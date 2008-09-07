@@ -44,5 +44,6 @@ mkran <- function(formula,data)
         }
         sigma <- list(fun=fun,env=env)
     }
+    detach(data)
     list(z=z,sigma=sigma,init=init)
 }

@@ -87,10 +87,10 @@ predict.ssanova <- function(object,newdata,se.fit=FALSE,
         sms <- 10^object$nlambda*matrix(z$sms,nnull,nnull)[philist,philist]
         ## Compute posterior variance
         r.wk <- r.wk%*%object$qinv$vec
-        dr <- dr%*%(t(r.wk)/object$qinv$val)
-        rr <- t(t(r.wk)/sqrt(object$qinv$val))
-        cr <- sqrt(object$qinv$val)*(t(object$qinv$vec)%*%cr)
-        cr <- t(cr)/sqrt(object$qinv$val)
+        dr <- dr%*%(t(r.wk)/abs(object$qinv$val))
+        rr <- t(t(r.wk)/sqrt(abs(object$qinv$val)))
+        cr <- sqrt(abs(object$qinv$val))*(t(object$qinv$vec)%*%cr)
+        cr <- t(cr)/sqrt(abs(object$qinv$val))
         cr <- ((cr+t(cr))/2)%*%t(rr)
         fn2 <- function(x,n) x[1:n]%*%x[n+(1:n)]
         pvar <- apply(t(cbind(rr,rr)),2,fn2,nbasis+nz)
