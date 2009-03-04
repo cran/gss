@@ -74,28 +74,12 @@ predict.ssanova <- function(object,newdata,se.fit=FALSE,
     }
     if (se.fit) {
         b <- object$varht/10^object$nlambda
-        ## Get cr, dr, and sms
-        z <- .Fortran("regaux",
-                      as.double(object$chol), as.integer(nn),
-                      as.integer(object$jpvt), as.integer(object$rkv),
-                      drcr=as.double(object$se.aux[[1]]%*%t(r.wk)), as.integer(nnew),
-                      sms=double(nnull^2), as.integer(nnull), double(nn*nnull),
-                      PACKAGE="gss")[c("drcr","sms")]
-        drcr <- matrix(z$drcr,nn,nnew)
-        dr <- drcr[1:nnull,,drop=FALSE][philist,,drop=FALSE]
-        sms <- 10^object$nlambda*matrix(z$sms,nnull,nnull)[philist,philist]
         ## Compute posterior variance
-        rr <- r.wk%*%object$qinv
-        cr <- r.wk%*%t(object$se.aux[[2]])
-        fn2 <- function(x,n) x[1:n]%*%x[n+(1:n)]
-        pvar <- apply(t(cbind(r.wk,rr)),2,fn2,nbasis+nz)
-        pvar <- pvar - apply(cbind(cr,cr),1,fn2,dim(cr)[2])
-        if (nphi) {
-            fn1 <- function(x,sms) t(x)%*%sms%*%x
-            pvar <- pvar + apply(s,1,fn1,sms)
-            pvar <- pvar - 2*apply(rbind(t(s),dr),2,fn2,nphi)
-        }
-        pse <- as.numeric(sqrt(b*pvar))
+        ss <- matrix(0,nnull,nnew)
+        ss[philist,] <- t(s)
+        rr <- t(r.wk%*%object$se.aux$vec)
+        wk <- object$se.aux$hfac%*%rbind(ss,rr)
+        pse <- sqrt(b*apply(wk^2,2,sum))
         list(fit=pmean,se.fit=pse)
     }
     else pmean

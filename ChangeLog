@@ -1,3 +1,14 @@
+Wed Mar  4 16:42:23 EST 2009, Chong Gu  <chong@stat.purdue.edu>
+	
+	* DESCRIPTION: Version 1.0-4.
+
+	* INDEX: Edited to reflect changes in R.
+
+	* R: Further tweaking of the calculations concerning standard
+	errors in predict.ssanova; added internal function regaux.
+
+	* man: Updated to reflect changes in R.
+
 Wed Mar  4 00:22:21 EST 2009, Chong Gu  <chong@stat.purdue.edu>
 	
 	* DESCRIPTION: Version 1.0-3.

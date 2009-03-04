@@ -4,6 +4,7 @@
 \alias{sspngreg}
 \alias{mspngreg}
 \alias{ngreg}
+\alias{regaux}
 \alias{ngreg.proj}
 \title{Numerical Engine for ssanova and gssanova}
 \description{
@@ -17,6 +18,8 @@ mspreg1(s, r, q, y, method, alpha, varht, random)
 sspngreg(family, s, r, q, y, wt, offset, alpha, nu, random)
 mspngreg(family, s, r, q, y, wt, offset, alpha, nu, random)
 ngreg(dc, family, sr, q, y, wt, offset, nu, alpha)
+
+regaux(s, r, q, nlambda, fit)
 
 ngreg.proj(dc, family, sr, q, y0, wt, offset, nu)
 }
@@ -33,6 +36,10 @@ ngreg.proj(dc, family, sr, q, y0, wt, offset, nu)
     parameters.  \code{ngreg} is used by \code{ssngpreg} and
     \code{mspngreg} to perform Newton iteration with fixed smoothing
     parameters and to calculate cross-validation scores on return.
+
+    \code{regaux} is used by \code{sspreg1}, \code{mspreg1},
+    \code{ssngpreg}, and \code{mspngreg} to obtain auxiliary information
+    needed by \code{predict.ssanova} for standard error calculation.
 
     \code{ngreg.proj} is used by \code{\link{project.gssanova}} to
     calculate the Kullback-Leibler projection for non-Gaussian

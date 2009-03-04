@@ -148,6 +148,7 @@ sspreg1                     Compute regression estimate with single smoothing pa
 mspreg1                     Compute regression estimate with multiple smoothing parameters
 sspngreg                    Compute NG regression estimate with single smoothing parameter
 mspngreg                    Compute NG regression estimate with single smoothing parameter
+regaux                      Obtain auxiliary information needed for se calculation
 ngreg                       Newton iteration for NG regression with fixed smoothing parameter
 ngreg.proj                  Calculate Kullback-Leibler projection for NG regression
 

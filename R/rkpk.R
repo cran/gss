@@ -140,29 +140,14 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-zz$est[1])*random$sigma$fun(zz$est[-1],random$sigma$env)
     }
-    zzz <- eigen(q.wk,TRUE)
-    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
-    val <- zzz$val[1:rkq]
-    vec <- zzz$vec[,1:rkq,drop=FALSE]
-    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
-    if (nnull) {
-        qr.s <- qr(s)
-        wk1 <- (qr.qty(qr.s,10^theta*r))[-(1:nnull),]
-    }
-    else wk1 <- 10^theta*r
-    wk2 <- wk1%*%qinv%*%t(wk1)
-    diag(wk2) <- diag(wk2) + 10^zz$est[1]
-    wk2 <- chol(wk2)
-    se.aux0 <- backsolve(wk2,wk1%*%qinv,trans=TRUE)
-    se.aux <- t(cbind(s,10^theta*r))%*%(10^theta*r)%*%qinv
+    se.aux <- regaux(s,10^theta*r,q.wk,zz$est[1],fit)
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
     if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
     c(list(method=method,theta=theta,ran.scal=ran.scal,c=c,d=d,b=b,
-           nlambda=zz$est[1],zeta=zz$est[-1]),
-      fit[-3],list(qinv=qinv,se.aux=list(se.aux,se.aux0)))
+           nlambda=zz$est[1],zeta=zz$est[-1]),fit[-3],list(se.aux=se.aux))
 }
 
 ## Fit Multiple Smoothing Parameter (Gaussian) REGression
@@ -322,26 +307,61 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-nlambda)*random$sigma$fun(zz$est[-(1:nq)],random$sigma$env)
     }
-    zzz <- eigen(q.wk,TRUE)
-    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
-    val <- zzz$val[1:rkq]
-    vec <- zzz$vec[,1:rkq,drop=FALSE]
-    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
-    if (nnull) {
-        qr.s <- qr(s)
-        wk1 <- (qr.qty(qr.s,r.wk))[-(1:nnull),]
-    }
-    else wk1 <- r.wk
-    wk2 <- wk1%*%qinv%*%t(wk1)
-    diag(wk2) <- diag(wk2) + 10^nlambda
-    wk2 <- chol(wk2)
-    se.aux0 <- backsolve(wk2,wk1%*%qinv,trans=TRUE)
-    se.aux <- t(cbind(s,r.wk))%*%r.wk%*%qinv
+    se.aux <- regaux(s,r.wk,q.wk,nlambda,fit)
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
     if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
-    c(list(method=method,theta=zz$est[1:nq],c=c,d=d,b=b,nlambda=nlambda,zeta=zz$est[-(1:nq)]),
-      fit[-3],list(qinv=qinv,se.aux=list(se.aux,se.aux0)))
+    c(list(method=method,theta=zz$est[1:nq],c=c,d=d,b=b,nlambda=nlambda,
+           zeta=zz$est[-(1:nq)]),fit[-3],list(se.aux=se.aux))
+}
+
+## Auxiliary Quantities for Standard Error Calculation
+regaux <- function(s,r,q,nlambda,fit)
+{
+    nnull <- dim(s)[2]
+    nn <- nnull +  dim(q)[1]
+    zzz <- eigen(q,sym=TRUE)
+    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
+    val <- zzz$val[1:rkq]
+    vec <- zzz$vec[,1:rkq,drop=FALSE]
+    if (nnull) {
+        qr.s <- qr(s)
+        wk1 <- (qr.qty(qr.s,r%*%vec))[-(1:nnull),]
+    }
+    else wk1 <- r%*%vec
+    wk2 <- wk1%*%(t(wk1)/val)
+    diag(wk2) <- diag(wk2) + 10^nlambda
+    wk2 <- chol(wk2)
+    wk2 <- backsolve(wk2,wk1,trans=TRUE)
+    wk2 <- t(wk2)/val
+    wk2 <- diag(1/val)-wk2%*%t(wk2)
+    z <- .Fortran("regaux",
+                  as.double(fit$chol), as.integer(nn),
+                  as.integer(fit$jpvt), as.integer(fit$rkv),
+                  drcr=as.double(t(cbind(s,r))%*%r%*%vec), as.integer(rkq),
+                  sms=double(nnull^2), as.integer(nnull), double(nn*nnull),
+                  PACKAGE="gss")[c("drcr","sms")]
+    drcr <- matrix(z$drcr,nn,rkq)
+    dr <- drcr[1:nnull,,drop=FALSE]
+    sms <- 10^nlambda*matrix(z$sms,nnull,nnull)
+    wk1 <- matrix(0,nnull+rkq,nnull+rkq)
+    wk1[1:nnull,1:nnull] <- sms
+    wk1[1:nnull,nnull+(1:rkq)] <- -t(t(dr)/val)
+    wk1[nnull+(1:rkq),nnull+(1:rkq)] <- wk2
+    z <- .Fortran("dchdc",
+                  v=as.double(wk1), as.integer(nnull+rkq), as.integer(nnull+rkq),
+                  double(nnull+rkq), jpvt=as.integer(rep(0,nnull+rkq)),
+                  as.integer(1), rkv=integer(1),
+                  PACKAGE="base")[c("v","jpvt","rkv")]
+    wk1 <- matrix(z$v,nnull+rkq,nnull+rkq)
+    rkw <- z$rkv
+    while (wk1[rkw,rkw]<wk1[1,1]*sqrt(.Machine$double.eps)) rkw <- rkw-1
+    wk1[row(wk1)>col(wk1)] <- 0
+    if (rkw<nnull+rkq)
+        wk1[(rkw+1):(nnull+rkq),(rkw+1):(nnull+rkq)] <- diag(0,nnull+rkq-rkw)
+    hfac <- wk1
+    hfac[,z$jpvt] <- wk1
+    list(vec=vec,hfac=hfac)
 }
