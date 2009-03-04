@@ -110,15 +110,28 @@ sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-zz$est[1])*random$sigma$fun(zz$est[-1],random$sigma$env)
     }
-    qinv <- eigen(q.wk,TRUE)
-    se.aux <- t(fit$w*cbind(s,10^theta*r))%*%(10^theta*r)%*%qinv$vec
+    zzz <- eigen(q.wk,TRUE)
+    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
+    val <- zzz$val[1:rkq]
+    vec <- zzz$vec[,1:rkq,drop=FALSE]
+    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
+    if (nnull) {
+        qr.s <- qr(sqrt(fit$w)*s)
+        wk1 <- (qr.qty(qr.s,10^theta*sqrt(fit$w)*r))[-(1:nnull),]
+      }
+    else wk1 <- 10^theta*sqrt(fit$w)*r
+    wk2 <- wk1%*%qinv%*%t(wk1)
+    diag(wk2) <- diag(wk2) + 10^zz$est[1]
+    wk2 <- chol(wk2)
+    se.aux0 <- backsolve(wk2,wk1%*%qinv,trans=TRUE)
+    se.aux <- t(fit$w*cbind(s,10^theta*r))%*%(10^theta*r)%*%qinv
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
     if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
     c(list(theta=theta,ran.scal=ran.scal,c=c,d=d,b=b,nlambda=zz$est[1],
-           zeta=zz$est[-1],nu=nu.wk),fit[-1],list(qinv=qinv,se.aux=se.aux))
+           zeta=zz$est[-1],nu=nu.wk),fit[-1],list(qinv=qinv,se.aux=list(se.aux,se.aux0)))
 }
 
 ## Fit Multiple Smoothing Parameter Non-Gaussian REGression
@@ -190,7 +203,7 @@ mspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     z <- sspngreg(family,s,r.wk,q.wk,y,wt,offset,alpha,nu,random)
     if (nu[[2]]) nu[[1]] <- z$nu
     nlambda <- z$nlambda
-    log.th0 <- log.th0 + z$lambda
+    log.th0 <- log.th0 + z$nlambda
     theta <- theta + z$theta
     if (!is.null(random)) ran.scal <- z$ran.scal
     ## theta search
@@ -240,15 +253,28 @@ mspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-nlambda)*random$sigma$fun(zz$est[-(1:nq)],random$sigma$env)
     }
-    qinv <- eigen(q.wk,TRUE)
-    se.aux <- t(fit$w*cbind(s,r.wk))%*%r.wk%*%qinv$vec
+    zzz <- eigen(q.wk,TRUE)
+    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
+    val <- zzz$val[1:rkq]
+    vec <- zzz$vec[,1:rkq,drop=FALSE]
+    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
+    if (nnull) {
+        qr.s <- qr(sqrt(fit$w)*s)
+        wk1 <- (qr.qty(qr.s,sqrt(fit$w)*r.wk))[-(1:nnull),]
+      }
+    else wk1 <- sqrt(fit$w)*r.wk
+    wk2 <- wk1%*%qinv%*%t(wk1)
+    diag(wk2) <- diag(wk2) + 10^nlambda
+    wk2 <- chol(wk2)
+    se.aux0 <- backsolve(wk2,wk1%*%qinv,trans=TRUE)
+    se.aux <- t(fit$w*cbind(s,r.wk))%*%r.wk%*%qinv
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
     if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
     c(list(theta=zz$est[1:nq],c=c,d=d,b=b,nlambda=nlambda,zeta=zz$est[-(1:nq)],nu=nu.wk),
-      fit[-1],list(qinv=qinv,se.aux=se.aux))
+      fit[-1],list(qinv=qinv,se.aux=list(se.aux,se.aux0)))
 }
 
 ## Non-Gaussian regression with fixed smoothing parameters

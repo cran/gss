@@ -191,7 +191,7 @@ mkterm <- function(mf,type)
                 else xdim <- dim(x)[2]
                 ## phi
                 phi.env <- mkphi.tp(xdim,order,mesh,weight)
-                phi.fun <- function(x,nu,env) {
+                phi.fun <- function(x,nu=1,env) {
                     env$fun(x,nu,env$env)
                 }
                 nphi <- choose(xdim+order-1,xdim)-1
@@ -214,7 +214,7 @@ mkterm <- function(mf,type)
                 nphi <- par$nphi
                 if (nphi>0) {
                     phi.env <- par$mkphi(par$env)
-                    phi.fun <- function(x,nu,env) {
+                    phi.fun <- function(x,nu=1,env) {
                         env$fun(x,nu,env$env)
                     }
                     iphi <- iphi.wk
@@ -294,7 +294,7 @@ mkterm <- function(mf,type)
             if (!all(as.logical(n.phi+bin.fac))) nphi <- 0
             else {
                 phi.env <- list(dim=dm,phi=phi.list,n.phi=n.phi,bin.fac=bin.fac)
-                phi.fun <- function(x,nu,env) {
+                phi.fun <- function(x,nu=1,env) {
                     ind <- nu - 1
                     z <- 1
                     for (i in 1:env$dim) {
@@ -318,7 +318,7 @@ mkterm <- function(mf,type)
             ## rk
             rk.env <- list(dim=dm,n.phi=n.phi,nphi=nphi,
                            phi=phi.list,rk=rk.list)
-            rk.fun <- function(x,y,nu,env,outer.prod=FALSE) {
+            rk.fun <- function(x,y,nu=1,env,outer.prod=FALSE) {
                 n.rk <- ifelse(env$n.phi,2,1)
                 ind <- nu - !env$nphi
                 z <- 1

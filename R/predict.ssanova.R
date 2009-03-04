@@ -78,23 +78,18 @@ predict.ssanova <- function(object,newdata,se.fit=FALSE,
         z <- .Fortran("regaux",
                       as.double(object$chol), as.integer(nn),
                       as.integer(object$jpvt), as.integer(object$rkv),
-                      drcr=as.double(object$se.aux), as.integer(nbasis),
+                      drcr=as.double(object$se.aux[[1]]%*%t(r.wk)), as.integer(nnew),
                       sms=double(nnull^2), as.integer(nnull), double(nn*nnull),
                       PACKAGE="gss")[c("drcr","sms")]
-        drcr <- matrix(z$drcr,nn,nbasis+nz)
+        drcr <- matrix(z$drcr,nn,nnew)
         dr <- drcr[1:nnull,,drop=FALSE][philist,,drop=FALSE]
-        cr <- drcr[(nnull+1):nn,,drop=FALSE]
         sms <- 10^object$nlambda*matrix(z$sms,nnull,nnull)[philist,philist]
         ## Compute posterior variance
-        r.wk <- r.wk%*%object$qinv$vec
-        dr <- dr%*%(t(r.wk)/abs(object$qinv$val))
-        rr <- t(t(r.wk)/sqrt(abs(object$qinv$val)))
-        cr <- sqrt(abs(object$qinv$val))*(t(object$qinv$vec)%*%cr)
-        cr <- t(cr)/sqrt(abs(object$qinv$val))
-        cr <- ((cr+t(cr))/2)%*%t(rr)
+        rr <- r.wk%*%object$qinv
+        cr <- r.wk%*%t(object$se.aux[[2]])
         fn2 <- function(x,n) x[1:n]%*%x[n+(1:n)]
-        pvar <- apply(t(cbind(rr,rr)),2,fn2,nbasis+nz)
-        pvar <- pvar - apply(rbind(t(rr),cr),2,fn2,nbasis+nz)
+        pvar <- apply(t(cbind(r.wk,rr)),2,fn2,nbasis+nz)
+        pvar <- pvar - apply(cbind(cr,cr),1,fn2,dim(cr)[2])
         if (nphi) {
             fn1 <- function(x,sms) t(x)%*%sms%*%x
             pvar <- pvar + apply(s,1,fn1,sms)

@@ -140,8 +140,21 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-zz$est[1])*random$sigma$fun(zz$est[-1],random$sigma$env)
     }
-    qinv <- eigen(q.wk,TRUE)
-    se.aux <- t(cbind(s,10^theta*r))%*%(10^theta*r)%*%qinv$vec
+    zzz <- eigen(q.wk,TRUE)
+    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
+    val <- zzz$val[1:rkq]
+    vec <- zzz$vec[,1:rkq,drop=FALSE]
+    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
+    if (nnull) {
+        qr.s <- qr(s)
+        wk1 <- (qr.qty(qr.s,10^theta*r))[-(1:nnull),]
+    }
+    else wk1 <- 10^theta*r
+    wk2 <- wk1%*%qinv%*%t(wk1)
+    diag(wk2) <- diag(wk2) + 10^zz$est[1]
+    wk2 <- chol(wk2)
+    se.aux0 <- backsolve(wk2,wk1%*%qinv,trans=TRUE)
+    se.aux <- t(cbind(s,10^theta*r))%*%(10^theta*r)%*%qinv
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
@@ -149,7 +162,7 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     else b <- NULL
     c(list(method=method,theta=theta,ran.scal=ran.scal,c=c,d=d,b=b,
            nlambda=zz$est[1],zeta=zz$est[-1]),
-      fit[-3],list(qinv=qinv,se.aux=se.aux))
+      fit[-3],list(qinv=qinv,se.aux=list(se.aux,se.aux0)))
 }
 
 ## Fit Multiple Smoothing Parameter (Gaussian) REGression
@@ -264,7 +277,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     ## lambda search
     z <- sspreg1(s,r.wk,q.wk,y,method,alpha,varht,random)
     nlambda <- z$nlambda
-    log.th0 <- log.th0 + z$lambda
+    log.th0 <- log.th0 + z$nlambda
     theta <- theta + z$theta
     if (!is.null(random)) ran.scal <- z$ran.scal
     ## theta search
@@ -309,13 +322,26 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
             10^(2*ran.scal-nlambda)*random$sigma$fun(zz$est[-(1:nq)],random$sigma$env)
     }
-    qinv <- eigen(q.wk,TRUE)
-    se.aux <- t(cbind(s,r.wk))%*%r.wk%*%qinv$vec
+    zzz <- eigen(q.wk,TRUE)
+    rkq <- min(fit$rkv-nnull,sum(zzz$val/zzz$val[1]>sqrt(.Machine$double.eps)))
+    val <- zzz$val[1:rkq]
+    vec <- zzz$vec[,1:rkq,drop=FALSE]
+    qinv <- vec%*%diag(1/val,rkq)%*%t(vec)
+    if (nnull) {
+        qr.s <- qr(s)
+        wk1 <- (qr.qty(qr.s,r.wk))[-(1:nnull),]
+    }
+    else wk1 <- r.wk
+    wk2 <- wk1%*%qinv%*%t(wk1)
+    diag(wk2) <- diag(wk2) + 10^nlambda
+    wk2 <- chol(wk2)
+    se.aux0 <- backsolve(wk2,wk1%*%qinv,trans=TRUE)
+    se.aux <- t(cbind(s,r.wk))%*%r.wk%*%qinv
     c <- fit$dc[nnull+(1:nxi)]
     if (nnull) d <- fit$dc[1:nnull]
     else d <- NULL
     if (nz) b <- 10^(ran.scal)*fit$dc[nnull+nxi+(1:nz)]
     else b <- NULL
     c(list(method=method,theta=zz$est[1:nq],c=c,d=d,b=b,nlambda=nlambda,zeta=zz$est[-(1:nq)]),
-      fit[-3],list(qinv=qinv,se.aux=se.aux))
+      fit[-3],list(qinv=qinv,se.aux=list(se.aux,se.aux0)))
 }
