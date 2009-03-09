@@ -327,16 +327,16 @@ regaux <- function(s,r,q,nlambda,fit)
     val <- zzz$val[1:rkq]
     vec <- zzz$vec[,1:rkq,drop=FALSE]
     if (nnull) {
-        qr.s <- qr(s)
-        wk1 <- (qr.qty(qr.s,r%*%vec))[-(1:nnull),]
+        wk1 <- qr(s)
+        wk1 <- (qr.qty(wk1,r%*%vec))[-(1:nnull),]
     }
     else wk1 <- r%*%vec
-    wk2 <- wk1%*%(t(wk1)/val)
-    diag(wk2) <- diag(wk2) + 10^nlambda
-    wk2 <- chol(wk2)
-    wk2 <- backsolve(wk2,wk1,trans=TRUE)
-    wk2 <- t(wk2)/val
-    wk2 <- diag(1/val)-wk2%*%t(wk2)
+    wk2 <- t(t(wk1)/sqrt(val))
+    wk2 <- t(wk2)%*%wk2
+    wk2 <- solve(wk2+diag(10^nlambda,dim(wk2)[1]),wk2)
+    wk2 <- (wk2+t(wk2))/2
+    wk2 <- t(wk2/sqrt(val))/sqrt(val)
+    wk2 <- diag(1/val,dim(wk2)[1])-wk2
     z <- .Fortran("regaux",
                   as.double(fit$chol), as.integer(nn),
                   as.integer(fit$jpvt), as.integer(fit$rkv),
