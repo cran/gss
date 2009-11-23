@@ -8,7 +8,7 @@ ssanova0 <- function(formula,type=NULL,data=list(),weights,subset,
     mf$type <- mf$method <- mf$varht <- mf$partial <- NULL
     mf$prec <- mf$maxiter <- NULL
     mf[[1]] <- as.name("model.frame")
-    mf <- eval(mf,sys.frame(sys.parent()))
+    mf <- eval(mf,parent.frame())
     ## Generate terms
     term <- mkterm(mf,type)
     ## Generate s, q, and y

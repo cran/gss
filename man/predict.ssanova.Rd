@@ -8,10 +8,8 @@
     constructing Bayesian confidence intervals.
 }
 \usage{
-\method{predict}{ssanova}(object, newdata, se.fit=FALSE,
-                include=object$terms$labels, ...)
-\method{predict}{ssanova0}(object, newdata, se.fit=FALSE,
-                 include=object$terms$labels, ...)
+\method{predict}{ssanova}(object, newdata, se.fit=FALSE, include=object$terms$labels, ...)
+\method{predict}{ssanova0}(object, newdata, se.fit=FALSE, include=object$terms$labels, ...)
 }
 \arguments{
     \item{object}{Object of class inheriting from \code{"ssanova"}.}

@@ -86,25 +86,28 @@ project.ssanova <- function(object,include,...)
     tmp <- NULL
     for (i in 1:nq) tmp <- c(tmp,10^theta[i]*sum(r[cbind(object$id.basis,1:nxi,i)]))
     fix <- rev(order(tmp))[1]
-    ## projection    
+    ## projection
     yhat <- NULL
     if (nq>1) {
-        ## scale and shift cv
-        tmp <- abs(my.ls(theta[-fix]))
-        cv.scale <- 1
-        cv.shift <- 0
-        if (tmp<1&tmp>10^(-4)) {
-            cv.scale <- 10/tmp
+        if (object$skip.iter) kl <- my.ls(theta[-fix])
+        else {
+            ## scale and shift cv
+            tmp <- abs(my.ls(theta[-fix]))
+            cv.scale <- 1
             cv.shift <- 0
+            if (tmp<1&tmp>10^(-4)) {
+                cv.scale <- 10/tmp
+                cv.shift <- 0
+            }
+            if (tmp<10^(-4)) {
+                cv.scale <- 10^2
+                cv.shift <- 10
+            }
+            zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
+            if (zz$code>3)
+                warning("gss warning in project.ssanova: theta iteration fails to converge")
+            kl <- my.ls(zz$est)
         }
-        if (tmp<10^(-4)) {
-            cv.scale <- 10^2
-            cv.shift <- 10
-        }
-        zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
-        if (zz$code>3)
-            warning("gss warning in project.ssanova: theta iteration fails to converge")
-        kl <- my.ls(zz$est)
     }
     else kl <- my.ls()
     kl0 <- mean((yy-mean(yy))^2)

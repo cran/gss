@@ -2,7 +2,8 @@
 gssanova <- function(formula,family,type=NULL,data=list(),weights,
                      subset,offset,na.action=na.omit,partial=NULL,
                      alpha=NULL,nu=NULL,
-                     id.basis=NULL,nbasis=NULL,seed=NULL,random=NULL)
+                     id.basis=NULL,nbasis=NULL,seed=NULL,random=NULL,
+                     skip.iter=FALSE)
 {
     if (!(family%in%c("binomial","poisson","Gamma","nbinomial","weibull","lognorm","loglogis")))
         stop("gss error in gssanova: family not implemented")
@@ -15,9 +16,9 @@ gssanova <- function(formula,family,type=NULL,data=list(),weights,
     mf$family <- mf$type <- mf$partial <- NULL
     mf$method <- mf$varht <- mf$nu <- NULL
     mf$alpha <- mf$id.basis <- mf$nbasis <- mf$seed <- NULL
-    mf$random <- NULL
+    mf$random <- mf$skip.iter <- NULL
     mf[[1]] <- as.name("model.frame")
-    mf <- eval(mf,sys.frame(sys.parent()))
+    mf <- eval(mf,parent.frame())
     wt <- model.weights(mf)
     ## Generate sub-basis
     nobs <- dim(mf)[1]
@@ -38,7 +39,7 @@ gssanova <- function(formula,family,type=NULL,data=list(),weights,
     if (!is.null(random)) {
         if (class(random)=="formula") random <- mkran(random,data)
     }
-    ## Generate s, r, q, and y
+    ## Generate s, r, and y
     s <- r <- NULL
     nq <- 0
     for (label in term$labels) {
@@ -65,7 +66,6 @@ gssanova <- function(formula,family,type=NULL,data=list(),weights,
     }
     if (is.null(r))
         stop("gss error in gssanova: use glm for models with only fixed effects")
-    else q <- r[id.basis,,,drop=FALSE]
     ## Add the partial term
     if (!is.null(partial)) {
         if (is.vector(partial)) partial <- as.matrix(partial)
@@ -95,10 +95,9 @@ gssanova <- function(formula,family,type=NULL,data=list(),weights,
     ## Fit the model
     if (nq==1) {
         r <- r[,,1]
-        q <- q[,,1]
-        z <- sspngreg(family,s,r,q,y,wt,offset,alpha,nu.wk,random)
+        z <- sspngreg(family,s,r,r[id.basis,],y,wt,offset,alpha,nu.wk,random)
     }
-    else z <- mspngreg(family,s,r,q,y,wt,offset,alpha,nu.wk,random)
+    else z <- mspngreg(family,s,r,id.basis,y,wt,offset,alpha,nu.wk,random,skip.iter)
     ## Brief description of model terms
     desc <- NULL
     for (label in term$labels)
@@ -108,7 +107,8 @@ gssanova <- function(formula,family,type=NULL,data=list(),weights,
     colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
     obj <- c(list(call=match.call(),family=family,mf=mf,terms=term,desc=desc,
-                  alpha=alpha,id.basis=id.basis,random=random),z)
+                  alpha=alpha,id.basis=id.basis,random=random,
+                  skip.iter=skip.iter),z)
     class(obj) <- c("gssanova","ssanova")
     obj
 }

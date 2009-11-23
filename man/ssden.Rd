@@ -9,7 +9,8 @@
 \usage{
 ssden(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
-      domain=as.list(NULL), quadrature=NULL, prec=1e-7, maxiter=30)
+      domain=as.list(NULL), quad=NULL, qdsz.depth=NULL,
+      prec=1e-7, maxiter=30, skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
@@ -30,12 +31,16 @@ ssden(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     \item{seed}{Seed to be used for the random generation of "knots."
         Ignored when \code{id.basis} is specified.}
     \item{domain}{Data frame specifying marginal support of density.}
-    \item{quadrature}{Quadrature for calculating integral.  Mandatory
-        if variables other than factors or numerical vectors are
-	involved.}
+    \item{quad}{Quadrature for calculating integral.  Mandatory if
+      variables other than factors or numerical vectors are involved.}
+    \item{qdsz.depth}{Depth to be used in \code{\link{smolyak.quad}} for
+        the generation of quadrature.}
     \item{prec}{Precision requirement for internal iterations.}
     \item{maxiter}{Maximum number of iterations allowed for
-	internal iterations.}
+        internal iterations.}
+    \item{skip.iter}{Flag indicating whether to use initial values of
+        theta and skip theta iteration.  See \code{\link{ssanova}} for
+	notes on skipping theta iteration.}
 }
 \details{
     The model specification via \code{formula} is for the log density.
@@ -70,24 +75,27 @@ ssden(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     appropriate for the default cubic splines for numerical vectors.
 }
 \note{
-    Default quadrature will be constructed for up to 4 numerical vectors
-    on a hyper cube, then outer product with factor levels will be taken
+    Default quadrature will be constructed for numerical vectors on a
+    hyper cube, then outer product with factor levels will be taken
     if factors are involved.  The sides of the hyper cube are specified
     by \code{domain}; for \code{domain$x} missing, the default is
     \code{c(min(x),max(x))+c(-1,1)*(max(x)-mimn(x))*.05}.
 
     On a 1-D interval, the quadrature is the 200-point Gauss-Legendre
-    formula returned from \code{\link{gauss.quad}}.  For 2, 3, or 4
+    formula returned from \code{\link{gauss.quad}}.  For multiple
     numerical vectors, delayed Smolyak cubatures from
-    \code{\link{smolyak.quad}} with 449, 2527, and 13697 points are used
-    on cubes with the marginals properly transformed; see Gu and Wang
-    (2003) for the marginal transformations.
+    \code{\link{smolyak.quad}} are used on cubes with the marginals
+    properly transformed; see Gu and Wang (2003) for the marginal
+    transformations.
 
     The results may vary from run to run.  For consistency, specify
     \code{id.basis} or set \code{seed}.
+
+    For reasonable execution time in high dimensions, set
+    \code{skip.iter=TRUE}.
 }
 \value{
-    \code{ssden} returns a list object of \code{\link{class} "ssden"}.
+    \code{ssden} returns a list object of class \code{"ssden"}.
 
     \code{\link{dssden}} and \code{\link{cdssden}} can be used to
     evaluate the estimated joint density and conditional density;

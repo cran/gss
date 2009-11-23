@@ -1,5 +1,6 @@
 \name{sshzd}
 \alias{sshzd}
+\alias{sshzd1}
 \title{Estimating Hazard Function Using Smoothing Splines}
 \description{
     Estimate hazard function using smoothing spline ANOVA models.  The
@@ -10,7 +11,10 @@
 \usage{
 sshzd(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
-      prec=1e-7, maxiter=30)
+      prec=1e-7, maxiter=30, skip.iter=FALSE)
+sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
+       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
+       prec=1e-7, maxiter=30, skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit, where
@@ -34,6 +38,9 @@ sshzd(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     \item{prec}{Precision requirement for internal iterations.}
     \item{maxiter}{Maximum number of iterations allowed for
 	internal iterations.}
+    \item{skip.iter}{Flag indicating whether to use initial values of
+        theta and skip theta iteration.  See \code{\link{ssanova}} for
+	notes on skipping theta iteration.}
 }
 \details{
     The model specification via \code{formula} is for the log hazard.
@@ -80,19 +87,27 @@ sshzd(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     formula on \code{c(min(start),max(futime))}, returned from
     \code{\link{gauss.quad}}.
 
+    \code{sshzd1} can be up to 50 times faster than \code{sshzd}, at the
+    cost of performance degradation.
+
     The results may vary from run to run.  For consistency, specify
     \code{id.basis} or set \code{seed}.
 }
 \value{
-    \code{sshzd} returns a list object of \code{\link{class} "sshzd"}.
+    \code{sshzd} returns a list object of class \code{"sshzd"}.
+    \code{sshzd1} returns a list object of class
+    \code{c("sshzd1","sshzd")}.
 
     \code{\link{hzdrate.sshzd}} can be used to evaluate the estimated
     hazard function.  \code{\link{hzdcurve.sshzd}} can be used to
     evaluate hazard curves with fixed covariates.
     \code{\link{survexp.sshzd}} can be used to calculated estimated
-    expected survival.  The method \code{\link{project.sshzd}} can be
-    used to calculate the Kullback-Leibler projection for model
-    selection.
+    expected survival.
+
+    The method \code{\link{project.sshzd}} can be used to calculate the
+    Kullback-Leibler projection of \code{"sshzd"} objects for model
+    selection; \code{\link{project.sshzd1}} can be used to calculate the
+    square error projection of \code{"sshzd1"} objects.
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
@@ -102,6 +117,11 @@ sshzd(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     Du, P. and Gu, C. (2006), Penalized likelihood hazard estimation:
     efficient approximation and Bayesian confidence intervals.
     \emph{Statistics and Probability Letters}, \bold{76}, 244--254.
+
+    Du, P. and Gu, C. (2008), Penalized Pseudo-Likelihood Hazard
+    Estimation: A Fast Alternative to Penalized Likelihood.
+    \emph{Journal of Statistical Planning and Inference}, \bold{00},
+    000--000.
 }
 \examples{
 ## Model with interaction

@@ -1,6 +1,6 @@
 hzdrate.sshzd <- ## Evaluate hazard estimate
 function (object,x,se=FALSE) {
-    if (class(object)!="sshzd")
+    if (!any(class(object)=="sshzd"))
         stop("gss error in hzdrate.sshzd: not a sshzd object")
     if (dim(object$mf)[2]==1&is.vector(x)) {
         x <- data.frame(x)
@@ -49,7 +49,7 @@ hzdcurve.sshzd <- ## Evaluate hazard curve for plotting
 function (object,time,covariates=NULL,se=FALSE) {
     tname <- object$tname
     xnames <- object$xnames
-    if (class(object)!="sshzd")
+    if (!any(class(object)=="sshzd"))
         stop("gss error in hzdcurve.sshzd: not a sshzd object")
     if (length(xnames)&&(!all(xnames%in%names(covariates))))
         stop("gss error in survexp.sshzd: missing covariates")
@@ -99,7 +99,7 @@ function(object,time,covariates=NULL,start=0) {
     tname <- object$tname
     xnames <- object$xnames
     ## Check inputs
-    if (class(object)!="sshzd")
+    if (!any(class(object)=="sshzd"))
         stop("gss error in survexp.sshzd: not a sshzd object")
     if (length(xnames)&&(!all(xnames%in%names(covariates))))
         stop("gss error in survexp.sshzd: missing covariates")

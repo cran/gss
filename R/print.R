@@ -81,8 +81,27 @@ print.ssden <- function(x,...)
     invisible()
 }
 
-## Print function for ssden objects
+## Print function for sshzd objects
 print.sshzd <- function(x,...)
+{
+    ## call
+    cat("\nCall:\n",deparse(x$call),"\n\n",sep="")
+    ## terms
+    cat("Terms:\n")
+    print.default(x$terms$labels)
+    cat("\n")
+    ## terms overview
+    cat("Number of unpenalized and penalized terms:\n\n")
+    print.default(x$desc)
+    cat("\n")
+    cat("Smoothing parameters are selected by CV with alpha=",x$alpha,".",sep="")
+    cat("\n")
+    ## the rest are suppressed
+    invisible()
+}
+
+## Print function for ssllrm objects
+print.ssllrm <- function(x,...)
 {
     ## call
     cat("\nCall:\n",deparse(x$call),"\n\n",sep="")

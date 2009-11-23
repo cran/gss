@@ -1,13 +1,14 @@
+C Output from Public domain Ratfor, version 1.0
       subroutine dmudr (vmu, s, lds, nobs, nnull, q, ldqr, ldqc, nq, y, 
-     *tol, init, prec, maxite, theta, nlaht, score, varht, c, d, wk, 
-     *info)
+     *tol, init, prec, maxite, theta, nlaht, score, varht, c, d, wk, inf
+     *o)
       integer lds, nobs, nnull, ldqr, ldqc, nq, init, maxite, info
       double precision s(lds,*), q(ldqr,ldqc,*), y(*), tol, prec, theta(
      **), nlaht, score, varht, c(*), d(*), wk(*)
       character*1 vmu
       integer n, n0
-      integer iqraux, itraux, itwk, iqwk, iywk, ithewk, ihes, igra, 
-     *ihwk1, ihwk2, igwk1, igwk2, ikwk, iwork1, iwork2, ijpvt, ipvtwk
+      integer iqraux, itraux, itwk, iqwk, iywk, ithewk, ihes, igra, ihwk
+     *1, ihwk2, igwk1, igwk2, ikwk, iwork1, iwork2, ijpvt, ipvtwk
       n = nobs
       n0 = nnull
       iqraux = 1
@@ -29,8 +30,8 @@
       ipvtwk = ijpvt + n0
       call dmudr1 (vmu, s, lds, nobs, nnull, q, ldqr, ldqc, nq, y, tol, 
      *init, prec, maxite, theta, nlaht, score, varht, c, d, wk(iqraux), 
-     *wk(ijpvt), wk(itwk), wk(itraux), wk(iqwk), wk(iywk), wk(ithewk), 
-     *wk(ihes), wk(igra), wk(ihwk1), wk(ihwk2), wk(igwk1), wk(igwk2), 
-     *wk(ipvtwk), wk(ikwk), wk(iwork1), wk(iwork2), info)
+     *wk(ijpvt), wk(itwk), wk(itraux), wk(iqwk), wk(iywk), wk(ithewk), w
+     *k(ihes), wk(igra), wk(ihwk1), wk(ihwk2), wk(igwk1), wk(igwk2), wk(
+     *ipvtwk), wk(ikwk), wk(iwork1), wk(iwork2), info)
       return
       end

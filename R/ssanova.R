@@ -2,15 +2,16 @@
 ssanova <- function(formula,type=NULL,data=list(),weights,subset,
                     offset,na.action=na.omit,partial=NULL,
                     method="v",alpha=1.4,varht=1,
-                    id.basis=NULL,nbasis=NULL,seed=NULL,random=NULL)
+                    id.basis=NULL,nbasis=NULL,seed=NULL,random=NULL,
+                    skip.iter=FALSE)
 {
     ## Obtain model frame and model terms
     mf <- match.call()
     mf$type <- mf$method <- mf$varht <- mf$partial <- NULL
     mf$alpha <- mf$id.basis <- mf$nbasis <- mf$seed <- NULL
-    mf$random <- NULL
+    mf$random <- mf$skip.iter <- NULL
     mf[[1]] <- as.name("model.frame")
-    mf <- eval(mf,sys.frame(sys.parent()))
+    mf <- eval(mf,parent.frame())
     wt <- model.weights(mf)
     ## Generate sub-basis
     nobs <- dim(mf)[1]
@@ -31,7 +32,7 @@ ssanova <- function(formula,type=NULL,data=list(),weights,subset,
     if (!is.null(random)) {
         if (class(random)=="formula") random <- mkran(random,data)
     }
-    ## Generate s, r, q, and y
+    ## Generate s, r, and y
     s <- r <- NULL
     nq <- 0
     for (label in term$labels) {
@@ -58,7 +59,6 @@ ssanova <- function(formula,type=NULL,data=list(),weights,subset,
     }
     if (is.null(r))
         stop("gss error in ssanova: use lm for models with only fixed effects")
-    else q <- r[id.basis,,,drop=FALSE]
     ## Add the partial term
     if (!is.null(partial)) {
         if (is.vector(partial)) partial <- as.matrix(partial)
@@ -92,10 +92,9 @@ ssanova <- function(formula,type=NULL,data=list(),weights,subset,
     ## Fit the model
     if (nq==1) {
         r <- r[,,1]
-        q <- q[,,1]
-        z <- sspreg1(s,r,q,y,method,alpha,varht,random)
+        z <- sspreg1(s,r,r[id.basis,],y,method,alpha,varht,random)
     }
-    else z <- mspreg1(s,r,q,y,method,alpha,varht,random)
+    else z <- mspreg1(s,r,id.basis,y,method,alpha,varht,random,skip.iter)
     ## Brief description of model terms
     desc <- NULL
     for (label in term$labels)
@@ -104,8 +103,8 @@ ssanova <- function(formula,type=NULL,data=list(),weights,subset,
     rownames(desc) <- c(term$labels,"total")
     colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
-    obj <- c(list(call=match.call(),mf=mf,terms=term,desc=desc,
-                  alpha=alpha,id.basis=id.basis,random=random),z)
+    obj <- c(list(call=match.call(),mf=mf,terms=term,desc=desc,alpha=alpha,
+                  id.basis=id.basis,random=random,skip.iter=skip.iter),z)
     class(obj) <- c("ssanova")
     obj
 }

@@ -1,22 +1,22 @@
 ## Fit hazard model
-sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
-                  weights=NULL,subset,na.action=na.omit,
-                  id.basis=NULL,nbasis=NULL,seed=NULL,
-                  prec=1e-7,maxiter=30,skip.iter=FALSE)
+sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
+                   weights=NULL,subset,na.action=na.omit,
+                   id.basis=NULL,nbasis=NULL,seed=NULL,
+                   prec=1e-7,maxiter=30,skip.iter=FALSE)
 {
     ## Local functions handling formula
     Surv <- function(time,status,start=0) {
         tname <- as.character(as.list(match.call())$time)
         if (!is.numeric(time)|!is.vector(time))
-            stop("gss error in sshzd: time should be a numerical vector")
+            stop("gss error in sshzd1: time should be a numerical vector")
         if ((nobs <- length(time))-length(status))
-            stop("gss error in sshzd: time and status mismatch in size")
+            stop("gss error in sshzd1: time and status mismatch in size")
         if ((length(start)-nobs)&(length(start)-1))
-            stop("gss error in sshzd: time and start mismatch in size")
+            stop("gss error in sshzd1: time and start mismatch in size")
         if (any(start>time))
-            stop("gss error in sshzd: start after follow-up time")
+            stop("gss error in sshzd1: start after follow-up time")
         if (min(start)<0)
-            warning("gss warning in sshzd: start before time 0")
+            warning("gss warning in sshzd1: start before time 0")
         time <- cbind(start,time)
         list(tname=tname,start=time[,1],end=time[,2],status=as.logical(status))
     }
@@ -31,7 +31,7 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     ind.wk <- length(strsplit(deparse(resp),'')[[1]])
     if ((substr(deparse(resp),1,5)!='Surv(')
         |(substr(deparse(resp),ind.wk,ind.wk)!=')'))
-        stop("gss error in sshzd: response should be Surv(...)")
+        stop("gss error in sshzd1: response should be Surv(...)")
     attach(data)
     yy <- eval(resp)
     tname <- yy$tname
@@ -39,10 +39,12 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     ## model frame
     term.labels <- attr(term.wk,"term.labels")
     if (!(tname%in%term.labels))
-        stop("gss error in sshzd: time main effect missing in model")
+        stop("gss error in sshzd1: time main effect missing in model")
     mf[[1]] <- as.name("model.frame")
     mf[[2]] <- eval(parse(text=paste("~",paste(term.labels,collapse="+"))))
     mf <- eval(mf,parent.frame())
+    ## Use sshzd in lack of covariate
+    if (all(tname==names(mf))) stop("use sshzd when covariate is absent")
     ## Generate sub-basis
     cnt <- model.weights(mf)
     nobs <- nrow(mf)
@@ -54,7 +56,7 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     }
     else {
         if (!all(id.basis%in%(1:nobs)[yy$status]))
-            stop("gss error in sshzd: id.basis not all at failure cases")
+            stop("gss error in sshzd1: id.basis not all at failure cases")
         nbasis <- length(id.basis)
     }
     id.wk <- NULL
@@ -67,10 +69,10 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     if (is.null(type[[tname]])) type[[tname]] <- list("cubic",tdomain)
     if (length(type[[tname]])==1) type[[tname]] <- c(type[[tname]],tdomain)
     if (!(type[[tname]][[1]]%in%c("cubic","linear")))
-        stop("gss error in sshzd: wrong type")
+        stop("gss error in sshzd1: wrong type")
     if ((min(type[[tname]][[2]])>min(tdomain))|
         (max(type[[tname]][[2]])<max(tdomain)))
-        stop("gss error in sshzd: time range not covering domain")
+        stop("gss error in sshzd1: time range not covering domain")
     ## Generate terms    
     term <- mkterm(mf,type)
     ## Generate Gauss-Legendre quadrature
@@ -99,11 +101,11 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
         }
         if (nobs-nx) x.ind[x.dup.ind] <- x.ind.wk
     }
-    else {
-        nx <- 1
-        x.ind <- rep(1,nobs)
-        x.pt <- NULL
-    }
+    else stop("gss error in sshzd1: missing covariate")
+    ## calculate rho
+    rho <- sshzd(Surv(end,status,start)~end,data=yy,id.basis=id.basis,alpha=2)
+    rho.qd <- hzdcurve.sshzd(rho,quad$pt)
+    rhowk <- hzdcurve.sshzd(rho,yy$end[yy$status])
     ## integration weights at x.pt[i,]
     qd.wt <- matrix(0,nmesh,nx)
     for (i in 1:nobs) {
@@ -113,16 +115,14 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     }
     if (is.null(cnt)) qd.wt <- quad$wt*qd.wt/nobs
     else qd.wt <- quad$wt*qd.wt/sum(cnt)
-    ## Generate s and r
-    s <- r <- qd.s <- NULL
-    qd.r <- as.list(NULL)
-    nq <- nu <- 0
+    qd.wt <- rho.qd*qd.wt
+    ## Generate s, r, int.s, and int.r
+    s <- r <- int.s <- int.r <- NULL
+    nq <- 0
     for (label in term$labels) {
         if (label=="1") {
-            nu <- nu+1
             s <- cbind(s,rep(1,len=nT))
-            qd.wk <- matrix(1,nmesh,nx)
-            qd.s <- array(c(qd.s,qd.wk),c(nmesh,nx,nu))
+            int.s <- c(int.s,sum(qd.wt))
             next
         }
         vlist <- term[[label]]$vlist
@@ -139,18 +139,20 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
         if (nphi) {
             phi <- term[[label]]$phi
             for (i in 1:nphi) {
-                nu <- nu+1
                 s <- cbind(s,phi$fun(xy,nu=i,env=phi$env))
-                if (is.null(xx))
-                    qd.wk <- matrix(phi$fun(qd.xy[,,drop=TRUE],nu=i,env=phi$env),nmesh,nx)
+                if (is.null(xx)) {
+                    qd.wk <- phi$fun(qd.xy[,,drop=TRUE],nu=i,env=phi$env)
+                    int.s <- c(int.s,sum(qd.wk*apply(qd.wt,1,sum)))
+                }
                 else {
-                    qd.wk <- NULL
+                    int.s.wk <- 0
                     for (j in 1:nx) {
                         qd.xy[,x.list] <- xx[rep(j,nmesh),]
-                        qd.wk <- cbind(qd.wk,phi$fun(qd.xy[,,drop=TRUE],i,phi$env))
+                        qd.wk <- phi$fun(qd.xy[,,drop=TRUE],i,phi$env)
+                        int.s.wk <- int.s.wk + sum(qd.wk*qd.wt[,j])
                     }
+                    int.s <- c(int.s,int.s.wk)
                 }
-                qd.s <- array(c(qd.s,qd.wk),c(nmesh,nx,nu))
             }
         }
         if (nrk) {
@@ -158,16 +160,18 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
             for (i in 1:nrk) {
                 nq <- nq+1
                 r <- array(c(r,rk$fun(xy,xy.basis,nu=i,env=rk$env,out=TRUE)),c(nT,nbasis,nq))
-                if (is.null(xx))
-                    qd.r[[nq]] <- rk$fun(qd.xy[,,drop=TRUE],xy.basis,i,rk$env,out=TRUE)
+                if (is.null(xx)) {
+                    qd.wk <- rk$fun(qd.xy[,,drop=TRUE],xy.basis,i,rk$env,out=TRUE)
+                    int.r <- cbind(int.r,apply(apply(qd.wt,1,sum)*qd.wk,2,sum))
+                }
                 else {
-                    qd.wk <- NULL
+                    int.r.wk <- 0
                     for (j in 1:nx) {
                         qd.xy[,x.list] <- xx[rep(j,nmesh),]
-                        qd.wk <- array(c(qd.wk,rk$fun(qd.xy[,,drop=TRUE],xy.basis,i,rk$env,TRUE)),
-                                       c(nmesh,nbasis,j))
+                        qd.wk <- rk$fun(qd.xy[,,drop=TRUE],xy.basis,i,rk$env,TRUE)
+                        int.r.wk <- int.r.wk + apply(qd.wt[,j]*qd.wk,2,sum)
                     }
-                    qd.r[[nq]] <- qd.wk
+                    int.r <- cbind(int.r,int.r.wk)
                 }
             }
         }
@@ -176,14 +180,14 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
         nnull <- dim(s)[2]
         ## Check s rank
         if (qr(s)$rank<nnull)
-            stop("gss error in sshzd: fixed effect MLE is not unique")
+            stop("gss error in sshzd1: fixed effect MLE is not unique")
     }
     ## Fit the model
     Nobs <- ifelse(is.null(cnt),nobs,sum(cnt))
     if (!is.null(cnt)) cntt <- cnt[yy$status]
     else cntt <- NULL
-    z <- msphzd(s,r,id.wk,Nobs,cntt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,skip.iter)
-    cfit <- sum(yy$status)/Nobs/sum(qd.wt)
+    z <- msphzd1(s,r,id.wk,Nobs,cntt,int.s,int.r,rhowk,prec,maxiter,alpha,skip.iter)
+    cfit <- sum(rhowk)/Nobs/sum(qd.wt)
     ## Brief description of model terms
     desc <- NULL
     for (label in term$labels)
@@ -192,44 +196,41 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     rownames(desc) <- c(term$labels,"total")
     colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
-    obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,
+    obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,yy=yy,
                   alpha=alpha,tname=tname,xnames=xnames,tdomain=tdomain,cfit=cfit,
                   quad=quad,x.pt=x.pt,qd.wt=qd.wt,id.basis=id.basis,
-                  skip.iter=skip.iter),z)
+                  int.s=int.s,int.r=int.r,skip.iter=skip.iter),z)
     obj$se.aux$v <- sqrt(Nobs)*obj$se.aux$v
-    class(obj) <- c("sshzd")
+    class(obj) <- c("sshzd1","sshzd")
     obj
 }
 
 ## Fit (multiple smoothing parameter) hazard function
-msphzd <- function(s,r,id.wk,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,skip.iter)
+msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,prec,maxiter,alpha,skip.iter)
 {
     nT <- dim(r)[1]
     nxi <- dim(r)[2]
-    nqd <- dim(qd.wt)[1]
-    nx <- dim(qd.wt)[2]
     if (!is.null(s)) nnull <- dim(s)[2]
     else nnull <- 0
     nxis <- nxi+nnull
     if (is.null(cnt)) cnt <- 0
     ## cv functions
     cv.s <- function(lambda) {
-        fit <- .Fortran("hzdnewton",
+        fit <- .Fortran("hzdnewton10",
                         cd=as.double(cd), as.integer(nxis),
                         as.double(10^lambda*q.wk), as.integer(nxi),
-                        as.double(t(cbind(r.wk,s))), as.integer(nT),
-                        as.integer(Nobs), as.integer(sum(cnt)), as.integer(cnt),
-                        as.double(qd.r.wk), as.integer(nqd),
-                        as.double(qd.wt), as.integer(nx),
+                        as.double(cbind(r.wk,s)), as.integer(nT),
+                        as.integer(Nobs), as.integer(sum(cnt)),
+                        as.integer(cnt),
+                        as.double(c(int.r.wk,int.s)), as.double(rho),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps),
-                        wk=double(2*(nqd*nx+nT)+nxis*(2*nxis+5)+max(nxis,2)),
+                        wk=double(2*nT+nxis*(nxis+4)),
                         info=integer(1),PACKAGE="gss")
-        if (fit$info==1) stop("gss error in sshzd: Newton iteration diverges")
-        if (fit$info==2) warning("gss warning in sshzd: Newton iteration fails to converge")
+        if (fit$info==1) stop("gss error in sshzd1: Newton iteration diverges")
+        if (fit$info==2) warning("gss warning in sshzd1: Newton iteration fails to converge")
         assign("cd",fit$cd,inherit=TRUE)
-        assign("mesh0",matrix(fit$wk[max(nxis,2)+(1:(nqd*nx))],nqd,nx),inherit=TRUE)
-        cv <- alpha*fit$wk[2]-fit$wk[1]
+        cv <- fit$wk[1]+alpha*fit$wk[2]
         alpha.wk <- max(0,log.la0-lambda-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
         adj <- ifelse (alpha.wk>alpha,(alpha.wk-alpha)*fit$wk[2],0)
@@ -238,47 +239,40 @@ msphzd <- function(s,r,id.wk,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,skip.it
     cv.m <- function(theta) {
         ind.wk <- theta!=theta.old
         if (sum(ind.wk)==nq) {
-            r.wk0 <- 0
-            qd.r.wk0 <- array(0,c(nqd,nxi,nx))
+            r.wk0 <- int.r.wk0 <- 0
             for (i in 1:nq) {
                 r.wk0 <- r.wk0 + 10^theta[i]*r[,,i]
-                if (length(dim(qd.r[[i]]))==3) qd.r.wk0 <- qd.r.wk0 + 10^theta[i]*qd.r[[i]]
-                else qd.r.wk0 <- qd.r.wk0 + as.vector(10^theta[i]*qd.r[[i]])
+                int.r.wk0 <- int.r.wk0 + 10^theta[i]*int.r[,i]
             }
             assign("r.wk",r.wk0+0,inherit=TRUE)
-            assign("qd.r.wk",qd.r.wk0+0,inherit=TRUE)
+            assign("int.r.wk",int.r.wk0+0,inherit=TRUE)
             assign("theta.old",theta+0,inherit=TRUE)
         }
         else {
             r.wk0 <- r.wk
-            qd.r.wk0 <- qd.r.wk
+            int.r.wk0 <- int.r.wk
             for (i in (1:nq)[ind.wk]) {
                 theta.wk <- (10^(theta[i]-theta.old[i])-1)*10^theta.old[i]
                 r.wk0 <- r.wk0 + theta.wk*r[,,i]
-                if (length(dim(qd.r[[i]]))==3) qd.r.wk0 <- qd.r.wk0 + theta.wk*qd.r[[i]]
-                else qd.r.wk0 <- qd.r.wk0 + as.vector(theta.wk*qd.r[[i]])
+                int.r.wk0 <- int.r.wk0 + theta.wk*int.r[,i]
             }
         }
         q.wk <- r.wk0[id.wk,]
-        qd.r.wk0 <- aperm(qd.r.wk0,c(1,3,2))
-        qd.r.wk0 <- array(c(qd.r.wk0,qd.s),c(nqd,nx,nxis))
-        qd.r.wk0 <- aperm(qd.r.wk0,c(1,3,2))
-        fit <- .Fortran("hzdnewton",
+        fit <- .Fortran("hzdnewton10",
                         cd=as.double(cd), as.integer(nxis),
                         as.double(10^lambda*q.wk), as.integer(nxi),
-                        as.double(t(cbind(r.wk0,s))), as.integer(nT),
-                        as.integer(Nobs), as.integer(sum(cnt)), as.integer(cnt),
-                        as.double(qd.r.wk0), as.integer(nqd),
-                        as.double(qd.wt), as.integer(nx),
+                        as.double(cbind(r.wk0,s)), as.integer(nT),
+                        as.integer(Nobs), as.integer(sum(cnt)),
+                        as.integer(cnt),
+                        as.double(c(int.r.wk0,int.s)), as.double(rho),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps),
-                        wk=double(2*(nqd*nx+nT)+nxis*(2*nxis+5)+max(nxis,2)),
+                        wk=double(2*nT+nxis*(nxis+4)),
                         info=integer(1),PACKAGE="gss")
         if (fit$info==1) stop("gss error in sshzd: Newton iteration diverges")
         if (fit$info==2) warning("gss warning in sshzd: Newton iteration fails to converge")
         assign("cd",fit$cd,inherit=TRUE)
-        assign("mesh0",matrix(fit$wk[max(nxis,2)+(1:(nqd*nx))],nqd,nx),inherit=TRUE)
-        cv <- alpha*fit$wk[2]-fit$wk[1]
+        cv <- fit$wk[1]+alpha*fit$wk[2]
         alpha.wk <- max(0,theta-log.th0-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
         adj <- ifelse (alpha.wk>alpha,(alpha.wk-alpha)*fit$wk[2],0)
@@ -288,30 +282,23 @@ msphzd <- function(s,r,id.wk,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,skip.it
     ## Initialization
     theta <- -log10(apply(r[id.wk,,,drop=FALSE],3,function(x)sum(diag(x))))
     nq <- length(theta)
-    qd.r.wk <- array(0,c(nqd,nxi,nx))
-    for (i in 1:nq) {
-        if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
-        else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
-    }
-    v.s <- v.r <- 0
-    for (i in 1:nx) {
-        if (nnull) v.s <- v.s + apply(qd.wt[,i]*qd.s[,i,,drop=FALSE]^2,2,sum)
-        v.r <- v.r + apply(qd.wt[,i]*qd.r.wk[,,i,drop=FALSE]^2,2,sum)
-    }
-    if (nnull) theta.wk <- log10(sum(v.s)/nnull/sum(v.r)*nxi) / 2
-    else theta.wk <- 0
-    theta <- theta + theta.wk
-    qd.r.wk <- aperm(10^theta.wk*qd.r.wk,c(1,3,2))
-    qd.r.wk <- array(c(qd.r.wk,qd.s),c(nqd,nx,nxis))
-    qd.r.wk <- aperm(qd.r.wk,c(1,3,2))
-    r.wk <- 0
+    r.wk <- int.r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^theta[i]*r[,,i]
+        int.r.wk <- int.r.wk + 10^theta[i]*int.r[,i]
     }
+    v.r <- sum(rho*r.wk^2)
+    if (nnull) {
+        v.s <- sum(rho*s^2)
+        theta.wk <- log10(v.s/nnull/v.r*nxi) / 2
+    }
+    else theta.wk <- 0
+    theta <- theta + theta.wk
+    r.wk <- 10^theta.wk*r.wk
+    int.r.wk <- 10^theta.wk*int.r.wk
     q.wk <- r.wk[id.wk,]
     log.la0 <- log10(sum(v.r)/sum(diag(q.wk))) + 2*theta.wk
     ## fixed theta iteration
-    mesh0 <- NULL
     cd <- rep(0,nxi+nnull)
     la <- log.la0
     repeat {
@@ -322,42 +309,38 @@ msphzd <- function(s,r,id.wk,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,skip.it
         else la <- zz$est
     }
     if (nq==1) {
+        if (!is.null(cnt)) rho <- rho*cnt
         lambda <- zz$est
-        se.aux <- .Fortran("hzdaux1",
+        se.aux <- .Fortran("hzdaux101",
                            as.double(cd), as.integer(nxis),
                            as.double(10^lambda*q.wk), as.integer(nxi),
-                           as.double(qd.r.wk), as.integer(nqd),
-                           as.double(qd.wt), as.integer(nx),
-                           as.double(.Machine$double.eps), double(nqd*nx),
-                           v=double(nxis*nxis), double(nxis*nxis),
-                           jpvt=integer(nxis), PACKAGE="gss")[c("v","jpvt")]
+                           as.double(cbind(r.wk,s)), as.integer(nT),
+                           as.double(rho/Nobs), as.double(.Machine$double.eps),
+                           v=double(nxis*nxis), jpvt=integer(nxis),
+                           PACKAGE="gss")[c("v","jpvt")]
         c <- cd[1:nxi]
         if (nnull) d <- cd[nxi+(1:nnull)]
         else d <- NULL
-        return(list(lambda=zz$est,theta=theta,c=c,d=d,cv=zz$min,mesh0=mesh0,se.aux=se.aux))
+        return(list(lambda=lambda,theta=theta,c=c,d=d,cv=zz$min,se.aux=se.aux))
     }
     ## theta adjustment
-    qd.r.wk <- array(0,c(nqd,nxi,nx))
     for (i in 1:nq) {
         theta[i] <- 2*theta[i] + log10(t(cd[1:nxi])%*%r[id.wk,,i]%*%cd[1:nxi])
-        if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
-        else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
     }
-    v.s <- v.r <- 0
-    for (i in 1:nx) {
-        if (nnull) v.s <- v.s + apply(qd.wt[,i]*qd.s[,i,,drop=FALSE]^2,2,sum)
-        v.r <- v.r + apply(qd.wt[,i]*qd.r.wk[,,i,drop=FALSE]^2,2,sum)
-    }
-    if (nnull) theta.wk <- log10(sum(v.s)/nnull/sum(v.r)*nxi) / 2
-    else theta.wk <- 0
-    theta <- theta + theta.wk
-    qd.r.wk <- aperm(10^theta.wk*qd.r.wk,c(1,3,2))
-    qd.r.wk <- array(c(qd.r.wk,qd.s),c(nqd,nx,nxis))
-    qd.r.wk <- aperm(qd.r.wk,c(1,3,2))
-    r.wk <- 0
+    r.wk <- int.r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^theta[i]*r[,,i]
+        int.r.wk <- int.r.wk + 10^theta[i]*int.r[,i]
     }
+    v.r <- sum(rho*r.wk^2)
+    if (nnull) {
+        v.s <- sum(rho*s^2)
+        theta.wk <- log10(v.s/nnull/v.r*nxi) / 2
+    }
+    else theta.wk <- 0
+    theta <- theta + theta.wk
+    r.wk <- 10^theta.wk*r.wk
+    int.r.wk <- 10^theta.wk*int.r.wk
     q.wk <- r.wk[id.wk,]
     log.la0 <- log10(sum(v.r)/sum(diag(q.wk))) + 2*theta.wk
     log.th0 <- theta-log.la0
@@ -374,38 +357,26 @@ msphzd <- function(s,r,id.wk,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,skip.it
     lambda <- zz$est
     ## early return
     if (skip.iter) {
+        if (!is.null(cnt)) rho <- rho*cnt
         cv <- zz$min
-        q.wk <- 0
-        qd.r.wk <- array(0,c(nqd,nxi,nx))
-        for (i in 1:nq) {
-            q.wk <- q.wk + 10^theta[i]*r[id.wk,,i]
-            if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
-            else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
-        }
-        qd.r.wk <- aperm(qd.r.wk,c(1,3,2))
-        qd.r.wk <- array(c(qd.r.wk,qd.s),c(nqd,nx,nxis))
-        qd.r.wk <- aperm(qd.r.wk,c(1,3,2))
-        se.aux <- .Fortran("hzdaux1",
+        se.aux <- .Fortran("hzdaux101",
                            as.double(cd), as.integer(nxis),
                            as.double(10^lambda*q.wk), as.integer(nxi),
-                           as.double(qd.r.wk), as.integer(nqd),
-                           as.double(qd.wt), as.integer(nx),
-                           as.double(.Machine$double.eps), double(nqd*nx),
-                           v=double(nxis*nxis), double(nxis*nxis),
-                           jpvt=integer(nxis), PACKAGE="gss")[c("v","jpvt")]
+                           as.double(cbind(r.wk,s)), as.integer(nT),
+                           as.double(rho/Nobs), as.double(.Machine$double.eps),
+                           v=double(nxis*nxis), jpvt=integer(nxis),
+                           PACKAGE="gss")[c("v","jpvt")]
         c <- cd[1:nxi]
         if (nnull) d <- cd[nxi+(1:nnull)]
         else d <- NULL
-        return(list(lambda=lambda,theta=theta,c=c,d=d,cv=cv,mesh0=mesh0,se.aux=se.aux))
+        return(list(lambda=lambda,theta=theta,c=c,d=d,cv=cv,se.aux=se.aux))
     }
     ## theta search
     counter <- 0
-    r.wk <- 0
-    qd.r.wk <- array(0,c(nqd,nxi,nx))
+    r.wk <- int.r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^theta[i]*r[,,i]
-        if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
-        else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
+        int.r.wk <- int.r.wk + 10^theta[i]*int.r[,i]
     }
     theta.old <- theta
     tmp <- abs(cv.m(theta))
@@ -425,33 +396,28 @@ msphzd <- function(s,r,id.wk,Nobs,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,skip.it
         theta <- zz$est
         counter <- counter + 1
         if (counter>=5) {
-            warning("gss warning in sshzd: CV iteration fails to converge")
+            warning("gss warning in sshzd1: CV iteration fails to converge")
             break
         }
     }
     ## return
     theta <- zz$est
     cv <- (zz$min-cv.shift)/cv.scale
-    q.wk <- 0
-    qd.r.wk <- array(0,c(nqd,nxi,nx))
+    r.wk <- 0
     for (i in 1:nq) {
-        q.wk <- q.wk + 10^theta[i]*r[id.wk,,i]
-        if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
-        else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
+        r.wk <- r.wk + 10^theta[i]*r[,,i]
     }
-    qd.r.wk <- aperm(qd.r.wk,c(1,3,2))
-    qd.r.wk <- array(c(qd.r.wk,qd.s),c(nqd,nx,nxis))
-    qd.r.wk <- aperm(qd.r.wk,c(1,3,2))
-    se.aux <- .Fortran("hzdaux1",
+    q.wk <- r.wk[id.wk,]
+    if (!is.null(cnt)) rho <- rho*cnt
+    se.aux <- .Fortran("hzdaux101",
                        as.double(cd), as.integer(nxis),
                        as.double(10^lambda*q.wk), as.integer(nxi),
-                       as.double(qd.r.wk), as.integer(nqd),
-                       as.double(qd.wt), as.integer(nx),
-                       as.double(.Machine$double.eps), double(nqd*nx),
-                       v=double(nxis*nxis), double(nxis*nxis),
-                       jpvt=integer(nxis), PACKAGE="gss")[c("v","jpvt")]
+                       as.double(cbind(r.wk,s)), as.integer(nT),
+                       as.double(rho/Nobs), as.double(.Machine$double.eps),
+                       v=double(nxis*nxis), jpvt=integer(nxis),
+                       PACKAGE="gss")[c("v","jpvt")]
     c <- cd[1:nxi]
     if (nnull) d <- cd[nxi+(1:nnull)]
     else d <- NULL
-    list(lambda=lambda,theta=theta,c=c,d=d,cv=cv,mesh0=mesh0,se.aux=se.aux)
+    list(lambda=lambda,theta=theta,c=c,d=d,cv=cv,se.aux=se.aux)
 }

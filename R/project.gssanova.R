@@ -117,22 +117,23 @@ project.gssanova <- function(object,include,...)
     else dc <- c(object$d[philist],0)
     eta1 <- NULL
     if (nq>1) {
-        ## scale and shift cv
-        tmp <- abs(my.wls(theta[-fix]))
-        cv.scale <- 1
-        cv.shift <- 0
-        if (tmp<1&tmp>10^(-4)) {
-            cv.scale <- 10/tmp
+        if (object$skip.iter) kl <- my.wls(theta[-fix])
+        else {
+            ## scale and shift cv
+            tmp <- abs(my.wls(theta[-fix]))
+            cv.scale <- 1
             cv.shift <- 0
+            if (tmp<1&tmp>10^(-4)) {
+                cv.scale <- 10/tmp
+                cv.shift <- 0
+            }
+            if (tmp<10^(-4)) {
+                cv.scale <- 10^2
+                cv.shift <- 10
+            }
+            zz <- nlm(cv.wk,theta[-fix],stepmax=1,ndigit=7)
+            kl <- my.wls(zz$est)
         }
-        if (tmp<10^(-4)) {
-            cv.scale <- 10^2
-            cv.shift <- 10
-        }
-        zz <- nlm(cv.wk,theta[-fix],stepmax=1,ndigit=7)
-        if (zz$code>3)
-            warning("gss warning in project.gssanova: theta iteration fails to converge")
-        kl <- my.wls(zz$est)
     }
     else kl <- my.wls()
     ## check

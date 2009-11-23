@@ -9,7 +9,7 @@ gssanova0 <- function(formula,family,type=NULL,data=list(),weights,
     mf$method <- mf$varht <- mf$nu <- NULL
     mf$prec <- mf$maxiter <- NULL
     mf[[1]] <- as.name("model.frame")
-    mf <- eval(mf,sys.frame(sys.parent()))
+    mf <- eval(mf,parent.frame())
     ## Generate terms
     term <- mkterm(mf,type)
     ## Specify default method

@@ -9,7 +9,8 @@
 \usage{
 gssanova(formula, family, type=NULL, data=list(), weights, subset,
          offset, na.action=na.omit, partial=NULL, alpha=NULL, nu=NULL,
-         id.basis=NULL, nbasis=NULL, seed=NULL, random=NULL)
+         id.basis=NULL, nbasis=NULL, seed=NULL, random=NULL,
+         skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
@@ -43,6 +44,9 @@ gssanova(formula, family, type=NULL, data=list(), weights, subset,
 	Ignored when \code{id.basis} is supplied.}
     \item{random}{Input for parametric random effects in nonparametric
         mixed-effect models.  See \code{\link{mkran}} for details.}
+    \item{skip.iter}{Flag indicating whether to use initial values of
+        theta and skip theta iteration.  See \code{\link{ssanova}} for
+	notes on skipping theta iteration.}
 }
 \details{
     The model specification via \code{formula} is intuitive.  For

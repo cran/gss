@@ -59,30 +59,45 @@ sspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
 }
 
 ## Fit multiple smoothing parameter density
-mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
+mspdsty <- function(s,r,id.basis,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,skip.iter)
 {
     nxi <- dim(r)[1]
     nobs <- dim(r)[2]
     nqd <- length(qd.wt)
-    nq <- dim(q)[3]
+    nq <- dim(r)[3]
     if (!is.null(s)) nnull <- dim(s)[1]
     else nnull <- 0
     nxis <- nxi+nnull
     if (is.null(cnt)) cnt <- 0
     ## cv function
     cv <- function(theta) {
-        r.wk <- q.wk <- qd.r.wk <- 0
-        for (i in 1:nq) {
-            r.wk <- r.wk + 10^theta[i]*r[,,i]
-            q.wk <- q.wk + 10^theta[i]*q[,,i]
-            qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[,,i]
+        ind.wk <- theta!=theta.old
+        if (sum(ind.wk)==nq) {
+            r.wk0 <- qd.r.wk0 <- 0
+            for (i in 1:nq) {
+                r.wk0 <- r.wk0 + 10^theta[i]*r[,,i]
+                qd.r.wk0 <- qd.r.wk0 + 10^theta[i]*qd.r[,,i]
+            }
+            assign("r.wk",r.wk0+0,inherit=TRUE)
+            assign("qd.r.wk",qd.r.wk0+0,inherit=TRUE)
+            assign("theta.old",theta+0,inherit=TRUE)
         }
+        else {
+            r.wk0 <- r.wk
+            qd.r.wk0 <- qd.r.wk
+            for (i in (1:nq)[ind.wk]) {
+                theta.wk <- (10^(theta[i]-theta.old[i])-1)*10^theta.old[i]
+                r.wk0 <- r.wk0 + theta.wk*r[,,i]
+                qd.r.wk0 <- qd.r.wk0 + theta.wk*qd.r[,,i]
+            }
+        }
+        q.wk <- r.wk0[,id.basis]
         fit <- .Fortran("dnewton",
                         cd=as.double(cd), as.integer(nxis),
                         as.double(10^lambda*q.wk), as.integer(nxi),
-                        as.double(rbind(r.wk,s)), as.integer(nobs),
+                        as.double(rbind(r.wk0,s)), as.integer(nobs),
                         as.integer(sum(cnt)), as.integer(cnt),
-                        as.double(t(rbind(qd.r.wk,qd.s))), as.integer(nqd),
+                        as.double(t(rbind(qd.r.wk0,qd.s))), as.integer(nqd),
                         as.double(qd.wt),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps),
@@ -100,35 +115,45 @@ mspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     }
     cv.wk <- function(theta) cv.scale*cv(theta)+cv.shift
     ## initialization
-    theta <- -log10(apply(q,3,function(x)sum(diag(x))))
-    r.wk <- q.wk <- qd.r.wk <- 0
+    theta <- -log10(apply(r[,id.basis,],3,function(x)sum(diag(x))))
+    r.wk <- qd.r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^theta[i]*r[,,i]
-        q.wk <- q.wk + 10^theta[i]*q[,,i]
         qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[,,i]
     }
     ## theta adjustment
-    z <- sspdsty(s,r.wk,q.wk,cnt,qd.s,qd.r.wk,qd.wt,prec,maxiter,alpha)
+    z <- sspdsty(s,r.wk,r.wk[,id.basis],cnt,qd.s,qd.r.wk,qd.wt,prec,maxiter,alpha)
     theta <- theta + z$theta
+    r.wk <- qd.r.wk <- 0
     for (i in 1:nq) {
-        theta[i] <- 2*theta[i] + log10(t(z$c)%*%q[,,i]%*%z$c)
+        theta[i] <- 2*theta[i] + log10(t(z$c)%*%r[,id.basis,i]%*%z$c)
         r.wk <- r.wk + 10^theta[i]*r[,,i]
-        q.wk <- q.wk + 10^theta[i]*q[,,i]
         qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[,,i]
     }
     mu <- apply(qd.wt*t(qd.r.wk),2,sum)/sum(qd.wt)
     v <- apply(qd.wt*t(qd.r.wk^2),2,sum)/sum(qd.wt)
-    log.la0 <- log10(sum(v-mu^2)/sum(diag(q.wk)))
+    log.la0 <- log10(sum(v-mu^2)/sum(diag(r.wk[,id.basis])))
     log.th0 <- theta-log.la0
     ## lambda search
-    z <- sspdsty(s,r.wk,q.wk,cnt,qd.s,qd.r.wk,qd.wt,prec,maxiter,alpha)
+    z <- sspdsty(s,r.wk,r.wk[,id.basis],cnt,qd.s,qd.r.wk,qd.wt,prec,maxiter,alpha)
     lambda <- z$lambda
     log.th0 <- log.th0 + z$lambda
     theta <- theta + z$theta
     cd <- c(z$c,z$d)
     int <- z$int
+    ## early return
+    if (skip.iter) {
+        z$theta <- theta
+        return(z)
+    }
     ## theta search
     counter <- 0
+    r.wk <- qd.r.wk <- 0
+    for (i in 1:nq) {
+        r.wk <- r.wk + 10^theta[i]*r[,,i]
+        qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[,,i]
+    }
+    theta.old <- theta
     ## scale and shift cv
     tmp <- abs(cv(theta))
     cv.scale <- 1

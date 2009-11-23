@@ -121,7 +121,7 @@ sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
 }
 
 ## Fit Multiple Smoothing Parameter Non-Gaussian REGression
-mspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
+mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
 {
     nobs <- nrow(r)
     nxi <- ncol(r)
@@ -134,7 +134,7 @@ mspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     else nz <- 0
     nxiz <- nxi + nz
     nn <- nxiz + nnull
-    nq <- dim(q)[3]
+    nq <- dim(r)[3]
     ## cv function
     cv <- function(theta) {
         if (nu[[2]]) {
@@ -145,14 +145,26 @@ mspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
             the.wk <- theta
             nu.wk <- nu
         }
-        r.wk <- qq.wk <- 0
-        for (i in 1:nq) {
-            r.wk <- r.wk + 10^the.wk[i]*r[,,i]
-            qq.wk <- qq.wk + 10^the.wk[i]*q[,,i]
+        ind.wk <- theta!=theta.old
+        if (sum(ind.wk)==nq) {
+            r.wk0 <- 0
+            for (i in 1:nq) {
+                r.wk0 <- r.wk0 + 10^theta[i]*r[,,i]
+            }
+            assign("r.wk",r.wk0+0,inherit=TRUE)
+            assign("theta.old",theta+0,inherit=TRUE)
         }
+        else {
+            r.wk0 <- r.wk
+            for (i in (1:nq)[ind.wk]) {
+                theta.wk <- (10^(theta[i]-theta.old[i])-1)*10^theta.old[i]
+                r.wk0 <- r.wk0 + theta.wk*r[,,i]
+            }
+        }
+        qq.wk <- r.wk0[id.basis,]
         if (is.null(random)) q.wk <- 10^nlambda*qq.wk
         else {
-            r.wk <- cbind(r.wk,10^(ran.scal)*random$z)
+            r.wk0 <- cbind(r.wk0,10^(ran.scal)*random$z)
             q.wk <- matrix(0,nxiz,nxiz)
             q.wk[1:nxi,1:nxi] <- 10^nlambda*qq.wk
             q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
@@ -160,44 +172,52 @@ mspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         }
         alpha.wk <- max(0,the.wk[1:nq]-log.th0-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
-        z <- ngreg(dc,family,cbind(s,r.wk),q.wk,y,wt,offset,nu.wk,alpha.wk)
+        z <- ngreg(dc,family,cbind(s,r.wk0),q.wk,y,wt,offset,nu.wk,alpha.wk)
         assign("dc",z$dc,inherit=TRUE)
         assign("fit",z[c(1:3,5:10)],inherit=TRUE)
         z$score
     }
     cv.wk <- function(theta) cv.scale*cv(theta)+cv.shift
     ## initialization
-    theta <- -log10(apply(q,3,function(x)sum(diag(x))))
-    r.wk <- q.wk <- 0
+    theta <- -log10(apply(r[id.basis,,],3,function(x)sum(diag(x))))
+    r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^theta[i]*r[,,i]
-        q.wk <- q.wk + 10^theta[i]*q[,,i]
     }
     ## theta adjustment
-    z <- sspngreg(family,s,r.wk,q.wk,y,wt,offset,alpha,nu,random)
+    z <- sspngreg(family,s,r.wk,r.wk[id.basis,],y,wt,offset,alpha,nu,random)
     if (nu[[2]]) nu[[1]] <- z$nu
     theta <- theta + z$theta
-    r.wk <- q.wk <- 0
+    r.wk <- 0
     for (i in 1:nq) {
-        theta[i] <- 2*theta[i] + log10(t(z$c)%*%q[,,i]%*%z$c)
+        theta[i] <- 2*theta[i] + log10(t(z$c)%*%r[id.basis,,i]%*%z$c)
         r.wk <- r.wk + 10^theta[i]*r[,,i]
-        q.wk <- q.wk + 10^theta[i]*q[,,i]
     }
-    log.la0 <- log10(sum(r.wk^2)/sum(diag(q.wk)))
+    log.la0 <- log10(sum(r.wk^2)/sum(diag(r.wk[id.basis,])))
     log.th0 <- theta-log.la0
     ## lambda search
-    z <- sspngreg(family,s,r.wk,q.wk,y,wt,offset,alpha,nu,random)
+    z <- sspngreg(family,s,r.wk,r.wk[id.basis,],y,wt,offset,alpha,nu,random)
     if (nu[[2]]) nu[[1]] <- z$nu
     nlambda <- z$nlambda
-    log.th0 <- log.th0 + z$nlambda
+    log.th0 <- log.th0 + z$lambda
     theta <- theta + z$theta
     if (!is.null(random)) ran.scal <- z$ran.scal
+    ## early return
+    if (skip.iter) {
+        z$theta <- theta
+        return(z)
+    }
     ## theta search
     dc <- rep(0,nn)
     fit <- NULL
     if (nu[[2]]) theta <- c(theta, log(nu[[1]]))
     if (!is.null(random)) theta <- c(theta,z$zeta)
     counter <- 0
+    r.wk <- 0
+    for (i in 1:nq) {
+        r.wk <- r.wk + 10^theta[i]*r[,,i]
+    }
+    theta.old <- theta
     tmp <- abs(cv(theta))
     cv.scale <- 1
     cv.shift <- 0
@@ -226,11 +246,11 @@ mspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         zz$est <- zz$est[-(nq+1)]
     }
     else nu.wk <- NULL
-    r.wk <- qq.wk <- 0
+    r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^zz$est[i]*r[,,i]
-        qq.wk <- qq.wk + 10^zz$est[i]*q[,,i]
     }
+    qq.wk <- r.wk[id.basis,]
     if (is.null(random)) q.wk <- qq.wk
     else {
         r.wk <- cbind(r.wk,10^(ran.scal)*random$z)

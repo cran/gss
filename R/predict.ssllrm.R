@@ -1,0 +1,152 @@
+## Calculate prediction and Bayesian SE from ssllrm objects
+predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
+{
+    if (class(object)!="ssllrm")
+        stop("gss error in predict.ssllrm: not a ssllrm object")
+    if ("partial"%in%colnames(x)) {
+        partial <- x$partial
+        x$partial <- NULL
+    }
+    if (!all(sort(object$xnames)==sort(colnames(x))))
+        stop("gss error in predict.ssllrm: mismatched x variable names")
+    if (!all(sort(object$ynames)==sort(colnames(y))))
+        stop("gss error in predict.ssllrm: mismatched y variable names")
+    mf <- object$mf
+    if (!is.null(mf$partial)) {
+        if (is.null(partial)) partial <- matrix(0,dim(x)[1],dim(mf$partial)[2])
+        else {
+            if (is.vector(partial)) partial <- as.matrix(partial)
+            if ((dim(mf$partial)[2]-dim(partial)[2]))
+                stop("gss error in predict.ssllrm: partial is of wrong dimension")
+            partial <- sweep(partial,2,attr(mf$partial,"scaled:center"))
+            partial <- sweep(partial,2,attr(mf$partial,"scaled:scale"),"/")
+        }
+    }
+    term <- object$term
+    qd.pt <- object$qd.pt
+    nmesh <- dim(qd.pt)[1]
+    y.id <- NULL
+    for (i in 1:dim(y)[1]) {
+        if (!sum(duplicated(rbind(qd.pt,y[i,object$ynames,drop=FALSE]))))
+            stop("gss error in predict.ssllrm: y value is out of range")
+        wk <- FALSE
+        for (j in 1:nmesh) {
+            if (sum(duplicated(rbind(qd.pt[j,],y[i,object$ynames])))) y.id <- c(y.id,j)
+        }
+    }
+    if (!is.null(odds)) {
+        if (length(y.id)-length(odds))
+            stop("gss error in predict.ssllrm: odds is of wrong length")
+        if (!max(odds)|sum(odds))
+            stop("gss error in predict.ssllrm: odds is not a contrast")
+        if (sum(duplicated(y.id)))
+            stop("gss error in predict.ssllrm: duplicated y in contrast")
+        qd.pt <- qd.pt[y.id,,drop=FALSE]
+    }
+    ## Generate s, and r
+    nobs <- dim(x)[1]
+    nmesh <- dim(qd.pt)[1]
+    nbasis <- length(object$id.basis)
+    nnull <- length(object$d)
+    s <- NULL
+    r <- array(0,c(nmesh,nbasis,nobs))
+    nu <- nq <- 0
+    for (label in term$labels) {
+        part <- label%in%object$yterms
+        vlist <- term[[label]]$vlist
+        x.list <- object$xnames[object$xnames%in%vlist]
+        y.list <- object$ynames[object$ynames%in%vlist]
+        xy.basis <- mf[object$id.basis,vlist]
+        qd.xy <- data.frame(matrix(0,nmesh,length(vlist)))
+        names(qd.xy) <- vlist
+        qd.xy[,y.list] <- qd.pt[,y.list]
+        if (length(x.list)) xx <- x[,x.list,drop=FALSE]
+        else xx <- NULL
+        nphi <- term[[label]]$nphi
+        nrk <- term[[label]]$nrk
+        if (nphi) {
+            phi <- term[[label]]$phi
+            for (i in 1:nphi) {
+                nu <- nu+1
+                if (is.null(xx)) {
+                    s.wk <- phi$fun(qd.xy[,,drop=TRUE],nu=i,env=phi$env)
+                    wk <- matrix(s.wk,nmesh,nobs)
+                }
+                else {
+                    wk <- NULL
+                    for (j in 1:nobs) {
+                        qd.xy[,x.list] <- xx[rep(j,nmesh),]
+                        wk <- cbind(wk,phi$fun(qd.xy,i,phi$env))
+                    }
+                }
+                s <- array(c(s,wk),c(nmesh,nobs,nu))
+                if (part) {
+                    for (j in 1:dim(partial)[2]) {
+                        nu <- nu+1
+                        s <- array(c(s,outer(s.wk,partial[,j])),c(nmesh,nobs,nu))
+                    }
+                }
+            }
+        }
+        if (nrk) {
+            rk <- term[[label]]$rk
+            for (i in 1:nrk) {
+                nq <- nq+1
+                if (is.null(xx)) {
+                    r.wk <- rk$fun(qd.xy[,,drop=TRUE],xy.basis,nu=i,env=rk$env,out=TRUE)
+                    r <- r + as.vector(10^object$theta[nq]*r.wk)
+                }
+                else {
+                    wk <- NULL
+                    for (j in 1:nobs) {
+                        qd.xy[,x.list] <- xx[rep(j,nmesh),]
+                        wk <- array(c(wk,rk$fun(qd.xy,xy.basis,i,rk$env,TRUE)),
+                                    c(nmesh,nbasis,j))
+                    }
+                    r <- r + 10^object$theta[nq]*wk
+                }
+                if (part) {
+                    nq <- nq+1
+                    wk <- NULL
+                    for (j in 1:nobs) {
+                        ww <- t(r.wk)*as.vector(mf$partial[object$id.basis,,drop=FALSE]
+                                                %*%partial[j,])
+                        wk <- array(c(wk,t(ww)),c(nmesh,nbasis,j))
+                    }
+                    r <- r + 10^object$theta[nq]*wk
+                }
+            }
+        }
+    }
+    ## return
+    if (is.null(odds)) {
+        pdf <- NULL
+        for (j in 1:nobs) {
+            wk <- matrix(r[,,j],nmesh,nbasis)%*%object$c
+            if (nnull) wk <- wk + matrix(s[,j,],nmesh,nnull)%*%object$d
+            wk <- exp(wk)
+            pdf <- cbind(pdf,wk/sum(wk))
+        }
+        return(t(pdf[y.id,]))
+    }
+    else {
+        s.wk <- r.wk <- 0
+        for (i in 1:length(odds)) {
+            r.wk <- r.wk + odds[i]*r[i,,]
+            if (nnull) s.wk <- s.wk + odds[i]*s[i,,]
+        }
+        s.wk <- matrix(s.wk,nobs,nnull)
+        r.wk <- t(matrix(r.wk,nbasis,nobs))
+        rs <- cbind(r.wk,s.wk)
+        if (!se.odds) as.vector(rs%*%c(object$c,object$d))
+        else {
+            fit <- as.vector(rs%*%c(object$c,object$d))
+            se.fit <- .Fortran("hzdaux2",
+                               as.double(object$se.aux$v), as.integer(dim(rs)[2]),
+                               as.integer(object$se.aux$jpvt),
+                               as.double(t(rs)), as.integer(dim(rs)[1]),
+                               se=double(dim(rs)[1]), PACKAGE="gss")[["se"]]
+            return(list(fit=fit,se.fit=se.fit))
+        }
+    }
+}

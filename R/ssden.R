@@ -2,17 +2,17 @@
 ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
                   weights=NULL,subset,na.action=na.omit,
                   id.basis=NULL,nbasis=NULL,seed=NULL,
-                  domain=as.list(NULL),quadrature=NULL,
-                  prec=1e-7,maxiter=30)
+                  domain=as.list(NULL),quad=NULL,qdsz.depth=NULL,
+                  prec=1e-7,maxiter=30,skip.iter=FALSE)
 {
     ## Obtain model frame and model terms
     mf <- match.call()
     mf$type <- mf$alpha <- NULL
     mf$id.basis <- mf$nbasis <- mf$seed <- NULL
-    mf$domain <- mf$quadrature  <- NULL
-    mf$prec <- mf$maxiter <- NULL
+    mf$domain <- mf$quad <- mf$qdsz.depth <- NULL
+    mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
     mf[[1]] <- as.name("model.frame")
-    mf <- eval(mf,sys.frame(sys.parent()))
+    mf <- eval(mf,parent.frame())
     cnt <- model.weights(mf)
     mf$"(weights)" <- NULL
     ## Generate sub-basis
@@ -29,7 +29,7 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
         nbasis <- length(id.basis)
     }
     ## Set domain and/or generate quadrature
-    if (is.null(quadrature)) {
+    if (is.null(quad)) {
         ## Set domain and type
         fac.list <- NULL
         for (xlab in names(mf)) {
@@ -59,7 +59,8 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
         domain <- data.frame(domain)
         mn <- domain[1,]
         mx <- domain[2,]
-        if (ncol(domain)==1) {
+        dm <- ncol(domain)
+        if (dm==1) {
             ## Gauss-Legendre quadrature
             quad <- gauss.quad(200,c(mn,mx))
             quad$pt <- data.frame(quad$pt)
@@ -67,10 +68,8 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
         }
         else {
             ## Smolyak cubature
-            if (ncol(domain)>4)
-                stop("gss error in ssden: dimension higher than 4 unsupported")
-            code <- c(15,14,13)
-            quad <- smolyak.quad(ncol(domain),code[ncol(domain)-1])
+            if (is.null(qdsz.depth)) qdsz.depth <- switch(min(dm,6)-1,18,14,10,9,7)
+            quad <- smolyak.quad(dm,qdsz.depth)
             for (i in 1:ncol(domain)) {
                 xlab <- colnames(domain)[i]
                 wk <- mf[[xlab]]
@@ -94,14 +93,14 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
                 colnames(quad$pt) <- col.names
             }
         }
-        quadrature <- list(pt=quad$pt,wt=quad$wt)
+        quad <- list(pt=quad$pt,wt=quad$wt)
     }
     else {
         for (xlab in names(mf)) {
             x <- mf[[xlab]]
             if (is.vector(x)&!is.factor(x)) {
-                mn <- min(x,quadrature$pt[[xlab]])
-                mx <- max(x,quadrature$pt[[xlab]])
+                mn <- min(x,quad$pt[[xlab]])
+                mx <- max(x,quad$pt[[xlab]])
                 range <- c(mn,mx)+c(-1,1)*(mx-mn)*.05
                 if (is.null(type[[xlab]]))
                     type[[xlab]] <- list("cubic",range)
@@ -121,11 +120,11 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
     ## Generate terms
     term <- mkterm(mf,type)
     term$labels <- term$labels[term$labels!="1"]
-    ## Generate s, r, and q
-    qd.pt <- quadrature$pt
-    qd.wt <- quadrature$wt
+    ## Generate s and r
+    qd.pt <- quad$pt
+    qd.wt <- quad$wt
     nmesh <- length(qd.wt)
-    s <- qd.s <- r <- qd.r <- q <- NULL
+    s <- qd.s <- r <- qd.r <- NULL
     nq <- 0
     for (label in term$labels) {
         x <- mf[,term[[label]]$vlist]
@@ -147,8 +146,6 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
                 r <- array(c(r,rk$fun(x.basis,x,nu=i,env=rk$env,out=TRUE)),c(nbasis,nobs,nq))
                 qd.r <- array(c(qd.r,rk$fun(x.basis,qd.x,nu=i,env=rk$env,out=TRUE)),
                               c(nbasis,nmesh,nq))
-                q <- array(c(q,rk$fun(x.basis,x.basis,nu=i,env=rk$env,out=TRUE)),
-                           c(nbasis,nbasis,nq))
             }
         }
     }
@@ -164,10 +161,9 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
     if (nq==1) {
         r <- r[,,1]
         qd.r <- qd.r[,,1]
-        q <- q[,,1]
-        z <- sspdsty(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
+        z <- sspdsty(s,r,r[,id.basis],cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
     }
-    else z <- mspdsty(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha)
+    else z <- mspdsty(s,r,id.basis,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,skip.iter)
     ## Brief description of model terms
     desc <- NULL
     for (label in term$labels)
@@ -176,8 +172,9 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
     rownames(desc) <- c(term$labels,"total")
     colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
-    obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,alpha=alpha,
-                  domain=domain,quad=quadrature,id.basis=id.basis),z)
+    obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,
+                  alpha=alpha,domain=domain,quad=quad,id.basis=id.basis,
+                  qdsz.depth=qdsz.depth,skip.iter=skip.iter),z)
     class(obj) <- "ssden"
     obj
 }

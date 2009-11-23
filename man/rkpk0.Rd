@@ -13,10 +13,8 @@
 \usage{
 sspreg0(s, q, y, method="v", varht=1)
 mspreg0(s, q, y, method="v", varht=1, prec=1e-7, maxiter=30)
-sspregpoi(family, s, q, y, wt, offset, method="u",
-          varht=1, nu, prec=1e-7, maxiter=30)
-mspregpoi(family, s, q, y, wt, offset, method="u",
-          varht=1, nu, prec=1e-7, maxiter=30)
+sspregpoi(family, s, q, y, wt, offset, method="u", varht=1, nu, prec=1e-7, maxiter=30)
+mspregpoi(family, s, q, y, wt, offset, method="u", varht=1, nu, prec=1e-7, maxiter=30)
 getcrdr(obj, r)
 getsms(obj)
 }

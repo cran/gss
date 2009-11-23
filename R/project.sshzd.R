@@ -111,17 +111,19 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
     }
     cv.wk <- function(theta) cv.scale*rkl(theta)+cv.shift
     ## initialization
-    qd.r.wk <- array(0,c(nqd,nxi,nx))
-    for (i in 1:nq) {
-        if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
-        else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
+    if (nnull) {
+        qd.r.wk <- array(0,c(nqd,nxi,nx))
+        for (i in 1:nq) {
+            if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
+            else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
+        }
+        v.s <- v.r <- 0
+        for (i in 1:nx) {
+            v.s <- v.s + apply(object$qd.wt[,i]*qd.s[,i,,drop=FALSE]^2,2,sum)
+            v.r <- v.r + apply(object$qd.wt[,i]*qd.r.wk[,,i,drop=FALSE]^2,2,sum)
+        }
+        theta.wk <- log10(sum(v.s)/nnull/sum(v.r)*nxi) / 2
     }
-    v.s <- v.r <- 0
-    for (i in 1:nx) {
-        if (nnull) v.s <- v.s + apply(object$qd.wt[,i]*qd.s[,i,,drop=FALSE]^2,2,sum)
-        v.r <- v.r + apply(object$qd.wt[,i]*qd.r.wk[,,i,drop=FALSE]^2,2,sum)
-    }
-    if (nnull) theta.wk <- log10(sum(v.s)/nnull/sum(v.r)*nxi) / 2
     else theta.wk <- 0
     theta <- theta + theta.wk
     tmp <- NULL
@@ -131,34 +133,35 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
     cd <- c(10^(-theta.wk)*object$c,d)
     mesh1 <- NULL
     if (nq-1) {
-        if (nq-2) {
-            ## scale and shift cv
-            tmp <- abs(rkl(theta[-fix]))
-            cv.scale <- 1
-            cv.shift <- 0
-            if (tmp<1&tmp>10^(-4)) {
-                cv.scale <- 10/tmp
-                cv.shift <- 0
-            }
-            if (tmp<10^(-4)) {
-                cv.scale <- 10^2
-                cv.shift <- 10
-            }
-            zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
-            if (zz$code>3)
-                warning("gss warning in project.sshzd: theta iteration fails to converge")
-        }
+        if (object$skip.iter) kl <- rkl(theta[-fix])
         else {
-            the.wk <- theta[-fix]
-            repeat {
-                mn <- the.wk-1
-                mx <- the.wk+1
-                zz <- nlm0(rkl,c(mn,mx))
-                if (min(zz$est-mn,mx-zz$est)>=1e-3) break
-                else the.wk <- zz$est
+            if (nq-2) {
+                ## scale and shift cv
+                tmp <- abs(rkl(theta[-fix]))
+                cv.scale <- 1
+                cv.shift <- 0
+                if (tmp<1&tmp>10^(-4)) {
+                    cv.scale <- 10/tmp
+                    cv.shift <- 0
+                }
+                if (tmp<10^(-4)) {
+                    cv.scale <- 10^2
+                    cv.shift <- 10
+                }
+                zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
             }
+            else {
+                the.wk <- theta[-fix]
+                repeat {
+                    mn <- the.wk-1
+                    mx <- the.wk+1
+                    zz <- nlm0(rkl,c(mn,mx))
+                    if (min(zz$est-mn,mx-zz$est)>=1e-3) break
+                    else the.wk <- zz$est
+                }
+            }
+            kl <- rkl(zz$est)
         }
-        kl <- rkl(zz$est)
     }
     else kl <- rkl()
     kl0 <- sum(object$qd.wt*(log(mesh0/object$cfit)*mesh0-mesh0+object$cfit))

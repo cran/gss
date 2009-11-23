@@ -95,7 +95,7 @@ gssanova0(formula, family, type=NULL, data=list(), weights, subset,
     can be omitted.
 }
 \value{
-    \code{gssanova0} returns a list object of \code{class}
+    \code{gssanova0} returns a list object of class
     \code{c("gssanova0","ssanova0","gssanova")}.
 
     The method \code{\link{summary.gssanova0}} can be used to obtain

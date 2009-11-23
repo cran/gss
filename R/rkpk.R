@@ -151,7 +151,7 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
 }
 
 ## Fit Multiple Smoothing Parameter (Gaussian) REGression
-mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
+mspreg1 <- function(s,r,id.basis,y,method,alpha,varht,random,skip.iter)
 {
     qr.trace <- FALSE
     if ((alpha<0)&(method%in%c("u","v"))) qr.trace <- TRUE
@@ -168,17 +168,29 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     else nz <- 0
     nxiz <- nxi + nz
     nn <- nxiz + nnull
-    nq <- dim(q)[3]
+    nq <- dim(r)[3]
     ## cv function
     cv <- function(theta) {
-        r.wk <- qq.wk <- 0
-        for (i in 1:nq) {
-            r.wk <- r.wk + 10^theta[i]*r[,,i]
-            qq.wk <- qq.wk + 10^theta[i]*q[,,i]
+        ind.wk <- theta!=theta.old
+        if (sum(ind.wk)==nq) {
+            r.wk0 <- 0
+            for (i in 1:nq) {
+                r.wk0 <- r.wk0 + 10^theta[i]*r[,,i]
+            }
+            assign("r.wk",r.wk0+0,inherit=TRUE)
+            assign("theta.old",theta+0,inherit=TRUE)
         }
+        else {
+            r.wk0 <- r.wk
+            for (i in (1:nq)[ind.wk]) {
+                theta.wk <- (10^(theta[i]-theta.old[i])-1)*10^theta.old[i]
+                r.wk0 <- r.wk0 + theta.wk*r[,,i]
+            }
+        }
+        qq.wk <- r.wk0[id.basis,]
         if (is.null(random)) q.wk <- 10^nlambda*qq.wk
         else {
-            r.wk <- cbind(r.wk,10^(ran.scal)*random$z)
+            r.wk0 <- cbind(r.wk0,10^(ran.scal)*random$z)
             q.wk <- matrix(0,nxiz,nxiz)
             q.wk[1:nxi,1:nxi] <- 10^nlambda*qq.wk
             q.wk[(nxi+1):nxiz,(nxi+1):nxiz] <-
@@ -186,7 +198,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         }
         if (qr.trace) {
             qq.wk <- chol(q.wk,pivot=TRUE)
-            sr <- cbind(s,r.wk[,attr(qq.wk,"pivot")])
+            sr <- cbind(s,r.wk0[,attr(qq.wk,"pivot")])
             sr <- rbind(sr,cbind(matrix(0,nxiz,nnull),qq.wk))
             sr <- qr(sr,tol=0)
             rss <- mean(qr.resid(sr,c(y,rep(0,nxiz)))[1:nobs]^2)
@@ -201,7 +213,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
             }
             if (return.fit) {
                 z <- .Fortran("reg",
-                          as.double(cbind(s,r.wk)), as.integer(nobs), as.integer(nnull),
+                          as.double(cbind(s,r.wk0)), as.integer(nobs), as.integer(nnull),
                           as.double(q.wk), as.integer(nxiz), as.double(y),
                           as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
                           as.double(alpha), varht=as.double(varht),
@@ -217,7 +229,7 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
         }
         else {
             z <- .Fortran("reg",
-                          as.double(cbind(s,r.wk)), as.integer(nobs), as.integer(nnull),
+                          as.double(cbind(s,r.wk0)), as.integer(nobs), as.integer(nnull),
                           as.double(q.wk), as.integer(nxiz), as.double(y),
                           as.integer(switch(method,"u"=1,"v"=2,"m"=3)),
                           as.double(alpha), varht=as.double(varht),
@@ -241,34 +253,42 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     }
     cv.wk <- function(theta) cv.scale*cv(theta)+cv.shift
     ## initialization
-    theta <- -log10(apply(q,3,function(x)sum(diag(x))))
-    r.wk <- q.wk <- 0
+    theta <- -log10(apply(r[id.basis,,],3,function(x)sum(diag(x))))
+    r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^theta[i]*r[,,i]
-        q.wk <- q.wk + 10^theta[i]*q[,,i]
     }
     ## theta adjustment
     return.fit <- FALSE
-    z <- sspreg1(s,r.wk,q.wk,y,method,alpha,varht,random)
+    z <- sspreg1(s,r.wk,r.wk[id.basis,],y,method,alpha,varht,random)
     theta <- theta + z$theta
-    r.wk <- q.wk <- 0
+    r.wk <- 0
     for (i in 1:nq) {
-        theta[i] <- 2*theta[i] + log10(t(z$c)%*%q[,,i]%*%z$c)
+        theta[i] <- 2*theta[i] + log10(t(z$c)%*%r[id.basis,,i]%*%z$c)
         r.wk <- r.wk + 10^theta[i]*r[,,i]
-        q.wk <- q.wk + 10^theta[i]*q[,,i]
     }
-    log.la0 <- log10(sum(r.wk^2)/sum(diag(q.wk)))
+    log.la0 <- log10(sum(r.wk^2)/sum(diag(r.wk[id.basis,])))
     log.th0 <- theta-log.la0
     ## lambda search
-    z <- sspreg1(s,r.wk,q.wk,y,method,alpha,varht,random)
+    z <- sspreg1(s,r.wk,r.wk[id.basis,],y,method,alpha,varht,random)
     nlambda <- z$nlambda
     log.th0 <- log.th0 + z$nlambda
     theta <- theta + z$theta
     if (!is.null(random)) ran.scal <- z$ran.scal
+    ## early return
+    if (skip.iter) {
+        z$theta <- theta
+        return(z)
+    }
     ## theta search
     fit <- NULL
     if (!is.null(random)) theta <- c(theta,z$zeta)
     counter <- 0
+    r.wk <- 0
+    for (i in 1:nq) {
+        r.wk <- r.wk + 10^theta[i]*r[,,i]
+    }
+    theta.old <- theta
     ## scale and shift cv
     tmp <- abs(cv(theta))
     cv.scale <- 1
@@ -294,11 +314,11 @@ mspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     ## return
     return.fit <- TRUE
     jk1 <- cv(zz$est)
-    r.wk <- qq.wk <- 0
+    r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^zz$est[i]*r[,,i]
-        qq.wk <- qq.wk + 10^zz$est[i]*q[,,i]
     }
+    qq.wk <- r.wk[id.basis,]
     if (is.null(random)) q.wk <- qq.wk
     else {
         r.wk <- cbind(r.wk,10^(ran.scal)*random$z)

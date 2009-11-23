@@ -41,19 +41,34 @@ function(object,q) {
     q.dup <- duplicated(q)
     p[q<=mn] <- 0
     p[q>=mx] <- 1
+    qd.hize <- 200
+    qd <- gauss.quad(2*qd.hize,c(mn,mx))
+    d.qd <- dssden(object,qd$pt)
+    gap <- diff(qd$pt)
+    g.wk <- gap[qd.hize]/2
+    for (i in 1:(qd.hize-2)) g.wk <- c(g.wk,gap[qd.hize+i]-g.wk[i])
+    g.wk <- 2*g.wk
+    g.wk <- c(g.wk,(mx-mn)/2-sum(g.wk))
+    gap[qd.hize:1] <- gap[qd.hize+(1:qd.hize)] <- g.wk
+    brk <- cumsum(c(mn,gap))
     kk <- (1:length(q))[q>mn&q<mx]
     for (i in kk) {
         if (q.dup[i]) {
             p[i] <- p.dup
             next
         }
-        nqd.l <- max(20,ceiling((q[i]-mn)/(mx-mn)*200))
-        qd.l <- gauss.quad(nqd.l,c(mn,q[i]))
-        p.l <- sum(dssden(object,qd.l$pt)*qd.l$wt)
-        nqd.u <- max(20,ceiling((mx-q[i])/(mx-mn)*200))
-        qd.u <- gauss.quad(nqd.u,c(q[i],mx))
-        p.u <- sum(dssden(object,qd.u$pt)*qd.u$wt)
-        p[i] <- p.dup <- p.l/(p.l+p.u)
+        ind <- (1:(2*qd.hize))[qd$pt<q[i]]
+        if (!length(ind)) {
+            wk <- d.qd[1]*qd$wt[1]*(q[i]-mn)/gap[1]
+        }
+        else {
+            wk <- sum(d.qd[ind]*qd$wt[ind])
+            id.mx <- max(ind)
+            if (q[i]<brk[id.mx+1])
+                wk <- wk-d.qd[id.mx]*qd$wt[id.mx]*(brk[id.mx+1]-q[i])/gap[id.mx]
+            else wk <- wk+d.qd[id.mx+1]*qd$wt[id.mx+1]*(q[i]-brk[id.mx+1])/gap[id.mx+1]
+        }
+        p[i] <- p.dup <- wk
     }
     p[order.q]
 }

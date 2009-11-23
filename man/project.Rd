@@ -4,6 +4,8 @@
 \alias{project.gssanova}
 \alias{project.ssden}
 \alias{project.sshzd}
+\alias{project.sshzd1}
+\alias{project.ssllrm}
 \title{Projecting Smoothing Spline ANOVA Fits for Model Diagnostics}
 \description{
     Calculate Kullback-Leibler projection of smoothing spline ANOVA fits
@@ -15,10 +17,13 @@ project(object, ...)
 \method{project}{gssanova}(object, include, ...)
 \method{project}{ssden}(object, include, mesh=FALSE, ...)
 \method{project}{sshzd}(object, include, mesh=FALSE, ...)
+\method{project}{sshzd1}(object, include, ...)
+\method{project}{ssllrm}(object, include, ...)
 }
 \arguments{
     \item{object}{Object of class \code{"ssanova"}, \code{"gssanova"},
-        \code{"ssden"}, or \code{"sshzd"}.}
+        \code{"ssden"}, \code{"sshzd"}, \code{"sshzd1"}, or
+	\code{"ssllrm"}.}
     \item{...}{Additional arguments.  Ignored in \code{project.x}.}
     \item{include}{List of model terms to be included in the reduced
         model space.  The \code{partial} and \code{offset} terms, if
@@ -41,6 +46,9 @@ project(object, ...)
     optional component.
     \item{mesh}{The evaluations of the projection.}
 }
+\note{
+    \code{project.sshzd1} calculates a square error projection.
+}
 \details{
     The entropy KL(fit0,null) can be decomposed as the sum of
     KL(fit0,fit1) and KL(fit1,null), where fit0 is the fit to be
@@ -62,7 +70,7 @@ project(object, ...)
 }
 \seealso{
     Fitting functions \code{\link{ssanova}}, \code{\link{gssanova}},
-    \code{\link{ssden}}, and \code{\link{sshzd}}.
+    \code{\link{ssden}}, \code{\link{sshzd}}, and \code{\link{sshzd1}}.
 }
 \keyword{models}
 \keyword{smooth}

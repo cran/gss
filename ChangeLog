@@ -1,3 +1,20 @@
+Mon Nov 23 12:52:38 EST 2009, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 1.1-0.
+
+	* INDEX: Edited to reflect changes in R.
+
+	* R: i) Added sshzd1 and project.sshzd1.  ii) Added ssllrm,
+	predict.ssllrm, and project.ssllrm.  iii) Removed the dimension
+	limit in ssden and added user-control of quadrature size via
+	qdsz.depth.  iv) Added skip.iter to fitting functions, and
+	rearranged computation to speed up theta iteration.  This affect
+	all but the legacy fitting functions ssanova0 and gssanova0.  v)
+	reworked quadrature in pssden and cpssden to guarantee
+	monotonicity.
+
+	* man: Updated to reflect changes in R.
+
 Mon Mar  9 15:53:42 EDT 2009, Chong Gu  <chong@stat.purdue.edu>
 	
 	* DESCRIPTION: Version 1.0-5.

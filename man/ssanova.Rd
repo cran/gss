@@ -9,7 +9,8 @@
 \usage{
 ssanova(formula, type=NULL, data=list(), weights, subset, offset,
         na.action=na.omit, partial=NULL, method="v", alpha=1.4,
-        varht=1, id.basis=NULL, nbasis=NULL, seed=NULL, random=NULL)
+        varht=1, id.basis=NULL, nbasis=NULL, seed=NULL, random=NULL,
+        skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
@@ -44,6 +45,9 @@ ssanova(formula, type=NULL, data=list(), weights, subset, offset,
 	Ignored when \code{id.basis} is supplied.}
     \item{random}{Input for parametric random effects in nonparametric
         mixed-effect models.  See \code{\link{mkran}} for details.}
+    \item{skip.iter}{Flag indicating whether to use initial values of
+        theta and skip theta iteration.  See notes on skipping theta
+	iteration.}
 }
 \details{
     The model specification via \code{formula} is intuitive.  For
@@ -70,6 +74,23 @@ ssanova(formula, type=NULL, data=list(), weights, subset, offset,
     the \eqn{O(n^{3})} algorithms of \code{\link{ssanova0}}.  For the
     exact solution, one may set \eqn{q=n} in \code{ssanova}, but
     \code{\link{ssanova0}} would be much faster.
+}
+\section{Skipping Theta Iteration}{
+    For the selection of multiple smoothing parameters,
+    \code{\link{nlm}} is used to minimize the selection criterion such
+    as the GCV score.  When the number of smoothing parameters is large,
+    the process can be time-consuming due to the great amount of
+    function evaluations involved.
+
+    The starting values for the \code{nlm} iteration are obtained using
+    Algorith 3.2 in Gu and Wahba (1991).  These starting values usually
+    yield good estimates themselves, leaving the subsequent quasi-Newton
+    iteration to pick up the "last 10\%" performance with extra effort
+    many times of the initial one.  Thus, it is often a good idea to
+    skip the iteration by specifying \code{skip.iter=TRUE}, especially
+    in high-dimensions and/or with multi-way interactions.
+
+    \code{skip.iter=TRUE} could be made the default in future releases.
 }
 \note{
     To use GCV and Mallows' CL unmodified, set \code{alpha=1}.
@@ -99,6 +120,10 @@ ssanova(formula, type=NULL, data=list(), weights, subset, offset,
 \references{
     Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
     Springer-Verlag.
+
+    Gu, C. and Wahba, G. (1991), Minimizing GCV/GML scores with multiple
+    smoothing parameters via the Newton method.  \emph{SIAM Journal on
+    Scientific and Statistical Computing}, \bold{12}, 383--398.
 
     Kim, Y.-J. and Gu, C. (2004), Smoothing spline Gaussian regression:
     more scalable computation via efficient approximation.

@@ -1,4 +1,4 @@
-## SSANOVA, GSSANOVA, SSDEN, AND SSHZD SUITES
+## SSANOVA, GSSANOVA, SSDEN, SSHZD, AND SSLLRM SUITES
 ssanova                     Fitting smoothing spline ANOVA models
 predict.ssanova             Predicting from ssanova fits
 summary.ssanova             Summarizing ssanova fits
@@ -38,6 +38,13 @@ survexp.sshzd               Computing expected survivals
 project.ssden               Projecting sshzd fits for model diagnostic
 print.ssden                 Print function for sshzd objects
 
+sshzd1                      Estimating hazard function using smoothing splines
+project.ssden1              Projecting sshzd1 fits for model diagnostic
+
+ssllrm                      Fitting smoothing spline log-linear regression models
+predict.ssllrm              Evaluating log-linear regression model fits
+project.ssllrm              Projecting ssllrm fits for model diagnostic
+
 ## UTILITIES FOR MAKING MODEL TERMS
 mkterm                      Making model terms
 
@@ -57,6 +64,8 @@ mkrk.nominal                Making RK function for nominal factors
 mkrk.ordinal                Making RK function for ordinal factors
 
 mkran                       Generating random effects in mixed-effect models
+
+mkint                       Calculating integrals for ssden1
 
 ## UTILITIES FOR DISTRIBUTION FAMILIES
 mkdata.binomial             Making pseudo data for logistic regression
@@ -148,10 +157,13 @@ sspreg1                     Compute regression estimate with single smoothing pa
 mspreg1                     Compute regression estimate with multiple smoothing parameters
 sspngreg                    Compute NG regression estimate with single smoothing parameter
 mspngreg                    Compute NG regression estimate with single smoothing parameter
-regaux                      Obtain auxiliary information needed for se calculation
 ngreg                       Newton iteration for NG regression with fixed smoothing parameter
+regaux                      Obtain auxiliary information needed for se calculation
 ngreg.proj                  Calculate Kullback-Leibler projection for NG regression
 
 sspdsty                     Compute density estimate with single smoothing parameter
 mspdsty                     Compute density estimate with multiple smoothing parameters
 msphzd                      Compute hazard estimate with single or multiple smoothing parameters
+msphzd1                     Compute hazard estimate with single or multiple smoothing parameters
+
+mspllrm                     Compute log-linear regression model with multiple smoothing parameters

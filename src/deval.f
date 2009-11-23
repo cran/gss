@@ -1,3 +1,4 @@
+C Output from Public domain Ratfor, version 1.0
       subroutine deval (vmu, q, ldq, n, z, nint, low, upp, nlaht, score,
      * varht, info, twk, work)
       character*1 vmu
@@ -7,20 +8,20 @@
       double precision tmp, minscr, mlo, varhtwk
       integer j
       info = 0
-      if(.not.( upp .lt. low ))goto 23000
+      if( upp .lt. low )then
       mlo = low
       low = upp
       upp = mlo
-23000 continue
-      if(.not.( (vmu .ne. 'v' .and. vmu .ne. 'm' .and. vmu .ne. 'u') 
-     *.or. nint .lt. 1 ))goto 23002
+      endif
+      if( (vmu .ne. 'v' .and. vmu .ne. 'm' .and. vmu .ne. 'u') .or. nint
+     * .lt. 1 )then
       info = -3
       return
-23002 continue
-      if(.not.( 1 .gt. n .or. n .gt. ldq ))goto 23004
+      endif
+      if( 1 .gt. n .or. n .gt. ldq )then
       info = -1
       return
-23004 continue
+      endif
       j=1
 23006 if(.not.(j.le.nint+1))goto 23008
       tmp = low + dfloat (j-1) * ( upp - low ) / dfloat (nint)
@@ -29,16 +30,16 @@
       call dcopy (n-1, q(1,2), ldq+1, twk(1,2), 2)
       twk(1,1) = 10.d0**tmp
       call dtrev (vmu, twk, 2, n, z, score(j), varht, info, work)
-      if(.not.( info .ne. 0 ))goto 23009
+      if( info .ne. 0 )then
       info = -2
       return
-23009 continue
-      if(.not.( score(j) .le. minscr .or. j .eq. 1 ))goto 23011
+      endif
+      if( score(j) .le. minscr .or. j .eq. 1 )then
       minscr = score(j)
       nlaht = tmp
       varhtwk = varht
-23011 continue
-      j=j+1
+      endif
+23007 j=j+1
       goto 23006
 23008 continue
       varht = varhtwk

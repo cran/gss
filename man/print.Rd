@@ -4,6 +4,7 @@
 \alias{print.gssanova}
 \alias{print.ssden}
 \alias{print.sshzd}
+\alias{print.ssllrm}
 \alias{print.summary.ssanova}
 \alias{print.summary.gssanova}
 \alias{print.summary.gssanova0}
@@ -17,6 +18,7 @@
 \method{print}{gssanova}(x, ...)
 \method{print}{ssden}(x, ...)
 \method{print}{sshzd}(x, ...)
+\method{print}{ssllrm}(x, ...)
 \method{print}{summary.ssanova}(x, digits=6, ...)
 \method{print}{summary.gssanova}(x, digits=6, ...)
 \method{print}{summary.gssanova0}(x, digits=6, ...)
@@ -31,7 +33,7 @@
 \seealso{
     \code{\link{ssanova}}, \code{\link{ssanova0}},
     \code{\link{gssanova}}, \code{\link{gssanova0}},
-    \code{\link{ssden}}, \code{\link{sshzd}},
+    \code{\link{ssden}}, \code{\link{ssllrm}}, \code{\link{sshzd}},
     \code{\link{summary.ssanova}}, \code{\link{summary.gssanova}},
     \code{\link{summary.gssanova0}}.
 }

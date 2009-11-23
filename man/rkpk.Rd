@@ -13,10 +13,10 @@
 }
 \usage{
 sspreg1(s, r, q, y, method, alpha, varht, random)
-mspreg1(s, r, q, y, method, alpha, varht, random)
+mspreg1(s, r, id.basis, y, method, alpha, varht, random, skip.iter)
 
 sspngreg(family, s, r, q, y, wt, offset, alpha, nu, random)
-mspngreg(family, s, r, q, y, wt, offset, alpha, nu, random)
+mspngreg(family, s, r, id.basis, y, wt, offset, alpha, nu, random, skip.iter)
 ngreg(dc, family, sr, q, y, wt, offset, nu, alpha)
 
 regaux(s, r, q, nlambda, fit)
@@ -54,6 +54,7 @@ ngreg.proj(dc, family, sr, q, y0, wt, offset, nu)
     \item{s}{Unpenalized terms evaluated at data points.}
     \item{r}{Basis of penalized terms evaluated at data points.}
     \item{q}{Penalty matrix.}
+    \item{id.basis}{Index of observations to be used as "knots."}
     \item{y}{Response vector.}
     \item{wt}{Model weights.}
     \item{offset}{Model offset.}
@@ -66,6 +67,11 @@ ngreg.proj(dc, family, sr, q, y0, wt, offset, nu)
     \item{varht}{External variance estimate needed for \code{method="u"}.}
     \item{random}{Input for parametric random effects in nonparametric
         mixed-effect models.}
+    \item{skip.iter}{Flag indicating whether to use initial values of
+      theta and skip theta iteration.}
+
+    \item{nlambda}{Smoothing parameter in effect.}
+    \item{fit}{Fitted model.}
 
     \item{dc}{Coefficients of fits.}
     \item{sr}{\code{cbind(s,r)}.}
