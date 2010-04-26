@@ -12,8 +12,8 @@
     \code{\link{gssanova}} suites.
 }
 \usage{
-sspreg1(s, r, q, y, method, alpha, varht, random)
-mspreg1(s, r, id.basis, y, method, alpha, varht, random, skip.iter)
+sspreg1(s, r, q, y, wt, method, alpha, varht, random)
+mspreg1(s, r, id.basis, y, wt, method, alpha, varht, random, skip.iter)
 
 sspngreg(family, s, r, q, y, wt, offset, alpha, nu, random)
 mspngreg(family, s, r, id.basis, y, wt, offset, alpha, nu, random, skip.iter)

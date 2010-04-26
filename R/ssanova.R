@@ -80,21 +80,13 @@ ssanova <- function(formula,type=NULL,data=list(),weights,subset,
         term$offset <- list(nphi=0,nrk=0)
         y <- y - offset
     }
-    if (!is.null(wt)) {
-        wt <- sqrt(wt)
-        y <- wt*y
-        s <- wt*s
-        r <- wt*r
-        if (!is.null(random)) random$z <- wt*random$z
-    }
-    if (qr(s)$rank<dim(s)[2])
-        stop("gss error in ssanova: fixed effects are linearly dependent")
+    if (!is.null(wt)) wt <- sqrt(wt)
     ## Fit the model
     if (nq==1) {
         r <- r[,,1]
-        z <- sspreg1(s,r,r[id.basis,],y,method,alpha,varht,random)
+        z <- sspreg1(s,r,r[id.basis,],y,wt,method,alpha,varht,random)
     }
-    else z <- mspreg1(s,r,id.basis,y,method,alpha,varht,random,skip.iter)
+    else z <- mspreg1(s,r,id.basis,y,wt,method,alpha,varht,random,skip.iter)
     ## Brief description of model terms
     desc <- NULL
     for (label in term$labels)

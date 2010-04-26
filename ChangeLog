@@ -1,3 +1,11 @@
+Thu May 27 19:52:17 EDT 2010, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 1.1-2.
+
+	* R: Fixed bugs in the ssanova suite.
+
+	* man: Updated to reflect changes in R.
+
 Wed May 19 22:38:22 EDT 2010, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 1.1-1.
