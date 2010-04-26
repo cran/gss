@@ -5,7 +5,7 @@ project.ssllrm <- function(object,include,...)
     term <- object$term
     id.basis <- object$id.basis
     qd.pt <- object$qd.pt
-    qd.wt <- object$qd.wt
+    xx.wt <- object$xx.wt
     ## evaluate full model
     x <- object$mf[!object$x.dup.ind,object$xnames,drop=FALSE]
     if (!is.null(mf$partial)) {
@@ -17,7 +17,7 @@ project.ssllrm <- function(object,include,...)
     include <- union(object$ynames,include)
     nmesh <- dim(qd.pt)[1]
     nbasis <- length(id.basis)
-    nx <- length(qd.wt)
+    nx <- length(xx.wt)
     qd.s <- NULL
     qd.r <- as.list(NULL)
     theta <- d <- q <- NULL
@@ -115,6 +115,11 @@ project.ssllrm <- function(object,include,...)
     }
     nnull <- length(d)
     nxis <- nbasis+nnull
+    ## random effect offset
+    if (!is.null(object$b)) {
+        offset <- apply(object$Random$qd.z,c(1,2),function(x,y)sum(x*y),object$b)
+    }
+    else offset <- matrix(0,nmesh,nx)
     ## calculate projection
     rkl <- function(theta1=NULL) {
         theta.wk <- 1:nq
@@ -131,7 +136,7 @@ project.ssllrm <- function(object,include,...)
         z <- .Fortran("llrmrkl",
                       cd=as.double(cd), as.integer(nxis),
                       as.double(qd.rs), as.integer(nmesh), as.integer(nx),
-                      as.double(qd.wt), as.double(t(fit0)),
+                      as.double(xx.wt), as.double(t(fit0)), as.double(offset),
                       as.double(.Machine$double.eps),
                       wt=double(nmesh*nx), double(nmesh*nx), double(nxis),
                       double(nxis), double(nxis*nxis), double(nxis*nxis),
@@ -159,8 +164,8 @@ project.ssllrm <- function(object,include,...)
             v.s.wk <- apply(fit0[i,]*qd.s[,i,,drop=FALSE]^2,2,sum)-mu.s^2
             mu.r <- apply(fit0[i,]*qd.r.wk[,,i,drop=FALSE],2,sum)
             v.r.wk <- apply(fit0[i,]*qd.r.wk[,,i,drop=FALSE]^2,2,sum)-mu.r^2
-            v.s <- v.s + qd.wt[i]*v.s.wk
-            v.r <- v.r + qd.wt[i]*v.r.wk
+            v.s <- v.s + xx.wt[i]*v.s.wk
+            v.r <- v.r + xx.wt[i]*v.r.wk
         }
         theta.wk <- log10(sum(v.s)/nnull/sum(v.r)*nbasis) / 2
     }
@@ -203,10 +208,58 @@ project.ssllrm <- function(object,include,...)
         }
     }
     else kl <- rkl()
+    ## cfit
+    cfit <- matrix(1,nx,nmesh)
+    if (!is.null(object$b)) {
+        qd.z <- object$Random$qd.z
+        nz <- object$Random$sigma$env$nz
+        id.wk <- 0
+    }
+    for (ylab in object$ynames) {
+        lvl <- levels(object$mf[,ylab])
+        wk <- table(object$mf[,ylab])
+        wk <- wk/sum(wk)
+        nlvl <- length(wk)
+        if (is.null(object$b)) {
+            for (j in 1:nlvl) {
+                id <- (1:nmesh)[qd.pt[,ylab]==lvl[j]]
+                cfit[,id] <- cfit[,id]*wk[j]
+            }
+        }
+        else {
+            id <- NULL
+            for (j in 1:nlvl) {
+                id <- c(id,(1:nmesh)[qd.pt[,ylab]==lvl[j]][1])
+            }
+            offset <- apply(qd.z[id,,id.wk+(1:nz*(nlvl-1)),drop=FALSE],c(1,2),
+                            function(x,y)sum(x*y),object$b[id.wk+(1:nz*(nlvl-1))])
+            id.wk <- id.wk + nz*(nlvl-1)
+            eta <- log(wk[-nlvl]/wk[nlvl])
+            repeat {
+                p <- exp(c(eta,0)+offset)
+                p <- t(p)/apply(p,2,sum)
+                u <- (apply(p*xx.wt,2,sum)-wk)[-nlvl]
+                w <- 0
+                for (i in 1:nx) {
+                    w <- w + xx.wt[i]*(diag(p[i,])-outer(p[i,],p[i,]))[-nlvl,-nlvl]
+                }
+                eta.new <- eta-solve(w,u)
+                if (max(abs(eta-eta.new)/(1+abs(eta)))<1e-7) break
+                eta <- eta.new
+            }
+            p <- exp(c(eta,0)+offset)
+            p <- t(p)/apply(p,2,sum)
+            for (j in 1:nlvl) {
+                id <- (1:nmesh)[qd.pt[,ylab]==lvl[j]]
+                cfit[,id] <- cfit[,id]*p[,j]
+            }
+        }
+    }
+    ## return
     kl0 <- 0
     for (i in 1:nx) {
-        wk <- sum(log(fit0[i,]/object$cfit)*fit0[i,])
-        kl0 <- kl0 + qd.wt[i]*wk
+        wk <- sum(log(fit0[i,]/cfit[i,])*fit0[i,])
+        kl0 <- kl0 + xx.wt[i]*wk
     }
     list(ratio=kl/kl0,kl=kl)
 }

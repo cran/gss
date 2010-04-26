@@ -9,7 +9,8 @@
 \usage{
 ssllrm(formula, response, type=NULL, data=list(), weights, subset,
        na.action=na.omit, partial=NULL, alpha=1.4, id.basis=NULL,
-       nbasis=NULL, seed=NULL, prec=1e-7, maxiter=30, skip.iter=FALSE)
+       nbasis=NULL, seed=NULL, random=NULL, prec=1e-7, maxiter=30,
+       skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
@@ -35,7 +36,9 @@ ssllrm(formula, response, type=NULL, data=list(), weights, subset,
     \item{nbasis}{Number of "knots" to be selected.  Ignored when
 	\code{id.basis} is supplied.}
     \item{seed}{Seed to be used for the random generation of "knots".
-	Ignored when \code{id.basis} is supplied.}
+        Ignored when \code{id.basis} is supplied.}
+    \item{random}{Input for parametric random effects in nonparametric
+        mixed-effect models.  See \code{\link{mkran}} for details.}
     \item{prec}{Precision requirement for internal iterations.}
     \item{maxiter}{Maximum number of iterations allowed for
         internal iterations.}

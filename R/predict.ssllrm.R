@@ -7,6 +7,11 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
         partial <- x$partial
         x$partial <- NULL
     }
+    if ("random"%in%colnames(x)) {
+        zz <- x$random
+        x$random <- NULL
+    }
+    else zz <- NULL
     if (!all(sort(object$xnames)==sort(colnames(x))))
         stop("gss error in predict.ssllrm: mismatched x variable names")
     if (!all(sort(object$ynames)==sort(colnames(y))))
@@ -17,7 +22,7 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
         else {
             if (is.vector(partial)) partial <- as.matrix(partial)
             if ((dim(mf$partial)[2]-dim(partial)[2]))
-                stop("gss error in predict.ssllrm: partial is of wrong dimension")
+                stop("gss error in predict.ssllrm: x$partial is of wrong dimension")
             partial <- sweep(partial,2,attr(mf$partial,"scaled:center"))
             partial <- sweep(partial,2,attr(mf$partial,"scaled:scale"),"/")
         }
@@ -48,6 +53,7 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
     nmesh <- dim(qd.pt)[1]
     nbasis <- length(object$id.basis)
     nnull <- length(object$d)
+    nZ <- length(object$b)
     s <- NULL
     r <- array(0,c(nmesh,nbasis,nobs))
     nu <- nq <- 0
@@ -118,29 +124,58 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
             }
         }
     }
+    ## random effects
+    if (nZ) {
+        nz <- object$Random$sigma$env$nz
+        if (is.null(zz)) z.wk <- matrix(0,nobs,nz)
+        else z.wk <- as.matrix(zz)
+        if (dim(z.wk)[2]!=nz)
+            stop("gss error in predict.ssllrm: x$random is of wrong dimension")
+        z <- nlvl <- NULL
+        for (ylab in object$ynames) {
+            y.wk <- mf[,ylab]
+            lvl.wk <- levels(y.wk)
+            nlvl.wk <- length(lvl.wk)
+            nlvl <- c(nlvl,nlvl.wk)
+            z.aux <- diag(1,nlvl.wk-1)
+            z.aux <- rbind(z.aux,rep(-1,nlvl.wk-1))
+            rownames(z.aux) <- lvl.wk
+            pt.wk <- qd.pt[,ylab]
+            for (i in 1:(nlvl.wk-1)) {
+                for (j in 1:nmesh) {
+                    z <- cbind(z,z.aux[pt.wk[j],i]*z.wk)
+                }
+            }
+        }
+        z <- aperm(array(z,c(nobs,nz,nmesh,nZ/nz)),c(3,2,4,1))
+        z <- array(z,c(nmesh,nZ,nobs))
+    }
     ## return
     if (is.null(odds)) {
         pdf <- NULL
         for (j in 1:nobs) {
             wk <- matrix(r[,,j],nmesh,nbasis)%*%object$c
             if (nnull) wk <- wk + matrix(s[,j,],nmesh,nnull)%*%object$d
+            if (nZ) wk <- wk + matrix(z[,,j],nmesh,nZ)%*%object$b
             wk <- exp(wk)
             pdf <- cbind(pdf,wk/sum(wk))
         }
         return(t(pdf[y.id,]))
     }
     else {
-        s.wk <- r.wk <- 0
+        s.wk <- r.wk <- z.wk <- 0
         for (i in 1:length(odds)) {
             r.wk <- r.wk + odds[i]*r[i,,]
             if (nnull) s.wk <- s.wk + odds[i]*s[i,,]
+            if (nZ) z.wk <- z.wk + odds[i]*z[i,,]
         }
         s.wk <- matrix(s.wk,nobs,nnull)
         r.wk <- t(matrix(r.wk,nbasis,nobs))
-        rs <- cbind(r.wk,s.wk)
-        if (!se.odds) as.vector(rs%*%c(object$c,object$d))
+        z.wk <- t(matrix(z.wk,nZ,nobs))
+        rs <- cbind(r.wk,z.wk,s.wk)
+        if (!se.odds) as.vector(rs%*%c(object$c,object$b,object$d))
         else {
-            fit <- as.vector(rs%*%c(object$c,object$d))
+            fit <- as.vector(rs%*%c(object$c,object$b,object$d))
             se.fit <- .Fortran("hzdaux2",
                                as.double(object$se.aux$v), as.integer(dim(rs)[2]),
                                as.integer(object$se.aux$jpvt),

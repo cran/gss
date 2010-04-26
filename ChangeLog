@@ -1,3 +1,12 @@
+Wed May 19 22:38:22 EDT 2010, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 1.1-1.
+
+	* R: i) Added support of random effects to the ssllrm suite.  ii)
+	Fixed bugs in mspreg1 and mspngreg.
+
+	* man: Updated to reflect changes in R.
+
 Mon Nov 23 12:52:38 EST 2009, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 1.1-0.

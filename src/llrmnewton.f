@@ -1,9 +1,9 @@
 C Output from Public domain Ratfor, version 1.01
       subroutine llrmnewton (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qd
-     *rs, nqd, nx, qdwt, idx, prec, maxiter, mchpr, wk, info)
+     *rs, nqd, nx, xxwt, idx, prec, maxiter, mchpr, wk, info)
       integer nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, idx(*), maxiter,
      * info
-      double precision cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), qd
+      double precision cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), xx
      *wt(*), prec, mchpr, wk(*)
       integer iwt, iwtsum, imrs, ifit, imu, imuwk, iv, ivwk, ijpvt, icdn
      *ew, iwtnew, iwtnewsum, ifitnew, iwk
@@ -22,18 +22,18 @@ C Output from Public domain Ratfor, version 1.01
       ifitnew = iwtnewsum + nx
       iwk = ifitnew + nobs
       call llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, n
-     *qd, nx, qdwt, idx, prec, maxiter, mchpr, wk(iwt), wk(iwtsum), wk(i
+     *qd, nx, xxwt, idx, prec, maxiter, mchpr, wk(iwt), wk(iwtsum), wk(i
      *mrs), wk(ifit), wk(imu), wk(imuwk), wk(iv), wk(ivwk), wk(ijpvt), w
      *k(icdnew), wk(iwtnew), wk(iwtnewsum), wk(ifitnew), wk(iwk), info)
       return
       end
       subroutine llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, q
-     *drs, nqd, nx, qdwt, idx, prec, maxiter, mchpr, wt, wtsum, mrs, fit
+     *drs, nqd, nx, xxwt, idx, prec, maxiter, mchpr, wt, wtsum, mrs, fit
      *, mu, muwk, v, vwk, jpvt, cdnew, wtnew, wtnewsum, fitnew, wk, info
      *)
       integer nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, idx(*), maxiter,
      * jpvt(*), info
-      double precision cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), qd
+      double precision cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), xx
      *wt(*), prec, mchpr, wt(nqd,*), wtsum(*), mrs(*), fit(*), mu(*), mu
      *wk(*), v(nxis,*), vwk(nxis,*), cdnew(*), wtnew(nqd,*), wtnewsum(*)
      *, fitnew(*), wk(*)
@@ -128,8 +128,8 @@ C Output from Public domain Ratfor, version 1.01
 23034 i=i+1
       goto 23033
 23035 continue
-      call daxpy (nxis, qdwt(kk), muwk, 1, mu, 1)
-      call daxpy (nxis*nxis, qdwt(kk), vwk, 1, v, 1)
+      call daxpy (nxis, xxwt(kk), muwk, 1, mu, 1)
+      call daxpy (nxis*nxis, xxwt(kk), vwk, 1, v, 1)
 23028 kk=kk+1
       goto 23027
 23029 continue
@@ -327,10 +327,10 @@ C Output from Public domain Ratfor, version 1.01
       wtsum(2) = trc
       return
       end
-      subroutine llrmaux (cd, nxis, q, nxi, qdrs, nqd, nx, qdwt, mchpr, 
+      subroutine llrmaux (cd, nxis, q, nxi, qdrs, nqd, nx, xxwt, mchpr, 
      *wt, wtsum, mu, v, vwk, jpvt)
       integer nxis, nxi, nqd, nx, jpvt(*)
-      double precision cd(*), q(nxi,*), qdrs(nqd,nxis,*), qdwt(*), mchpr
+      double precision cd(*), q(nxi,*), qdrs(nqd,nxis,*), xxwt(*), mchpr
      *, wt(nqd,*), wtsum(*), mu(*), v(nxis,*), vwk(nxis,*)
       integer i, j, k, kk, rkv
       double precision ddot
@@ -374,7 +374,7 @@ C Output from Public domain Ratfor, version 1.01
 23129 i=i+1
       goto 23128
 23130 continue
-      call daxpy (nxis*nxis, qdwt(kk), vwk, 1, v, 1)
+      call daxpy (nxis*nxis, xxwt(kk), vwk, 1, v, 1)
 23123 kk=kk+1
       goto 23122
 23124 continue
@@ -410,19 +410,21 @@ C Output from Public domain Ratfor, version 1.01
 23150 continue
       return
       end
-      subroutine llrmrkl (cd, nxis, qdrs, nqd, nx, qdwt, wt0, mchpr, wt,
-     * wtnew, mu, muwk, v, vwk, jpvt, cdnew, prec, maxiter, info)
+      subroutine llrmrkl (cd, nxis, qdrs, nqd, nx, xxwt, wt0, offset, mc
+     *hpr, wt, wtnew, mu, muwk, v, vwk, jpvt, cdnew, prec, maxiter, info
+     *)
       integer nxis, nqd, nx, jpvt(*), maxiter, info
-      double precision cd(*), qdrs(nqd,nxis,*), qdwt(*), wt0(nqd,*), mch
-     *pr, wt(nqd,*), wtnew(nqd,*), mu(*), muwk(*), v(nxis,*), vwk(nxis,*
-     *), cdnew(*), prec
+      double precision cd(*), qdrs(nqd,nxis,*), xxwt(*), wt0(nqd,*), off
+     *set(nqd,*), mchpr, wt(nqd,*), wtnew(nqd,*), mu(*), muwk(*), v(nxis
+     *,*), vwk(nxis,*), cdnew(*), prec
       integer i, j, k, kk, iter, flag, idamax, infowk
       double precision ddot, dasum, rkl, tmp, mumax, rklnew, disc, disc0
       kk=1
 23151 if(.not.(kk.le.nx))goto 23153
       i=1
 23154 if(.not.(i.le.nqd))goto 23156
-      wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1))
+      wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1) + offset(i,
+     *kk))
 23155 i=i+1
       goto 23154
 23156 continue
@@ -440,7 +442,7 @@ C Output from Public domain Ratfor, version 1.01
 23161 i=i+1
       goto 23160
 23162 continue
-      rkl = rkl + qdwt(kk) * tmp
+      rkl = rkl + xxwt(kk) * tmp
 23158 kk=kk+1
       goto 23157
 23159 continue
@@ -477,8 +479,8 @@ C Output from Public domain Ratfor, version 1.01
 23173 i=i+1
       goto 23172
 23174 continue
-      call daxpy (nxis, qdwt(kk), muwk, 1, mu, 1)
-      call daxpy (nxis*nxis, qdwt(kk), vwk, 1, v, 1)
+      call daxpy (nxis, xxwt(kk), muwk, 1, mu, 1)
+      call daxpy (nxis*nxis, xxwt(kk), vwk, 1, v, 1)
 23167 kk=kk+1
       goto 23166
 23168 continue
@@ -501,7 +503,8 @@ C Output from Public domain Ratfor, version 1.01
 23187 if(.not.(kk.le.nx))goto 23189
       i=1
 23190 if(.not.(i.le.nqd))goto 23192
-      wtnew(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cdnew, 1))
+      wtnew(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cdnew, 1) + off
+     *set(i,kk))
 23191 i=i+1
       goto 23190
 23192 continue
@@ -520,7 +523,7 @@ C Output from Public domain Ratfor, version 1.01
 23199 i=i+1
       goto 23198
 23200 continue
-      rklnew = rklnew + qdwt(kk) * tmp
+      rklnew = rklnew + xxwt(kk) * tmp
 23196 kk=kk+1
       goto 23195
 23197 continue
@@ -538,7 +541,7 @@ C Output from Public domain Ratfor, version 1.01
 23207 i=i+1
       goto 23206
 23208 continue
-      rkl = rkl + qdwt(kk) * tmp
+      rkl = rkl + xxwt(kk) * tmp
 23204 kk=kk+1
       goto 23203
 23205 continue
@@ -606,7 +609,7 @@ C Output from Public domain Ratfor, version 1.01
 23237 i=i+1
       goto 23236
 23238 continue
-      rkl = rkl + qdwt(kk) * tmp
+      rkl = rkl + xxwt(kk) * tmp
 23234 kk=kk+1
       goto 23233
 23235 continue
@@ -628,7 +631,7 @@ C Output from Public domain Ratfor, version 1.01
 23243 i=i+1
       goto 23242
 23244 continue
-      rkl = rkl + qdwt(kk) * tmp
+      rkl = rkl + xxwt(kk) * tmp
 23240 kk=kk+1
       goto 23239
 23241 continue

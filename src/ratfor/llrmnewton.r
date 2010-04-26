@@ -3,11 +3,11 @@
 #   llrmnewton
 #::::::::::::::::
 
-subroutine  llrmnewton (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, qdwt, idx,
+subroutine  llrmnewton (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt, idx,
                         prec, maxiter, mchpr, wk, info)
 
 integer  nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, idx(*), maxiter, info
-double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), qdwt(*), prec, mchpr, wk(*)
+double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), xxwt(*), prec, mchpr, wk(*)
 
 integer  iwt, iwtsum, imrs, ifit, imu, imuwk, iv, ivwk, ijpvt, icdnew, iwtnew, iwtnewsum,
          ifitnew, iwk
@@ -27,7 +27,7 @@ iwtnewsum = iwtnew + nqd*nx
 ifitnew = iwtnewsum + nx
 iwk = ifitnew + nobs
 
-call  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, qdwt, idx,
+call  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt, idx,
                    prec, maxiter, mchpr, wk(iwt), wk(iwtsum), wk(imrs), wk(ifit),
                    wk(imu), wk(imuwk), wk(iv), wk(ivwk), wk(ijpvt), wk(icdnew),
                    wk(iwtnew), wk(iwtnewsum), wk(ifitnew), wk(iwk), info)
@@ -41,12 +41,12 @@ end
 #   llrmnewton1
 #:::::::::::::::::
 
-subroutine  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, qdwt,
+subroutine  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt,
                          idx, prec, maxiter, mchpr, wt, wtsum, mrs, fit, mu, muwk,
                          v, vwk, jpvt, cdnew, wtnew, wtnewsum, fitnew, wk, info)
 
 integer  nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, idx(*), maxiter, jpvt(*), info
-double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), qdwt(*), prec, mchpr,
+double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), xxwt(*), prec, mchpr,
                   wt(nqd,*), wtsum(*), mrs(*), fit(*), mu(*), muwk(*), v(nxis,*),
                   vwk(nxis,*), cdnew(*), wtnew(nqd,*), wtnewsum(*), fitnew(*), wk(*)
 
@@ -104,8 +104,8 @@ repeat {
                 vwk(i,j) = vwk(i,j) / wtsum(kk) - muwk(i) * muwk(j)
             }
         }
-        call  daxpy (nxis, qdwt(kk), muwk, 1, mu, 1)
-        call  daxpy (nxis*nxis, qdwt(kk), vwk, 1, v, 1)
+        call  daxpy (nxis, xxwt(kk), muwk, 1, mu, 1)
+        call  daxpy (nxis*nxis, xxwt(kk), vwk, 1, v, 1)
     }
     for (i=1;i<=nxi;i=i+1) {
         for (j=i;j<=nxi;j=j+1)  v(i,j) = v(i,j) + q(i,j)
@@ -245,11 +245,11 @@ end
 #   llrmaux
 #:::::::::::::
 
-subroutine  llrmaux (cd, nxis, q, nxi, qdrs, nqd, nx, qdwt, mchpr, wt, wtsum,
+subroutine  llrmaux (cd, nxis, q, nxi, qdrs, nqd, nx, xxwt, mchpr, wt, wtsum,
                      mu, v, vwk, jpvt)
 
 integer  nxis, nxi, nqd, nx, jpvt(*)
-double precision  cd(*), q(nxi,*), qdrs(nqd,nxis,*), qdwt(*), mchpr, wt(nqd,*),
+double precision  cd(*), q(nxi,*), qdrs(nqd,nxis,*), xxwt(*), mchpr, wt(nqd,*),
                   wtsum(*), mu(*), v(nxis,*), vwk(nxis,*)
 
 integer  i, j, k, kk, rkv
@@ -276,7 +276,7 @@ for (kk=1;kk<=nx;kk=kk+1) {
             vwk(i,j) = vwk(i,j) / wtsum(kk) - mu(i) * mu(j)
         }
     }
-    call  daxpy (nxis*nxis, qdwt(kk), vwk, 1, v, 1)
+    call  daxpy (nxis*nxis, xxwt(kk), vwk, 1, v, 1)
 }
 for (i=1;i<=nxi;i=i+1) {
     for (j=i;j<=nxi;j=j+1)  v(i,j) = v(i,j) + q(i,j)
@@ -298,13 +298,13 @@ end
 #   llrmrkl
 #::::::::::::
 
-subroutine  llrmrkl (cd, nxis, qdrs, nqd, nx, qdwt, wt0, mchpr,
+subroutine  llrmrkl (cd, nxis, qdrs, nqd, nx, xxwt, wt0, offset, mchpr,
                      wt, wtnew, mu, muwk, v, vwk, jpvt, cdnew,
                      prec, maxiter, info)
 
 integer  nxis, nqd, nx, jpvt(*), maxiter, info
-double precision  cd(*), qdrs(nqd,nxis,*), qdwt(*), wt0(nqd,*), mchpr,
-                  wt(nqd,*), wtnew(nqd,*), mu(*), muwk(*), v(nxis,*),
+double precision  cd(*), qdrs(nqd,nxis,*), xxwt(*), wt0(nqd,*), offset(nqd,*),
+                  mchpr, wt(nqd,*), wtnew(nqd,*), mu(*), muwk(*), v(nxis,*),
                   vwk(nxis,*), cdnew(*), prec
 
 integer  i, j, k, kk, iter, flag, idamax, infowk
@@ -314,7 +314,7 @@ double precision  ddot, dasum, rkl, tmp, mumax, rklnew, disc, disc0
 #   Initialization
 for (kk=1;kk<=nx;kk=kk+1) {
     for (i=1;i<=nqd;i=i+1) {
-        wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1))
+        wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1) + offset(i,kk))
     }
     call  dscal (nqd, 1.d0/dasum(nqd,wt(1,kk),1), wt(1,kk), 1)
 }
@@ -322,7 +322,7 @@ rkl = 0.d0
 for (kk=1;kk<=nx;kk=kk+1) {
     tmp = 0.d0
     for (i=1;i<=nqd;i=i+1)  tmp = tmp + dlog(wt0(i,kk)/wt(i,kk)) * wt0(i,kk)
-    rkl = rkl + qdwt(kk) * tmp
+    rkl = rkl + xxwt(kk) * tmp
 }
 iter = 0
 flag = 0
@@ -344,8 +344,8 @@ repeat {
             }
             muwk(i) = ddot (nqd, wt0(1,kk), 1, qdrs(1,i,kk), 1) - muwk(i)
         }
-        call  daxpy (nxis, qdwt(kk), muwk, 1, mu, 1)
-        call  daxpy (nxis*nxis, qdwt(kk), vwk, 1, v, 1)
+        call  daxpy (nxis, xxwt(kk), muwk, 1, mu, 1)
+        call  daxpy (nxis*nxis, xxwt(kk), vwk, 1, v, 1)
     }
     mumax = dabs(mu(idamax(nxis, mu, 1)))
     #   Cholesky factorization
@@ -361,7 +361,7 @@ repeat {
         call  daxpy (nxis, 1.d0, cd, 1, cdnew, 1)
         for (kk=1;kk<=nx;kk=kk+1) {
             for (i=1;i<=nqd;i=i+1) {
-                wtnew(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cdnew, 1))
+                wtnew(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cdnew, 1) + offset(i,kk))
             }
             call  dscal (nqd, 1.d0/dasum(nqd,wtnew(1,kk),1), wtnew(1,kk), 1)
         }
@@ -370,7 +370,7 @@ repeat {
             for (kk=1;kk<=nx;kk=kk+1) {
                 tmp = 0.d0
                 for (i=1;i<=nqd;i=i+1)  tmp = tmp + dlog(wt0(i,kk)/wtnew(i,kk)) * wt0(i,kk)
-                rklnew = rklnew + qdwt(kk) * tmp
+                rklnew = rklnew + xxwt(kk) * tmp
             }
         }
         #   Reset iteration with uniform starting value
@@ -381,7 +381,7 @@ repeat {
             for (kk=1;kk<=nx;kk=kk+1) {
                 tmp = 0.d0
                 for (i=1;i<=nqd;i=i+1)  tmp = tmp + dlog(wt0(i,kk)/wt(i,kk)) * wt0(i,kk)
-                rkl = rkl + qdwt(kk) * tmp
+                rkl = rkl + xxwt(kk) * tmp
             }
             iter = 0
             break
@@ -423,7 +423,7 @@ repeat {
         for (kk=1;kk<=nx;kk=kk+1) {
             tmp = 0.d0
             for (i=1;i<=nqd;i=i+1)  tmp = tmp + dlog(wt0(i,kk)/wt(i,kk)) * wt0(i,kk)
-            rkl = rkl + qdwt(kk) * tmp
+            rkl = rkl + xxwt(kk) * tmp
         }
         iter = 0
         flag = 2
@@ -438,7 +438,7 @@ rkl = 0.d0
 for (kk=1;kk<=nx;kk=kk+1) {
     tmp = 0.d0
     for (i=1;i<=nqd;i=i+1)  tmp = tmp + dlog(wt0(i,kk)/wt(i,kk)) * wt0(i,kk)
-    rkl = rkl + qdwt(kk) * tmp
+    rkl = rkl + xxwt(kk) * tmp
 }
 wt(1,1) = rkl
 

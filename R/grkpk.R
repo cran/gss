@@ -145,14 +145,14 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
             the.wk <- theta
             nu.wk <- nu
         }
-        ind.wk <- theta!=theta.old
+        ind.wk <- theta[1:nq]!=theta.old
         if (sum(ind.wk)==nq) {
             r.wk0 <- 0
             for (i in 1:nq) {
                 r.wk0 <- r.wk0 + 10^theta[i]*r[,,i]
             }
             assign("r.wk",r.wk0+0,inherit=TRUE)
-            assign("theta.old",theta+0,inherit=TRUE)
+            assign("theta.old",theta[1:nq]+0,inherit=TRUE)
         }
         else {
             r.wk0 <- r.wk
@@ -210,6 +210,7 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
     ## theta search
     dc <- rep(0,nn)
     fit <- NULL
+    theta.old <- theta
     if (nu[[2]]) theta <- c(theta, log(nu[[1]]))
     if (!is.null(random)) theta <- c(theta,z$zeta)
     counter <- 0
@@ -217,7 +218,6 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
     for (i in 1:nq) {
         r.wk <- r.wk + 10^theta[i]*r[,,i]
     }
-    theta.old <- theta
     tmp <- abs(cv(theta))
     cv.scale <- 1
     cv.shift <- 0

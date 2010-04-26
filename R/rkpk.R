@@ -86,7 +86,7 @@ sspreg1 <- function(s,r,q,y,method,alpha,varht,random)
     if (is.null(s)) theta <- 0
     else theta <- log10(sum(s^2)/nnull/tmp*nxi) / 2
     log.la0 <- log10(tmp/sum(diag(q))) + theta
-        if (!is.null(random)) {
+    if (!is.null(random)) {
         ran.scal <- theta - log10(sum(random$z^2)/nz/tmp*nxi) / 2
         r <- cbind(r,10^(ran.scal-theta)*random$z)
     }
@@ -171,14 +171,14 @@ mspreg1 <- function(s,r,id.basis,y,method,alpha,varht,random,skip.iter)
     nq <- dim(r)[3]
     ## cv function
     cv <- function(theta) {
-        ind.wk <- theta!=theta.old
+        ind.wk <- theta[1:nq]!=theta.old
         if (sum(ind.wk)==nq) {
             r.wk0 <- 0
             for (i in 1:nq) {
                 r.wk0 <- r.wk0 + 10^theta[i]*r[,,i]
             }
             assign("r.wk",r.wk0+0,inherit=TRUE)
-            assign("theta.old",theta+0,inherit=TRUE)
+            assign("theta.old",theta[1:nq]+0,inherit=TRUE)
         }
         else {
             r.wk0 <- r.wk
@@ -282,13 +282,13 @@ mspreg1 <- function(s,r,id.basis,y,method,alpha,varht,random,skip.iter)
     }
     ## theta search
     fit <- NULL
-    if (!is.null(random)) theta <- c(theta,z$zeta)
     counter <- 0
     r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^theta[i]*r[,,i]
     }
     theta.old <- theta
+    if (!is.null(random)) theta <- c(theta,z$zeta)
     ## scale and shift cv
     tmp <- abs(cv(theta))
     cv.scale <- 1
