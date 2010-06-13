@@ -91,15 +91,19 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
         x.ind <- 1:nobs
         x.ind[!x.dup.ind] <- 1:nx
         if (nobs-nx) {
-            x.ind.wk <- 1:(nobs-nx)
+            x.ind.wk <- range <- 1:(nobs-nx)
             for (i in 1:nx) {
-                for (j in 1:(nobs-nx)) {
-                    if (sum(duplicated(rbind(x.pt[i,,drop=FALSE],x.dup[j,,drop=FALSE]))))
+                range.wk <- NULL
+                for (j in range) {
+                    if (sum(duplicated(rbind(x.pt[i,,drop=FALSE],x.dup[j,,drop=FALSE])))) {
                         x.ind.wk[j] <- i
+                        range.wk <- c(range.wk,j)
+                    }
                 }
+                if (!is.null(range.wk)) range <- range[!(range%in%range.wk)]
             }
+            x.ind[x.dup.ind] <- x.ind.wk
         }
-        if (nobs-nx) x.ind[x.dup.ind] <- x.ind.wk
     }
     else stop("gss error in sshzd1: missing covariate")
     ## calculate rho

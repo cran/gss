@@ -73,33 +73,12 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
         if (class(random)=="formula") random <- mkran(random,data)
         xx <- cbind(xx,random$z)
     }
-    xx <- as.matrix(xx)
-    x.pt <- unique(xx)
-    nx <- dim(x.pt)[1]
-    x.dup.ind <- duplicated(xx)
-    x.dup <- xx[x.dup.ind,,drop=FALSE]
-    ## xx[i,]==x.pt[id.x[i],]
-    id.x <- 1:nobs
-    id.x[!x.dup.ind] <- 1:nx
-    if (nobs-nx) {
-        id.x.wk <- 1:(nobs-nx)
-        for (i in 1:nx) {
-            for (j in 1:(nobs-nx)) {
-                if (sum(duplicated(rbind(x.pt[i,,drop=FALSE],x.dup[j,,drop=FALSE]))))
-                    id.x.wk[j] <- i
-            }
-        }
-        id.x[x.dup.ind] <- id.x.wk
-    }
-    ## integration weights at x.pt[i,]
-    xx.wt <- rep(0,nx)
-    if (is.null(cnt)) {
-        for (i in 1:nobs) xx.wt[id.x[i]] <- xx.wt[id.x[i]]+1
-    }
-    else {
-        for (i in 1:nobs) xx.wt[id.x[i]] <- xx.wt[id.x[i]]+cnt[i]
-    }
+    xx <- apply(xx,1,function(x)paste(x,collapse="\r"))
+    x.dup.ind <- duplicated(xx)    
+    if (!is.null(cnt)) xx <- rep(xx,cnt)
+    xx.wt <- as.vector(table(xx)[unique(xx)])
     xx.wt <- xx.wt/sum(xx.wt)
+    nx <- length(xx.wt)
     ## Generate Random
     if (!is.null(random)) {
         ## z and qd.z
@@ -116,7 +95,7 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
             for (i in 1:(nlvl.wk-1)) {
                 z <- cbind(z,z.aux[y.wk,i]*random$z)
                 for (j in 1:nmesh) {
-                    qd.z <- cbind(qd.z,z.aux[pt.wk[j],i]*random$z[!x.dup.ind])
+                    qd.z <- cbind(qd.z,z.aux[pt.wk[j],i]*random$z[!x.dup.ind,])
                 }
             }
         }
@@ -235,7 +214,7 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
             stop("gss error in ssllrm: fixed effect MLE is not unique")
     }
     ## Fit the model
-    z <- mspllrm(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,id.x,Random,prec,maxiter,alpha,skip.iter)
+    z <- mspllrm(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,Random,prec,maxiter,alpha,skip.iter)
     ## Brief description of model terms
     desc <- NULL
     for (label in term$labels)
@@ -255,7 +234,7 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
 }
 
 ## Fit (multiple smoothing parameter) log-linear regression model
-mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,id.x,random,prec,maxiter,alpha,skip.iter)
+mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,skip.iter)
 {
     nobs <- dim(r)[1]
     nxi <- dim(r)[2]
@@ -283,7 +262,7 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,id.x,random,prec,maxiter,al
                         as.double(t(cbind(r.wk,s))), as.integer(nobs),
                         as.integer(sum(cnt)), as.integer(cnt),
                         as.double(qd.r.wk), as.integer(nqd), as.integer(nx),
-                        as.double(xx.wt), as.integer(id.x),
+                        as.double(xx.wt),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps),
                         wk=double(2*(nqd+1)*nx+2*nobs+nn*(2*nn+6)),
@@ -344,7 +323,7 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,id.x,random,prec,maxiter,al
                         as.double(t(cbind(r.wk0,s))), as.integer(nobs),
                         as.integer(sum(cnt)), as.integer(cnt),
                         as.double(qd.r.wk0), as.integer(nqd), as.integer(nx),
-                        as.double(xx.wt), as.integer(id.x),
+                        as.double(xx.wt),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps),
                         wk=double(2*(nqd+1)*nx+2*nobs+nn*(2*nn+6)),

@@ -17,7 +17,7 @@ msphzd(s, r, id.wk, Nobs, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, skip.ite
 
 msphzd1(s, r, id.wk, Nobs, cnt, int.s, int.r, rho, prec, maxiter, alpha, skip.iter)
 
-mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, id.x, random, prec, maxiter, alpha, skip.iter)
+mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, random, prec, maxiter, alpha, skip.iter)
 }
 \details{
     \code{sspdsty} is used by \code{\link{ssden}} to compute
@@ -52,7 +52,6 @@ mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, id.x, random, prec, maxiter, alp
     \item{int.r}{Integrals of basis of penalized terms.}
     \item{rho}{rho function value on failure times.}
     \item{xx.wt}{Weights at unique x.}
-    \item{id.x}{Position of x value in list of unique x.}
     \item{random}{Input for parametric random effects in nonparametric
         mixed-effect models.}
 }

@@ -217,7 +217,8 @@ project.ssllrm <- function(object,include,...)
     }
     for (ylab in object$ynames) {
         lvl <- levels(object$mf[,ylab])
-        wk <- table(object$mf[,ylab])
+        if (is.null(object$cnt)) wk <- table(object$mf[,ylab])
+        else wk <- table(rep(object$mf[,ylab],object$cnt))
         wk <- wk/sum(wk)
         nlvl <- length(wk)
         if (is.null(object$b)) {

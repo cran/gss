@@ -3,10 +3,10 @@
 #   llrmnewton
 #::::::::::::::::
 
-subroutine  llrmnewton (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt, idx,
+subroutine  llrmnewton (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt,
                         prec, maxiter, mchpr, wk, info)
 
-integer  nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, idx(*), maxiter, info
+integer  nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, maxiter, info
 double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), xxwt(*), prec, mchpr, wk(*)
 
 integer  iwt, iwtsum, imrs, ifit, imu, imuwk, iv, ivwk, ijpvt, icdnew, iwtnew, iwtnewsum,
@@ -27,7 +27,7 @@ iwtnewsum = iwtnew + nqd*nx
 ifitnew = iwtnewsum + nx
 iwk = ifitnew + nobs
 
-call  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt, idx,
+call  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt,
                    prec, maxiter, mchpr, wk(iwt), wk(iwtsum), wk(imrs), wk(ifit),
                    wk(imu), wk(imuwk), wk(iv), wk(ivwk), wk(ijpvt), wk(icdnew),
                    wk(iwtnew), wk(iwtnewsum), wk(ifitnew), wk(iwk), info)
@@ -42,16 +42,16 @@ end
 #:::::::::::::::::
 
 subroutine  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt,
-                         idx, prec, maxiter, mchpr, wt, wtsum, mrs, fit, mu, muwk,
+                         prec, maxiter, mchpr, wt, wtsum, mrs, fit, mu, muwk,
                          v, vwk, jpvt, cdnew, wtnew, wtnewsum, fitnew, wk, info)
 
-integer  nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, idx(*), maxiter, jpvt(*), info
+integer  nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, maxiter, jpvt(*), info
 double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), xxwt(*), prec, mchpr,
                   wt(nqd,*), wtsum(*), mrs(*), fit(*), mu(*), muwk(*), v(nxis,*),
                   vwk(nxis,*), cdnew(*), wtnew(nqd,*), wtnewsum(*), fitnew(*), wk(*)
 
 integer  i, j, k, kk, iter, flag, rkv, idamax, infowk
-double precision  tmp, ddot, fitmean, lkhd, mumax, lkhdnew, disc, disc0, trc
+double precision  norm, tmp, ddot, fitmean, lkhd, mumax, lkhdnew, disc, disc0, trc
 
 #   Calculate constants
 info = 0
@@ -69,22 +69,24 @@ for (i=1;i<=nxis;i=i+1) {
 if (cntsum==0)  trc = 1.d0 / dfloat (nobs)
 else  trc = 1.d0 / dfloat (cntsum)
 #   Initialization
+norm = 0.d0
 for (kk=1;kk<=nx;kk=kk+1) {
     wtsum(kk) = 0.d0
     for (i=1;i<=nqd;i=i+1) {
         wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1))
         wtsum(kk) = wtsum(kk) + wt(i,kk)
     }
+    norm = norm + xxwt(kk) * dlog (wtsum(kk))
 }
 fitmean = 0.d0
 for (i=1;i<=nobs;i=i+1) {
-    tmp = ddot (nxis, rs(1,i), 1, cd, 1) - dlog (wtsum(idx(i)))
+    tmp = ddot (nxis, rs(1,i), 1, cd, 1)
     fit(i) = dexp (tmp)
     if (cntsum!=0)  tmp = tmp * dfloat (cnt(i))
     fitmean = fitmean + tmp
 }
 call  dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
-lkhd = lkhd + ddot (nxi, cd, 1, wk, 1) / 2.d0 - fitmean * trc
+lkhd = lkhd + ddot (nxi, cd, 1, wk, 1) / 2.d0 - fitmean * trc + norm
 iter = 0
 flag = 0
 #   Iteration
@@ -130,17 +132,19 @@ repeat {
         call  dtrsl (v, nxis, nxis, cdnew, 01, infowk)
         call  dprmut (cdnew, nxis, jpvt, 1)
         call  daxpy (nxis, 1.d0, cd, 1, cdnew, 1)
+        norm = 0.d0
         for (kk=1;kk<=nx;kk=kk+1) {
             wtnewsum(kk) = 0.d0
             for (i=1;i<=nqd;i=i+1) {
                 wtnew(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cdnew, 1))
                 wtnewsum(kk) = wtnewsum(kk) + wtnew(i,kk)
             }
+            norm = norm + xxwt(kk) * dlog (wtnewsum(kk))
         }
         if ((flag==0)|(flag==2)) {
             fitmean = 0.d0
             for (i=1;i<=nobs;i=i+1) {
-                tmp = ddot (nxis, rs(1,i), 1, cdnew, 1) - dlog (wtnewsum(idx(i)))
+                tmp = ddot (nxis, rs(1,i), 1, cdnew, 1)
                 if (tmp>3.d2) {
                     flag = flag + 1
                     break
@@ -150,7 +154,7 @@ repeat {
                 fitmean = fitmean + tmp
             }
             call  dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
-            lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean * trc
+            lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean * trc + norm
         }
         #   Reset iteration with uniform starting value
         if (flag==1) {
@@ -234,6 +238,7 @@ else {
     for (i=1;i<=nobs;i=i+1)  lkhd = lkhd + dfloat (cnt(i)) * dlog (fit(i))
     lkhd = lkhd / dfloat (cntsum)
 }
+for (kk=1;kk<=nx;kk=kk+1)  lkhd = lkhd - xxwt(kk) * dlog (wtsum(kk))
 wtsum(1) = lkhd
 wtsum(2) = trc
 
