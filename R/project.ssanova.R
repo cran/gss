@@ -9,7 +9,12 @@ project.ssanova <- function(object,include,...)
     mf <- object$mf
     yy <- predict(object,mf)
     wt <- model.weights(object$mf)
+    if (!is.null(wt)) wt.wk <- sqrt(wt)
     offset <- model.offset(object$mf)
+    if (!is.null(object$random)) {
+        if (is.null(offset)) offset <- 0
+        offset <- offset + object$random$z%*%object$b
+    }
     if (!is.null(offset)) yy <- yy - offset
     ## extract terms in subspace
     s <- matrix(1,nobs,1)
@@ -60,13 +65,13 @@ project.ssanova <- function(object,include,...)
         nn <- ncol(as.matrix(sr))
         nnull <- nn-nxi
         if (!is.null(wt)) {
-            wt <- sqrt(wt)
-            sr <- wt*sr
-            yy <- wt*yy
+            sr <- wt.wk*sr
+            yy.wk <- wt.wk*yy
         }
+        else yy.wk <- yy
         z <- .Fortran("reg",
                       as.double(sr), as.integer(nobs), as.integer(nnull),
-                      as.double(q), as.integer(nxi), as.double(yy),
+                      as.double(q), as.integer(nxi), as.double(yy.wk),
                       as.integer(4),
                       double(1), double(1), double(1), dc=double(nn),
                       as.double(.Machine$double.eps),
@@ -74,7 +79,8 @@ project.ssanova <- function(object,include,...)
                       double(max(nobs,nn)), integer(1), integer(1),
                       PACKAGE="gss")["dc"]
         assign("yhat",sr%*%z$dc,inherit=TRUE)
-        mean((yy-yhat)^2)
+        if (!is.null(wt)) sum(wt*(yy-yhat/wt.wk)^2)/sum(wt)
+        else mean((yy-yhat)^2)
     }
     cv.wk <- function(theta) cv.scale*my.ls(theta)+cv.shift
     ## initialization
@@ -110,8 +116,17 @@ project.ssanova <- function(object,include,...)
         }
     }
     else kl <- my.ls()
-    kl0 <- mean((yy-mean(yy))^2)
-    kl <- mean((yy-yhat)^2)
-    kl1 <- mean((mean(yy)-yhat)^2)
+    if (!is.null(wt)) {
+        yhat <- yhat/wt.wk
+        ymean <- sum(wt*yy)/sum(wt)
+        kl0 <- sum(wt*(yy-ymean)^2)/sum(wt)
+        kl <- sum(wt*(yy-yhat)^2)/sum(wt)
+        kl1 <- sum(wt*(ymean-yy)^2)/sum(wt)
+    }
+    else {
+        kl0 <- mean((yy-mean(yy))^2)
+        kl <- mean((yy-yhat)^2)
+        kl1 <- mean((mean(yy)-yhat)^2)
+    }
     list(ratio=kl/kl0,kl=kl,check=(kl+kl1)/kl0)
 }

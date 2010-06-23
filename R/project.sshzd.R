@@ -4,7 +4,7 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
     if (!(object$tname%in%include))
         stop("gss error in project.sshzd: time main effect missing in included terms")
     quad.pt <- object$quad$pt
-    quad.wt <- object$quad$wt
+    qd.wt <- object$qd.wt
     nx <- dim(object$qd.wt)[2]
     nbasis <- length(object$id.basis)
     mesh0 <- object$mesh0
@@ -80,6 +80,9 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
     if (!is.null(qd.s)) nnull <- dim(qd.s)[3]
     else nnull <- 0
     nn <- nxi + nnull
+    ## random effect offset
+    if (!is.null(object$b)) offset <- as.vector(object$random$qd.z%*%object$b)
+    else offset <- rep(0,nx)
     ## calculate projection
     rkl <- function(theta1=NULL) {
         theta.wk <- 1:nq
@@ -96,7 +99,8 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
         z <- .Fortran("hrkl",
                       cd=as.double(cd), as.integer(nn),
                       as.double(qd.r.wk), as.integer(nqd), as.integer(nx),
-                      as.double(object$qd.wt), mesh=as.double(object$qd.wt*mesh0),
+                      as.double(t(t(qd.wt)*exp(offset))),
+                      mesh=as.double(qd.wt*mesh0),
                       as.double(.Machine$double.eps), double(nqd*nx),
                       double(nn), double(nn), double(nn*nn), integer(nn), double(nn),
                       double(nn), double(nqd*nx), as.double(1e-6), as.integer(30),
@@ -106,8 +110,8 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
         if (z$info==2)
             warning("gss warning in project.sshzd: Newton iteration fails to converge")
         assign("cd",z$cd,inherit=TRUE)
-        assign("mesh1",z$mesh,inherit=TRUE)
-        sum(object$qd.wt*(log(mesh0/mesh1)*mesh0-mesh0+mesh1))
+        assign("mesh1",t(t(matrix(z$mesh,nqd,nx))*exp(offset)),inherit=TRUE)
+        sum(qd.wt*(log(mesh0/mesh1)*mesh0-mesh0+mesh1))
     }
     cv.wk <- function(theta) cv.scale*rkl(theta)+cv.shift
     ## initialization
@@ -119,8 +123,8 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
         }
         v.s <- v.r <- 0
         for (i in 1:nx) {
-            v.s <- v.s + apply(object$qd.wt[,i]*qd.s[,i,,drop=FALSE]^2,2,sum)
-            v.r <- v.r + apply(object$qd.wt[,i]*qd.r.wk[,,i,drop=FALSE]^2,2,sum)
+            v.s <- v.s + apply(qd.wt[,i]*qd.s[,i,,drop=FALSE]^2,2,sum)
+            v.r <- v.r + apply(qd.wt[,i]*qd.r.wk[,,i,drop=FALSE]^2,2,sum)
         }
         theta.wk <- log10(sum(v.s)/nnull/sum(v.r)*nxi) / 2
     }
@@ -164,7 +168,10 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
         }
     }
     else kl <- rkl()
-    kl0 <- sum(object$qd.wt*(log(mesh0/object$cfit)*mesh0-mesh0+object$cfit))
+    ## cfit
+    cfit <- t(matrix(object$dbar/sum(t(qd.wt)*exp(offset))*exp(offset),nx,nqd))
+    ## return
+    kl0 <- sum(object$qd.wt*(log(mesh0/cfit)*mesh0-mesh0+cfit))
     obj <- list(ratio=kl/kl0,kl=kl)
     if (mesh) obj$mesh <- mesh1
     obj

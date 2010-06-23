@@ -196,6 +196,7 @@ C Output from Public domain Ratfor, version 1.01
 23007 continue
       lkhd = dasum (nt, wt, 1) + ddot (nxis, intrs, 1, cd, 1)
       tmp = 0.d0
+      disc = 0.d0
       i=1
 23070 if(.not.(i.le.nt))goto 23072
       call dcopy (nxis, rs(i,1), nt, wk, 1)
@@ -206,12 +207,18 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum.ne.0)then
       wtnew(i) = wtnew(i) / dfloat (cnt(i))
       endif
-      tmp = tmp + wt(i) * (1.d0/(1.d0-wtnew(i))**2-1.d0)
+      tmp = tmp + wt(i) * (dexp (wtnew(i)/(1.d0-wtnew(i))) - 1.d0)
+      if(cntsum.ne.0)then
+      disc = disc + dfloat(cnt(i)) * wtnew(i)/(1.d0-wtnew(i))
+      else
+      disc = disc + wtnew(i)/(1.d0-wtnew(i))
+      endif
 23071 i=i+1
       goto 23070
 23072 continue
       wt(1) = lkhd
-      wt(2) = tmp/2.d0
+      wt(2) = tmp
+      wt(3) = disc/dfloat(nobs)
       return
       end
       subroutine hzdaux101 (cd, nxis, q, nxi, rs, nt, rho, mchpr, v, jpv
@@ -222,50 +229,50 @@ C Output from Public domain Ratfor, version 1.01
       integer i, j, k, rkv
       double precision tmp, ddot
       i=1
-23075 if(.not.(i.le.nt))goto 23077
+23077 if(.not.(i.le.nt))goto 23079
       tmp = ddot (nxis, rs(i,1), nt, cd, 1)
       rho(i) = dexp (-tmp) * rho(i)
-23076 i=i+1
-      goto 23075
-23077 continue
+23078 i=i+1
+      goto 23077
+23079 continue
       i=1
-23078 if(.not.(i.le.nxis))goto 23080
+23080 if(.not.(i.le.nxis))goto 23082
       j=i
-23081 if(.not.(j.le.nxis))goto 23083
+23083 if(.not.(j.le.nxis))goto 23085
       v(i,j) = 0.d0
       k=1
-23084 if(.not.(k.le.nt))goto 23086
+23086 if(.not.(k.le.nt))goto 23088
       v(i,j) = v(i,j) + rho(k) * rs(k,i) * rs(k,j)
-23085 k=k+1
-      goto 23084
-23086 continue
+23087 k=k+1
+      goto 23086
+23088 continue
       if(j.le.nxi)then
       v(i,j) = v(i,j) + q(i,j)
       endif
-23082 j=j+1
-      goto 23081
-23083 continue
-23079 i=i+1
-      goto 23078
-23080 continue
+23084 j=j+1
+      goto 23083
+23085 continue
+23081 i=i+1
+      goto 23080
+23082 continue
       i=1
-23089 if(.not.(i.le.nxis))goto 23091
+23091 if(.not.(i.le.nxis))goto 23093
       jpvt(i) = 0
-23090 i=i+1
-      goto 23089
-23091 continue
-      call dchdc (v, nxis, nxis, cd, jpvt, 1, rkv)
-23092 if(v(rkv,rkv).lt.v(1,1)*dsqrt(mchpr))then
-      rkv = rkv - 1
-      goto 23092
-      endif
+23092 i=i+1
+      goto 23091
 23093 continue
+      call dchdc (v, nxis, nxis, cd, jpvt, 1, rkv)
+23094 if(v(rkv,rkv).lt.v(1,1)*dsqrt(mchpr))then
+      rkv = rkv - 1
+      goto 23094
+      endif
+23095 continue
       i=rkv+1
-23094 if(.not.(i.le.nxis))goto 23096
+23096 if(.not.(i.le.nxis))goto 23098
       v(i,i) = v(1,1)
       call dset (i-rkv-1, 0.d0, v(rkv+1,i), 1)
-23095 i=i+1
-      goto 23094
-23096 continue
+23097 i=i+1
+      goto 23096
+23098 continue
       return
       end

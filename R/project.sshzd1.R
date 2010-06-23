@@ -2,7 +2,7 @@
 project.sshzd1 <- function(object,include,...)
 {
     if (!(object$tname%in%include))
-        stop("gss error in project.sshzd: time main effect missing in included terms")
+        stop("gss error in project.sshzd1: time main effect missing in included terms")
     ## Initialization
     term <- object$term
     mf <- object$mf

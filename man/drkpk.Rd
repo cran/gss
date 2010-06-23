@@ -13,9 +13,9 @@
 sspdsty(s, r, q, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha)
 mspdsty(s, r, id.basis, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, skip.iter)
 
-msphzd(s, r, id.wk, Nobs, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, skip.iter)
+msphzd(s, r, id.wk, Nobs, cnt, qd.s, qd.r, qd.wt, random, prec, maxiter, alpha, skip.iter)
 
-msphzd1(s, r, id.wk, Nobs, cnt, int.s, int.r, rho, prec, maxiter, alpha, skip.iter)
+msphzd1(s, r, id.wk, Nobs, cnt, int.s, int.r, rho, random, prec, maxiter, alpha, skip.iter)
 
 mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, random, prec, maxiter, alpha, skip.iter)
 }
@@ -67,9 +67,9 @@ mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, random, prec, maxiter, alpha, sk
     efficient approximation and Bayesian confidence intervals.
     \emph{Statistics and Probability Letters}, \bold{76}, 244--254.
 
-    Du, P. and Gu, C. (2008), Penalized Pseudo-Likelihood Hazard
+    Du, P. and Gu, C. (2009), Penalized Pseudo-Likelihood Hazard
     Estimation: A Fast Alternative to Penalized Likelihood.
-    \emph{Journal of Statistical Planning and Inference}, \bold{00},
-    000--000.
+    \emph{Journal of Statistical Planning and Inference}, \bold{139},
+    891--899.
 }
 \keyword{internal}

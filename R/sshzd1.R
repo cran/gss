@@ -1,7 +1,7 @@
 ## Fit hazard model
 sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
                    weights=NULL,subset,na.action=na.omit,
-                   id.basis=NULL,nbasis=NULL,seed=NULL,
+                   id.basis=NULL,nbasis=NULL,seed=NULL,random=NULL,
                    prec=1e-7,maxiter=30,skip.iter=FALSE)
 {
     ## Local functions handling formula
@@ -22,7 +22,7 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     }
     ## Obtain model frame and model terms
     mf <- match.call()
-    mf$type <- mf$alpha <- NULL
+    mf$type <- mf$alpha <- mf$random <- NULL
     mf$id.basis <- mf$nbasis <- mf$seed <- NULL
     mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
     term.wk <- terms.formula(mf$formula)
@@ -46,8 +46,13 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     ## Use sshzd in lack of covariate
     if (all(tname==names(mf))) stop("use sshzd when covariate is absent")
     ## Generate sub-basis
-    cnt <- model.weights(mf)
     nobs <- nrow(mf)
+    cnt <- model.weights(mf)
+    if (is.null(cnt)) yy$cnt <- rep(1,nobs)
+    else {
+        yy$cnt <- cnt
+        mf["(weights)"] <- NULL
+    }
     if (is.null(id.basis)) {
         if (is.null(nbasis)) nbasis <- max(30,ceiling(10*nobs^(2/9)))
         if (nbasis>sum(yy$status)) nbasis <- sum(yy$status)
@@ -75,6 +80,10 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
         stop("gss error in sshzd1: time range not covering domain")
     ## Generate terms    
     term <- mkterm(mf,type)
+    ## Generate random
+    if (!is.null(random)) {
+        if (class(random)=="formula") random <- mkran(random,data)
+    }
     ## Generate Gauss-Legendre quadrature
     nmesh <- 200
     quad <- gauss.quad(nmesh,tdomain)
@@ -83,10 +92,13 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     xnames <- xnames[!xnames%in%tname]
     if (length(xnames)) {
         xx <- mf[,xnames,drop=FALSE]
-        x.pt <- unique(xx)
-        nx <- dim(x.pt)[1]
+        if (!is.null(random)) xx <- cbind(xx,random$z)
+        xx <- apply(xx,1,function(x)paste(x,collapse="\r"))
+        ux <- unique(xx)
+        nx <- length(ux)
         x.dup.ind <- duplicated(xx)
-        x.dup <- xx[x.dup.ind,,drop=FALSE]
+        x.dup <- as.vector(xx[x.dup.ind])
+        x.pt <- mf[!x.dup.ind,xnames,drop=FALSE]
         ## xx[i,]==x.pt[x.ind[i],]
         x.ind <- 1:nobs
         x.ind[!x.dup.ind] <- 1:nx
@@ -95,7 +107,7 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
             for (i in 1:nx) {
                 range.wk <- NULL
                 for (j in range) {
-                    if (sum(duplicated(rbind(x.pt[i,,drop=FALSE],x.dup[j,,drop=FALSE])))) {
+                    if (identical(ux[i],x.dup[j])) {
                         x.ind.wk[j] <- i
                         range.wk <- c(range.wk,j)
                     }
@@ -104,10 +116,15 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
             }
             x.ind[x.dup.ind] <- x.ind.wk
         }
+        if (!is.null(random)) {
+            qd.z <- random$z[!x.dup.ind,]
+            random$z <- random$z[yy$status,]
+        }
     }
     else stop("gss error in sshzd1: missing covariate")
     ## calculate rho
-    rho <- sshzd(Surv(end,status,start)~end,data=yy,id.basis=id.basis,alpha=2)
+    rho <- sshzd(Surv(end,status,start)~end,data=yy,
+                 id.basis=id.basis,weights=cnt,alpha=2)
     rho.qd <- hzdcurve.sshzd(rho,quad$pt)
     rhowk <- hzdcurve.sshzd(rho,yy$end[yy$status])
     ## integration weights at x.pt[i,]
@@ -180,6 +197,8 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
             }
         }
     }
+    ## generate int.z
+    if (!is.null(random)) random$int.z <- t(qd.z)%*%apply(qd.wt,2,sum)
     if (!is.null(s)) {
         nnull <- dim(s)[2]
         ## Check s rank
@@ -190,8 +209,11 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     Nobs <- ifelse(is.null(cnt),nobs,sum(cnt))
     if (!is.null(cnt)) cntt <- cnt[yy$status]
     else cntt <- NULL
-    z <- msphzd1(s,r,id.wk,Nobs,cntt,int.s,int.r,rhowk,prec,maxiter,alpha,skip.iter)
-    cfit <- sum(rhowk)/Nobs/sum(qd.wt)
+    z <- msphzd1(s,r,id.wk,Nobs,cntt,int.s,int.r,rhowk,random,prec,maxiter,alpha,skip.iter)
+    ## cfit
+    if (!is.null(random)) rhowk <- rhowk*exp(-random$z%*%z$b)
+    if (!is.null(cnt)) cfit <- sum(cntt*rhowk)/Nobs/sum(qd.wt)
+    else cfit <- sum(rhowk)/Nobs/sum(qd.wt)
     ## Brief description of model terms
     desc <- NULL
     for (label in term$labels)
@@ -202,7 +224,7 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     ## Return the results
     obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,yy=yy,
                   alpha=alpha,tname=tname,xnames=xnames,tdomain=tdomain,cfit=cfit,
-                  quad=quad,x.pt=x.pt,qd.wt=qd.wt,id.basis=id.basis,
+                  quad=quad,x.pt=x.pt,qd.wt=qd.wt,id.basis=id.basis,random=random,
                   int.s=int.s,int.r=int.r,skip.iter=skip.iter),z)
     obj$se.aux$v <- sqrt(Nobs)*obj$se.aux$v
     class(obj) <- c("sshzd1","sshzd")
@@ -210,38 +232,49 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
 }
 
 ## Fit (multiple smoothing parameter) hazard function
-msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,prec,maxiter,alpha,skip.iter)
+msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,random,prec,maxiter,alpha,skip.iter)
 {
     nT <- dim(r)[1]
     nxi <- dim(r)[2]
     if (!is.null(s)) nnull <- dim(s)[2]
     else nnull <- 0
-    nxis <- nxi+nnull
+    if (!is.null(random)) nz <- ncol(as.matrix(random$z))
+    else nz <- 0
+    nxiz <- nxi + nz
+    nn <- nxiz + nnull
     if (is.null(cnt)) cnt <- 0
     ## cv functions
     cv.s <- function(lambda) {
+        if (is.null(random)) q.wk0 <- 10^(lambda)*q.wk
+        else {
+            q.wk0 <- matrix(0,nxiz,nxiz)
+            q.wk0[1:nxi,1:nxi] <- 10^(lambda[1])*q.wk
+            q.wk0[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(lambda[-1],random$sigma$env)
+        }
         fit <- .Fortran("hzdnewton10",
-                        cd=as.double(cd), as.integer(nxis),
-                        as.double(10^lambda*q.wk), as.integer(nxi),
+                        cd=as.double(cd), as.integer(nn),
+                        as.double(q.wk0), as.integer(nxiz),
                         as.double(cbind(r.wk,s)), as.integer(nT),
                         as.integer(Nobs), as.integer(sum(cnt)),
                         as.integer(cnt),
                         as.double(c(int.r.wk,int.s)), as.double(rho),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps),
-                        wk=double(2*nT+nxis*(nxis+4)),
+                        wk=double(2*nT+nn*(nn+4)),
                         info=integer(1),PACKAGE="gss")
         if (fit$info==1) stop("gss error in sshzd1: Newton iteration diverges")
         if (fit$info==2) warning("gss warning in sshzd1: Newton iteration fails to converge")
         assign("cd",fit$cd,inherit=TRUE)
         cv <- fit$wk[1]+alpha*fit$wk[2]
-        alpha.wk <- max(0,log.la0-lambda-5)*(3-alpha) + alpha
+        alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
         adj <- ifelse (alpha.wk>alpha,(alpha.wk-alpha)*fit$wk[2],0)
         cv+adj
     }
+    cv.s.wk <- function(lambda) cv.scale*cv.s(lambda)+cv.shift
     cv.m <- function(theta) {
-        ind.wk <- theta!=theta.old
+        ind.wk <- theta[1:nq]!=theta.old
         if (sum(ind.wk)==nq) {
             r.wk0 <- int.r.wk0 <- 0
             for (i in 1:nq) {
@@ -250,7 +283,7 @@ msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,prec,maxiter,alpha,skip.i
             }
             assign("r.wk",r.wk0+0,inherit=TRUE)
             assign("int.r.wk",int.r.wk0+0,inherit=TRUE)
-            assign("theta.old",theta+0,inherit=TRUE)
+            assign("theta.old",theta[1:nq]+0,inherit=TRUE)
         }
         else {
             r.wk0 <- r.wk
@@ -262,27 +295,36 @@ msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,prec,maxiter,alpha,skip.i
             }
         }
         q.wk <- r.wk0[id.wk,]
+        if (is.null(random)) q.wk0 <- 10^(lambda)*q.wk
+        else {
+            r.wk0 <- cbind(r.wk0,10^ran.scal*random$z)
+            int.r.wk0 <- c(int.r.wk0,10^ran.scal*random$int.z)
+            q.wk0 <- matrix(0,nxiz,nxiz)
+            q.wk0[1:nxi,1:nxi] <- 10^(lambda)*q.wk
+            q.wk0[(nxi+1):nxiz,(nxi+1):nxiz] <-
+              10^(2*ran.scal)*random$sigma$fun(theta[-(1:nq)],random$sigma$env)
+        }
         fit <- .Fortran("hzdnewton10",
-                        cd=as.double(cd), as.integer(nxis),
-                        as.double(10^lambda*q.wk), as.integer(nxi),
+                        cd=as.double(cd), as.integer(nn),
+                        as.double(q.wk0), as.integer(nxiz),
                         as.double(cbind(r.wk0,s)), as.integer(nT),
                         as.integer(Nobs), as.integer(sum(cnt)),
                         as.integer(cnt),
                         as.double(c(int.r.wk0,int.s)), as.double(rho),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps),
-                        wk=double(2*nT+nxis*(nxis+4)),
+                        wk=double(2*nT+nn*(nn+4)),
                         info=integer(1),PACKAGE="gss")
         if (fit$info==1) stop("gss error in sshzd: Newton iteration diverges")
         if (fit$info==2) warning("gss warning in sshzd: Newton iteration fails to converge")
         assign("cd",fit$cd,inherit=TRUE)
         cv <- fit$wk[1]+alpha*fit$wk[2]
-        alpha.wk <- max(0,theta-log.th0-5)*(3-alpha) + alpha
+        alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
         adj <- ifelse (alpha.wk>alpha,(alpha.wk-alpha)*fit$wk[2],0)
         cv+adj
     }
-    cv.wk <- function(theta) cv.scale*cv.m(theta)+cv.shift
+    cv.m.wk <- function(theta) cv.scale*cv.m(theta)+cv.shift
     ## Initialization
     theta <- -log10(apply(r[id.wk,,,drop=FALSE],3,function(x)sum(diag(x))))
     nq <- length(theta)
@@ -297,35 +339,91 @@ msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,prec,maxiter,alpha,skip.i
         theta.wk <- log10(v.s/nnull/v.r*nxi) / 2
     }
     else theta.wk <- 0
+    if (!is.null(random)) {
+        v.z <- sum(rho*random$z^2)
+        ran.scal <- theta.wk - log10(v.z/nz/v.r*nxi) / 2
+    }
+    else ran.scal <- NULL
     theta <- theta + theta.wk
     r.wk <- 10^theta.wk*r.wk
     int.r.wk <- 10^theta.wk*int.r.wk
     q.wk <- r.wk[id.wk,]
+    if (!is.null(random)) {
+        r.wk <- cbind(r.wk,10^ran.scal*random$z)
+        int.r.wk <- c(int.r.wk,10^ran.scal*random$int.z)
+    }
     log.la0 <- log10(sum(v.r)/sum(diag(q.wk))) + 2*theta.wk
     ## fixed theta iteration
-    cd <- rep(0,nxi+nnull)
-    la <- log.la0
-    repeat {
-        mn <- la-1
-        mx <- la+1
-        zz <- nlm0(cv.s,c(mn,mx))
-        if (min(zz$est-mn,mx-zz$est)>=1e-3) break
-        else la <- zz$est
+    cd <- rep(0,nn)
+    if (is.null(random)) la <- log.la0
+    else la <- c(log.la0,random$init)
+    if (length(la)-1) {
+        counter <- 0
+        ## scale and shift cv
+        tmp <- abs(cv.s(la))
+        cv.scale <- 1
+        cv.shift <- 0
+        if (tmp<1&tmp>10^(-4)) {
+            cv.scale <- 10/tmp
+            cv.shift <- 0
+        }
+        if (tmp<10^(-4)) {
+            cv.scale <- 10^2
+            cv.shift <- 10
+        }
+        repeat {
+            zz <- nlm(cv.s.wk,la,stepmax=1,ndigit=7)
+            if (zz$code<=3) break
+            la <- zz$est
+            counter <- counter + 1
+            if (counter>=5) {
+                warning("gss warning in sshzd: iteration for model selection fails to converge")
+                break
+            }
+        }
+        cv <- (zz$min-cv.shift)/cv.scale
+    }
+    else {
+        repeat {
+            mn <- la-1
+            mx <- la+1
+            zz <- nlm0(cv.s,c(mn,mx))
+            if (min(zz$est-mn,mx-zz$est)>=1e-3) break
+            else la <- zz$est
+        }
+        cv <- zz$min
     }
     if (nq==1) {
         if (!is.null(cnt)) rho <- rho*cnt
-        lambda <- zz$est
+        if (is.null(random)) {
+            lambda <- zz$est
+            zeta <- NULL
+        }
+        else {
+            lambda <- zz$est[1]
+            zeta <- zz$est[-1]
+        }
+        if (is.null(random)) q.wk0 <- 10^(lambda)*q.wk
+        else {
+            q.wk0 <- matrix(0,nxiz,nxiz)
+            q.wk0[1:nxi,1:nxi] <- 10^(lambda)*q.wk
+            q.wk0[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(zeta,random$sigma$env)
+        }
         se.aux <- .Fortran("hzdaux101",
-                           as.double(cd), as.integer(nxis),
-                           as.double(10^lambda*q.wk), as.integer(nxi),
+                           as.double(cd), as.integer(nn),
+                           as.double(q.wk0), as.integer(nxiz),
                            as.double(cbind(r.wk,s)), as.integer(nT),
                            as.double(rho/Nobs), as.double(.Machine$double.eps),
-                           v=double(nxis*nxis), jpvt=integer(nxis),
+                           v=double(nn*nn), jpvt=integer(nn),
                            PACKAGE="gss")[c("v","jpvt")]
         c <- cd[1:nxi]
-        if (nnull) d <- cd[nxi+(1:nnull)]
+        if (nz) b <- 10^ran.scal*cd[nxi+(1:nz)]
+        else b <- NULL
+        if (nnull) d <- cd[nxiz+(1:nnull)]
         else d <- NULL
-        return(list(lambda=lambda,theta=theta,c=c,d=d,cv=zz$min,se.aux=se.aux))
+        return(list(lambda=lambda,zeta=zeta,theta=theta,ran.scal=ran.scal,
+                    c=c,b=b,d=d,cv=cv,se.aux=se.aux))
     }
     ## theta adjustment
     for (i in 1:nq) {
@@ -342,38 +440,93 @@ msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,prec,maxiter,alpha,skip.i
         theta.wk <- log10(v.s/nnull/v.r*nxi) / 2
     }
     else theta.wk <- 0
+    if (!is.null(random)) {
+        v.z <- sum(rho*random$z^2)
+        ran.scal <- theta.wk - log10(v.z/nz/v.r*nxi) / 2
+    }
+    else ran.scal <- NULL
     theta <- theta + theta.wk
     r.wk <- 10^theta.wk*r.wk
     int.r.wk <- 10^theta.wk*int.r.wk
     q.wk <- r.wk[id.wk,]
+    if (!is.null(random)) {
+        r.wk <- cbind(r.wk,10^ran.scal*random$z)
+        int.r.wk <- c(int.r.wk,10^ran.scal*random$int.z)
+    }
     log.la0 <- log10(sum(v.r)/sum(diag(q.wk))) + 2*theta.wk
     log.th0 <- theta-log.la0
     ## fixed theta iteration
-    cd <- rep(0,nxi+nnull)
-    la <- log.la0
-    repeat {
-        mn <- la-1
-        mx <- la+1
-        zz <- nlm0(cv.s,c(mn,mx))
-        if (min(zz$est-mn,mx-zz$est)>=1e-3) break
-        else la <- zz$est
+    cd <- rep(0,nn)
+    if (is.null(random)) la <- log.la0
+    else la <- c(log.la0,random$init)
+    if (length(la)-1) {
+        counter <- 0
+        ## scale and shift cv
+        tmp <- abs(cv.s(la))
+        cv.scale <- 1
+        cv.shift <- 0
+        if (tmp<1&tmp>10^(-4)) {
+            cv.scale <- 10/tmp
+            cv.shift <- 0
+        }
+        if (tmp<10^(-4)) {
+            cv.scale <- 10^2
+            cv.shift <- 10
+        }
+        repeat {
+            zz <- nlm(cv.s.wk,la,stepmax=1,ndigit=7)
+            if (zz$code<=3) break
+            la <- zz$est
+            counter <- counter + 1
+            if (counter>=5) {
+                warning("gss warning in sshzd: iteration for model selection fails to converge")
+                break
+            }
+        }
+        cv <- (zz$min-cv.shift)/cv.scale
     }
-    lambda <- zz$est
+    else {
+        repeat {
+            mn <- la-1
+            mx <- la+1
+            zz <- nlm0(cv.s,c(mn,mx))
+            if (min(zz$est-mn,mx-zz$est)>=1e-3) break
+            else la <- zz$est
+        }
+        cv <- zz$min
+    }
+    if (is.null(random)) {
+        lambda <- zz$est
+        zeta <- NULL
+    }
+    else {
+        lambda <- zz$est[1]
+        zeta <- zz$est[-1]
+    }
     ## early return
     if (skip.iter) {
         if (!is.null(cnt)) rho <- rho*cnt
-        cv <- zz$min
+        if (is.null(random)) q.wk0 <- 10^(lambda)*q.wk
+        else {
+            q.wk0 <- matrix(0,nxiz,nxiz)
+            q.wk0[1:nxi,1:nxi] <- 10^(lambda)*q.wk
+            q.wk0[(nxi+1):nxiz,(nxi+1):nxiz] <-
+                10^(2*ran.scal)*random$sigma$fun(zeta,random$sigma$env)
+        }
         se.aux <- .Fortran("hzdaux101",
-                           as.double(cd), as.integer(nxis),
-                           as.double(10^lambda*q.wk), as.integer(nxi),
+                           as.double(cd), as.integer(nn),
+                           as.double(q.wk0), as.integer(nxiz),
                            as.double(cbind(r.wk,s)), as.integer(nT),
                            as.double(rho/Nobs), as.double(.Machine$double.eps),
-                           v=double(nxis*nxis), jpvt=integer(nxis),
+                           v=double(nn*nn), jpvt=integer(nn),
                            PACKAGE="gss")[c("v","jpvt")]
         c <- cd[1:nxi]
-        if (nnull) d <- cd[nxi+(1:nnull)]
+        if (nz) b <- 10^ran.scal*cd[nxi+(1:nz)]
+        else b <- NULL
+        if (nnull) d <- cd[nxiz+(1:nnull)]
         else d <- NULL
-        return(list(lambda=lambda,theta=theta,c=c,d=d,cv=cv,se.aux=se.aux))
+        return(list(lambda=lambda,zeta=zeta,theta=theta,ran.scal=ran.scal,
+                    c=c,b=b,d=d,cv=cv,se.aux=se.aux))
     }
     ## theta search
     counter <- 0
@@ -383,6 +536,7 @@ msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,prec,maxiter,alpha,skip.i
         int.r.wk <- int.r.wk + 10^theta[i]*int.r[,i]
     }
     theta.old <- theta
+    if (!is.null(random)) theta <- c(theta,zeta)
     tmp <- abs(cv.m(theta))
     cv.scale <- 1
     cv.shift <- 0
@@ -395,7 +549,7 @@ msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,prec,maxiter,alpha,skip.i
         cv.shift <- 10
     }
     repeat {
-        zz <- nlm(cv.wk,theta,stepmax=1,ndigit=7)
+        zz <- nlm(cv.m.wk,theta,stepmax=1,ndigit=7)
         if (zz$code<=3)  break
         theta <- zz$est
         counter <- counter + 1
@@ -404,24 +558,42 @@ msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,prec,maxiter,alpha,skip.i
             break
         }
     }
-    ## return
-    theta <- zz$est
     cv <- (zz$min-cv.shift)/cv.scale
+    if (is.null(random)) {
+        theta <- zz$est
+        zeta <- NULL
+    }
+    else {
+        theta <- zz$est[1:nq]
+        zeta <- zz$est[-(1:nq)]
+    }
+    ## return
+    if (!is.null(cnt)) rho <- rho*cnt
     r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^theta[i]*r[,,i]
     }
     q.wk <- r.wk[id.wk,]
-    if (!is.null(cnt)) rho <- rho*cnt
+    if (is.null(random)) q.wk0 <- 10^(lambda)*q.wk
+    else {
+        r.wk <- cbind(r.wk,10^ran.scal*random$z)
+        q.wk0 <- matrix(0,nxiz,nxiz)
+        q.wk0[1:nxi,1:nxi] <- 10^(lambda)*q.wk
+        q.wk0[(nxi+1):nxiz,(nxi+1):nxiz] <-
+          10^(2*ran.scal)*random$sigma$fun(zeta,random$sigma$env)
+    }
     se.aux <- .Fortran("hzdaux101",
-                       as.double(cd), as.integer(nxis),
-                       as.double(10^lambda*q.wk), as.integer(nxi),
+                       as.double(cd), as.integer(nn),
+                       as.double(q.wk0), as.integer(nxiz),
                        as.double(cbind(r.wk,s)), as.integer(nT),
                        as.double(rho/Nobs), as.double(.Machine$double.eps),
-                       v=double(nxis*nxis), jpvt=integer(nxis),
+                       v=double(nn*nn), jpvt=integer(nn),
                        PACKAGE="gss")[c("v","jpvt")]
     c <- cd[1:nxi]
-    if (nnull) d <- cd[nxi+(1:nnull)]
+    if (nz) b <- 10^ran.scal*cd[nxi+(1:nz)]
+    else b <- NULL
+    if (nnull) d <- cd[nxiz+(1:nnull)]
     else d <- NULL
-    list(lambda=lambda,theta=theta,c=c,d=d,cv=cv,se.aux=se.aux)
+    list(lambda=lambda,zeta=zeta,theta=theta,ran.scal=ran.scal,
+         c=c,b=b,d=d,cv=cv,se.aux=se.aux)
 }

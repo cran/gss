@@ -381,7 +381,12 @@ repeat {
         #   Reset iteration with uniform starting value
         if (flag==1) {
             call  dset (nxis, 0.d0, cd, 1)
-            call  dset (nqd*nx, 1.d0/dfloat(nqd), wt, 1)
+            for (kk=1;kk<=nx;kk=kk+1) {
+                for (i=1;i<=nqd;i=i+1) {
+                    wt(i,kk) = dexp (offset(i,kk))
+                }
+                call  dscal (nqd, 1.d0/dasum(nqd,wt(1,kk),1), wt(1,kk), 1)
+            }
             rkl = 0.d0
             for (kk=1;kk<=nx;kk=kk+1) {
                 tmp = 0.d0

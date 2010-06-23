@@ -11,10 +11,10 @@
 \usage{
 sshzd(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
-      prec=1e-7, maxiter=30, skip.iter=FALSE)
+      random=NULL, prec=1e-7, maxiter=30, skip.iter=FALSE)
 sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
        subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
-       prec=1e-7, maxiter=30, skip.iter=FALSE)
+       random=NULL, prec=1e-7, maxiter=30, skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit, where
@@ -35,6 +35,9 @@ sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
         \code{id.basis} is specified.}
     \item{seed}{Seed to be used for the random generation of "knots."
         Ignored when \code{id.basis} is specified.}
+    \item{random}{Input for parametric random effects (frailty) in
+        nonparametric mixed-effect models.  See \code{\link{mkran}} for
+	details.}
     \item{prec}{Precision requirement for internal iterations.}
     \item{maxiter}{Maximum number of iterations allowed for
 	internal iterations.}
@@ -118,10 +121,14 @@ sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     efficient approximation and Bayesian confidence intervals.
     \emph{Statistics and Probability Letters}, \bold{76}, 244--254.
 
-    Du, P. and Gu, C. (2008), Penalized Pseudo-Likelihood Hazard
+    Du, P. and Gu, C. (2009), Penalized Pseudo-Likelihood Hazard
     Estimation: A Fast Alternative to Penalized Likelihood.
-    \emph{Journal of Statistical Planning and Inference}, \bold{00},
-    000--000.
+    \emph{Journal of Statistical Planning and Inference}, \bold{139},
+    891--899.
+
+    Du, P. and Ma, S. (2010), Frailty Model with Spline Estimated
+    Nonparametric Hazard Function, \emph{Statistica Sinica}, \bold{20},
+    561--580.
 }
 \examples{
 ## Model with interaction

@@ -1,3 +1,16 @@
+Wed Jun 23 10:59:50 EDT 2010, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 1.1-4.
+
+	* R: i) Bug fixes in project.ssanova, ssden, sshzd, and sshzd1,
+	and minor tweaking in project.gssanova, mostly concerning weighted
+	data.  ii) Added support of random effects to the sshzd and sshzd1
+	suites for frailty models.
+
+	* man: Updated to reflect changes in R.
+
+	* src: Minor change in hzdnewton10.
+
 Sun Jun 13 17:28:13 EDT 2010, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 1.1-3.

@@ -13,14 +13,14 @@ proj0.binomial <- function(y0,eta,offset)
     w <- p*(1-p)
     ywk <- eta-u/w-offset
     wt <- w*y0$wt
-    kl <- mean(y0$wt*(y0$p*(y0$eta-eta)+log((1-y0$p)/(1-p))))
+    kl <- sum(y0$wt*(y0$p*(y0$eta-eta)+log((1-y0$p)/(1-p))))/sum(y0$wt)
     list(ywk=ywk,wt=wt,kl=kl,u=wt*u)
 }
 kl.binomial <- function(eta0,eta1,wt)
 {
     p0 <- plogis(eta0)
     p1 <- plogis(eta1)
-    mean(wt*(p0*(eta0-eta1)+log((1-p0)/(1-p1))))
+    sum(wt*(p0*(eta0-eta1)+log((1-p0)/(1-p1))))/sum(wt)
 }
 cfit.binomial <- function(y,wt,offset)
 {
@@ -60,7 +60,7 @@ proj0.poisson <- function(y0,eta,wt,offset)
     u <- lambda - y0$lambda
     w <- lambda
     ywk <- eta-u/w-offset
-    kl <- mean(wt*(y0$lambda*(y0$eta-eta)-y0$lambda+lambda))
+    kl <- sum(wt*(y0$lambda*(y0$eta-eta)-y0$lambda+lambda))/sum(wt)
     wt <- w*wt
     list(ywk=ywk,wt=wt,kl=kl,u=wt*u)
 }
@@ -68,7 +68,7 @@ kl.poisson <- function(eta0,eta1,wt)
 {
     lambda0 <- exp(eta0)
     lambda1 <- exp(eta1)
-    mean(wt*(lambda0*(eta0-eta1)-lambda0+lambda1))
+    sum(wt*(lambda0*(eta0-eta1)-lambda0+lambda1))/sum(wt)
 }
 cfit.poisson <- function(y,wt,offset)
 {
@@ -103,7 +103,7 @@ proj0.Gamma <- function(y0,eta,wt,offset)
     u <- 1-y0$mu/mu
     w <- y0$mu/mu
     ywk <- eta-u/w-offset
-    kl <- mean(wt*(y0$mu*(-1/y0$mu+1/mu)+log(mu/y0$mu)))
+    kl <- sum(wt*(y0$mu*(-1/y0$mu+1/mu)+log(mu/y0$mu)))/sum(wt)
     wt <- w*wt
     list(ywk=ywk,wt=wt,kl=kl,u=wt*u)
 }
@@ -111,7 +111,7 @@ kl.Gamma <- function(eta0,eta1,wt)
 {
     mu0 <- exp(eta0)
     mu1 <- exp(eta1)
-    mean(wt*(mu0*(-1/mu0+1/mu1)+log(mu1/mu0)))
+    sum(wt*(mu0*(-1/mu0+1/mu1)+log(mu1/mu0)))/sum(wt)
 }
 cfit.Gamma <- function(y,wt,offset)
 {
@@ -150,15 +150,15 @@ proj0.nbinomial <- function(y0,eta,wt,offset)
     u <- (y0$mu+y0$nu)*p-y0$nu
     w <- (y0$mu+y0$nu)*p*(1-p)
     ywk <- eta-u/w-offset
-    kl <- mean(wt*((y0$nu+y0$mu)*log((1+exp(eta))/(1+exp(y0$eta)))
-                   +y0$nu*(y0$eta-eta)))
+    kl <- sum(wt*((y0$nu+y0$mu)*log((1+exp(eta))/(1+exp(y0$eta)))
+                   +y0$nu*(y0$eta-eta)))/sum(wt)
     wt <- w*wt
     list(ywk=ywk,wt=wt,kl=kl,u=wt*u)
 }
 kl.nbinomial <- function(eta0,eta1,wt,nu)
 {
     mu0 <- nu*exp(-eta0)
-    mean(wt*((nu+mu0)*log((1+exp(eta1))/(1+exp(eta0)))+nu*(eta0-eta1)))
+    sum(wt*((nu+mu0)*log((1+exp(eta1))/(1+exp(eta0)))+nu*(eta0-eta1)))/sum(wt)
 }
 cfit.nbinomial <- function(y,wt,offset,nu)
 {
@@ -199,7 +199,7 @@ proj0.weibull <- function(y0,eta,wt,offset,nu)
     u <- nu*(y0$lam-exp(-nu*eta))
     w <- nu*nu*exp(-nu*eta)
     ywk <- eta-u/w-offset
-    kl <- mean(wt*y0$int*(y0$lam*nu*(eta-y0$eta)+exp(-nu*eta)-y0$lam))
+    kl <- sum(wt*y0$int*(y0$lam*nu*(eta-y0$eta)+exp(-nu*eta)-y0$lam))/sum(wt)
     u <- y0$int*u
     w <- y0$int*w
     wt <- w*wt
@@ -209,7 +209,7 @@ kl.weibull <- function(eta0,eta1,wt,nu,int)
 {
     lam0 <- exp(-nu*eta0)
     lam1 <- exp(-nu*eta1)
-    mean(wt*int*(lam0*nu*(eta1-eta0)+lam1-lam0))
+    sum(wt*int*(lam0*nu*(eta1-eta0)+lam1-lam0))/sum(wt)
 }
 cfit.weibull <- function(y,wt,offset,nu)
 {

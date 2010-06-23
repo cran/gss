@@ -74,7 +74,7 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
                 xlab <- colnames(domain)[i]
                 wk <- mf[[xlab]]
                 jk <- ssden(~wk,domain=data.frame(wk=domain[,i]),alpha=2,
-                            id.basis=id.basis)
+                            id.basis=id.basis,weights=cnt)
                 quad$pt[,i] <- qssden(jk,quad$pt[,i])
                 quad$wt <- quad$wt/dssden(jk,quad$pt[,i])
             }

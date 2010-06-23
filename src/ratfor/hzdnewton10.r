@@ -168,12 +168,13 @@ for (i=1;i<=nt;i=i+1) {
     call  dset (nxis-rkv, 0.d0, wk(rkv+1), 1)
     wtnew(i) = wt(i) * ddot (nxis, wk, 1, wk, 1)
     if (cntsum!=0)  wtnew(i) = wtnew(i) / dfloat (cnt(i))
-    tmp = tmp + wt(i) * (1.d0/(1.d0-wtnew(i))**2-1.d0)
+    tmp = tmp + wt(i) * (dexp (wtnew(i)/(1.d0-wtnew(i))) - 1.d0)
+#    tmp = tmp + wt(i) * (1.d0/(1.d0-wtnew(i))**2-1.d0)/2.d0
     if (cntsum!=0) disc = disc + dfloat(cnt(i)) * wtnew(i)/(1.d0-wtnew(i))
     else  disc = disc + wtnew(i)/(1.d0-wtnew(i))
 }
 wt(1) = lkhd
-wt(2) = tmp/2.d0
+wt(2) = tmp
 wt(3) = disc/dfloat(nobs)
 
 return

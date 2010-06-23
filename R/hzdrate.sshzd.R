@@ -32,10 +32,14 @@ function (object,x,se=FALSE) {
             }
         }
     }
-    rs <- cbind(r,s)
-    if (!se) as.vector(exp(rs%*%c(object$c,object$d)))
+    if (is.null(object$random)) rs <- cbind(r,s)
     else {
-        fit <- as.vector(exp(rs%*%c(object$c,object$d)))
+        nz <- length(object$b)
+        rs <- cbind(r,matrix(0,dim(x)[1],nz),s)
+    }
+    if (!se) as.vector(exp(rs%*%c(object$c,object$b,object$d)))
+    else {
+        fit <- as.vector(exp(rs%*%c(object$c,object$b,object$d)))
         se.fit <- .Fortran("hzdaux2",
                            as.double(object$se.aux$v), as.integer(dim(rs)[2]),
                            as.integer(object$se.aux$jpvt),
@@ -52,7 +56,7 @@ function (object,time,covariates=NULL,se=FALSE) {
     if (!any(class(object)=="sshzd"))
         stop("gss error in hzdcurve.sshzd: not a sshzd object")
     if (length(xnames)&&(!all(xnames%in%names(covariates))))
-        stop("gss error in survexp.sshzd: missing covariates")
+        stop("gss error in hzdcurve.sshzd: missing covariates")
     mn <- min(object$tdomain)
     mx <- max(object$tdomain)
     if ((min(time)<mn)|(max(time)>mx))
