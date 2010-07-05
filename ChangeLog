@@ -1,3 +1,17 @@
+Mon Jul  5 15:28:48 EDT 2010, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 1.1-5.
+
+	* R: Reworked qssden and cqssden to eliminate calls to pssden and
+	cpssden, and removed a now redundant operation in cpssden; qssden
+	and cqssden now run much faster.
+
+	* data: Added esc.
+
+	* man: i) Added documentation for esc.  ii) Removed the warning
+	for the slowness of cpssden and cqssden, as the new versions are
+	no longer slow.
+
 Wed Jun 23 10:59:50 EDT 2010, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 1.1-4.

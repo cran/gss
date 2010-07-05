@@ -42,8 +42,6 @@ cqssden(object, p, cond, int=NULL)
 \note{
     If variables other than factors or numerical vectors are involved in
     \code{x}, the normalizing constant can not be computed.
-  
-    \code{cpssden} and \code{cqssden} can be very slow.
 }
 \seealso{
     Fitting function \code{\link{ssden}} and \code{\link{dssden}}.
