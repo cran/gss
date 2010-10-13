@@ -45,8 +45,14 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     mf <- eval(mf,parent.frame())
     ## Use sshzd in lack of covariate
     if (all(tname==names(mf))) stop("use sshzd when covariate is absent")
-    ## Generate sub-basis
+    ## trim yy if subset is used
     nobs <- nrow(mf)
+    if (nobs<length(yy$status)) {
+        yy$start <- yy$start[subset]
+        yy$end <- yy$end[subset]
+        yy$status <- yy$status[subset]
+    }
+    ## Generate sub-basis
     cnt <- model.weights(mf)
     if (is.null(cnt)) yy$cnt <- rep(1,nobs)
     else {

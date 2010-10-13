@@ -43,10 +43,16 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     mf[[1]] <- as.name("model.frame")
     mf[[2]] <- eval(parse(text=paste("~",paste(term.labels,collapse="+"))))
     mf <- eval(mf,parent.frame())
+    ## trim yy if subset is used
+    nobs <- nrow(mf)
+    if (nobs<length(yy$status)) {
+        yy$start <- yy$start[subset]
+        yy$end <- yy$end[subset]
+        yy$status <- yy$status[subset]
+    }
     ## Generate sub-basis
     cnt <- model.weights(mf)
     if (!is.null(cnt)) mf["(weights)"] <- NULL
-    nobs <- nrow(mf)
     if (is.null(id.basis)) {
         if (is.null(nbasis)) nbasis <- max(30,ceiling(10*nobs^(2/9)))
         if (nbasis>sum(yy$status)) nbasis <- sum(yy$status)

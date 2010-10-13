@@ -86,7 +86,7 @@ for (i=1;i<=nobs;i=i+1) {
     fitmean = fitmean + tmp
 }
 call  dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
-lkhd = lkhd + ddot (nxi, cd, 1, wk, 1) / 2.d0 - fitmean * trc + norm
+lkhd = ddot (nxi, cd, 1, wk, 1) / 2.d0 - fitmean * trc + norm
 iter = 0
 flag = 0
 #   Iteration
