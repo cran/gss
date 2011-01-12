@@ -1,6 +1,6 @@
 ## Fit log-linear regression model
 ssllrm <- function(formula,response,type=NULL,data=list(),weights,
-                   subset,na.action=na.omit,partial=NULL,alpha=1.4,
+                   subset,na.action=na.omit,partial=NULL,alpha=1,
                    id.basis=NULL,nbasis=NULL,seed=NULL,random=NULL,
                    prec=1e-7,maxiter=30,skip.iter=FALSE)
 {

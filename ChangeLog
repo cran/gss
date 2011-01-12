@@ -1,3 +1,13 @@
+Wed Jan 12 11:58:55 EST 2011, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 1.1-7.
+
+	* R: Set alpha=1 as default in ssllrm.
+
+	* data: Added eyetrack.
+
+	* man: Added documentation for eyetrack.
+
 Wed Oct 13 18:00:47 EDT 2010, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 1.1-6.
