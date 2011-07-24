@@ -15,7 +15,6 @@
 \alias{proj0.poisson}
 \alias{kl.poisson}
 \alias{cfit.poisson}
-\alias{y0.Gamma}
 \alias{mkdata.Gamma}
 \alias{dev.resid.Gamma}
 \alias{dev.null.Gamma}
@@ -27,6 +26,11 @@
 \alias{mkdata.inverse.gaussian}
 \alias{dev.resid.inverse.gaussian}
 \alias{dev.null.inverse.gaussian}
+\alias{cv.inverse.gaussian}
+\alias{y0.inverse.gaussian}
+\alias{proj0.inverse.gaussian}
+\alias{kl.inverse.gaussian}
+\alias{cfit.inverse.gaussian}
 \alias{mkdata.nbinomial}
 \alias{dev.resid.nbinomial}
 \alias{dev.null.nbinomial}
@@ -97,6 +101,11 @@ cfit.Gamma(y, wt, offset)
 mkdata.inverse.gaussian(y, eta, wt, offset)
 dev.resid.inverse.gaussian(y, eta, wt)
 dev.null.inverse.gaussian(y, wt, offset)
+cv.inverse.gaussian(y, eta, wt, hat, rss, alpha)
+y0.inverse.gaussian(eta0)
+proj0.inverse.gaussian(y0, eta, wt, offset)
+kl.inverse.gaussian(eta0, eta1, wt)
+cfit.inverse.gaussian(y, wt, offset)
 
 mkdata.nbinomial(y, eta, wt, offset, nu)
 dev.resid.nbinomial(y, eta, wt)

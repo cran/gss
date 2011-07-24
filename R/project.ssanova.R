@@ -2,9 +2,10 @@
 project.ssanova <- function(object,include,...)
 {
     if (class(object)[1]=="ssanova0")
-        stop("gss error: Kullback-Leibler projection is not implemented for ssanova0")
+        stop("gss error: square error projection is not implemented for ssanova0")
     nobs <- nrow(object$mf)
     nxi <- length(object$id.basis)
+    labels.p <- object$lab.p
     ## evaluate full model
     mf <- object$mf
     yy <- predict(object,mf)
@@ -23,6 +24,7 @@ project.ssanova <- function(object,include,...)
     nq.wk <- nq <- 0
     for (label in object$terms$labels) {
         if (label=="1") next
+        if (label%in%labels.p) next
         x <- object$mf[,object$term[[label]]$vlist]
         x.basis <- object$mf[object$id.basis,object$term[[label]]$vlist]
         nphi <- object$term[[label]]$nphi
@@ -46,7 +48,13 @@ project.ssanova <- function(object,include,...)
             }
         }
     }
-    if (any(include=="partial")) s <- cbind(s,object$mf$partial)
+    if (!is.null(object$partial)) {
+        matx.p <- model.matrix(object$partial$mt,mf)[,-1,drop=FALSE]
+        matx.p <- scale(matx.p)
+        for (label in labels.p) {
+            if (label%in%include) s <- cbind(s,matx.p[,label])
+        }
+    }
     ## calculate projection
     my.ls <- function(theta1=NULL) {
         if (!nq) {
@@ -78,7 +86,7 @@ project.ssanova <- function(object,include,...)
                       double(nn*nn), double(nn), as.integer(rep(0,nn)),
                       double(max(nobs,nn)), integer(1), integer(1),
                       PACKAGE="gss")["dc"]
-        assign("yhat",sr%*%z$dc,inherit=TRUE)
+        assign("yhat",sr%*%z$dc,inherits=TRUE)
         if (!is.null(wt)) sum(wt*(yy-yhat/wt.wk)^2)/sum(wt)
         else mean((yy-yhat)^2)
     }
@@ -121,7 +129,7 @@ project.ssanova <- function(object,include,...)
         ymean <- sum(wt*yy)/sum(wt)
         kl0 <- sum(wt*(yy-ymean)^2)/sum(wt)
         kl <- sum(wt*(yy-yhat)^2)/sum(wt)
-        kl1 <- sum(wt*(ymean-yy)^2)/sum(wt)
+        kl1 <- sum(wt*(ymean-yhat)^2)/sum(wt)
     }
     else {
         kl0 <- mean((yy-mean(yy))^2)

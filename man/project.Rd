@@ -1,9 +1,13 @@
 \name{project}
 \alias{project}
 \alias{project.ssanova}
+\alias{project.ssanova9}
 \alias{project.gssanova}
 \alias{project.ssden}
+\alias{project.sscden}
+\alias{project.sscden1}
 \alias{project.sshzd}
+\alias{project.sscox}
 \alias{project.sshzd1}
 \alias{project.ssllrm}
 \title{Projecting Smoothing Spline ANOVA Fits for Model Diagnostics}
@@ -14,16 +18,20 @@
 \usage{
 project(object, ...)
 \method{project}{ssanova}(object, include, ...)
+\method{project}{ssanova9}(object, include, ...)
 \method{project}{gssanova}(object, include, ...)
 \method{project}{ssden}(object, include, mesh=FALSE, ...)
+\method{project}{sscden}(object, include, ...)
+\method{project}{sscden1}(object, include, ...)
 \method{project}{sshzd}(object, include, mesh=FALSE, ...)
+\method{project}{sscox}(object, include, ...)
 \method{project}{sshzd1}(object, include, ...)
 \method{project}{ssllrm}(object, include, ...)
 }
 \arguments{
     \item{object}{Object of class \code{"ssanova"}, \code{"gssanova"},
-        \code{"ssden"}, \code{"sshzd"}, \code{"sshzd1"}, or
-	\code{"ssllrm"}.}
+        \code{"ssden"}, \code{"sscden"}, \code{"sscden1"},
+	\code{"sshzd"}, \code{"sshzd1"}, or \code{"ssllrm"}.}
     \item{...}{Additional arguments.  Ignored in \code{project.x}.}
     \item{include}{List of model terms to be included in the reduced
         model space.  The \code{partial} and \code{offset} terms, if
@@ -47,7 +55,8 @@ project(object, ...)
     \item{mesh}{The evaluations of the projection.}
 }
 \note{
-    \code{project.sshzd1} calculates a square error projection.
+    \code{project.sscden1} and \code{project.sshzd1} calculates square
+    error projections.
 }
 \details{
     The entropy KL(fit0,null) can be decomposed as the sum of

@@ -24,8 +24,8 @@ ssanova0(formula, type=NULL, data=list(), weights, subset,
     \item{offset}{Optional offset term with known parameter 1.}
     \item{na.action}{Function which indicates what should happen when
 	the data contain NAs.}
-    \item{partial}{Optional extra unpenalized terms in partial spline
-        models.}
+    \item{partial}{Optional symbolic description of parametric terms in
+        partial spline models.}
     \item{method}{Method for smoothing parameter selection.  Supported
 	are \code{method="v"} for GCV, \code{method="m"} for GML (REML),
 	and \code{method="u"} for Mallow's CL.}

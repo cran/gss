@@ -65,8 +65,8 @@ mkrk.tp <- function(dm,order,mesh,weight=1)
                 phix <- rbind(phix,env$phi.p$fun(x,nu,env$phi.p$env))
                 phiy <- rbind(phiy,env$phi.p$fun(y,nu,env$phi.p$env))
             }
-            phix <- backsolve(env$r,phix,tr=TRUE)
-            phiy <- backsolve(env$r,phiy,tr=TRUE)
+            phix <- backsolve(env$r,phix,transpose=TRUE)
+            phiy <- backsolve(env$r,phiy,transpose=TRUE)
             ex <- env$rk.p$fun(env$mesh,x,env$rk.p$env,out=TRUE)
             ex <- env$weight*ex
             ex <- t(env$q)%*%ex
@@ -83,9 +83,9 @@ mkrk.tp <- function(dm,order,mesh,weight=1)
                 phix <- rbind(phix,env$phi.p$fun(x,nu,env$phi.p$env))
                 phiy <- rbind(phiy,env$phi.p$fun(y,nu,env$phi.p$env))
             }
-            phix <- backsolve(env$r,phix,tr=TRUE)
+            phix <- backsolve(env$r,phix,transpose=TRUE)
             phix <- matrix(phix,nnull,N)
-            phiy <- backsolve(env$r,phiy,tr=TRUE)
+            phiy <- backsolve(env$r,phiy,transpose=TRUE)
             phiy <- matrix(phiy,nnull,N)
             ex <- env$rk.p$fun(env$mesh,x,env$rk.p$env,out=TRUE)
             ex <- env$weight*ex
@@ -142,7 +142,7 @@ mkphi.tp <-  function(dm,order,mesh,weight)
         phix <- NULL
         for(i in 1:nnull)
             phix <- rbind(phix,env$phi.p$fun(x,i,env$phi.p$env))
-        t(backsolve(env$r,phix,tr=TRUE))[,nu+1]
+        t(backsolve(env$r,phix,transpose=TRUE))[,nu+1]
     }
     ## Return the function and the environment
     list(fun=fun,env=env)
@@ -259,10 +259,10 @@ mkrk.sphere <- function(order)
         if ((dim(x)[2]!=2)|(dim(y)[2]!=2)) {
             stop("gss error in rk: inputs are of wrong dimensions")
         }
-        if ((max(abs(x[,1]),abs(y[1,]))>90)|(max(abs(x[,2]),abs(y[,2]))>180)) {
+        if ((max(abs(x[,1]),abs(y[,1]))>90)|(max(abs(x[,2]),abs(y[,2]))>180)) {
             stop("gss error in rk: inputs are out of range")
         }
-        ##% Convert to gradient
+        ##% Convert to radian
         lat.x <- x[,1]/180*pi; lon.x <- x[,2]/180*pi
         lat.y <- y[,1]/180*pi; lon.y <- y[,2]/180*pi
         ##% Return the result

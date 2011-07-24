@@ -8,7 +8,7 @@
 }
 \usage{data(LakeAcidity)}
 \format{
-    A list containing 112 observations on the following variables.
+    A data frame containing 112 observations on the following variables.
     \tabular{ll}{
 	\code{ph} \tab Surface ph.\cr
 	\code{cal} \tab Calcium concentration.\cr
@@ -35,18 +35,18 @@
 }
 \examples{
 ## Converting latitude and longitude to x-y coordinates
-\dontrun{convert <- function(lat, lon) {
-    lat <- lat/180*pi
-    lon <- lon/180*pi
-    m.lat <- (max(lat)+min(lat))/2
-    m.lon <- (max(lon)+min(lon))/2
-    x <- cos(m.lat)*sin(m.lon-lon)
-    y <- sin(lat-m.lat)
-    cbind(x,y)
+\dontrun{ltln2xy <- function(latlon,latlon0) {
+  lat <- latlon[,1]*pi/180; lon <- latlon[,2]*pi/180
+  lt0 <- latlon0[1]*pi/180; ln0 <- latlon0[2]*pi/180
+  x <- cos(lt0)*sin(lon-ln0); y <- sin(lat-lt0)
+  cbind(x,y)
 }
 data(LakeAcidity)
-convert(LakeAcidity$lat,LakeAcidity$lon)
+latlon <- as.matrix(LakeAcidity[,c("lat","lon")])
+m.lat <- (min(latlon[,1])+max(latlon[,1]))/2
+m.lon <- (min(latlon[,2])+max(latlon[,2]))/2
+ltln2xy(latlon,c(m.lat,m.lon))
 ## Clean up
-rm(LakeAcidity,convert)}
+rm(ltln2xy,LakeAcidity,latlon,m.lat,m.lon)}
 }
 \keyword{datasets}

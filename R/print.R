@@ -5,7 +5,7 @@ print.ssanova <- function(x,...)
     cat("\nCall:\n",deparse(x$call),"\n\n",sep="")
     ## terms
     cat("Terms:\n")
-    print.default(x$terms$labels)
+    print.default(c(x$terms$labels,x$lab.p))
     cat("\n")
     ## terms overview
     cat("Number of unpenalized and penalized terms:\n\n")
@@ -28,7 +28,7 @@ print.ssanova0 <- function(x,...)
     cat("\nCall:\n",deparse(x$call),"\n\n",sep="")
     ## terms
     cat("Terms:\n")
-    print.default(x$terms$labels)
+    print.default(c(x$terms$labels,x$lab.p))
     cat("\n")
     ## terms overview
     cat("Number of unpenalized and penalized terms:\n\n")
@@ -50,7 +50,7 @@ print.gssanova <- function(x,...)
     cat("\nCall:\n",deparse(x$call),"\n\n",sep="")
     ## terms
     cat("Terms:\n")
-    print.default(x$terms$labels)
+    print.default(c(x$terms$labels,x$lab.p))
     cat("\n")
     ## terms overview
     cat("Number of unpenalized and penalized terms:\n\n")
@@ -81,6 +81,25 @@ print.ssden <- function(x,...)
     invisible()
 }
 
+## Print function for sscden objects
+print.sscden <- function(x,...)
+{
+    ## call
+    cat("\nCall:\n",deparse(x$call),"\n\n",sep="")
+    ## terms
+    cat("Terms:\n")
+    print.default(x$terms$labels)
+    cat("\n")
+    ## terms overview
+    cat("Number of unpenalized and penalized terms:\n\n")
+    print.default(x$desc)
+    cat("\n")
+    cat("Smoothing parameters are selected by CV with alpha=",x$alpha,".",sep="")
+    cat("\n")
+    ## the rest are suppressed
+    invisible()
+}
+
 ## Print function for sshzd objects
 print.sshzd <- function(x,...)
 {
@@ -88,7 +107,26 @@ print.sshzd <- function(x,...)
     cat("\nCall:\n",deparse(x$call),"\n\n",sep="")
     ## terms
     cat("Terms:\n")
-    print.default(x$terms$labels)
+    print.default(c(x$terms$labels,x$lab.p))
+    cat("\n")
+    ## terms overview
+    cat("Number of unpenalized and penalized terms:\n\n")
+    print.default(x$desc)
+    cat("\n")
+    cat("Smoothing parameters are selected by CV with alpha=",x$alpha,".",sep="")
+    cat("\n")
+    ## the rest are suppressed
+    invisible()
+}
+
+## Print function for sshzd objects
+print.sscox <- function(x,...)
+{
+    ## call
+    cat("\nCall:\n",deparse(x$call),"\n\n",sep="")
+    ## terms
+    cat("Terms:\n")
+    print.default(c(x$terms$labels,x$lab.p))
     cat("\n")
     ## terms overview
     cat("Number of unpenalized and penalized terms:\n\n")

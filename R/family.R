@@ -120,9 +120,7 @@ mkdata.Gamma <- function(y,eta,wt,offset)
         stop("gss error: gamma responses should be positive")
     mu <- exp(eta)
     u <- 1-y/mu
-    w <- y/mu
-    ywk <- eta-u/w-offset
-    wt <- w*wt
+    ywk <- eta-u-offset
     list(ywk=ywk,wt=wt)
 }
 
@@ -144,8 +142,7 @@ function(y,wt,offset) {
     repeat {
       mu <- exp(eta+offset)
       u <- 1-y/mu
-      w <- y/mu
-      eta.new <- eta-sum(wt*u)/sum(wt*w)
+      eta.new <- eta-sum(wt*u)/sum(wt)
       if (abs(eta-eta.new)/(1+abs(eta))<1e-7) break
       eta <- eta.new    
     }
@@ -214,7 +211,7 @@ mkdata.nbinomial <- function(y,eta,wt,offset,nu)
             stop("gss error: negative binomial size should be positive")
         p <- 1-1/(1+exp(eta))
         u <- (y[,1]+y[,2])*p-y[,2]
-        w <- (y[,1]+y[,2])*p*(1-p)
+        w <- y[,2]*(1-p)
         ywk <- eta-u/w-offset
         wt <- w*wt
         list(ywk=ywk,wt=wt)
@@ -234,7 +231,7 @@ mkdata.nbinomial <- function(y,eta,wt,offset,nu)
             log.nu <- log.nu.new
         }
         u <- (y+nu)*p-nu
-        w <- (y+nu)*p*(1-p)
+        w <- nu*(1-p)
         ywk <- eta-u/w-offset
         wt <- w*wt
         list(ywk=ywk,wt=wt,nu=nu)
@@ -260,7 +257,7 @@ dev.null.nbinomial <- function(y,wt,offset)
         repeat {
             p <- 1-1/(1+exp(eta+offset))
             u <- (y[,1]+y[,2])*p-y[,2]
-            w <- (y[,1]+y[,2])*p*(1-p)
+            w <- y[,2]*(1-p)
             eta.new <- eta-sum(wt*u)/sum(wt*w)
             if (abs(eta-eta.new)/(1+abs(eta))<1e-7) break
             eta <- eta.new    

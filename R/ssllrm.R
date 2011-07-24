@@ -1,13 +1,13 @@
 ## Fit log-linear regression model
 ssllrm <- function(formula,response,type=NULL,data=list(),weights,
-                   subset,na.action=na.omit,partial=NULL,alpha=1,
+                   subset,na.action=na.omit,alpha=1,
                    id.basis=NULL,nbasis=NULL,seed=NULL,random=NULL,
                    prec=1e-7,maxiter=30,skip.iter=FALSE)
 {
     ## Obtain model frame and model terms
     mf <- match.call()
-    mf$response <- mf$type <- mf$partial <- NULL
-    mf$alpha <- mf$id.basis <- mf$nbasis <- mf$seed <- NULL
+    mf$response <- mf$type <- mf$alpha <- NULL
+    mf$id.basis <- mf$nbasis <- mf$seed <- NULL
     mf$random <- mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
     term.wk <- terms.formula(mf$formula)
     ynames <- as.character(attr(terms(response),"variables"))[-1]
@@ -56,19 +56,8 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
     colnames(qd.pt) <- ynames
     nmesh <- dim(qd.pt)[1]
     x <- mf[,xnames,drop=FALSE]
-    ## Partial
-    if (!is.null(partial)) {
-        if (is.vector(partial)) partial <- as.matrix(partial)
-        partial <- scale(partial)
-        if (dim(partial)[1]!=dim(mf)[1])
-            stop("gss error in ssllrm: partial data are of wrong size")
-        yterms <- labels(terms(response))
-        mf$partial <- partial
-    }
-    else yterms <- NULL
     ## obtain unique covariate observations
     xx <- mf[,xnames,drop=FALSE]
-    if (!is.null(partial)) xx <- cbind(xx,partial)
     if (!is.null(random)) {
         if (class(random)=="formula") random <- mkran(random,data)
         xx <- cbind(xx,random$z)
@@ -132,7 +121,6 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
     qd.r <- as.list(NULL)
     nu <- nq <- 0
     for (label in term$labels) {
-        part <- label%in%yterms  ## y only: no main effect, no interaction with partial
         vlist <- term[[label]]$vlist
         x.list <- xnames[xnames%in%vlist]
         y.list <- ynames[ynames%in%vlist]
@@ -163,14 +151,6 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
                     }
                 }
                 qd.s <- array(c(qd.s,qd.wk),c(nmesh,nx,nu))
-                if (part) {
-                    for (j in 1:dim(partial)[2]) {
-                        nu <- nu+1
-                        s <- cbind(s,s.wk*partial[,j])
-                        qd.s <- array(c(qd.s,outer(qd.s.wk,partial[!x.dup.ind,j])),
-                                      c(nmesh,nx,nu))
-                    }
-                }
             }
         }
         if (nrk) {
@@ -192,18 +172,6 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
                     }
                     qd.r[[nq]] <- qd.wk                    
                 }
-                if (part) {
-                    nq <- nq+1
-                    r <- array(c(r,r.wk*(partial%*%t(partial[id.basis,,drop=FALSE]))),
-                                 c(nobs,nbasis,nq))
-                    qd.wk <- NULL
-                    part.wk <- partial[!x.dup.ind,,drop=FALSE]
-                    for (j in 1:nx) {
-                        ww <- t(qd.r.wk)*as.vector(partial[id.basis,,drop=FALSE]%*%part.wk[j,])
-                        qd.wk <- array(c(qd.wk,t(ww)),c(nmesh,nbasis,j))
-                    }
-                    qd.r[[nq]] <- qd.wk
-                }
             }
         }
     }
@@ -211,7 +179,7 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
     if (!is.null(s)) {
         nnull <- dim(s)[2]
         if (qr(s)$rank<nnull)
-            stop("gss error in ssllrm: fixed effect MLE is not unique")
+            stop("gss error in ssllrm: unpenalized terms are linearly dependent")
     }
     ## Fit the model
     z <- mspllrm(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,Random,prec,maxiter,alpha,skip.iter)
@@ -223,9 +191,9 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
     rownames(desc) <- c(term$labels,"total")
     colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
-    obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,qd.pt=qd.pt,
-                  xx.wt=xx.wt,x.dup.ind=x.dup.ind,alpha=alpha,ynames=ynames,
-                  xnames=xnames,yterms=yterms,id.basis=id.basis,
+    obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,
+                  qd.pt=qd.pt,xx.wt=xx.wt,x.dup.ind=x.dup.ind,alpha=alpha,
+                  ynames=ynames,xnames=xnames,id.basis=id.basis,
                   random=random,Random=Random,skip.iter=skip.iter),z)
     if (is.null(cnt)) obj$se.aux$v <- sqrt(nobs)*obj$se.aux$v
     else obj$se.aux$v <- sqrt(sum(cnt))*obj$se.aux$v
@@ -264,13 +232,13 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
                         as.double(qd.r.wk), as.integer(nqd), as.integer(nx),
                         as.double(xx.wt),
                         as.double(prec), as.integer(maxiter),
-                        as.double(.Machine$double.eps),
-                        wk=double(2*(nqd+1)*nx+2*nobs+nn*(2*nn+6)),
+                        as.double(.Machine$double.eps), integer(nn),
+                        wk=double(2*(nqd+1)*nx+2*nobs+nn*(2*nn+5)),
                         info=integer(1),PACKAGE="gss")
         if (fit$info==1) stop("gss error in ssllrm: Newton iteration diverges")
         if (fit$info==2) warning("gss warning in ssllrm: Newton iteration fails to converge")
-        assign("eta",fit$wk[1:(nqd*nx)],inherit=TRUE)
-        assign("cd",fit$cd,inherit=TRUE)
+        assign("eta",fit$wk[1:(nqd*nx)],inherits=TRUE)
+        assign("cd",fit$cd,inherits=TRUE)
         cv <- alpha*fit$wk[nqd*nx+2]-fit$wk[nqd*nx+1]
         alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
@@ -288,9 +256,9 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
                 if (length(dim(qd.r[[i]]))==3) qd.r.wk0 <- qd.r.wk0 + 10^theta[i]*qd.r[[i]]
                 else qd.r.wk0 <- qd.r.wk0 + as.vector(10^theta[i]*qd.r[[i]])
             }
-            assign("r.wk",r.wk0+0,inherit=TRUE)
-            assign("qd.r.wk",qd.r.wk0+0,inherit=TRUE)
-            assign("theta.old",theta[1:nq]+0,inherit=TRUE)
+            assign("r.wk",r.wk0+0,inherits=TRUE)
+            assign("qd.r.wk",qd.r.wk0+0,inherits=TRUE)
+            assign("theta.old",theta[1:nq]+0,inherits=TRUE)
         }
         else {
             r.wk0 <- r.wk
@@ -325,13 +293,13 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
                         as.double(qd.r.wk0), as.integer(nqd), as.integer(nx),
                         as.double(xx.wt),
                         as.double(prec), as.integer(maxiter),
-                        as.double(.Machine$double.eps),
-                        wk=double(2*(nqd+1)*nx+2*nobs+nn*(2*nn+6)),
+                        as.double(.Machine$double.eps), integer(nn),
+                        wk=double(2*(nqd+1)*nx+2*nobs+nn*(2*nn+5)),
                         info=integer(1),PACKAGE="gss")
         if (fit$info==1) stop("gss error in ssllrm: Newton iteration diverges")
         if (fit$info==2) warning("gss warning in ssllrm: Newton iteration fails to converge")
-        assign("eta",fit$wk[1:(nqd*nx)],inherit=TRUE)
-        assign("cd",fit$cd,inherit=TRUE)
+        assign("eta",fit$wk[1:(nqd*nx)],inherits=TRUE)
+        assign("cd",fit$cd,inherits=TRUE)
         cv <- alpha*fit$wk[nqd*nx+2]-fit$wk[nqd*nx+1]
         alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)

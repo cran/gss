@@ -1,20 +1,20 @@
 C Output from Public domain Ratfor, version 1.01
       subroutine hzdnewton10 (cd, nxis, q, nxi, rs, nt, nobs, cntsum, cn
-     *t, intrs, rho, prec, maxiter, mchpr, wk, info)
-      integer nxis, nxi, nt, nobs, cntsum, cnt(*), maxiter, info
+     *t, intrs, rho, prec, maxiter, mchpr, jpvt, wk, info)
+      integer nxis, nxi, nt, nobs, cntsum, cnt(*), maxiter, jpvt(*), inf
+     *o
       double precision cd(*), q(nxi,*), rs(nt,*), intrs(*), rho(*), prec
      *, mchpr, wk(*)
-      integer iwt, imu, iv, ijpvt, icdnew, iwtnew, iwk
+      integer iwt, imu, iv, icdnew, iwtnew, iwk
       iwt = 1
       imu = iwt + nt
       iv = imu + nxis
-      ijpvt = iv + nxis*nxis
-      icdnew = ijpvt + nxis
+      icdnew = iv + nxis*nxis
       iwtnew = icdnew + nxis
       iwk = iwtnew + nt
       call hzdnewton101 (cd, nxis, q, nxi, rs, nt, nobs, cntsum, cnt, in
-     *trs, rho, prec, maxiter, mchpr, wk(iwt), wk(imu), wk(iv), wk(ijpvt
-     *), wk(icdnew), wk(iwtnew), wk(iwk), info)
+     *trs, rho, prec, maxiter, mchpr, wk(iwt), wk(imu), wk(iv), jpvt, wk
+     *(icdnew), wk(iwtnew), wk(iwk), info)
       return
       end
       subroutine hzdnewton101 (cd, nxis, q, nxi, rs, nt, nobs, cntsum, c

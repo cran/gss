@@ -1,12 +1,13 @@
 ## Calculate prediction and Bayesian SE from ssanova objects
 predict.ssanova <- function(object,newdata,se.fit=FALSE,
-                            include=object$terms$labels,...)
+                            include=c(object$terms$labels,object$lab.p),...)
 {
     nnew <- nrow(newdata)
     nbasis <- length(object$id.basis)
     nnull <- length(object$d)
     nz <- length(object$b)
     nn <- nbasis + nnull + nz
+    labels.p <- object$lab.p
     ## Extract included terms
     term <- object$terms
     philist <- rklist <- NULL
@@ -18,7 +19,7 @@ predict.ssanova <- function(object,newdata,se.fit=FALSE,
             s <- cbind(s,rep(1,len=nnew))
             next
         }
-        if (label=="partial") next
+        if (label%in%labels.p) next
         if (label=="offset") next
         xnew <- newdata[,term[[label]]$vlist]
         x <- object$mf[object$id.basis,term[[label]]$vlist]
@@ -42,11 +43,30 @@ predict.ssanova <- function(object,newdata,se.fit=FALSE,
             }
         }
     }
-    if (any(include=="partial")) {
-        nphi <- term$partial$nphi
-        iphi <- term$partial$iphi
-        for (i in 1:nphi) philist <- c(philist,iphi+(i-1))
-        s <- cbind(s,newdata$partial)
+    if (!is.null(object$partial)) {
+        vars.p <- as.character(attr(object$partial$mt,"variables"))[-1]
+        facs.p <- attr(object$partial$mt,"factors")
+        vlist <- vars.p[as.logical(apply(facs.p,1,sum))]
+        for (lab in labels.p) {
+            if (lab%in%include) {
+                vlist.wk <- vars.p[as.logical(facs.p[,lab])]
+                vlist <- vlist[!(vlist%in%vlist.wk)]
+            }
+        }
+        if (length(vlist)) {
+            for (lab in vlist) newdata[[lab]] <- 0
+        }
+        matx.p <- model.matrix(object$partial$mt,newdata)[,-1,drop=FALSE]
+        matx.p <- sweep(matx.p,2,object$partial$center)
+        matx.p <- sweep(matx.p,2,object$partial$scale,"/")
+        nu <- nnull-dim(matx.p)[2]
+        for (label in labels.p) {
+            nu <- nu+1
+            if (label%in%include) {
+                philist <- c(philist,nu)
+                s <- cbind(s,matx.p[,label])
+            }
+        }
     }
     r.wk <- matrix(0,nnew,nbasis)
     nq <- 0
@@ -76,7 +96,7 @@ predict.ssanova <- function(object,newdata,se.fit=FALSE,
         b <- object$varht/10^object$nlambda
         ## Compute posterior variance
         ss <- matrix(0,nnull,nnew)
-        ss[philist,] <- t(s)
+        if (!is.null(philist)) ss[philist,] <- t(s)
         rr <- t(r.wk%*%object$se.aux$vec)
         wk <- object$se.aux$hfac%*%rbind(ss,rr)
         pse <- sqrt(b*apply(wk^2,2,sum))

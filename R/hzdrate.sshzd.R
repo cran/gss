@@ -1,35 +1,60 @@
 hzdrate.sshzd <- ## Evaluate hazard estimate
-function (object,x,se=FALSE) {
+function (object,x,se=FALSE,include=c(object$terms$labels,object$lab.p)) {
     if (!any(class(object)=="sshzd"))
         stop("gss error in hzdrate.sshzd: not a sshzd object")
     if (dim(object$mf)[2]==1&is.vector(x)) {
         x <- data.frame(x)
         colnames(x) <- colnames(object$mf)
     }
-    s <- NULL
+    if (!is.null(object$d)) s <- matrix(0,dim(x)[1],length(object$d))
     r <- matrix(0,dim(x)[1],length(object$id.basis))
-    nq <- 0
-    for (label in object$terms$labels) {
+    for (label in include) {
         if (label=="1") {
-            s <- cbind(s,rep(1,dim(x)[1]))
+            iphi <- object$terms[[label]]$iphi
+            s[,iphi] <- rep(1,dim(x)[1])
             next
         }
+        if (label%in%object$lab.p) next
         xx <- object$mf[object$id.basis,object$terms[[label]]$vlist]
         x.new <- x[,object$terms[[label]]$vlist]
         nphi <- object$terms[[label]]$nphi
         nrk <-  object$terms[[label]]$nrk
         if (nphi) {
+            iphi <- object$terms[[label]]$iphi
             phi <-  object$terms[[label]]$phi
             for (i in 1:nphi) {
-                s <- cbind(s,phi$fun(x.new,nu=i,env=phi$env))
+                s[,iphi+(i-1)] <- phi$fun(x.new,nu=i,env=phi$env)
             }
         }
         if (nrk) {
+            irk <- object$terms[[label]]$irk
             rk <- object$terms[[label]]$rk
             for (i in 1:nrk) {
-                nq <- nq + 1
-                r <- r + 10^object$theta[nq]*rk$fun(x.new,xx,nu=i,env=rk$env,out=TRUE)
+                r <- r + 10^object$theta[irk+(i-1)]*
+                  rk$fun(x.new,xx,nu=i,env=rk$env,out=TRUE)
             }
+        }
+    }
+    if (!is.null(object$partial)) {
+        vars.p <- as.character(attr(object$partial$mt,"variables"))[-1]
+        facs.p <- attr(object$partial$mt,"factors")
+        vlist <- vars.p[as.logical(apply(facs.p,1,sum))]
+        for (lab in object$lab.p) {
+            if (lab%in%include) {
+                vlist.wk <- vars.p[as.logical(facs.p[,lab])]
+                vlist <- vlist[!(vlist%in%vlist.wk)]
+            }
+        }
+        if (length(vlist)) {
+            for (lab in vlist) x[[lab]] <- 0
+        }
+        matx.p <- model.matrix(object$partial$mt,x)[,-1,drop=FALSE]
+        matx.p <- sweep(matx.p,2,object$partial$center)
+        matx.p <- sweep(matx.p,2,object$partial$scale,"/")
+        nu <- length(object$d)-dim(matx.p)[2]
+        for (label in object$lab.p) {
+            nu <- nu+1
+            if (label%in%include) s[,nu] <- matx.p[,label]
         }
     }
     if (is.null(object$random)) rs <- cbind(r,s)
@@ -60,7 +85,7 @@ function (object,time,covariates=NULL,se=FALSE) {
     mn <- min(object$tdomain)
     mx <- max(object$tdomain)
     if ((min(time)<mn)|(max(time)>mx))
-        stop("gss error in hzdcurve.sshzd: time range over the domain")
+        stop("gss error in hzdcurve.sshzd: time range beyond the domain")
     if (length(xnames)) {
         xx <- covariates[,xnames,drop=FALSE]
         xy <- data.frame(matrix(0,length(time),length(xnames)+1))
@@ -118,7 +143,7 @@ function(object,time,covariates=NULL,start=0) {
     mn <- min(object$tdomain)
     mx <- max(object$tdomain)
     if ((min(start)<mn)|(max(time)>mx))
-        stop("gss error in survexp.sshzd: time range over the domain")
+        stop("gss error in survexp.sshzd: time range beyond the domain")
     ## Calculate
     if (is.null(covariates)) {
         zz <- NULL

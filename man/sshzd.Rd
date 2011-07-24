@@ -10,11 +10,13 @@
 }
 \usage{
 sshzd(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
-      subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
-      random=NULL, prec=1e-7, maxiter=30, skip.iter=FALSE)
+      subset, offset, na.action=na.omit, partial=NULL, id.basis=NULL,
+      nbasis=NULL, seed=NULL, random=NULL, prec=1e-7, maxiter=30,
+      skip.iter=FALSE)
 sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
-       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
-       random=NULL, prec=1e-7, maxiter=30, skip.iter=FALSE)
+       subset, na.action=na.omit, partial=NULL, id.basis=NULL,
+       nbasis=NULL, seed=NULL, random=NULL, prec=1e-7, maxiter=30,
+       skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit, where
@@ -28,8 +30,11 @@ sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     \item{weights}{Optional vector of counts for duplicated data.}
     \item{subset}{Optional vector specifying a subset of observations
 	to be used in the fitting process.}
+    \item{offset}{Optional offset term with known parameter 1.}
     \item{na.action}{Function which indicates what should happen when
         the data contain NAs.}
+    \item{partial}{Optional symbolic description of parametric terms in
+        partial spline models.}
     \item{id.basis}{Index of observations to be used as "knots."}
     \item{nbasis}{Number of "knots" to be used.  Ignored when
         \code{id.basis} is specified.}

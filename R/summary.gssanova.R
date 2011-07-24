@@ -28,6 +28,7 @@ summary.gssanova <- function(object,diagnostics=FALSE,...)
     ## Penalty associated with the fit
     obj.wk <- object
     obj.wk$d[] <- 0
+    if (!is.null(obj.wk$mf$offset)) obj.wk$mf$offset <- 0
     penalty <- sum(obj.wk$c*predict(obj.wk,obj.wk$mf[object$id.basis,]))
     penalty <- as.vector(10^object$nlambda*penalty)
     if (!is.null(object$random)) {

@@ -1,23 +1,29 @@
-## SSANOVA, GSSANOVA, SSDEN, SSHZD, AND SSLLRM SUITES
+## SSANOVA, GSSANOVA, SSDEN, SSHZD, SSCDEN, SSCDEN, AND SSLLRM SUITES
 ssanova                     Fitting smoothing spline ANOVA models
 predict.ssanova             Predicting from ssanova fits
 summary.ssanova             Summarizing ssanova fits
 project.ssanova             Projecting ssanova fits for model diagnostic
+ssanova9                    Fitting smoothing spline ANOVA models with correlated data
+summary.ssanova9            Summarizing ssanova9 fits
+project.ssanova9            Projecting ssanova9 fits for model diagnostic
 ssanova0                    Fitting smoothing spline ANOVA models
 predict.ssanova0            Predicting from ssanova0 fits
 summary.ssanova0            Summarizing ssanova0 fits
 residuals.ssanova           Extracting the residuals from ssanova objects
 fitted.ssanova              Extracting the fitted values from ssanova objects
 print.ssanova               Print function for ssanova objects
+print.ssanova0              Print function for ssanova0 objects
 print.summary.ssanova       Print function for summary.ssanova objects
 
 gssanova                    Fitting smoothing spline ANOVA models with non Gaussian data
+gssanova1                   Fitting smoothing spline ANOVA models with non Gaussian data
 summary.gssanova            Summarizing gssanova fits
 project.gssanova            Projecting gssanova1 fits for model diagnostic
 gssanova0                   Fitting smoothing spline ANOVA models with non Gaussian data
 summary.gssanova0           Summarizing gssanova0 fits
 residuals.gssanova          Extracting the residuals from gssanova objects
 fitted.gssanova             Extracting the fitted values from gssanova objects
+print.gssanova              Print function for gssanova objects
 print.summary.gssanova      Print function for summary.gssanova objects
 print.summary.gssanova0     Print function for summary.gssanova0 objects
 
@@ -36,14 +42,34 @@ hzdrate.sshzd               Evaluating hazard estimates
 hzdcurve.sshzd              Evaluating hazard curves
 survexp.sshzd               Computing expected survivals
 project.ssden               Projecting sshzd fits for model diagnostic
-print.ssden                 Print function for sshzd objects
+print.sshzd                 Print function for sshzd objects
 
 sshzd1                      Estimating hazard function using smoothing splines
 project.ssden1              Projecting sshzd1 fits for model diagnostic
 
+sscox                       Estimating relative risk using smoothing splines
+predict.sscox               Projecting sscox fits for model diagnostic
+project.sscox               Predicting from sscox fits
+print.sscox                 Print function for sscox objects
+
+sscden                      Estimating conditional density using smoothing splines
+d.sscden                    Evaluating pdf of sscden estimates
+project.sscden              Projecting sscden fits for model diagnostic
+sscden1                     Estimating conditional density using smoothing splines
+d.sscden1                   Evaluating pdf of sscden estimates
+project.sscden1             Projecting sscden1 fits for model diagnostic
+dsscden                     Evaluating pdf of sscden estimates
+psscden                     Evaluating cdf of sscden estimates with 1-D Y
+qsscden                     Evaluating quantiles of ssden estimates with 1-D Y
+cdsscden                    Evaluating conditional pdf of sscden estimates
+cpsscden                    Evaluating 1-D conditional cdf of sscden estimates
+cqsscden                    Evaluating 1-D conditional quantiles of sscden estimates
+print.sscden                Print function for sscden objects
+
 ssllrm                      Fitting smoothing spline log-linear regression models
 predict.ssllrm              Evaluating log-linear regression model fits
 project.ssllrm              Projecting ssllrm fits for model diagnostic
+print.ssllrm                Print function for ssllrm objects
 
 ## UTILITIES FOR MAKING MODEL TERMS
 mkterm                      Making model terms
@@ -65,7 +91,9 @@ mkrk.ordinal                Making RK function for ordinal factors
 
 mkran                       Generating random effects in mixed-effect models
 
-mkint                       Calculating integrals for ssden1
+mkcov.arma                  Making covariance function for ARMA models
+mkcov.long                  Making covariance function for longitudinal data
+mkcov.known                 Passing known covariance function to ssanova9
 
 ## UTILITIES FOR DISTRIBUTION FAMILIES
 mkdata.binomial             Making pseudo data for logistic regression
@@ -155,15 +183,22 @@ getsms                      An interface to RKPACK utility DSMS
 
 sspreg1                     Compute regression estimate with single smoothing parameter
 mspreg1                     Compute regression estimate with multiple smoothing parameters
+sspreg91                    Compute regression estimate with single smoothing parameter
+mspreg91                    Compute regression estimate with multiple smoothing parameters
 sspngreg                    Compute NG regression estimate with single smoothing parameter
 mspngreg                    Compute NG regression estimate with single smoothing parameter
 ngreg                       Newton iteration for NG regression with fixed smoothing parameter
+ngreg1                      Performance-oriented iteration using sspreg1 and mspreg1
 regaux                      Obtain auxiliary information needed for se calculation
 ngreg.proj                  Calculate Kullback-Leibler projection for NG regression
 
 sspdsty                     Compute density estimate with single smoothing parameter
 mspdsty                     Compute density estimate with multiple smoothing parameters
+mspcdsty                    Compute conditional density estimate
+mspcdsty1                   Compute conditional density estimate
 msphzd                      Compute hazard estimate with single or multiple smoothing parameters
 msphzd1                     Compute hazard estimate with single or multiple smoothing parameters
+sspcox                      Compute relative risk estimate with single smoothing parameter
+mspcox                      Compute relative risk estimate with multiple smoothing parameters
 
 mspllrm                     Compute log-linear regression model with multiple smoothing parameters

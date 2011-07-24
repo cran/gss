@@ -1,8 +1,8 @@
 ## Fit hazard model
 sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
                    weights=NULL,subset,na.action=na.omit,
-                   id.basis=NULL,nbasis=NULL,seed=NULL,random=NULL,
-                   prec=1e-7,maxiter=30,skip.iter=FALSE)
+                   partial=NULL,id.basis=NULL,nbasis=NULL,seed=NULL,
+                   random=NULL,prec=1e-7,maxiter=30,skip.iter=FALSE)
 {
     ## Local functions handling formula
     Surv <- function(time,status,start=0) {
@@ -22,7 +22,7 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     }
     ## Obtain model frame and model terms
     mf <- match.call()
-    mf$type <- mf$alpha <- mf$random <- NULL
+    mf$type <- mf$alpha <- mf$random <- mf$partial <- NULL
     mf$id.basis <- mf$nbasis <- mf$seed <- NULL
     mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
     term.wk <- terms.formula(mf$formula)
@@ -47,7 +47,7 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     if (all(tname==names(mf))) stop("use sshzd when covariate is absent")
     ## trim yy if subset is used
     nobs <- nrow(mf)
-    if (nobs<length(yy$status)) {
+    if (nobs<length(yy$end)) {
         yy$start <- yy$start[subset]
         yy$end <- yy$end[subset]
         yy$status <- yy$status[subset]
@@ -93,11 +93,27 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     ## Generate Gauss-Legendre quadrature
     nmesh <- 200
     quad <- gauss.quad(nmesh,tdomain)
+    ## Generate partial terms
+    if (!is.null(partial)) {
+        mf.p <- model.frame(partial,data)
+        for (lab in colnames(mf.p)) mf[,lab] <- mf.p[,lab]
+        mt.p <- attr(mf.p,"terms")
+        lab.p <- labels(mt.p)
+        matx.p <- model.matrix(mt.p,data)[,-1,drop=FALSE]
+        if (dim(matx.p)[1]!=dim(mf)[1])
+            stop("gss error in sscox: partial data are of wrong size")
+        matx.p <- scale(matx.p)
+        center.p <- attr(matx.p,"scaled:center")
+        scale.p <- attr(matx.p,"scaled:scale")
+        part <- list(mt=mt.p,center=center.p,scale=scale.p)
+    }
+    else part <- lab.p <- NULL
     ## obtain unique covariate observations
     xnames <- names(mf)
     xnames <- xnames[!xnames%in%tname]
     if (length(xnames)) {
         xx <- mf[,xnames,drop=FALSE]
+        if (!is.null(partial)) xx <- cbind(xx,matx.p)
         if (!is.null(random)) xx <- cbind(xx,random$z)
         xx <- apply(xx,1,function(x)paste(x,collapse="\r"))
         ux <- unique(xx)
@@ -203,13 +219,19 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
             }
         }
     }
+    ## Add the partial term
+    if (!is.null(partial)) {
+        s <- cbind(s,matx.p[yy$status,])
+        int.s <- c(int.s,t(matx.p[!x.dup.ind,])%*%apply(qd.wt,2,sum))
+        part$pt <- matx.p[!x.dup.ind,,drop=FALSE]
+    }
     ## generate int.z
     if (!is.null(random)) random$int.z <- t(qd.z)%*%apply(qd.wt,2,sum)
+    ## Check s rank
     if (!is.null(s)) {
         nnull <- dim(s)[2]
-        ## Check s rank
         if (qr(s)$rank<nnull)
-            stop("gss error in sshzd1: fixed effect MLE is not unique")
+            stop("gss error in sshzd1: unpenalized terms are linearly dependent")
     }
     ## Fit the model
     Nobs <- ifelse(is.null(cnt),nobs,sum(cnt))
@@ -224,14 +246,18 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     desc <- NULL
     for (label in term$labels)
         desc <- rbind(desc,as.numeric(c(term[[label]][c("nphi","nrk")])))
+    if (!is.null(partial)) {
+        desc <- rbind(desc,matrix(c(1,0),length(lab.p),2,byrow=TRUE))
+    }
     desc <- rbind(desc,apply(desc,2,sum))
-    rownames(desc) <- c(term$labels,"total")
+    if (is.null(partial)) rownames(desc) <- c(term$labels,"total")
+    else rownames(desc) <- c(term$labels,lab.p,"total")
     colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
     obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,yy=yy,
                   alpha=alpha,tname=tname,xnames=xnames,tdomain=tdomain,cfit=cfit,
-                  quad=quad,x.pt=x.pt,qd.wt=qd.wt,id.basis=id.basis,random=random,
-                  int.s=int.s,int.r=int.r,skip.iter=skip.iter),z)
+                  quad=quad,x.pt=x.pt,qd.wt=qd.wt,id.basis=id.basis,partial=part,
+                  lab.p=lab.p,random=random,int.s=int.s,int.r=int.r,skip.iter=skip.iter),z)
     obj$se.aux$v <- sqrt(Nobs)*obj$se.aux$v
     class(obj) <- c("sshzd1","sshzd")
     obj
@@ -266,12 +292,12 @@ msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,random,prec,maxiter,alpha
                         as.integer(cnt),
                         as.double(c(int.r.wk,int.s)), as.double(rho),
                         as.double(prec), as.integer(maxiter),
-                        as.double(.Machine$double.eps),
-                        wk=double(2*nT+nn*(nn+4)),
+                        as.double(.Machine$double.eps), integer(nn),
+                        wk=double(2*nT+nn*(nn+3)),
                         info=integer(1),PACKAGE="gss")
         if (fit$info==1) stop("gss error in sshzd1: Newton iteration diverges")
         if (fit$info==2) warning("gss warning in sshzd1: Newton iteration fails to converge")
-        assign("cd",fit$cd,inherit=TRUE)
+        assign("cd",fit$cd,inherits=TRUE)
         cv <- fit$wk[1]+alpha*fit$wk[2]
         alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
@@ -287,9 +313,9 @@ msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,random,prec,maxiter,alpha
                 r.wk0 <- r.wk0 + 10^theta[i]*r[,,i]
                 int.r.wk0 <- int.r.wk0 + 10^theta[i]*int.r[,i]
             }
-            assign("r.wk",r.wk0+0,inherit=TRUE)
-            assign("int.r.wk",int.r.wk0+0,inherit=TRUE)
-            assign("theta.old",theta[1:nq]+0,inherit=TRUE)
+            assign("r.wk",r.wk0+0,inherits=TRUE)
+            assign("int.r.wk",int.r.wk0+0,inherits=TRUE)
+            assign("theta.old",theta[1:nq]+0,inherits=TRUE)
         }
         else {
             r.wk0 <- r.wk
@@ -318,12 +344,12 @@ msphzd1 <- function(s,r,id.wk,Nobs,cnt,int.s,int.r,rho,random,prec,maxiter,alpha
                         as.integer(cnt),
                         as.double(c(int.r.wk0,int.s)), as.double(rho),
                         as.double(prec), as.integer(maxiter),
-                        as.double(.Machine$double.eps),
-                        wk=double(2*nT+nn*(nn+4)),
+                        as.double(.Machine$double.eps), integer(nn),
+                        wk=double(2*nT+nn*(nn+3)),
                         info=integer(1),PACKAGE="gss")
         if (fit$info==1) stop("gss error in sshzd: Newton iteration diverges")
         if (fit$info==2) warning("gss warning in sshzd: Newton iteration fails to converge")
-        assign("cd",fit$cd,inherit=TRUE)
+        assign("cd",fit$cd,inherits=TRUE)
         cv <- fit$wk[1]+alpha*fit$wk[2]
         alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)

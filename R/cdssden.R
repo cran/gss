@@ -79,7 +79,7 @@ function (object,x,cond,int=NULL) {
 }
 
 cpssden <- ## Compute cdf for univariate conditional density
-function(object,q,cond,int=NULL) {
+function(object,q,cond) {
     if (class(object)!="ssden")
         stop("gss error in cpssden: not a ssden object")
     xnames <- NULL
@@ -96,7 +96,7 @@ function(object,q,cond,int=NULL) {
     p[q>=mx] <- 1
     qd.hize <- 200
     qd <- gauss.quad(2*qd.hize,c(mn,mx))
-    d.qd <- cdssden(object,qd$pt,cond,int)$pdf
+    d.qd <- cdssden(object,qd$pt,cond)$pdf
     gap <- diff(qd$pt)
     g.wk <- gap[qd.hize]/2
     for (i in 1:(qd.hize-2)) g.wk <- c(g.wk,gap[qd.hize+i]-g.wk[i])
@@ -127,7 +127,7 @@ function(object,q,cond,int=NULL) {
 }
 
 cqssden <- ## Compute quantiles for univariate conditional density
-function(object,p,cond,int=NULL) {
+function(object,p,cond) {
     if (class(object)!="ssden")
         stop("gss error in cqssden: not a ssden object")
     xnames <- NULL
@@ -144,7 +144,7 @@ function(object,p,cond,int=NULL) {
     q[p>=1] <- mx
     qd.hize <- 200
     qd <- gauss.quad(2*qd.hize,c(mn,mx))
-    d.qd <- cdssden(object,qd$pt,cond,int)$pdf
+    d.qd <- cdssden(object,qd$pt,cond)$pdf
     gap <- diff(qd$pt)
     g.wk <- gap[qd.hize]/2
     for (i in 1:(qd.hize-2)) g.wk <- c(g.wk,gap[qd.hize+i]-g.wk[i])

@@ -74,34 +74,32 @@ cv.Gamma <- function(y,eta,wt,hat,rss,alpha)
         stop("gss error: gamma responses should be positive")
     mu <- exp(eta)
     u <- 1-y/mu
-    w <- y/mu
     lkhd <- sum(wt*(y/mu+eta))/sum(wt)
-    aux1 <- sum(hat/w)/(sum(wt)-sum(hat))
+    aux1 <- sum(hat)/(sum(wt)-sum(hat))
     aux2 <- -sum(wt*y*u/mu)/sum(wt)
-    list(score=lkhd+alpha*aux1*aux2,varht=rss/(1-mean(hat)),w=as.vector(wt*w))
+    list(score=lkhd+alpha*aux1*aux2,varht=rss/(1-mean(hat)),w=as.vector(wt))
 }
 
 
 ##%%%%%%%%%%  Inverse Gaussian Family %%%%%%%%%%
-############  THIS DOES NOT WORK  ##############
+
 ## Calculate CV score for inverse gaussian regression
-#cv.inverse.gaussian <- function(y,eta,wt,hat,rss,alpha)
-#{
-#    if (is.null(wt)) wt <- rep(1,length(y))
-#    if (min(y)<=0)
-#        stop("gss error: inverse gaussian responses should be positive")
-#    mu <- exp(eta)
-#    u <- (1-y/mu)/mu
-#    w <- 1/mu
-#    eta1 <- eta+hat/(1-hat)*u/w
-#    mu1 <- exp(eta1)
-#    lkhd <- sum(wt*((y/mu/2-1)/mu))/sum(wt)
-#    aux1 <- sum(hat/w)/(sum(wt)-sum(hat))
-#    aux2 <- -sum(wt*y*u/mu/mu)/sum(wt)
+cv.inverse.gaussian <- function(y,eta,wt,hat,rss,alpha)
+{
+    if (is.null(wt)) wt <- rep(1,length(y))
+    if (min(y)<=0)
+        stop("gss error: inverse gaussian responses should be positive")
+    mu <- exp(eta)
+    u <- (1-y/mu)/mu
+    w <- 1/mu
+    eta1 <- eta+hat/(1-hat)*u/w
+    mu1 <- exp(eta1)
+    lkhd <- sum(wt*((y/mu/2-1)/mu))/sum(wt)
+    aux1 <- sum(hat/w)/(sum(wt)-sum(hat))
+    aux2 <- -sum(wt*y*u/mu/mu)/sum(wt)
 #    aux3 <- -sum(wt*y*(1/2/mu/mu-1/2/mu1/mu1))/sum(wt)
-#    list(score=lkhd+alpha*aux3,varht=rss/(1-mean(hat)),w=as.vector(wt*w))
-#}
-############  THIS DOES NOT WORK  ##############
+    list(score=lkhd+alpha*aux1*aux2,varht=rss/(1-mean(hat)),w=as.vector(wt*w))
+}
 
 
 ##%%%%%%%%%%  Negative Binomial Family %%%%%%%%%%
@@ -117,11 +115,11 @@ cv.nbinomial <- function(y,eta,wt,hat,alpha)
         stop("gss error: negative binomial size should be positive")
     p <- 1-1/(1+exp(eta))
     u <- (y[,1]+y[,2])*p-y[,2]
-    w <- (y[,1]+y[,2])*p*(1-p)
+    w <- y[,2]*(1-p)
     lkhd <- sum(wt*(-(y[,1]+y[,2])*log(1-p)-y[,2]*eta))/sum(wt)
     lkhd <- lkhd+sum(wt*(lgamma(y[,2])-lgamma(y[,1]+y[,2])))/sum(wt)
     aux1 <- sum(hat/w)/(sum(wt)-sum(hat))
-    aux2 <- sum(wt*y[,1]*u*p)/sum(wt)
+    aux2 <- sum(wt*y[,1]*p*u)/sum(wt)
     list(score=lkhd+alpha*aux1*aux2,varht=1,w=as.vector(wt*w))
 }
 
@@ -144,7 +142,7 @@ cv.weibull <- function(y,eta,wt,hat,nu,alpha)
     w <- nu^2*(xx^nu-zz^nu)*exp(-nu*eta)
     lkhd <- sum(wt*((xx^nu-zz^nu)*exp(-nu*eta)-delta*(nu*(log(xx)-eta)+log(nu))))/sum(wt)
     aux1 <- sum(hat/w)/(sum(wt)-sum(hat))
-    aux2 <- sum(wt*nu*delta*u)/sum(wt)
+    aux2 <- sum(wt*nu*delta*abs(u))/sum(wt)
     list(score=lkhd+alpha*aux1*aux2,varht=1,w=as.vector(wt*w))
 }
 
@@ -165,17 +163,17 @@ cv.lognorm <- function(y,eta,wt,hat,nu,alpha)
         stop("gss error: inconsistent life time data")
     xx <- nu*(log(xx)-eta)
     zz <- nu*(log(zz)-eta)
-    s.xx <- ifelse(xx<7,dnorm(xx)/(1-pnorm(xx)),xx+.15)
-    s.zz <- ifelse(zz<7,dnorm(zz)/(1-pnorm(zz)),zz+.15)
+    s.xx <- ifelse(xx<7,dnorm(xx)/(1-pnorm(xx)),xx+1/xx)
+    s.zz <- ifelse(zz<7,dnorm(zz)/(1-pnorm(zz)),zz+1/zz)
     s.xx <- pmax(s.xx,s.zz)
     u <- nu*(delta*(s.xx-xx)-(s.xx-s.zz))
     w <- (s.xx^2/2-xx*s.xx+xx^2/2+log(s.xx)+log(2*pi)/2)
     w <- nu^2*(w-ifelse(s.zz==0,0,(s.zz^2/2-zz*s.zz+zz^2/2+log(s.zz)+log(2*pi)/2)))
     w <- ifelse(w<1e-6,1e-6,w)
     aux1 <- sum(hat/w)/(sum(wt)-sum(hat))
-    aux2 <- sum(wt*nu*delta*(s.xx-xx)*u)/sum(wt)
-    s.xx <- ifelse(xx<7,log(1-pnorm(xx)),-xx^2/2-log(xx+.15)-log(2*pi)/2)
-    s.zz <- ifelse(zz<7,log(1-pnorm(zz)),-zz^2/2-log(zz+.15)-log(2*pi)/2)
+    aux2 <- sum(wt*nu*delta*abs((s.xx-xx)*u))/sum(wt)
+    s.xx <- ifelse(xx<7,log(1-pnorm(xx)),-xx^2/2-log(xx+1/xx)-log(2*pi)/2)
+    s.zz <- ifelse(zz<7,log(1-pnorm(zz)),-zz^2/2-log(zz+1/zz)-log(2*pi)/2)
     s.xx <- pmin(s.xx,s.zz)
     lkhd <- sum(wt*(delta*(xx^2/2+s.xx-log(nu))+s.zz-s.xx))/sum(wt)
     list(score=lkhd+alpha*aux1*aux2,varht=1,w=as.vector(wt*w))
@@ -202,6 +200,6 @@ cv.loglogis <- function(y,eta,wt,hat,nu,alpha)
     w <- nu^2/2*(zz^2-xx^2)
     lkhd <- sum(wt*(delta*(-log(1-xx)-log(nu))+log(zz)-log(xx)))/sum(wt)
     aux1 <- sum(hat/w)/(sum(wt)-sum(hat))
-    aux2 <- sum(wt*nu*delta*xx*u)/sum(wt)
+    aux2 <- sum(wt*nu*delta*xx*abs(u))/sum(wt)
     list(score=lkhd+alpha*aux1*aux2,varht=1,w=as.vector(wt*w))
 }

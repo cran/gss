@@ -5,6 +5,7 @@ project.gssanova <- function(object,include,...)
         stop("gss error: Kullback-Leibler projection is not implemented for gssanova0")
     nobs <- nrow(object$mf)
     nxi <- length(object$id.basis)
+    labels.p <- object$lab.p
     ## evaluate full model
     family <- object$family
     eta <- object$eta
@@ -21,6 +22,7 @@ project.gssanova <- function(object,include,...)
                  binomial=y0.binomial(y,eta,wt),
                  poisson=y0.poisson(eta),
                  Gamma=y0.Gamma(eta),
+                 inverse.gaussian=y0.inverse.gaussian(eta),
                  nbinomial=y0.nbinomial(y,eta,nu),
                  weibull=y0.weibull(y,eta,nu),
                  lognorm=y0.lognorm(y,eta,nu),
@@ -30,7 +32,8 @@ project.gssanova <- function(object,include,...)
                    binomial=cfit.binomial(y,wt,offset),
                    poisson=cfit.poisson(y,wt,offset),
                    Gamma=cfit.Gamma(y,wt,offset),
-                   nbinomial=cfit.nbinomial(y,eta,wt,nu),
+                   inverse.gaussian=cfit.inverse.gaussian(y,wt,offset),
+                   nbinomial=cfit.nbinomial(y,wt,offset,nu),
                    weibull=cfit.weibull(y,wt,offset,nu),
                    lognorm=cfit.lognorm(y,wt,offset,nu),
                    loglogis=cfit.loglogis(y,wt,offset,nu))
@@ -39,6 +42,7 @@ project.gssanova <- function(object,include,...)
                   binomial=kl.binomial(eta,cfit,y0$wt),
                   poisson=kl.poisson(eta,cfit,wt),
                   Gamma=kl.Gamma(eta,cfit,wt),
+                  inverse.gaussian=kl.inverse.gaussian(eta,cfit,wt),
                   nbinomial=kl.nbinomial(eta,cfit,wt,y0$nu),
                   weibull=kl.weibull(eta,cfit,wt,nu,y0$int),
                   lognorm=kl.lognorm(eta,cfit,wt,nu,y0),
@@ -51,6 +55,7 @@ project.gssanova <- function(object,include,...)
     nq.wk <- nq <- 0
     for (label in object$terms$labels) {
         if (label=="1") next
+        if (label%in%labels.p) next
         x <- object$mf[,object$term[[label]]$vlist]
         x.basis <- object$mf[object$id.basis,object$term[[label]]$vlist]
         nphi <- object$term[[label]]$nphi
@@ -75,11 +80,12 @@ project.gssanova <- function(object,include,...)
             }
         }
     }
-    if (any(include=="partial")) {
-        nphi <- object$term$partial$nphi
-        for (i in 1:nphi)
-            philist <- c(philist,object$term$partial$iphi+(i-1))
-        s <- cbind(s,object$mf$partial)
+    if (!is.null(object$partial)) {
+        matx.p <- model.matrix(object$partial$mt,object$mf)[,-1,drop=FALSE]
+        matx.p <- scale(matx.p)
+        for (label in labels.p) {
+            if (label%in%include) s <- cbind(s,matx.p[,label])
+        }
     }
     ## calculate projection
     my.wls <- function(theta1=NULL) {
@@ -98,8 +104,8 @@ project.gssanova <- function(object,include,...)
             sr <- cbind(s,sr)
             z <- ngreg.proj(dc,family,sr,q,y0,wt,offset,nu)
         }
-        assign("dc",z$dc,inherit=TRUE)
-        assign("eta1",z$eta,inherit=TRUE)
+        assign("dc",z$dc,inherits=TRUE)
+        assign("eta1",z$eta,inherits=TRUE)
         z$kl
     }
     cv.wk <- function(theta) cv.scale*my.wls(theta)+cv.shift
@@ -141,6 +147,7 @@ project.gssanova <- function(object,include,...)
                   binomial=kl.binomial(eta1,cfit,y0$wt),
                   poisson=kl.poisson(eta1,cfit,wt),
                   Gamma=kl.Gamma(eta1,cfit,wt),
+                  inverse.gaussian=kl.inverse.gaussian(eta1,cfit,wt),
                   nbinomial=kl.nbinomial(eta1,cfit,wt,y0$nu),
                   weibull=kl.weibull(eta1,cfit,wt,nu,y0$int),
                   lognorm=kl.lognorm(eta1,cfit,wt,nu,y0),
@@ -166,6 +173,7 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                    binomial=proj0.binomial(y0,eta,offset),
                    poisson=proj0.poisson(y0,eta,wt,offset),
                    Gamma=proj0.Gamma(y0,eta,wt,offset),
+                   inverse.gaussian=proj0.inverse.gaussian(y0,eta,wt,offset),
                    nbinomial=proj0.nbinomial(y0,eta,wt,offset),
                    weibull=proj0.weibull(y0,eta,wt,offset,nu),
                    lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
@@ -182,6 +190,7 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                            binomial=proj0.binomial(y0,eta,offset),
                            poisson=proj0.poisson(y0,eta,wt,offset),
                            Gamma=proj0.Gamma(y0,eta,wt,offset),
+                           inverse.gaussian=proj0.inverse.gaussian(y0,eta,wt,offset),
                            nbinomial=proj0.nbinomial(y0,eta,wt,offset),
                            weibull=proj0.weibull(y0,eta,wt,offset,nu),
                            lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
@@ -212,6 +221,7 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                            binomial=proj0.binomial(y0,eta.new,offset),
                            poisson=proj0.poisson(y0,eta.new,wt,offset),
                            Gamma=proj0.Gamma(y0,eta.new,wt,offset),
+                           inverse.gaussian=proj0.inverse.gaussian(y0,eta.new,wt,offset),
                            nbinomial=proj0.nbinomial(y0,eta.new,wt,offset),
                            weibull=proj0.weibull(y0,eta.new,wt,offset,nu),
                            lognorm=proj0.lognorm(y0,eta.new,wt,offset,nu),
@@ -231,6 +241,7 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                            binomial=proj0.binomial(y0,eta,offset),
                            poisson=proj0.poisson(y0,eta,wt,offset),
                            Gamma=proj0.Gamma(y0,eta,wt,offset),
+                           inverse.gaussian=proj0.inverse.gaussian(y0,eta,wt,offset),
                            nbinomial=proj0.nbinomial(y0,eta,wt,offset),
                            weibull=proj0.weibull(y0,eta,wt,offset,nu),
                            lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
@@ -254,6 +265,7 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                    binomial=proj0.binomial(y0,eta,offset),
                    poisson=proj0.poisson(y0,eta,wt,offset),
                    Gamma=proj0.Gamma(y0,eta,wt,offset),
+                   inverse.gaussian=proj0.inverse.gaussian(y0,eta,wt,offset),
                    nbinomial=proj0.nbinomial(y0,eta,wt,offset),
                    weibull=proj0.weibull(y0,eta,wt,offset,nu),
                    lognorm=proj0.lognorm(y0,eta,wt,offset,nu),

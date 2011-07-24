@@ -263,3 +263,87 @@ C Output from Public domain Ratfor, version 1.01
 23102 continue
       return
       end
+      subroutine coxaux (cd, nn, q, nxiz, qdrs, nqd, nt, twt, mchpr, qdw
+     *t, wt, wtsum, muwk, v, vwk, jpvt)
+      integer nn, nxiz, nqd, nt, jpvt(*)
+      double precision cd(*), q(nxiz,*), qdrs(nqd,*), twt(*), mchpr, qdw
+     *t(nqd,*), wt(nqd,*), wtsum(*), muwk(*), v(nn,*), vwk(nn,*)
+      integer i, j, k, m, rkv
+      double precision ddot, tmp
+      call dset(nt, 0.d0, wtsum, 1)
+      i=1
+23106 if(.not.(i.le.nqd))goto 23108
+      tmp = dexp (ddot (nn, qdrs(i,1), nqd, cd, 1))
+      m=1
+23109 if(.not.(m.le.nt))goto 23111
+      wt(i,m) = qdwt(i,m) * tmp
+      wtsum(m) = wtsum(m) + wt(i,m)
+23110 m=m+1
+      goto 23109
+23111 continue
+23107 i=i+1
+      goto 23106
+23108 continue
+      call dset(nn*nn, 0.d0, v, 1)
+      m=1
+23112 if(.not.(m.le.nt))goto 23114
+      i=1
+23115 if(.not.(i.le.nn))goto 23117
+      muwk(i) = ddot (nqd, wt(1,m), 1, qdrs(1,i), 1) / wtsum(m)
+23116 i=i+1
+      goto 23115
+23117 continue
+      i=1
+23118 if(.not.(i.le.nn))goto 23120
+      j=i
+23121 if(.not.(j.le.nn))goto 23123
+      vwk(i,j) = 0.d0
+      k=1
+23124 if(.not.(k.le.nqd))goto 23126
+      vwk(i,j) = vwk(i,j) + wt(k,m) * qdrs(k,i) * qdrs(k,j)
+23125 k=k+1
+      goto 23124
+23126 continue
+      vwk(i,j) = vwk(i,j) / wtsum(m) - muwk(i) * muwk(j)
+23122 j=j+1
+      goto 23121
+23123 continue
+23119 i=i+1
+      goto 23118
+23120 continue
+      call daxpy (nn*nn, twt(m), vwk, 1, v, 1)
+23113 m=m+1
+      goto 23112
+23114 continue
+      i=1
+23127 if(.not.(i.le.nxiz))goto 23129
+      j=i
+23130 if(.not.(j.le.nxiz))goto 23132
+      v(i,j) = v(i,j) + q(i,j)
+23131 j=j+1
+      goto 23130
+23132 continue
+23128 i=i+1
+      goto 23127
+23129 continue
+      i=1
+23133 if(.not.(i.le.nn))goto 23135
+      jpvt(i) = 0
+23134 i=i+1
+      goto 23133
+23135 continue
+      call dchdc (v, nn, nn, vwk, jpvt, 1, rkv)
+23136 if(v(rkv,rkv).lt.v(1,1)*dsqrt(mchpr))then
+      rkv = rkv - 1
+      goto 23136
+      endif
+23137 continue
+      i=rkv+1
+23138 if(.not.(i.le.nn))goto 23140
+      v(i,i) = v(1,1)
+      call dset (i-rkv-1, 0.d0, v(rkv+1,i), 1)
+23139 i=i+1
+      goto 23138
+23140 continue
+      return
+      end

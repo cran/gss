@@ -28,17 +28,20 @@ summary.ssanova0 <- function(object,diagnostics=FALSE,...)
     else penalty <- sum(object$c*fitted.off*sqrt(w))
     penalty <- as.vector(10^object$nlambda*penalty)
     ## Calculate the diagnostics
+    mf <- object$mf
+    mf.part <- object$mf.part
     if (diagnostics) {
         ## Obtain retrospective linear model
         comp <- NULL
-        for (label in object$terms$labels) {
+        for (label in c(object$terms$labels,object$lab.p)) {
             if (label=="1") next
             if (label=="offset") next
-            comp <- cbind(comp,predict(object,object$mf,inc=label))
+            comp <- cbind(comp,predict(object,mf,inc=label))
         }
         comp <- cbind(comp,yhat=fitted.off,y=fitted.off+res,e=res)
         term.label <- object$terms$labels[object$terms$labels!="1"]
         term.label <- term.label[term.label!="offset"]
+        term.label <- c(term.label,object$lab.p)
         if (any(outer(term.label,c("yhat","y","e"),"==")))
             warning("gss warning in summary.ssanova0: avoid using yhat, y, or e as variable names")
         colnames(comp) <- c(term.label,"yhat","y","e")

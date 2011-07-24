@@ -8,13 +8,12 @@
 }
 \usage{
 ssllrm(formula, response, type=NULL, data=list(), weights, subset,
-       na.action=na.omit, partial=NULL, alpha=1, id.basis=NULL,
-       nbasis=NULL, seed=NULL, random=NULL, prec=1e-7, maxiter=30,
-       skip.iter=FALSE)
+       na.action=na.omit, alpha=1, id.basis=NULL, nbasis=NULL,
+       seed=NULL, random=NULL, prec=1e-7, maxiter=30, skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
-    \item{response}{List of response variables.}
+    \item{response}{Formula listing response variables.}
     \item{type}{List specifying the type of spline for each variable.
         See \code{\link{mkterm}} for details.}
     \item{data}{Optional data frame containing the variables in the
@@ -25,8 +24,6 @@ ssllrm(formula, response, type=NULL, data=list(), weights, subset,
 	to be used in the fitting process.}
     \item{na.action}{Function which indicates what should happen when
 	the data contain NAs.}
-    \item{partial}{Optional extra unpenalized terms in partial spline
-        models.}
     \item{alpha}{Parameter modifying GCV or Mallows' CL; larger absolute
         values yield smoother fits; negative value invokes a stable and
 	more accurate GCV/CL evaluation algorithm but may take two to
@@ -73,8 +70,7 @@ ssllrm(formula, response, type=NULL, data=list(), weights, subset,
 \note{
     The responses, or y-variables, must be factors, and there must be at
     least one numerical x's.  For \code{response}, there is no difference
-    between \code{~y1+y2} and \code{~y1*y2} unless \code{partial} is
-    present.
+    between \code{~y1+y2} and \code{~y1*y2}.
     
     The results may vary from run to run. For consistency, specify
     \code{id.basis} or set \code{seed}.

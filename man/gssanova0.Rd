@@ -1,5 +1,6 @@
 \name{gssanova0}
 \alias{gssanova0}
+\alias{gssanova1}
 \title{Fitting Smoothing Spline ANOVA Models with Non-Gaussian Responses}
 \description{
     Fit smoothing spline ANOVA models in non-Gaussian regression.  The
@@ -10,6 +11,10 @@
 gssanova0(formula, family, type=NULL, data=list(), weights, subset,
           offset, na.action=na.omit, partial=NULL, method=NULL,
           varht=1, nu=NULL, prec=1e-7, maxiter=30)
+gssanova1(formula, family, type=NULL, data=list(), weights, subset,
+          offset, na.action=na.omit, partial=NULL, method=NULL,
+          varht=1, alpha=1.4, nu=NULL, id.basis=NULL, nbasis=NULL,
+          seed=NULL, random=NULL, skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
@@ -30,11 +35,11 @@ gssanova0(formula, family, type=NULL, data=list(), weights, subset,
     \item{offset}{Optional offset term with known parameter 1.}
     \item{na.action}{Function which indicates what should happen when
 	the data contain NAs.}
-    \item{partial}{Optional extra unpenalized terms in partial spline
-	models.}
+    \item{partial}{Optional symbolic description of parametric terms in
+        partial spline models.}
     \item{method}{Score used to drive the performance-oriented
 	iteration.  Supported are \code{method="v"} for GCV,
-	\code{method="m"} for GML, and \code{method="u"} for Mallow's CL.}
+	\code{method="m"} for GML, and \code{method="u"} for Mallows' CL.}
     \item{varht}{Dispersion parameter needed for \code{method="u"}.
 	Ignored when \code{method="v"} or \code{method="m"} are
 	specified.}
@@ -44,6 +49,17 @@ gssanova0(formula, family, type=NULL, data=list(), weights, subset,
     \item{maxiter}{Maximum number of iterations allowed for
 	performance-oriented iteration, and for inner-loop multiple
 	smoothing parameter selection when applicable.}
+    \item{alpha}{Tuning parameter modifying GCV or Mallows' CL.}
+    \item{id.basis}{Index designating selected "knots".}
+    \item{nbasis}{Number of "knots" to be selected.  Ignored when
+	\code{id.basis} is supplied.}
+    \item{seed}{Seed for reproducible random selection of "knots".
+	Ignored when \code{id.basis} is supplied.}
+    \item{random}{Input for parametric random effects in nonparametric
+        mixed-effect models.  See \code{\link{mkran}} for details.}
+    \item{skip.iter}{Flag indicating whether to use initial values of
+        theta and skip theta iteration.  See \code{\link{ssanova}} for
+	notes on skipping theta iteration.}
 }
 \details{
     The model specification via \code{formula} is intuitive.  For
@@ -68,14 +84,22 @@ gssanova0(formula, family, type=NULL, data=list(), weights, subset,
     location parameter for the log lifetime.
 
     The models are fitted by penalized likelihood method through the
-    performance-oriented iteration as described in the reference; the
-    \eqn{O(n^{3})} algorithms of RKPACK are used for numerical
-    calculations.  For \code{family="binomial"}, \code{"poisson"},
-    \code{"nbinomial"}, \code{"weibull"}, \code{"lognorm"}, and
-    \code{"loglogis"}, the score driving the performance-oriented
-    iteration defaults to \code{method="u"} with \code{varht=1}.  For
-    \code{family="Gamma"} and \code{"inverse.gaussian"}, the default is
-    \code{method="v"}.
+    performance-oriented iteration as described in the reference.  For
+    \code{family="binomial"}, \code{"poisson"}, \code{"nbinomial"},
+    \code{"weibull"}, \code{"lognorm"}, and \code{"loglogis"}, the score
+    driving the performance-oriented iteration defaults to
+    \code{method="u"} with \code{varht=1}.  For \code{family="Gamma"}
+    and \code{"inverse.gaussian"}, the default is \code{method="v"}.
+
+    \code{gssanova0} uses the algorithm of \code{\link{ssanova0}} for
+    the iterated penalized least squares problems, whereas
+    \code{gssanova1} uses the algorithm of \code{\link{ssanova}}.
+
+    In \code{gssanova1}, a subset of the observations are selected as
+    "knots."  Unless specified via \code{id.basis} or \code{nbasis}, the
+    number of "knots" \eqn{q} is determined by \eqn{max(30,10n^{2/9})},
+    which is appropriate for the default cubic splines for numerical
+    vectors.
 }
 \section{Responses}{
     For \code{family="binomial"}, the response can be specified either
@@ -98,19 +122,28 @@ gssanova0(formula, family, type=NULL, data=list(), weights, subset,
     \code{gssanova0} returns a list object of class
     \code{c("gssanova0","ssanova0","gssanova")}.
 
-    The method \code{\link{summary.gssanova0}} can be used to obtain
-    summaries of the fits.  The method \code{\link{predict.ssanova0}}
-    can be used to evaluate the fits at arbitrary points along with
-    standard errors, on the link scale.  The methods
-    \code{\link{residuals.gssanova}} and \code{\link{fitted.gssanova}}
-    extract the respective traits from the fits.
+    \code{gssanova1} returns a list object of class
+    \code{c("gssanova","ssanova")}.
+
+    The method \code{\link{summary.gssanova0}} or
+    \code{\link{summary.gssanova}} can be used to obtain summaries of
+    the fits.  The method \code{\link{predict.ssanova0}} or
+    \code{\link{predict.ssanova}} can be used to evaluate the fits at
+    arbitrary points along with standard errors, on the link scale.  The
+    methods \code{\link{residuals.gssanova}} and
+    \code{\link{fitted.gssanova}} extract the respective traits from the
+    fits.
 }
 \note{
     The direct cross-validation of \code{\link{gssanova}} can be more
-    effective in general, and more stable for complex models.
+    effective, and more stable for complex models.
 
-    For large sample sizes, the approximate solution of
-    \code{\link{gssanova}} can be faster.
+    For large sample sizes, the approximate solutions of
+    \code{\link{gssanova1}} and \code{\link{gssanova}} can be faster than
+    \code{\link{gssanova0}}.
+
+    The results from \code{gssanova1} may vary from run to run. For
+    consistency, specify \code{id.basis} or set \code{seed}.
 
     The method \code{\link{project}} is not implemented for
     \code{gssanova0}, nor is the mixed-effect model support through

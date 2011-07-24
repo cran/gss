@@ -62,6 +62,10 @@ project.sshzd1 <- function(object,include,...)
                 }
             }
         }
+        if (!is.null(object$partial)) {
+            wk <- object$partial$pt[k,]
+            qd.s <- cbind(qd.s,t(matrix(wk,length(wk),nmesh)))
+        }
         ss <- ss + t(qd.wt.wk*qd.s)%*%qd.s
         for (i in 1:nq) {
             sr[,,i] <- sr[,,i] + t(qd.wt.wk*qd.s)%*%qd.r[[i]]
@@ -106,6 +110,14 @@ project.sshzd1 <- function(object,include,...)
         if (term.wk$nphi>0) id.s <- c(id.s,term.wk$iphi+(1:term.wk$nphi)-1)
         if (term.wk$nrk>0) id.q <- c(id.q,term.wk$irk+(1:term.wk$nrk)-1)
     }
+    if (!is.null(object$partial)) {
+        nu <- length(object$d)-length(object$lab.p)
+        for (label in object$lab.p) {
+            nu <- nu+1
+            if (!any(label==include)) next
+            id.s <- c(id.s,nu)
+        }
+    }
     ## calculate projection
     rkl <- function(theta1=NULL) {
         theta.wk <- 1:nq
@@ -136,7 +148,7 @@ project.sshzd1 <- function(object,include,...)
         rkv <- z$rkv
         while (v[rkv,rkv]<2*sqrt(m.eps)*v[1,1]) rkv <- rkv - 1
         if (rkv<nn) v[(1:nn)>rkv,(1:nn)>rkv] <- diag(v[1,1],nn-rkv)
-        mu <- backsolve(v,mu[z$jpvt],tran=TRUE)
+        mu <- backsolve(v,mu[z$jpvt],transpose=TRUE)
         eta2 - sum(mu[1:rkv]^2)
     }
     cv.wk <- function(theta) cv.scale*rkl(theta)+cv.shift

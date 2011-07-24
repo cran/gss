@@ -1,6 +1,7 @@
 \name{summary.ssanova}
 \alias{summary.ssanova}
 \alias{summary.ssanova0}
+\alias{summary.ssanova9}
 \title{Assessing Smoothing Spline ANOVA Fits}
 \description{
     Calculate various summaries of smoothing spline ANOVA fits.
@@ -8,6 +9,7 @@
 \usage{
 \method{summary}{ssanova}(object, diagnostics=FALSE, ...)
 \method{summary}{ssanova0}(object, diagnostics=FALSE, ...)
+\method{summary}{ssanova9}(object, diagnostics=FALSE, ...)
 }
 \arguments{
     \item{object}{Object of class \code{"ssanova"}.}

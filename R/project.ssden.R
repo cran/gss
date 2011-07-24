@@ -3,11 +3,13 @@ project.ssden <- function(object,include,mesh=FALSE,...)
 {
     qd.pt <- object$quad$pt
     qd.wt <- object$quad$wt
+    bias <- object$bias
     ## evaluate full model
     mesh0 <- dssden(object,qd.pt)
+    qd.wt <- qd.wt*bias$qd.wt
+    qd.wt <- t(t(qd.wt)/apply(qd.wt*mesh0,2,sum))
     ## extract terms in subspace
-    nobs <- dim(object$mf)[1]
-    nqd <- length(qd.wt)
+    nqd <- dim(qd.wt)[1]
     nxi <- length(object$id.basis)
     qd.s <- qd.r <- q <- NULL
     theta <- d <- NULL
@@ -54,19 +56,20 @@ project.ssden <- function(object,include,mesh=FALSE,...)
         qd.rs <- rbind(qd.rs,qd.s)
         z <- .Fortran("drkl",
                       cd=as.double(cd), as.integer(nn),
-                      as.double(t(qd.rs)), as.integer(nqd), as.double(qd.wt),
+                      as.double(t(qd.rs)), as.integer(nqd), as.integer(bias$nt),
+                      as.double(bias$wt), as.double(t(qd.wt)),
                       mesh=as.double(mesh0), as.double(.Machine$double.eps),
-                      double(nqd), double(nqd), double(nn), double(nn*nn),
-                      integer(nn), double(nn), double(nn), double(nqd),
-                      as.double(1e-6), as.integer(30),
-                      info=integer(1), PACKAGE="gss")
+                      as.double(1e-7), as.integer(30), integer(nn),
+                      double(2*bias$nt*(nqd+1)+nn*(2*nn+4)), info=integer(1),
+                      PACKAGE="gss")
         if (z$info==1)
             stop("gss error in project.ssden: Newton iteration diverges")
         if (z$info==2)
             warning("gss warning in project.ssden: Newton iteration fails to converge")
-        assign("cd",z$cd,inherit=TRUE)
-        assign("mesh1",z$mesh,inherit=TRUE)
-        sum(qd.wt*log(mesh0/mesh1)*mesh0)
+        assign("cd",z$cd,inherits=TRUE)
+        assign("mesh1",z$mesh,inherits=TRUE)
+        sum(bias$wt*(apply(qd.wt*log(mesh0/mesh1)*mesh0,2,sum)+
+                     log(apply(qd.wt*mesh1,2,sum))))
     }
     cv.wk <- function(theta) cv.scale*rkl(theta)+cv.shift
     ## initialization
@@ -74,11 +77,18 @@ project.ssden <- function(object,include,mesh=FALSE,...)
     else {
         qd.r.wk <- 0
         for (i in 1:nq) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[,,i]
-        mu.r <- apply(qd.wt*t(qd.r.wk),2,sum)/sum(qd.wt)
-        v.r <- apply(qd.wt*t(qd.r.wk^2),2,sum)/sum(qd.wt)
-        mu.s <- apply(qd.wt*t(qd.s),2,sum)/sum(qd.wt)
-        v.s <- apply(qd.wt*t(qd.s^2),2,sum)/sum(qd.wt)
-        theta.wk <- log10(sum(v.s-mu.s^2)/(nn-nxi)/sum(v.r-mu.r^2)*nxi) / 2
+        vv.s <- vv.r <- 0
+        for (i in 1:bias$nt) {
+            mu.s <- apply(qd.wt[,i]*qd.s,2,sum)/sum(qd.wt[,i])
+            v.s <- apply(qd.wt[,i]*qd.s^2,2,sum)/sum(qd.wt[,i])
+            v.s <- v.s - mu.s^2
+            mu.r <- apply(qd.wt[,i]*qd.r.wk,2,sum)/sum(qd.wt[,i])
+            v.r <- apply(qd.wt[,i]*qd.r.wk^2,2,sum)/sum(qd.wt[,i])
+            v.r <- v.r - mu.r^2
+            vv.s <- vv.s + bias$wt[i]*v.s
+            vv.r <- vv.r + bias$wt[i]*v.r
+        }
+        theta.wk <- log10(sum(vv.s)/(nn-nxi)/sum(vv.r)*nxi) / 2
     }
     theta <- theta + theta.wk
     tmp <- NULL
@@ -119,8 +129,14 @@ project.ssden <- function(object,include,mesh=FALSE,...)
         }
     }
     else kl <- rkl()
-    kl0 <- sum(qd.wt*log(mesh0)*mesh0) + log(sum(qd.wt))
-    obj <- list(ratio=kl/kl0,kl=kl)
+    kl0 <- sum(bias$wt*(apply(qd.wt*log(mesh0)*mesh0,2,sum)+
+                        log(apply(qd.wt,2,sum))))
+    kl <- sum(bias$wt*(apply(qd.wt*log(mesh0/mesh1)*mesh0,2,sum)+
+                       log(apply(qd.wt*mesh1,2,sum))))
+    wt.wk <- t(t(qd.wt)/apply(qd.wt*mesh1,2,sum))
+    kl1 <- sum(bias$wt*(apply(wt.wk*log(mesh1)*mesh1,2,sum)+
+                        log(apply(wt.wk,2,sum))))
+    obj <- list(ratio=kl/kl0,kl=kl,check=(kl+kl1)/kl0)
     if (mesh) obj$mesh <- mesh1
     obj
 }

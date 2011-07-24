@@ -8,10 +8,6 @@ project.ssllrm <- function(object,include,...)
     xx.wt <- object$xx.wt
     ## evaluate full model
     x <- object$mf[!object$x.dup.ind,object$xnames,drop=FALSE]
-    if (!is.null(mf$partial)) {
-        partial <- x$partial <- object$mf$partial
-        part.wk <- partial[!object$x.dup.ind,,drop=FALSE]
-    }
     fit0 <- object$fit
     ## extract terms in subspace
     include <- union(object$ynames,include)
@@ -23,7 +19,6 @@ project.ssllrm <- function(object,include,...)
     theta <- d <- q <- NULL
     nu.wk <- nu <- nq.wk <- nq <- 0
     for (label in term$labels) {
-        part <- label%in%object$yterms
         vlist <- term[[label]]$vlist
         x.list <- object$xnames[object$xnames%in%vlist]
         y.list <- object$ynames[object$ynames%in%vlist]
@@ -58,16 +53,6 @@ project.ssllrm <- function(object,include,...)
                     }
                     qd.s <- array(c(qd.s,wk),c(nmesh,nx,nu))
                 }
-                if (part) {
-                    for (j in 1:dim(partial)[2]) {
-                        nu.wk <- nu.wk+1
-                        if (!any(label==include)) next
-                        if (!any("partial"==include)) next
-                        nu <- nu+1
-                        d <- c(d,object$d[nu.wk])
-                        qd.s <- array(c(qd.s,outer(s.wk,part.wk[,j])),c(nmesh,nx,nu))
-                    }
-                }
             }
         }
         if (nrk) {
@@ -94,21 +79,6 @@ project.ssllrm <- function(object,include,...)
                     }
                     qd.r[[nq]] <- qd.wk
                     q <- cbind(q,rk$fun(xy.basis,xy.basis,i,rk$env,out=FALSE))
-                }
-                if (part) {
-                    nq.wk <- nq.wk+1
-                    if (!any(label==include)) next
-                    if (!any("partial"==include)) next
-                    nq <- nq+1
-                    theta <- c(theta,object$theta[nq.wk])
-                    qd.wk <- NULL
-                    for (j in 1:nx) {
-                        ww <- t(qd.r.wk)*as.vector(partial[id.basis,,drop=FALSE]%*%part.wk[j,])
-                        qd.wk <- array(c(qd.wk,t(ww)),c(nmesh,nbasis,j))
-                    }
-                    qd.r[[nq]] <- qd.wk
-                    wk <- apply(partial[id.basis,,drop=FALSE]^2,1,sum)
-                    q <- cbind(q,rk$fun(xy.basis,xy.basis,i,rk$env,out=FALSE)*wk)
                 }
             }
         }
@@ -146,7 +116,7 @@ project.ssllrm <- function(object,include,...)
             stop("gss error in project.ssllrm: Newton iteration diverges")
         if (z$info==2)
             warning("gss warning in project.ssllrm: Newton iteration fails to converge")
-        assign("cd",z$cd,inherit=TRUE)
+        assign("cd",z$cd,inherits=TRUE)
         z$wt[1]
     }
     cv.wk <- function(theta) cv.scale*rkl(theta)+cv.shift

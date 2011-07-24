@@ -7,7 +7,7 @@
     Evaluate smoothing spline hazard estimates by \code{sshzd}.
 }
 \usage{
-hzdrate.sshzd(object, x, se=FALSE)
+hzdrate.sshzd(object, x, se=FALSE, include=c(object$terms$labels,object$lab.p))
 hzdcurve.sshzd(object, time, covariates=NULL, se=FALSE)
 survexp.sshzd(object, time, covariates=NULL, start=0)
 }
@@ -16,6 +16,8 @@ survexp.sshzd(object, time, covariates=NULL, start=0)
     \item{x}{Data frame or vector of points on which hazard is to be
       evaluated.}
     \item{se}{Flag indicating if standard errors are required.}
+    \item{include}{List of model terms to be included in the
+	evaluation.}
     \item{time}{Vector of time points.}
     \item{covariates}{Vector of covariate values.}
     \item{start}{Optional starting times of the intervals.}

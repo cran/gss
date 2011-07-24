@@ -30,12 +30,6 @@
     \item{fit}{Vector of evaluated fit.}
     \item{se.fit}{Vector of standard errors.}
 }
-\note{
-    To supply the partial terms for partial spline models, add a
-    component \code{partial=I(...)} in \code{x}; the "as is" function
-    \code{I(...)} is necessary when \code{partial} has more than one
-    column.
-}
 \seealso{
     Fitting function \code{\link{ssllrm}}.
 }

@@ -1,8 +1,8 @@
 ## Fit hazard model
 sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
-                  weights=NULL,subset,na.action=na.omit,
-                  id.basis=NULL,nbasis=NULL,seed=NULL,random=NULL,
-                  prec=1e-7,maxiter=30,skip.iter=FALSE)
+                  weights=NULL,subset,offset,na.action=na.omit,
+                  partial=NULL,id.basis=NULL,nbasis=NULL,seed=NULL,
+                  random=NULL,prec=1e-7,maxiter=30,skip.iter=FALSE)
 {
     ## Local functions handling formula
     Surv <- function(time,status,start=0) {
@@ -22,7 +22,7 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     }
     ## Obtain model frame and model terms
     mf <- match.call()
-    mf$type <- mf$alpha <- mf$random <- NULL
+    mf$type <- mf$alpha <- mf$random <- mf$partial <- NULL
     mf$id.basis <- mf$nbasis <- mf$seed <- NULL
     mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
     term.wk <- terms.formula(mf$formula)
@@ -43,9 +43,11 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     mf[[1]] <- as.name("model.frame")
     mf[[2]] <- eval(parse(text=paste("~",paste(term.labels,collapse="+"))))
     mf <- eval(mf,parent.frame())
+    offset <- model.offset(mf)
+    mf$"(offset)" <- NULL
     ## trim yy if subset is used
     nobs <- nrow(mf)
-    if (nobs<length(yy$status)) {
+    if (nobs<length(yy$end)) {
         yy$start <- yy$start[subset]
         yy$end <- yy$end[subset]
         yy$status <- yy$status[subset]
@@ -87,12 +89,29 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     ## Generate Gauss-Legendre quadrature
     nmesh <- 200
     quad <- gauss.quad(nmesh,tdomain)
+    ## Generate partial terms
+    if (!is.null(partial)) {
+        mf.p <- model.frame(partial,data)
+        for (lab in colnames(mf.p)) mf[,lab] <- mf.p[,lab]
+        mt.p <- attr(mf.p,"terms")
+        lab.p <- labels(mt.p)
+        matx.p <- model.matrix(mt.p,data)[,-1,drop=FALSE]
+        if (dim(matx.p)[1]!=dim(mf)[1])
+            stop("gss error in sscox: partial data are of wrong size")
+        matx.p <- scale(matx.p)
+        center.p <- attr(matx.p,"scaled:center")
+        scale.p <- attr(matx.p,"scaled:scale")
+        part <- list(mt=mt.p,center=center.p,scale=scale.p)
+    }
+    else part <- lab.p <- NULL
     ## obtain unique covariate observations
     xnames <- names(mf)
     xnames <- xnames[!xnames%in%tname]
     if (length(xnames)||!is.null(random)) {
         xx <- mf[,xnames,drop=FALSE]
+        if (!is.null(partial)) xx <- cbind(xx,matx.p)
         if (!is.null(random)) xx <- cbind(xx,random$z)
+        if (!is.null(offset)) xx <- cbind(xx,offset)
         xx <- apply(xx,1,function(x)paste(x,collapse="\r"))
         ux <- unique(xx)
         nx <- length(ux)
@@ -130,6 +149,7 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     qd.wt <- matrix(0,nmesh,nx)
     for (i in 1:nobs) {
         wk <- (quad$pt<=yy$end[i])&(quad$pt>yy$start[i])
+        if (!is.null(offset)) wk <- wk*exp(offset[i])
         if (is.null(cnt)) qd.wt[,x.ind[i]] <- qd.wt[,x.ind[i]]+wk
         else qd.wt[,x.ind[i]] <- qd.wt[,x.ind[i]]+cnt[i]*wk
     }
@@ -194,11 +214,20 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
             }
         }
     }
+    ## Add the partial term
+    if (!is.null(partial)) {
+        s <- cbind(s,matx.p[yy$status,])
+        nu.p <- dim(matx.p)[2]
+        qd.wk <- aperm(array(matx.p[!x.dup.ind,],c(nx,nu.p,nmesh)),c(3,1,2))
+        nu <- nu + nu.p
+        qd.s <- array(c(qd.s,qd.wk),c(nmesh,nx,nu))
+        part$pt <- matx.p[!x.dup.ind,,drop=FALSE]
+    }
+    ## Check s rank
     if (!is.null(s)) {
         nnull <- dim(s)[2]
-        ## Check s rank
         if (qr(s)$rank<nnull)
-            stop("gss error in sshzd: fixed effect MLE is not unique")
+            stop("gss error in sshzd: unpenalized terms are linearly dependent")
     }
     ## Fit the model
     Nobs <- ifelse(is.null(cnt),nobs,sum(cnt))
@@ -211,14 +240,18 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     desc <- NULL
     for (label in term$labels)
         desc <- rbind(desc,as.numeric(c(term[[label]][c("nphi","nrk")])))
+    if (!is.null(partial)) {
+        desc <- rbind(desc,matrix(c(1,0),length(lab.p),2,byrow=TRUE))
+    }
     desc <- rbind(desc,apply(desc,2,sum))
-    rownames(desc) <- c(term$labels,"total")
+    if (is.null(partial)) rownames(desc) <- c(term$labels,"total")
+    else rownames(desc) <- c(term$labels,lab.p,"total")
     colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
     obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,
                   alpha=alpha,tname=tname,xnames=xnames,tdomain=tdomain,dbar=dbar,
-                  quad=quad,x.pt=x.pt,qd.wt=qd.wt,id.basis=id.basis,random=random,
-                  skip.iter=skip.iter),z)
+                  quad=quad,x.pt=x.pt,qd.wt=qd.wt,id.basis=id.basis,partial=part,
+                  lab.p=lab.p,random=random,skip.iter=skip.iter),z)
     obj$se.aux$v <- sqrt(Nobs)*obj$se.aux$v
     class(obj) <- c("sshzd")
     obj
@@ -255,13 +288,13 @@ msphzd <- function(s,r,id.wk,Nobs,cnt,qd.s,qd.r,qd.wt,random,prec,maxiter,alpha,
                         as.double(qd.r.wk), as.integer(nqd),
                         as.double(qd.wt), as.integer(nx),
                         as.double(prec), as.integer(maxiter),
-                        as.double(.Machine$double.eps),
-                        wk=double(2*(nqd*nx+nT)+nn*(2*nn+5)+max(nn,2)),
+                        as.double(.Machine$double.eps), integer(nn),
+                        wk=double(2*(nqd*nx+nT)+nn*(2*nn+4)+max(nn,2)),
                         info=integer(1),PACKAGE="gss")
         if (fit$info==1) stop("gss error in sshzd: Newton iteration diverges")
         if (fit$info==2) warning("gss warning in sshzd: Newton iteration fails to converge")
-        assign("cd",fit$cd,inherit=TRUE)
-        assign("mesh0",matrix(fit$wk[max(nn,2)+(1:(nqd*nx))],nqd,nx),inherit=TRUE)
+        assign("cd",fit$cd,inherits=TRUE)
+        assign("mesh0",matrix(fit$wk[max(nn,2)+(1:(nqd*nx))],nqd,nx),inherits=TRUE)
         cv <- alpha*fit$wk[2]-fit$wk[1]
         alpha.wk <- max(0,log.la0-lambda[1]-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)
@@ -279,9 +312,9 @@ msphzd <- function(s,r,id.wk,Nobs,cnt,qd.s,qd.r,qd.wt,random,prec,maxiter,alpha,
                 if (length(dim(qd.r[[i]]))==3) qd.r.wk0 <- qd.r.wk0 + 10^theta[i]*qd.r[[i]]
                 else qd.r.wk0 <- qd.r.wk0 + as.vector(10^theta[i]*qd.r[[i]])
             }
-            assign("r.wk",r.wk0+0,inherit=TRUE)
-            assign("qd.r.wk",qd.r.wk0+0,inherit=TRUE)
-            assign("theta.old",theta[1:nq]+0,inherit=TRUE)
+            assign("r.wk",r.wk0+0,inherits=TRUE)
+            assign("qd.r.wk",qd.r.wk0+0,inherits=TRUE)
+            assign("theta.old",theta[1:nq]+0,inherits=TRUE)
         }
         else {
             r.wk0 <- r.wk
@@ -316,13 +349,13 @@ msphzd <- function(s,r,id.wk,Nobs,cnt,qd.s,qd.r,qd.wt,random,prec,maxiter,alpha,
                         as.double(qd.r.wk0), as.integer(nqd),
                         as.double(qd.wt), as.integer(nx),
                         as.double(prec), as.integer(maxiter),
-                        as.double(.Machine$double.eps),
-                        wk=double(2*(nqd*nx+nT)+nn*(2*nn+5)+max(nn,2)),
+                        as.double(.Machine$double.eps), integer(nn),
+                        wk=double(2*(nqd*nx+nT)+nn*(2*nn+4)+max(nn,2)),
                         info=integer(1),PACKAGE="gss")
         if (fit$info==1) stop("gss error in sshzd: Newton iteration diverges")
         if (fit$info==2) warning("gss warning in sshzd: Newton iteration fails to converge")
-        assign("cd",fit$cd,inherit=TRUE)
-        assign("mesh0",matrix(fit$wk[max(nn,2)+(1:(nqd*nx))],nqd,nx),inherit=TRUE)
+        assign("cd",fit$cd,inherits=TRUE)
+        assign("mesh0",matrix(fit$wk[max(nn,2)+(1:(nqd*nx))],nqd,nx),inherits=TRUE)
         cv <- alpha*fit$wk[2]-fit$wk[1]
         alpha.wk <- max(0,theta[1:nq]-log.th0-5)*(3-alpha) + alpha
         alpha.wk <- min(alpha.wk,3)

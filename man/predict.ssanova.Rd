@@ -8,17 +8,18 @@
     constructing Bayesian confidence intervals.
 }
 \usage{
-\method{predict}{ssanova}(object, newdata, se.fit=FALSE, include=object$terms$labels, ...)
-\method{predict}{ssanova0}(object, newdata, se.fit=FALSE, include=object$terms$labels, ...)
+\method{predict}{ssanova}(object, newdata, se.fit=FALSE,
+                          include=c(object$terms$labels,object$lab.p), ...)
+\method{predict}{ssanova0}(object, newdata, se.fit=FALSE,
+                           include=c(object$terms$labels,object$lab.p), ...)
 }
 \arguments{
     \item{object}{Object of class inheriting from \code{"ssanova"}.}
     \item{newdata}{Data frame or model frame in which to predict.}
     \item{se.fit}{Flag indicating if standard errors are required.}
     \item{include}{List of model terms to be included in the
-	prediction.  The \code{partial} and \code{offset} terms, if
-	present, are to be specified by \code{"partial"} and
-	\code{"offset"}, respectively.}
+	prediction.  The \code{offset} term, if present, is to be
+	specified by \code{"offset"}.}
     \item{...}{Ignored.}
 }
 \value{
@@ -31,15 +32,11 @@
     \item{se.fit}{Vector of standard errors.}
 }
 \note{
-    To supply the partial terms for partial spline models, add a
-    component \code{partial=I(...)} in \code{newdata}; the "as is"
-    function \code{I(...)} is necessary when \code{partial} has more
-    than one column.
-
     For mixed-effect models through \code{\link{ssanova}} or
     \code{\link{gssanova}}, the Z matrix is set to 0 if not supplied.
     To supply the Z matrix, add a component \code{random=I(...)} in
-    \code{newdata}.
+    \code{newdata}, where the as-is function \code{I(...)} preserves the
+    integrity of the Z matrix in data frame.
 }
 \seealso{
     Fitting functions \code{\link{ssanova}}, \code{\link{ssanova0}},

@@ -124,7 +124,6 @@ repeat {
         call  dcopy (nxis, mu, 1, cdnew, 1)
         call  dprmut (cdnew, nxis, jpvt, 0)
         call  dtrsl (v, nxis, nxis, cdnew, 11, infowk)
-        call  dset (nxis-rkv, 0.d0, cdnew(rkv+1), 1)
         call  dtrsl (v, nxis, nxis, cdnew, 01, infowk)
         call  dprmut (cdnew, nxis, jpvt, 1)
         call  daxpy (nxis, 1.d0, cd, 1, cdnew, 1)
@@ -193,6 +192,60 @@ repeat {
 for (kk=1;kk<=nx;kk=kk+1) {
     for (i=1;i<=nqd;i=i+1)
         wt0(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1))
+}
+
+return
+end
+
+
+#:::::::::::::
+#   coxaux
+#:::::::::::::
+
+subroutine  coxaux (cd, nn, q, nxiz, qdrs, nqd, nt, twt, mchpr, qdwt,
+                    wt, wtsum, muwk, v, vwk, jpvt)
+
+integer  nn, nxiz, nqd, nt, jpvt(*)
+double precision  cd(*), q(nxiz,*), qdrs(nqd,*), twt(*), mchpr, qdwt(nqd,*),
+                  wt(nqd,*), wtsum(*), muwk(*), v(nn,*), vwk(nn,*)
+
+integer  i, j, k, m, rkv
+double precision  ddot, tmp
+
+#   Initialization
+call  dset(nt, 0.d0, wtsum, 1)
+for (i=1;i<=nqd;i=i+1) {
+    tmp = dexp (ddot (nn, qdrs(i,1), nqd, cd, 1))
+    for (m=1;m<=nt;m=m+1) {
+        wt(i,m) = qdwt(i,m) * tmp
+        wtsum(m) = wtsum(m) + wt(i,m)
+    }
+}
+#   H matrix
+call  dset(nn*nn, 0.d0, v, 1)
+for (m=1;m<=nt;m=m+1) {
+    for (i=1;i<=nn;i=i+1)
+        muwk(i) = ddot (nqd, wt(1,m), 1, qdrs(1,i), 1) / wtsum(m)
+    for (i=1;i<=nn;i=i+1) {
+        for (j=i;j<=nn;j=j+1) {
+            vwk(i,j) = 0.d0
+            for (k=1;k<=nqd;k=k+1)
+                vwk(i,j) = vwk(i,j) + wt(k,m) * qdrs(k,i) * qdrs(k,j)
+            vwk(i,j) = vwk(i,j) / wtsum(m) - muwk(i) * muwk(j)
+        }
+    }
+    call  daxpy (nn*nn, twt(m), vwk, 1, v, 1)
+}
+for (i=1;i<=nxiz;i=i+1) {
+    for (j=i;j<=nxiz;j=j+1)  v(i,j) = v(i,j) + q(i,j)
+}
+#   Cholesky factorization
+for (i=1;i<=nn;i=i+1)  jpvt(i) = 0
+call  dchdc (v, nn, nn, vwk, jpvt, 1, rkv)
+while (v(rkv,rkv)<v(1,1)*dsqrt(mchpr))  rkv = rkv - 1
+for (i=rkv+1;i<=nn;i=i+1) {
+    v(i,i) = v(1,1)
+    call  dset (i-rkv-1, 0.d0, v(rkv+1,i), 1)
 }
 
 return

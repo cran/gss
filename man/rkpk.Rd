@@ -1,9 +1,12 @@
 \name{rkpk}
 \alias{sspreg1}
 \alias{mspreg1}
+\alias{sspreg91}
+\alias{mspreg91}
 \alias{sspngreg}
 \alias{mspngreg}
 \alias{ngreg}
+\alias{ngreg1}
 \alias{regaux}
 \alias{ngreg.proj}
 \title{Numerical Engine for ssanova and gssanova}
@@ -14,6 +17,10 @@
 \usage{
 sspreg1(s, r, q, y, wt, method, alpha, varht, random)
 mspreg1(s, r, id.basis, y, wt, method, alpha, varht, random, skip.iter)
+ngreg1(family, s, r, id.basis, y, wt, offset, method, varht, alpha, nu, random, skip.iter)
+
+sspreg91(s, r, q, y, cov, method, alpha, varht)
+mspreg91(s, r, id.basis, y, cov, method, alpha, varht, skip.iter)
 
 sspngreg(family, s, r, q, y, wt, offset, alpha, nu, random)
 mspngreg(family, s, r, id.basis, y, wt, offset, alpha, nu, random, skip.iter)
@@ -57,6 +64,7 @@ ngreg.proj(dc, family, sr, q, y0, wt, offset, nu)
     \item{id.basis}{Index of observations to be used as "knots."}
     \item{y}{Response vector.}
     \item{wt}{Model weights.}
+    \item{cov}{Input for covariance function for correlated data.}
     \item{offset}{Model offset.}
     \item{method}{\code{"v"} for GCV, \code{"m"} for GML, or \code{"u"}
         for Mallows' CL.}
@@ -78,6 +86,9 @@ ngreg.proj(dc, family, sr, q, y0, wt, offset, nu)
     \item{y0}{Components of the fit to be projected.}
 }
 \references{
+    Gu, C. (1992), Cross validating non Gaussian data.  \emph{Journal of
+    Computational and Graphical Statistics}, \bold{1}, 169--179. 
+
     Kim, Y.-J. and Gu, C. (2004), Smoothing spline Gaussian regression:
     more scalable computation via efficient approximation.
     \emph{Journal of the Royal Statistical Society, Ser. B}, \bold{66},

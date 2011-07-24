@@ -1,3 +1,21 @@
+Sun Jul 24 12:26:15 EDT 2011, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.0-0.
+
+	* R: i) Added the ssanova9, gssanova1, sscox, sscden, and sscden1
+	suites.  ii) Reworked part of the gssanova suite.  iii) Reworked
+	ssden suite to allow sampling bias.  iv) Changed the syntax
+	concerning partial terms, and added partial in sshzd and sshzd1
+	suites.  v) Minor changes in cpssden and cqssden.
+
+	* data: i) Added ColoCan.  ii) Reformatted clim, LakeAcidity, and
+	penny.
+
+	* man: Expanded and updated to reflect changes in R.
+
+	* src: i) Added cdennewton, cdenrkl, cdennewton10.  ii) Changes in
+	dnewton and drkl.
+
 Wed Jan 12 11:58:55 EST 2011, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 1.1-7.

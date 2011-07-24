@@ -23,7 +23,7 @@ mkterm <- function(mf,type)
             ## Check consistency and set default parameters
             type.wk <- type[[xlab]][[1]]
             if
-            (!(type.wk%in%c("ordinal","nominal","cubic","linear","per",
+            (!(type.wk%in%c("ordinal","nominal","cubic","linear","per","trig",
                             "cubic.per","linear.per","tp","sphere","custom")))
                 stop("gss error in mkterm: unknown type")
             if (type.wk%in%c("ordinal","nominal")) {
@@ -41,7 +41,7 @@ mkterm <- function(mf,type)
                 if (is.factor(x)|!is.vector(x))
                     stop("gss error in mkterm: wrong type")
             }
-            if (type.wk%in%c("per","cubic.per","linear.per")) {
+            if (type.wk%in%c("per","cubic.per","linear.per","trig")) {
                 if (type.wk=="per") type.wk <- "cubic.per"
                 if (length(type[[xlab]])==1)
                     stop("gss error in mkterm: missing domain of periodicity")
@@ -112,8 +112,8 @@ mkterm <- function(mf,type)
         x <- mf[,vlist]
         dm <- length(vlist)
         if (dm==1) {
-                type.wk <- var.type[[vlist]][[1]]
-                if (type.wk%in%c("nominal","ordinal")) {
+            type.wk <- var.type[[vlist]][[1]]
+            if (type.wk%in%c("nominal","ordinal")) {
                 ## factor variable
                 if (type.wk=="nominal") fun.env <- mkrk.nominal(levels(x))
                 else fun.env <- mkrk.ordinal(levels(x))
@@ -173,6 +173,26 @@ mkterm <- function(mf,type)
                 if (type.wk=="linear") rk.env <- mkrk.linear(range)
                 if (type.wk=="linear.per") rk.env <- mkrk.linear.per(range)
                 if (type.wk=="sphere") rk.env <- mkrk.sphere(range)
+                rk.fun <- function(x,y,nu=1,env,outer.prod=FALSE) {
+                    env$fun(x,y,env$env,outer.prod)
+                }
+                nrk <- 1
+                irk <- irk.wk
+                irk.wk <- irk.wk + nrk
+                rk <- list(fun=rk.fun,env=rk.env)
+            }
+            if (type.wk=="trig") {
+                ## trigonometric splines
+                range <- var.type[[vlist]][[2]]
+                ## phi
+                phi.env <- mkphi.trig(range)
+                phi.fun <- function(x,nu=1,env) env$fun(x,nu,env$env)
+                nphi <- 2
+                iphi <- iphi.wk
+                iphi.wk <- iphi.wk + nphi
+                phi <- list(fun=phi.fun,env=phi.env)
+                ## rk
+                rk.env <- mkrk.trig(range)
                 rk.fun <- function(x,y,nu=1,env,outer.prod=FALSE) {
                     env$fun(x,y,env$env,outer.prod)
                 }
@@ -263,6 +283,16 @@ mkterm <- function(mf,type)
                     if (type.wk=="linear") rk.wk <- mkrk.linear(range)
                     if (type.wk=="linear.per") rk.wk <- mkrk.linear.per(range)
                     if (type.wk=="sphere") rk.wk <- mkrk.sphere(range)
+                    bin.fac <- c(bin.fac,0)
+                }
+                if (type.wk=="trig") {
+                    ## trigonometric splines
+                    range <- var.type[[vlist[i]]][[2]]
+                    ## phi
+                    phi.wk <- mkphi.trig(range)
+                    n.phi <- c(n.phi,2)
+                    ## rk
+                    rk.wk <- mkrk.trig(range)
                     bin.fac <- c(bin.fac,0)
                 }
                 if (type.wk=="tp") {

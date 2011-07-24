@@ -16,9 +16,10 @@ gssanova(formula, family, type=NULL, data=list(), weights, subset,
     \item{formula}{Symbolic description of the model to be fit.}
     \item{family}{Description of the error distribution.  Supported
 	are exponential families \code{"binomial"}, \code{"poisson"},
-	\code{"Gamma"}, and \code{"nbinomial"}.  Also supported are
-	accelerated life model families \code{"weibull"},
-	\code{"lognorm"}, and \code{"loglogis"}.}
+	\code{"Gamma"}, \code{"inverse.gaussian"}, and
+	\code{"nbinomial"}.  Also supported are accelerated life model
+	families \code{"weibull"}, \code{"lognorm"}, and
+	\code{"loglogis"}.}
     \item{type}{List specifying the type of spline for each variable.
         See \code{\link{mkterm}} for details.}
     \item{data}{Optional data frame containing the variables in the
@@ -30,8 +31,8 @@ gssanova(formula, family, type=NULL, data=list(), weights, subset,
     \item{offset}{Optional offset term with known parameter 1.}
     \item{na.action}{Function which indicates what should happen when
 	the data contain NAs.}
-    \item{partial}{Optional extra unpenalized terms in partial spline
-	models.}
+    \item{partial}{Optional symbolic description of parametric terms in
+        partial spline models.}
     \item{alpha}{Tuning parameter defining cross-validation; larger
         values yield smoother fits.  Defaults are \code{alpha=1} for
 	\code{family="binomial"} and \code{alpha=1.4} otherwise.}

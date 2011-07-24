@@ -1,11 +1,12 @@
 C Output from Public domain Ratfor, version 1.01
       subroutine llrmnewton (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qd
-     *rs, nqd, nx, xxwt, prec, maxiter, mchpr, wk, info)
-      integer nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, maxiter, info
+     *rs, nqd, nx, xxwt, prec, maxiter, mchpr, jpvt, wk, info)
+      integer nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, maxiter, jpvt(*)
+     *, info
       double precision cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), xx
      *wt(*), prec, mchpr, wk(*)
-      integer iwt, iwtsum, imrs, ifit, imu, imuwk, iv, ivwk, ijpvt, icdn
-     *ew, iwtnew, iwtnewsum, ifitnew, iwk
+      integer iwt, iwtsum, imrs, ifit, imu, imuwk, iv, ivwk, icdnew, iwt
+     *new, iwtnewsum, ifitnew, iwk
       iwt = 1
       iwtsum = iwt + nqd*nx
       imrs = iwtsum + nx
@@ -14,16 +15,15 @@ C Output from Public domain Ratfor, version 1.01
       imuwk = imu + nxis
       iv = imuwk + nxis
       ivwk = iv + nxis*nxis
-      ijpvt = ivwk + nxis*nxis
-      icdnew = ijpvt + nxis
+      icdnew = ivwk + nxis*nxis
       iwtnew = icdnew + nxis
       iwtnewsum = iwtnew + nqd*nx
       ifitnew = iwtnewsum + nx
       iwk = ifitnew + nobs
       call llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, n
      *qd, nx, xxwt, prec, maxiter, mchpr, wk(iwt), wk(iwtsum), wk(imrs),
-     * wk(ifit), wk(imu), wk(imuwk), wk(iv), wk(ivwk), wk(ijpvt), wk(icd
-     *new), wk(iwtnew), wk(iwtnewsum), wk(ifitnew), wk(iwk), info)
+     * wk(ifit), wk(imu), wk(imuwk), wk(iv), wk(ivwk), jpvt, wk(icdnew),
+     * wk(iwtnew), wk(iwtnewsum), wk(ifitnew), wk(iwk), info)
       return
       end
       subroutine llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, q

@@ -3,7 +3,9 @@
 \alias{print.ssanova0}
 \alias{print.gssanova}
 \alias{print.ssden}
+\alias{print.sscden}
 \alias{print.sshzd}
+\alias{print.sscox}
 \alias{print.ssllrm}
 \alias{print.summary.ssanova}
 \alias{print.summary.gssanova}
@@ -17,7 +19,9 @@
 \method{print}{ssanova0}(x, ...)
 \method{print}{gssanova}(x, ...)
 \method{print}{ssden}(x, ...)
+\method{print}{sscden}(x, ...)
 \method{print}{sshzd}(x, ...)
+\method{print}{sscox}(x, ...)
 \method{print}{ssllrm}(x, ...)
 \method{print}{summary.ssanova}(x, digits=6, ...)
 \method{print}{summary.gssanova}(x, digits=6, ...)

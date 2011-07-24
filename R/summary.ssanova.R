@@ -25,26 +25,31 @@ summary.ssanova <- function(object,diagnostics=FALSE,...)
     ## Penalty associated with the fit
     obj.wk <- object
     obj.wk$d[] <- 0
-    penalty <- sum(obj.wk$c*predict(obj.wk,obj.wk$mf[object$id.basis,]))
+    if (!is.null(obj.wk$mf$offset)) obj.wk$mf$offset <- 0
+    penalty <- sum(obj.wk$c*predict(obj.wk,mf[object$id.basis,]))
     penalty <- as.vector(10^object$nlambda*penalty)
     if (!is.null(object$random)) {
-        p.ran <- t(object$b)%*%object$random$sigma$fun(object$zeta,object$random$sigma$env)%*%object$b
+        p.ran <- t(object$b)%*%object$random$sigma$fun(object$zeta,
+                                                       object$random$sigma$env)%*%object$b
         penalty <- penalty + p.ran
     }
     ## Calculate the diagnostics
+    if (is.null(object$partial)) labels.p <- NULL
+    else labels.p <- labels(object$partial$mt)
     if (diagnostics) {
         ## Obtain retrospective linear model
         comp <- NULL
         p.dec <- NULL
-        for (label in object$terms$labels) {
+        for (label in c(object$terms$labels,labels.p)) {
             if (label=="1") next
             if (label=="offset") next
-            comp <- cbind(comp,predict(object,object$mf,inc=label))
-            jk <- sum(obj.wk$c*predict(obj.wk,obj.wk$mf[object$id.basis,],inc=label))
+            comp <- cbind(comp,predict(object,mf,inc=label))
+            jk <- sum(obj.wk$c*predict(obj.wk,mf[object$id.basis,],inc=label))
             p.dec <- c(p.dec,10^object$nlambda*jk)
         }
         term.label <- object$terms$labels[object$terms$labels!="1"]
         term.label <- term.label[term.label!="offset"]
+        term.label <- c(term.label,labels.p)
         if (!is.null(object$random)) {
             comp <- cbind(comp,predict(object,mf,inc=NULL))
             p.dec <- c(p.dec,p.ran)

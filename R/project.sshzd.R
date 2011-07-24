@@ -77,6 +77,15 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
             }
         }
     }
+    if (!is.null(object$partial)) {
+        for (label in object$lab.p) {
+            n0.wk <- n0.wk + 1
+            if (!any(label==include)) next
+            d <- c(d,object$d[n0.wk])
+            qd.wk <- t(matrix(object$partial$pt[,label],nx,nqd))
+            qd.s <- array(c(qd.s,qd.wk),c(nqd,nx,n0.wk))
+        }
+    }
     if (!is.null(qd.s)) nnull <- dim(qd.s)[3]
     else nnull <- 0
     nn <- nxi + nnull
@@ -109,8 +118,8 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
             stop("gss error in project.sshzd: Newton iteration diverges")
         if (z$info==2)
             warning("gss warning in project.sshzd: Newton iteration fails to converge")
-        assign("cd",z$cd,inherit=TRUE)
-        assign("mesh1",t(t(matrix(z$mesh,nqd,nx))*exp(offset)),inherit=TRUE)
+        assign("cd",z$cd,inherits=TRUE)
+        assign("mesh1",t(t(matrix(z$mesh,nqd,nx))*exp(offset)),inherits=TRUE)
         sum(qd.wt*(log(mesh0/mesh1)*mesh0-mesh0+mesh1))
     }
     cv.wk <- function(theta) cv.scale*rkl(theta)+cv.shift
@@ -172,7 +181,8 @@ project.sshzd <- function(object,include,mesh=FALSE,...)
     cfit <- t(matrix(object$dbar/sum(t(qd.wt)*exp(offset))*exp(offset),nx,nqd))
     ## return
     kl0 <- sum(object$qd.wt*(log(mesh0/cfit)*mesh0-mesh0+cfit))
-    obj <- list(ratio=kl/kl0,kl=kl)
+    kl1 <- sum(object$qd.wt*(log(mesh1/cfit)*mesh1-mesh1+cfit))
+    obj <- list(ratio=kl/kl0,kl=kl,check=(kl+kl1)/kl0)
     if (mesh) obj$mesh <- mesh1
     obj
 }

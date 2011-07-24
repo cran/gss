@@ -3,10 +3,6 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
 {
     if (class(object)!="ssllrm")
         stop("gss error in predict.ssllrm: not a ssllrm object")
-    if ("partial"%in%colnames(x)) {
-        partial <- x$partial
-        x$partial <- NULL
-    }
     if ("random"%in%colnames(x)) {
         zz <- x$random
         x$random <- NULL
@@ -17,16 +13,6 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
     if (!all(sort(object$ynames)==sort(colnames(y))))
         stop("gss error in predict.ssllrm: mismatched y variable names")
     mf <- object$mf
-    if (!is.null(mf$partial)) {
-        if (is.null(partial)) partial <- matrix(0,dim(x)[1],dim(mf$partial)[2])
-        else {
-            if (is.vector(partial)) partial <- as.matrix(partial)
-            if ((dim(mf$partial)[2]-dim(partial)[2]))
-                stop("gss error in predict.ssllrm: x$partial is of wrong dimension")
-            partial <- sweep(partial,2,attr(mf$partial,"scaled:center"))
-            partial <- sweep(partial,2,attr(mf$partial,"scaled:scale"),"/")
-        }
-    }
     term <- object$term
     qd.pt <- object$qd.pt
     nmesh <- dim(qd.pt)[1]
@@ -58,7 +44,6 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
     r <- array(0,c(nmesh,nbasis,nobs))
     nu <- nq <- 0
     for (label in term$labels) {
-        part <- label%in%object$yterms
         vlist <- term[[label]]$vlist
         x.list <- object$xnames[object$xnames%in%vlist]
         y.list <- object$ynames[object$ynames%in%vlist]
@@ -86,12 +71,6 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
                     }
                 }
                 s <- array(c(s,wk),c(nmesh,nobs,nu))
-                if (part) {
-                    for (j in 1:dim(partial)[2]) {
-                        nu <- nu+1
-                        s <- array(c(s,outer(s.wk,partial[,j])),c(nmesh,nobs,nu))
-                    }
-                }
             }
         }
         if (nrk) {
@@ -108,16 +87,6 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
                         qd.xy[,x.list] <- xx[rep(j,nmesh),]
                         wk <- array(c(wk,rk$fun(qd.xy,xy.basis,i,rk$env,TRUE)),
                                     c(nmesh,nbasis,j))
-                    }
-                    r <- r + 10^object$theta[nq]*wk
-                }
-                if (part) {
-                    nq <- nq+1
-                    wk <- NULL
-                    for (j in 1:nobs) {
-                        ww <- t(r.wk)*as.vector(mf$partial[object$id.basis,,drop=FALSE]
-                                                %*%partial[j,])
-                        wk <- array(c(wk,t(ww)),c(nmesh,nbasis,j))
                     }
                     r <- r + 10^object$theta[nq]*wk
                 }

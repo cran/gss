@@ -75,16 +75,8 @@ cfit.poisson <- function(y,wt,offset)
     lambda <- sum(wt*y)/sum(wt)
     if (is.null(offset)) eta <- rep(log(lambda),length(y))
     else {
-        eta <- log(lambda) - mean(offset)
-        repeat {
-            lambda <- exp(eta+offset)
-            u <- lambda - y
-            w <- lambda
-            eta.new <- eta-sum(wt*u)/sum(wt*w)
-            if (abs(eta-eta.new)/(1+abs(eta))<1e-7) break
-            eta <- eta.new    
-        }
-        eta <- eta + offset
+        eta0 <- log(sum(wt*y)/sum(wt*exp(offset)))
+        eta <- eta0 + offset
     }
     eta
 }
@@ -101,10 +93,8 @@ proj0.Gamma <- function(y0,eta,wt,offset)
     if (is.null(offset)) offset <- rep(0,length(eta))
     mu <- exp(eta)
     u <- 1-y0$mu/mu
-    w <- y0$mu/mu
-    ywk <- eta-u/w-offset
+    ywk <- eta-u-offset
     kl <- sum(wt*(y0$mu*(-1/y0$mu+1/mu)+log(mu/y0$mu)))/sum(wt)
-    wt <- w*wt
     list(ywk=ywk,wt=wt,kl=kl,u=wt*u)
 }
 kl.Gamma <- function(eta0,eta1,wt)
@@ -118,16 +108,43 @@ cfit.Gamma <- function(y,wt,offset)
     mu <- sum(wt*y)/sum(wt)
     if (is.null(offset)) eta <- rep(log(mu),length(y))
     else {
-        eta <- log(mu)-mean(offset)
-        repeat {
-            mu <- exp(eta+offset)
-            u <- 1-y/mu
-            w <- y/mu
-            eta.new <- eta-sum(wt*u)/sum(wt*w)
-            if (abs(eta-eta.new)/(1+abs(eta))<1e-7) break
-            eta <- eta.new    
-        }
-        eta <- eta + offset
+        eta0 <- log(sum(wt*y*exp(-offset))/sum(wt))
+        eta <- eta0 + offset
+    }
+    eta
+}
+
+
+##%%%%%%%%%%  Inverse Gaussian Family %%%%%%%%%%
+y0.inverse.gaussian <- function(eta0)
+{
+    mu <- exp(eta0)
+    list(mu=mu)
+}
+proj0.inverse.gaussian <- function(y0,eta,wt,offset)
+{
+    if (is.null(offset)) offset <- rep(0,length(eta))
+    mu <- exp(eta)
+    u <- (1-y0$mu/mu)/mu
+    w <- 1/mu
+    ywk <- eta-u/w-offset
+    kl <- sum(wt*y0$mu/2*(1/mu-1/y0$mu)^2)/sum(wt)
+    wt <- w*wt
+    list(ywk=ywk,wt=wt,kl=kl,u=wt*u)
+}
+kl.inverse.gaussian <- function(eta0,eta1,wt)
+{
+    mu0 <- exp(eta0)
+    mu1 <- exp(eta1)
+    sum(wt*mu0/2*(-1/mu0+1/mu1)^2)/sum(wt)
+}
+cfit.inverse.gaussian <- function(y,wt,offset)
+{
+    mu <- sum(wt*y)/sum(wt)
+    if (is.null(offset)) eta <- rep(log(mu),length(y))
+    else {
+        eta0 <- log(sum(wt*y*exp(-2*offset))/sum(wt*exp(-offset)))
+        eta <- eta0 + offset
     }
     eta
 }
@@ -171,7 +188,7 @@ cfit.nbinomial <- function(y,wt,offset,nu)
     else {
         eta <- qlogis(p)-mean(offset)
         repeat {
-            p <- 1-1/(1+exp(eta+offset))
+            p <- plogis(eta+offset)
             u <- (y+nu)*p-nu
             w <- (y+nu)*p*(1-p)
             eta.new <- eta-sum(wt*u)/sum(wt*w)
@@ -242,15 +259,15 @@ proj0.lognorm <- function(y0,eta,wt,offset,nu)
         q.wt <- y0$q.wt*(y0$xx[i]-y0$zz[i])
         z0 <- nu*(log(q.pt)-y0$eta[i])
         z1 <- nu*(log(q.pt)-eta[i])
-        lam0 <- ifelse(z0<7,dnorm(z0)/(1-pnorm(z0)),z0+.15)
-        lam1 <- ifelse(z1<7,dnorm(z1)/(1-pnorm(z1)),z1+.15)
+        lam0 <- ifelse(z0<7,dnorm(z0)/(1-pnorm(z0)),z0+1/z0)
+        lam1 <- ifelse(z1<7,dnorm(z1)/(1-pnorm(z1)),z1+1/z1)
         u <- c(u,nu*nu*sum(q.wt*(lam0-lam1)*(lam1-z1)/q.pt))
         kl <- kl + nu*sum(q.wt*(lam0*log(lam0/lam1)+lam1-lam0)/q.pt)
     }
     xx <- nu*(log(y0$xx)-eta)
     zz <- nu*(log(y0$zz)-eta)
-    s.xx <- ifelse(xx<7,dnorm(xx)/(1-pnorm(xx)),xx+.15)
-    s.zz <- ifelse(zz<7,dnorm(zz)/(1-pnorm(zz)),zz+.15)
+    s.xx <- ifelse(xx<7,dnorm(xx)/(1-pnorm(xx)),xx+1/xx)
+    s.zz <- ifelse(zz<7,dnorm(zz)/(1-pnorm(zz)),zz+1/zz)
     s.xx <- pmax(s.xx,s.zz)
     w <- (s.xx^2/2-xx*s.xx+xx^2/2+log(s.xx)+log(2*pi)/2)
     w <- nu^2*(w-ifelse(s.zz==0,0,(s.zz^2/2-zz*s.zz+zz^2/2+log(s.zz)+log(2*pi)/2)))
@@ -267,8 +284,8 @@ kl.lognorm <- function(eta0,eta1,wt,nu,y0)
         q.wt <- y0$q.wt*(y0$xx[i]-y0$zz[i])
         z0 <- nu*(log(q.pt)-eta0[i])
         z1 <- nu*(log(q.pt)-eta1[i])
-        lam0 <- ifelse(z0<7,dnorm(z0)/(1-pnorm(z0)),z0+.15)
-        lam1 <- ifelse(z1<7,dnorm(z1)/(1-pnorm(z1)),z1+.15)
+        lam0 <- ifelse(z0<7,dnorm(z0)/(1-pnorm(z0)),z0+1/z0)
+        lam1 <- ifelse(z1<7,dnorm(z1)/(1-pnorm(z1)),z1+1/z1)
         kl <- kl + nu*sum(q.wt*(lam0*log(lam0/lam1)+lam1-lam0)/q.pt)
     }
     kl/length(eta0)

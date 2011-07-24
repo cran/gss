@@ -5,6 +5,8 @@
 \alias{mkrk.cubic.per}
 \alias{mkrk.linear}
 \alias{mkrk.linear.per}
+\alias{mkrk.trig}
+\alias{mkphi.trig}
 \title{
     Crafting Building Blocks for Polynomial Splines
 }
@@ -15,6 +17,8 @@
 \usage{
 mkrk.cubic(range)
 mkphi.cubic(range)
+mkrk.trig(range)
+mkphi.trig(range)
 mkrk.cubic.per(range)
 mkrk.linear(range)
 mkrk.linear.per(range)

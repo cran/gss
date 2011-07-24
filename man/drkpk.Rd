@@ -1,8 +1,12 @@
 \name{drkpk}
 \alias{sspdsty}
 \alias{mspdsty}
+\alias{mspcdsty}
+\alias{mspcdsty1}
 \alias{msphzd}
 \alias{msphzd1}
+\alias{sspcox}
+\alias{mspcox}
 \alias{mspllrm}
 \title{Numerical Engine for ssden, sshzd, and sshzd1}
 \description{
@@ -10,12 +14,19 @@
     \code{\link{sshzd}} suites.
 }
 \usage{
-sspdsty(s, r, q, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha)
-mspdsty(s, r, id.basis, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, skip.iter)
+sspdsty(s, r, q, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, bias)
+mspdsty(s, r, id.basis, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, bias, skip.iter)
+
+mspcdsty(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, qd.wt, prec, maxiter, alpha, skip.iter)
+
+mspcdsty1(s, r, id.basis, cnt, int.s, int.r, prec, maxiter, alpha, skip.iter)
 
 msphzd(s, r, id.wk, Nobs, cnt, qd.s, qd.r, qd.wt, random, prec, maxiter, alpha, skip.iter)
 
 msphzd1(s, r, id.wk, Nobs, cnt, int.s, int.r, rho, random, prec, maxiter, alpha, skip.iter)
+
+sspcox(s, r, q, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, random, bias)
+mspcox(s, r, id.basis, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, random, bias, skip.iter)
 
 mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, random, prec, maxiter, alpha, skip.iter)
 }
@@ -45,7 +56,8 @@ mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, random, prec, maxiter, alpha, sk
     \item{maxiter}{Maximum number of iterations allowed for
         internal iterations.}
     \item{alpha}{Parameter defining cross-validation score for smoothing
-        parameter selection.}
+      parameter selection.}
+    \item{bias}{List of arrays incorporating possible sampling bias.}
     \item{skip.iter}{Flag indicating whether to use initial values of
         theta and skip theta iteration.}
     \item{int.s}{Integrals of unpenalized terms.}

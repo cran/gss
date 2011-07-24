@@ -1,9 +1,11 @@
 ## Calculate prediction and Bayesian SE from ssanova0 objects
 predict.ssanova0 <- function(object,newdata,se.fit=FALSE,
-                             include=object$terms$labels,...)
+                             include=c(object$terms$labels,object$lab.p),...)
 {
     nnew <- dim(newdata)[1]
     nobs <- length(object$c)
+    nnull <- length(object$d)
+    labels.p <- object$lab.p
     ## Extract included terms
     term <- object$terms
     philist <- rklist <- NULL
@@ -15,7 +17,7 @@ predict.ssanova0 <- function(object,newdata,se.fit=FALSE,
             s <- cbind(s,rep(1,len=nnew))
             next
         }
-        if (label=="partial") next
+        if (label%in%labels.p) next
         if (label=="offset") next
         xnew <- newdata[,term[[label]]$vlist]
         x <- object$mf[,term[[label]]$vlist]
@@ -39,11 +41,30 @@ predict.ssanova0 <- function(object,newdata,se.fit=FALSE,
             }
         }
     }
-    if (any(include=="partial")) {
-        nphi <- term$partial$nphi
-        iphi <- term$partial$iphi
-        for (i in 1:nphi) philist <- c(philist,iphi+(i-1))
-        s <- cbind(s,newdata$partial)
+    if (!is.null(object$partial)) {
+        vars.p <- as.character(attr(object$partial$mt,"variables"))[-1]
+        facs.p <- attr(object$partial$mt,"factors")
+        vlist <- vars.p[as.logical(apply(facs.p,1,sum))]
+        for (lab in labels.p) {
+            if (lab%in%include) {
+                vlist.wk <- vars.p[as.logical(facs.p[,lab])]
+                vlist <- vlist[!(vlist%in%vlist.wk)]
+            }
+        }
+        if (length(vlist)) {
+            for (lab in vlist) newdata[[lab]] <- 0
+        }
+        matx.p <- model.matrix(object$partial$mt,newdata)[,-1,drop=FALSE]
+        matx.p <- sweep(matx.p,2,object$partial$center)
+        matx.p <- sweep(matx.p,2,object$partial$scale,"/")
+        nu <- nnull-dim(matx.p)[2]
+        for (label in labels.p) {
+            nu <- nu+1
+            if (label%in%include) {
+                philist <- c(philist,nu)
+                s <- cbind(s,matx.p[,label])
+            }
+        }
     }
     qq <- matrix(0,nnew,nobs)
     nq <- 0
@@ -77,6 +98,7 @@ predict.ssanova0 <- function(object,newdata,se.fit=FALSE,
         r <- 0
         for (label in include) {
             if (label=="1") next
+            if (label%in%labels.p) next
             xnew <- newdata[,term[[label]]$vlist]
             nrk <- term[[label]]$nrk
             if (nrk) {

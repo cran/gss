@@ -9,7 +9,7 @@
 \usage{
 ssden(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
-      domain=as.list(NULL), quad=NULL, qdsz.depth=NULL,
+      domain=as.list(NULL), quad=NULL, qdsz.depth=NULL, bias=NULL,
       prec=1e-7, maxiter=30, skip.iter=FALSE)
 }
 \arguments{
@@ -34,7 +34,8 @@ ssden(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     \item{quad}{Quadrature for calculating integral.  Mandatory if
       variables other than factors or numerical vectors are involved.}
     \item{qdsz.depth}{Depth to be used in \code{\link{smolyak.quad}} for
-        the generation of quadrature.}
+      the generation of quadrature.}
+    \item{bias}{Input for sampling bias.}
     \item{prec}{Precision requirement for internal iterations.}
     \item{maxiter}{Maximum number of iterations allowed for
         internal iterations.}
@@ -141,7 +142,7 @@ jk <- cdssden(aids.fit,xx<-seq(0,100,len=51),data.frame(incu=50))
 plot(xx,jk$pdf,type="l")
 ## conditional (marginal) quantiles of infe (TIME-CONSUMING)
 \dontrun{
-cqssden(aids.fit,c(.05,.25,.5,.75,.95),data.frame(incu=50),jk$int)
+cqssden(aids.fit,c(.05,.25,.5,.75,.95),data.frame(incu=50))
 }
 ## Clean up
 \dontrun{rm(aids,quad.pt,quad.wt,aids.fit,jk,xx)
@@ -157,6 +158,32 @@ cdssden(fit,c("1","2"),cond=data.frame(futime=150))
 cqssden(fit,c(.05,.25,.5,.75,.95),data.frame(trt="1"))
 ## Clean up
 \dontrun{rm(gastric,fit)}
+
+## Sampling bias
+## (X,T) is truncated to T<X<1 for T~U(0,1), so X is length-biased
+rbias <- function(n) {
+  t <- runif(n)
+  x <- rnorm(n,.5,.15)
+  ok <- (x>t)&(x<1)
+  while(m<-sum(!ok)) {
+    t[!ok] <- runif(m)
+    x[!ok] <- rnorm(m,.5,.15)
+    ok <- (x>t)&(x<1)
+  }
+  cbind(x,t)
+}
+xt <- rbias(100)
+x <- xt[,1]; t <- xt[,2]
+## length-biased
+bias1 <- list(t=1,wt=1,fun=function(t,x){x[,]})
+fit1 <- ssden(~x,domain=list(x=c(0,1)),bias=bias1)
+plot(xx<-seq(0,1,len=101),dssden(fit1,xx),type="l")
+## truncated
+bias2 <- list(t=t,wt=rep(1/100,100),fun=function(t,x){x[,]>t})
+fit2 <- ssden(~x,domain=list(x=c(0,1)),bias=bias2)
+plot(xx,dssden(fit2,xx),type="l")
+## Clean up
+\dontrun{rm(rbias,xt,x,t,bias1,fit1,bias2,fit2)}
 }
 \keyword{smooth}
 \keyword{models}
