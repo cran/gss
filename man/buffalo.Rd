@@ -6,7 +6,7 @@
 }
 \usage{data(buffalo)}
 \format{
-    A vector of 64 numerical values.
+    A vector of 63 numerical values.
 }
 \source{
     Scott, D. W. (1985), Average shifted histograms: Effective

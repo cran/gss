@@ -59,7 +59,7 @@ project.ssden <- function(object,include,mesh=FALSE,...)
                       as.double(t(qd.rs)), as.integer(nqd), as.integer(bias$nt),
                       as.double(bias$wt), as.double(t(qd.wt)),
                       mesh=as.double(mesh0), as.double(.Machine$double.eps),
-                      as.double(1e-7), as.integer(30), integer(nn),
+                      as.double(1e-6), as.integer(30), integer(nn),
                       double(2*bias$nt*(nqd+1)+nn*(2*nn+4)), info=integer(1),
                       PACKAGE="gss")
         if (z$info==1)

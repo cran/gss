@@ -189,7 +189,7 @@ repeat {
             rkl = rkl + bwt(m) * (tmp + dlog (wtsum(m)))
         }
         iter = 0
-        break
+        flag = 2
     }
     else {
         info = 2

@@ -1,10 +1,18 @@
+Sun Jul 31 01:03:45 EDT 2011, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.0-1.
+
+	* R: Bug fix in gssanova1.
+
+	* src: Bug fix in drkl.
+
 Sun Jul 24 12:26:15 EDT 2011, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.0-0.
 
 	* R: i) Added the ssanova9, gssanova1, sscox, sscden, and sscden1
 	suites.  ii) Reworked part of the gssanova suite.  iii) Reworked
-	ssden suite to allow sampling bias.  iv) Changed the syntax
+	the ssden suite to allow sampling bias.  iv) Changed the syntax
 	concerning partial terms, and added partial in sshzd and sshzd1
 	suites.  v) Minor changes in cpssden and cqssden.
 
@@ -107,13 +115,13 @@ Mon Nov 23 12:52:38 EST 2009, Chong Gu  <chong@stat.purdue.edu>
 	* man: Updated to reflect changes in R.
 
 Mon Mar  9 15:53:42 EDT 2009, Chong Gu  <chong@stat.purdue.edu>
-	
+
 	* DESCRIPTION: Version 1.0-5.
 
 	* R: Fixed a bug in regaux.
 
 Wed Mar  4 16:42:23 EST 2009, Chong Gu  <chong@stat.purdue.edu>
-	
+
 	* DESCRIPTION: Version 1.0-4.
 
 	* INDEX: Edited to reflect changes in R.
@@ -124,14 +132,14 @@ Wed Mar  4 16:42:23 EST 2009, Chong Gu  <chong@stat.purdue.edu>
 	* man: Updated to reflect changes in R.
 
 Wed Mar  4 00:22:21 EST 2009, Chong Gu  <chong@stat.purdue.edu>
-	
+
 	* DESCRIPTION: Version 1.0-3.
 
 	* R: Redesigned the calculations concerning standard errors in
 	predict.ssanova.
 
 Sun Sep  7 14:42:33 EDT 2008, Chong Gu  <chong@stat.purdue.edu>
-	
+
 	* DESCRIPTION: Version 1.0-2.
 
 	* R: Fixed a bug in predict.ssanova.
@@ -148,7 +156,7 @@ Fri Jun 27 17:10:27 EDT 2008, Chong Gu  <chong@stat.purdue.edu>
 	* src: Fixed a bug in reg (undeclared dasum), which was forgiven
 	by g77 and also by gfortran on (some) 32-bit machines; revealed by
 	gfortran on 64-bit.
-	
+
 Mon Aug  6 21:21:47 EDT 2007, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 1.0-0.
@@ -167,13 +175,13 @@ Mon Aug  6 21:21:47 EDT 2007, Chong Gu  <chong@stat.purdue.edu>
 
 	* src: i) Fixed bugs in hzdnewton1 and dnewton1.  ii) Pushed
 	ratfor source code to a subdirectory ratfor.
-	
+
 Thu Sep 23 16:27:00 EST 2004, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.9-3.
 
 	* man: Fixed formatting bugs in ssden.Rd and sshzd.Rd.
-	
+
 Fri Mar 26 10:40:04 EST 2004, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 0.9-2.
@@ -347,15 +355,15 @@ Mon May 14 13:18:12 EST 2001, Chong Gu  <chong@stat.purdue.edu>
 	* man: Fixed keywords in a few files.
 
 Thu Dec 21 19:35:38 EST 2000, Chong Gu  <chong@stat.purdue.edu>
-	
+
 	* DESCRIPTION: Version 0.5-2.  Moved the Title in here according
 	to the new format requirement by R-1.2.0.
-	
+
 	* INDEX: Added new functions mkrk.nominal and mkrk.ordinal.
-	
+
 	* R: i) Added support for factors; ii) corrected minor bugs; iii)
 	grouped functions into smaller number of files.
-	
+
 	* data: Replaced lake.acid by LakeAcidity.  Added Nox.
 
 	* man: Expanded to cover all objects.  Revised existing ones to
@@ -363,20 +371,18 @@ Thu Dec 21 19:35:38 EST 2000, Chong Gu  <chong@stat.purdue.edu>
 
 	* src: Fixed an inconsequential bug in dmudr1.f.
 
-	
 Wed Jun 23 20:22:12 EST 1999, Chong Gu  <chong@stat.purdue.edu>
-	
+
 	* DESCRIPTION (Version): First Public Release is 0.4-1
-	
+
 	* INDEX: Expanded and reorganized.
-	
+
 	* R: i) Added support for partial and offset terms; ii) added
 	linear splines; iii) added the gssanova suite for non Gaussian
 	regression.
-	
+
 	* man: Expanded/revised to reflect the code expansion/revision.
 
-	
 Fri May 28 00:31:24 EST 1999, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION (Version): First Release is 0.3-1

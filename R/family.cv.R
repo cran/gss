@@ -57,7 +57,7 @@ cv.poisson <- function(y,eta,wt,hat,alpha,sr,q)
     ## trace
     mu <- apply(wt*y*sr,2,sum)/sum(wt*y)
     sr <- sqrt(wt*y)*t(t(sr)-mu)
-    sr <- backsolve(v,t(sr[,z$jpvt]),tran=TRUE)
+    sr <- backsolve(v,t(sr[,z$jpvt]),transpose=TRUE)
     aux1 <- sum(sr^2)
     aux2 <- 1/sum(wt*y)/(sum(wt*y)-1)
     list(score=lkhd+abs(alpha)*aux1*aux2,varht=1,w=as.vector(wt*w))

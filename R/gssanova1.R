@@ -142,7 +142,7 @@ ngreg1 <- function(family,s,r,id.basis,y,wt,offset,method,varht,alpha,nu,
                       weibull=mkdata.weibull(y,eta,wt,offset,nu),
                       lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
                       loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
-        nu[[1]] <- wk$nu[[1]]
+        nu <- wk$nu
     }
     nq <- dim(r)[3]
     repeat {

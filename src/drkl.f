@@ -268,7 +268,7 @@ C Output from Public domain Ratfor, version 1.01
       goto 23099
 23101 continue
       iter = 0
-      goto 23023
+      flag = 2
       else
       info = 2
       goto 23023
