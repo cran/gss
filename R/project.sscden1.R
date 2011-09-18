@@ -9,19 +9,13 @@ project.sscden1 <- function(object,include,...)
     ynames <- object$ynames
     xx.wt <- object$xx.wt
     nx <- length(xx.wt)
-    rho <- object$rho
-    if (class(rho)=="ssden") {
-        rho.pt <- rho$quad$pt
-        rho.d <- dssden(rho,rho$quad$pt)
-        rho.wt <- rho$quad$wt*rho.d
-    }
-    else {
-        rho.pt <- rho$pt
-        rho.d <- rho$wt
-        rho.wt <- rho$wt
-    }
-    rho.d <- log(rho.d) - sum(log(rho.d)*rho.wt)
-    nmesh <- length(rho.wt)
+    xx <- mf[!object$x.dup.ind,xnames,drop=FALSE]
+    qd.pt <- object$rho$env$qd.pt
+    qd.wt <- object$rho$env$qd.wt
+    rho.d <- t(object$rho$fun(xx,qd.pt,object$rho$env,outer=TRUE))
+    rho.wt <- rho.d*qd.wt
+    rho.d <- t(t(log(rho.d))-apply(log(rho.d)*rho.wt,2,sum))
+    nmesh <- length(qd.wt)
     ns <- length(object$id.s)
     nr <- length(object$id.r)
     nbasis <- length(object$id.basis)
@@ -29,7 +23,7 @@ project.sscden1 <- function(object,include,...)
     r.rho <- matrix(0,nbasis,nr)
     sr <- array(0,c(ns,nbasis,nr))
     rr <- array(0,c(nbasis,nbasis,nr,nr))
-    rho2 <- sum(rho.d^2*rho.wt)
+    rho2 <- sum(xx.wt*apply(rho.d^2*rho.wt,2,sum))
     for (k in 1:nx) {
         id.x <- (1:nobs)[!object$x.dup.ind][k]
         qd.s <- NULL
@@ -42,7 +36,7 @@ project.sscden1 <- function(object,include,...)
             xy.basis <- mf[object$id.basis,vlist]
             qd.xy <- data.frame(matrix(0,nmesh,length(vlist)))
             names(qd.xy) <- vlist
-            qd.xy[,y.list] <- rho.pt[,y.list]
+            qd.xy[,y.list] <- qd.pt[,y.list]
             if (length(x.list)) xx <- mf[id.x,x.list,drop=FALSE]
             else xx <- NULL
             nphi <- term[[label]]$nphi
@@ -80,15 +74,15 @@ project.sscden1 <- function(object,include,...)
                 }
             }
         }
-        qd.s <- sweep(qd.s,2,apply(qd.s*rho.wt,2,sum))
-        s.rho <- s.rho + xx.wt[k]*apply(qd.s*rho.d*rho.wt,2,sum)
-        ss <- ss + xx.wt[k]*t(rho.wt*qd.s)%*%qd.s
+        qd.s <- sweep(qd.s,2,apply(qd.s*rho.wt[,k],2,sum))
+        s.rho <- s.rho + xx.wt[k]*apply(qd.s*rho.d[,k]*rho.wt[,k],2,sum)
+        ss <- ss + xx.wt[k]*t(rho.wt[,k]*qd.s)%*%qd.s
         for (i in 1:iq) {
-            qd.r[[i]] <- sweep(qd.r[[i]],2,apply(qd.r[[i]]*rho.wt,2,sum))
-            r.rho[,i] <- r.rho[,i] + xx.wt[k]*apply(qd.r[[i]]*rho.d*rho.wt,2,sum)
-            sr[,,i] <- sr[,,i] + xx.wt[k]*t(rho.wt*qd.s)%*%qd.r[[i]]
+            qd.r[[i]] <- sweep(qd.r[[i]],2,apply(qd.r[[i]]*rho.wt[,k],2,sum))
+            r.rho[,i] <- r.rho[,i] + xx.wt[k]*apply(qd.r[[i]]*rho.d[,k]*rho.wt[,k],2,sum)
+            sr[,,i] <- sr[,,i] + xx.wt[k]*t(rho.wt[,k]*qd.s)%*%qd.r[[i]]
             for (j in 1:i) {
-                rr.wk <- xx.wt[k]*t(rho.wt*qd.r[[i]])%*%qd.r[[j]]
+                rr.wk <- xx.wt[k]*t(rho.wt[,k]*qd.r[[i]])%*%qd.r[[j]]
                 rr[,,i,j] <- rr[,,i,j] + rr.wk
                 if (i-j) rr[,,j,i] <- rr[,,j,i] + t(rr.wk)
             }

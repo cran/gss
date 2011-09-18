@@ -24,7 +24,7 @@ sscox <- function(formula,type=NULL,data=list(),weights=NULL,subset,
     mf$type <- mf$alpha <- mf$random <- mf$partial <- NULL
     mf$id.basis <- mf$nbasis <- mf$seed <- NULL
     mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
-    term.wk <- terms.formula(mf$formula)
+    term.wk <- terms.formula(formula)
     ## response
     resp <- attr(term.wk,"variable")[[2]]
     ind.wk <- length(strsplit(deparse(resp),'')[[1]])

@@ -11,7 +11,7 @@ sscden <- function(formula,response,type=NULL,data=list(),weights,
     mf$id.basis <- mf$nbasis <- mf$seed <- NULL
     mf$ydomain <- mf$yquad <- NULL
     mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
-    term.wk <- terms.formula(mf$formula)
+    term.wk <- terms.formula(formula)
     ynames <- as.character(attr(terms(response),"variables"))[-1]
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf,parent.frame())

@@ -1,7 +1,7 @@
 cdsscden <- ## Evaluate conditional density estimate
 function (object,y,x,cond,int=NULL) {
     ## check inputs
-    if ("sscden"%in%class(object)) stop("gss error in cdsscden: not a sscden object")
+    if (!("sscden"%in%class(object))) stop("gss error in cdsscden: not a sscden object")
     if (!all(sort(object$xnames)==sort(colnames(x))))
         stop("gss error in cdsscden: mismatched x variable names")
     if (nrow(cond)!=1) stop("gss error in cdsscden: condition has to be a single point")
@@ -17,7 +17,7 @@ function (object,y,x,cond,int=NULL) {
     if (!all(sort(ynames)==sort(colnames(y))))
         stop("gss error in cdsscden: mismatched y variable names")
     ## Calculate normalizing constant
-    if ("sscden1"%in%class(object)) ydomain <- object$rho$domain
+    if ("sscden1"%in%class(object)) ydomain <- object$rho$env$ydomain
     else ydomain <- object$ydomain
     while (is.null(int)) {
         fac.list <- NULL
@@ -84,7 +84,7 @@ function (object,y,x,cond,int=NULL) {
 cpsscden <- ## Compute cdf for univariate conditional density
 function(object,q,x,cond) {
     ## check inputs
-    if ("sscden"%in%class(object)) stop("gss error in cpsscden: not a sscden object")
+    if (!("sscden"%in%class(object))) stop("gss error in cpsscden: not a sscden object")
     if (!all(sort(object$xnames)==sort(colnames(x))))
         stop("gss error in cpsscden: mismatched x variable names")
     if (nrow(cond)!=1) stop("gss error in cpsscden: condition has to be a single point")
@@ -92,10 +92,10 @@ function(object,q,x,cond) {
     for (i in object$ynames) if (all(i!=colnames(cond))) ynames <- c(ynames,i)
     if (length(ynames)!=1) stop("gss error in cpsscden: y is not 1-D")
     if (is.factor(object$mf[,ynames])) stop("gss error in cpsscden: y is not continuous")
-    if ("sscden1"%in%class(object)) ydomain <- object$rho$domain
+    if ("sscden1"%in%class(object)) ydomain <- object$rho$env$ydomain
     else ydomain <- object$ydomain
-    mn <- min(ydomain[,ynames])
-    mx <- max(ydomain[,ynames])
+    mn <- min(ydomain[[ynames]])
+    mx <- max(ydomain[[ynames]])
     order.q <- rank(q)
     p <- q <- sort(q)
     q.dup <- duplicated(q)
@@ -144,7 +144,7 @@ function(object,q,x,cond) {
 cqsscden <- ## Compute quantiles for univariate density estimate
 function(object,p,x,cond) {
     ## check inputs
-    if ("sscden"%in%class(object)) stop("gss error in cqsscden: not a sscden object")
+    if (!("sscden"%in%class(object))) stop("gss error in cqsscden: not a sscden object")
     if (!all(sort(object$xnames)==sort(colnames(x))))
         stop("gss error in cqsscden: mismatched x variable names")
     if (nrow(cond)!=1) stop("gss error in cqsscden: condition has to be a single point")
@@ -152,10 +152,10 @@ function(object,p,x,cond) {
     for (i in object$ynames) if (all(i!=colnames(cond))) ynames <- c(ynames,i)
     if (length(ynames)!=1) stop("gss error in cqsscden: y is not 1-D")
     if (is.factor(object$mf[,ynames])) stop("gss error in cqsscden: y is not continuous")
-    if ("sscden1"%in%class(object)) ydomain <- object$rho$domain
+    if ("sscden1"%in%class(object)) ydomain <- object$rho$env$ydomain
     else ydomain <- object$ydomain
-    mn <- min(ydomain[,ynames])
-    mx <- max(ydomain[,ynames])
+    mn <- min(ydomain[[ynames]])
+    mx <- max(ydomain[[ynames]])
     order.p <- rank(p)
     q <- p <- sort(p)
     p.dup <- duplicated(p)

@@ -9,7 +9,7 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
     mf$response <- mf$type <- mf$alpha <- NULL
     mf$id.basis <- mf$nbasis <- mf$seed <- NULL
     mf$random <- mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
-    term.wk <- terms.formula(mf$formula)
+    term.wk <- terms.formula(formula)
     ynames <- as.character(attr(terms(response),"variables"))[-1]
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf,parent.frame())

@@ -11,8 +11,8 @@ function (object,y,x) {
     if (!all(sort(object$ynames)==sort(colnames(y))))
         stop("gss error in dsscden: mismatched y variable names")
     if ("sscden1"%in%class(object)) {
-        qd.pt <- object$rho$quad$pt
-        qd.wt <- object$rho$quad$wt
+        qd.pt <- object$rho$env$qd.pt
+        qd.wt <- object$rho$env$qd.wt
         d.qd <- d.sscden1(object,x,qd.pt,scale=FALSE)
         int <- apply(d.qd*qd.wt,2,sum)
         return(t(t(d.sscden1(object,x,y,scale=FALSE))/int))
@@ -30,12 +30,12 @@ psscden <- ## Compute cdf for univariate density estimate
 function(object,q,x) {
     if (!("sscden"%in%class(object))) stop("gss error in psscden: not a sscden object")
     if (length(object$ynames)!=1) stop("gss error in psscden: y is not 1-D")
-    if (("sscden1"%in%class(object))&(class(object$rho)!="ssden"))
+    if (("sscden1"%in%class(object))&!is.numeric(object$mf[,object$ynames]))
         stop("gss error in qssden: y is not continuous")
-    if ("sscden1"%in%class(object)) ydomain <- object$rho$domain
+    if ("sscden1"%in%class(object)) ydomain <- object$rho$env$ydomain
     else ydomain <- object$ydomain
-    mn <- min(ydomain)
-    mx <- max(ydomain)
+    mn <- min(ydomain[[object$ynames]])
+    mx <- max(ydomain[[object$ynames]])
     order.q <- rank(q)
     p <- q <- sort(q)
     q.dup <- duplicated(q)
@@ -84,12 +84,12 @@ qsscden <- ## Compute quantiles for univariate density estimate
 function(object,p,x) {
     if (!("sscden"%in%class(object))) stop("gss error in qsscden: not a sscden object")
     if (length(object$ynames)!=1) stop("gss error in qsscden: y is not 1-D")
-    if (("sscden1"%in%class(object))&(class(object$rho)!="ssden"))
+    if (("sscden1"%in%class(object))&!is.numeric(object$mf[,object$ynames]))
         stop("gss error in qssden: y is not continuous")
-    if ("sscden1"%in%class(object)) ydomain <- object$rho$domain
+    if ("sscden1"%in%class(object)) ydomain <- object$rho$env$ydomain
     else ydomain <- object$ydomain
-    mn <- min(ydomain)
-    mx <- max(ydomain)
+    mn <- min(ydomain[[object$ynames]])
+    mx <- max(ydomain[[object$ynames]])
     order.p <- rank(p)
     q <- p <- sort(p)
     p.dup <- duplicated(p)
@@ -187,17 +187,7 @@ function (object,x,y,scale=TRUE) {
         stop("gss error in d.sscden1: mismatched y variable names")
     mf <- object$mf
     ## rho
-    if (class(object$rho)=="ssden") {
-        rho <- dssden(object$rho,y)
-    }
-    else {
-        y.wk <- rho$pt[,colnames(y),drop=FALSE]
-        rho <- NULL
-        for (i in 1:dim(y)[1]) {
-            for (j in 1:length(y.wk))
-                if (y[i,]==y.wk[j,]) rho <- c(rho,rho$wt[j])
-        }
-    }
+    rho <- object$rho$fun(x,y,object$rho$env,outer=TRUE)
     ## exp(eta)
     z <- NULL
     for (k in 1:dim(x)[1]) {
@@ -232,7 +222,7 @@ function (object,x,y,scale=TRUE) {
         }
         if (!scale) eta <- exp(cbind(s,r)%*%c(object$d[object$id.s],object$c))
         else eta <- exp(cbind(s,r)%*%c(object$d,object$c))*object$scal
-        z <- cbind(z,eta*rho)
+        z <- cbind(z,eta*rho[k,])
     }
     z
 }

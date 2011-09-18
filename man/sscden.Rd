@@ -15,8 +15,8 @@ sscden(formula, response, type=NULL, data=list(), weights, subset,
        maxiter=30, skip.iter=FALSE)
 sscden1(formula, response, type=NULL, data=list(), weights, subset,
         na.action=na.omit, alpha=1.4, id.basis=NULL, nbasis=NULL,
-        seed=NULL, ydomain=as.list(NULL), yquad=NULL, prec=1e-7,
-        maxiter=30, skip.iter=FALSE)
+        seed=NULL, rho=list("xy"), ydomain=as.list(NULL), yquad=NULL,
+        prec=1e-7, maxiter=30, skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
@@ -48,6 +48,7 @@ sscden1(formula, response, type=NULL, data=list(), weights, subset,
     \item{skip.iter}{Flag indicating whether to use initial values of
         theta and skip theta iteration.  See \code{\link{ssanova}} for
 	notes on skipping theta iteration.}
+    \item{rho}{rho function needed for sscden1.}
 }
 \details{
     The model is specified via \code{formula} and \code{response}, where
