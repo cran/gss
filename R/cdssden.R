@@ -1,9 +1,7 @@
 cdssden <- ## Evaluate conditional density
 function (object,x,cond,int=NULL) {
-    if (class(object)!="ssden")
-        stop("gss error in cdssden: not a ssden object")
-    if (nrow(cond)!=1)
-        stop("gss error in cdssden: condition has to be a single point")
+    if (!("ssden"%in%class(object))) stop("gss error in cdssden: not a ssden object")
+    if (nrow(cond)!=1) stop("gss error in cdssden: condition has to be a single point")
     xnames <- NULL
     for (i in colnames(object$mf))
         if (all(i!=colnames(cond))) xnames <- c(xnames,i)
@@ -80,8 +78,7 @@ function (object,x,cond,int=NULL) {
 
 cpssden <- ## Compute cdf for univariate conditional density
 function(object,q,cond) {
-    if (class(object)!="ssden")
-        stop("gss error in cpssden: not a ssden object")
+    if (!("ssden"%in%class(object))) stop("gss error in cpssden: not a ssden object")
     xnames <- NULL
     for (i in colnames(object$mf))
         if (all(i!=colnames(cond))) xnames <- c(xnames,i)
@@ -128,8 +125,7 @@ function(object,q,cond) {
 
 cqssden <- ## Compute quantiles for univariate conditional density
 function(object,p,cond) {
-    if (class(object)!="ssden")
-        stop("gss error in cqssden: not a ssden object")
+    if (!("ssden"%in%class(object))) stop("gss error in cqssden: not a ssden object")
     xnames <- NULL
     for (i in colnames(object$mf))
         if (all(i!=colnames(cond))) xnames <- c(xnames,i)

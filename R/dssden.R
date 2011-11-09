@@ -1,38 +1,14 @@
 dssden <- ## Evaluate density estimate
 function (object,x) {
-    if (class(object)!="ssden") stop("gss error in dssden: not a ssden object")
-    if (dim(object$mf)[2]==1&is.vector(x)) {
-        x <- data.frame(x)
-        colnames(x) <- colnames(object$mf)
-    }
-    s <- NULL
-    r <- matrix(0,dim(x)[1],length(object$id.basis))
-    nq <- 0
-    for (label in object$terms$labels) {
-        xx <- object$mf[object$id.basis,object$terms[[label]]$vlist]
-        x.new <- x[,object$terms[[label]]$vlist]
-        nphi <- object$terms[[label]]$nphi
-        nrk <-  object$terms[[label]]$nrk
-        if (nphi) {
-            phi <-  object$terms[[label]]$phi
-            for (i in 1:nphi) {
-                s <- cbind(s,phi$fun(x.new,nu=i,env=phi$env))
-            }
-        }
-        if (nrk) {
-            rk <- object$terms[[label]]$rk
-            for (i in 1:nrk) {
-                nq <- nq + 1
-                r <- r + 10^object$theta[nq]*rk$fun(x.new,xx,nu=i,env=rk$env,out=TRUE)
-            }
-        }
-    }
-    as.vector(exp(cbind(s,r)%*%c(object$d,object$c))/object$int)
+    ## check input
+    if (!("ssden"%in%class(object))) stop("gss error in dssden: not a ssden object")
+    if ("ssden1"%in%class(object)) return(d.ssden1(object,x))
+    else return(d.ssden(object,x))
 }
 
 pssden <- ## Compute cdf for univariate density estimate
 function(object,q) {
-    if (class(object)!="ssden") stop("gss error in pssden: not a ssden object")
+    if (!("ssden"%in%class(object))) stop("gss error in pssden: not a ssden object")
     if (dim(object$mf)[2]!=1) stop("gss error in pssden: not a 1-D density")
     mn <- min(object$domain)
     mx <- max(object$domain)
@@ -75,7 +51,7 @@ function(object,q) {
 
 qssden <- ## Compute quantiles for univariate density estimate
 function(object,p) {
-    if (class(object)!="ssden") stop("gss error in qssden: not a ssden object")
+    if (!("ssden"%in%class(object))) stop("gss error in qssden: not a ssden object")
     if (dim(object$mf)[2]!=1) stop("gss error in qssden: not a 1-D density")
     mn <- min(object$domain)
     mx <- max(object$domain)
@@ -112,4 +88,74 @@ function(object,p) {
         q[i] <- q.dup <- wk
     }
     q[order.p]
+}
+
+d.ssden <- ## Evaluate density estimate
+function (object,x) {
+    if (class(object)!="ssden") stop("gss error in d.ssden: not a ssden object")
+    if (dim(object$mf)[2]==1&is.vector(x)) {
+        x <- data.frame(x)
+        colnames(x) <- colnames(object$mf)
+    }
+    s <- NULL
+    r <- matrix(0,dim(x)[1],length(object$id.basis))
+    nq <- 0
+    for (label in object$terms$labels) {
+        xx <- object$mf[object$id.basis,object$terms[[label]]$vlist]
+        x.new <- x[,object$terms[[label]]$vlist]
+        nphi <- object$terms[[label]]$nphi
+        nrk <-  object$terms[[label]]$nrk
+        if (nphi) {
+            phi <-  object$terms[[label]]$phi
+            for (i in 1:nphi) {
+                s <- cbind(s,phi$fun(x.new,nu=i,env=phi$env))
+            }
+        }
+        if (nrk) {
+            rk <- object$terms[[label]]$rk
+            for (i in 1:nrk) {
+                nq <- nq + 1
+                r <- r + 10^object$theta[nq]*rk$fun(x.new,xx,nu=i,env=rk$env,out=TRUE)
+            }
+        }
+    }
+    as.vector(exp(cbind(s,r)%*%c(object$d,object$c))/object$int)
+}
+
+d.ssden1 <- ## Evaluate density estimate
+function (object,x) {
+    if (!("ssden1"%in%class(object))) stop("gss error in d.ssden1: not a ssden1 object")
+    ## rho
+    rho <- 1
+    for (xlab in names(object$mf)) {
+        xx <- x[[xlab]]
+        rho.wk <- object$rho[[xlab]]
+        if (is.factor(xx)) rho <- rho*rho.wk[xx]
+        if (is.vector(xx)&!is.factor(xx)) rho <- rho*dssden(rho.wk,xx)
+        if (is.matrix(xx)) rho <- rho*dssden(rho.wk,xx)
+    }
+    ## exp(eta)
+    s <- NULL
+    r <- matrix(0,dim(x)[1],length(object$id.basis))
+    nq <- 0
+    for (label in object$terms$labels) {
+        xx <- object$mf[object$id.basis,object$terms[[label]]$vlist]
+        x.new <- x[,object$terms[[label]]$vlist]
+        nphi <- object$terms[[label]]$nphi
+        nrk <-  object$terms[[label]]$nrk
+        if (nphi) {
+            phi <-  object$terms[[label]]$phi
+            for (i in 1:nphi) {
+                s <- cbind(s,phi$fun(x.new,nu=i,env=phi$env))
+            }
+        }
+        if (nrk) {
+            rk <- object$terms[[label]]$rk
+            for (i in 1:nrk) {
+                nq <- nq + 1
+                r <- r + 10^object$theta[nq]*rk$fun(x.new,xx,nu=i,env=rk$env,out=TRUE)
+            }
+        }
+    }
+    as.vector(rho*exp(cbind(s,r)%*%c(object$d,object$c))*object$scal)
 }

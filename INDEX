@@ -1,4 +1,4 @@
-## SSANOVA, GSSANOVA, SSDEN, SSHZD, SSCDEN, SSCDEN, AND SSLLRM SUITES
+## SSANOVA, GSSANOVA, SSDEN, SSCDEN, SSLLRM, SSHZD, AND SSCOX SUITES
 ssanova                     Fitting smoothing spline ANOVA models
 predict.ssanova             Predicting from ssanova fits
 summary.ssanova             Summarizing ssanova fits
@@ -28,35 +28,24 @@ print.summary.gssanova      Print function for summary.gssanova objects
 print.summary.gssanova0     Print function for summary.gssanova0 objects
 
 ssden                       Estimating probability density using smoothing splines
+d.ssden                     Evaluating pdf of ssden estimates
+project.ssden               Projecting ssden fits for model diagnostic
+ssden1                      Estimating probability density using smoothing splines
+d.ssden1                    Evaluating pdf of ssden1 estimates
+project.ssden1              Projecting ssden1 fits for model diagnostic
 dssden                      Evaluating pdf of ssden estimates
 pssden                      Evaluating cdf of 1-D ssden estimates
 qssden                      Evaluating quantiles of 1-D ssden estimates
 cdssden                     Evaluating conditional pdf of ssden estimates
 cpssden                     Evaluating 1-D conditional cdf of ssden estimates
 cqssden                     Evaluating 1-D conditional quantiles of ssden estimates
-project.ssden               Projecting ssden fits for model diagnostic
 print.ssden                 Print function for ssden objects
-
-sshzd                       Estimating hazard function using smoothing splines
-hzdrate.sshzd               Evaluating hazard estimates
-hzdcurve.sshzd              Evaluating hazard curves
-survexp.sshzd               Computing expected survivals
-project.ssden               Projecting sshzd fits for model diagnostic
-print.sshzd                 Print function for sshzd objects
-
-sshzd1                      Estimating hazard function using smoothing splines
-project.ssden1              Projecting sshzd1 fits for model diagnostic
-
-sscox                       Estimating relative risk using smoothing splines
-predict.sscox               Projecting sscox fits for model diagnostic
-project.sscox               Predicting from sscox fits
-print.sscox                 Print function for sscox objects
 
 sscden                      Estimating conditional density using smoothing splines
 d.sscden                    Evaluating pdf of sscden estimates
 project.sscden              Projecting sscden fits for model diagnostic
 sscden1                     Estimating conditional density using smoothing splines
-d.sscden1                   Evaluating pdf of sscden estimates
+d.sscden1                   Evaluating pdf of sscden1 estimates
 project.sscden1             Projecting sscden1 fits for model diagnostic
 dsscden                     Evaluating pdf of sscden estimates
 psscden                     Evaluating cdf of sscden estimates with 1-D Y
@@ -70,6 +59,20 @@ ssllrm                      Fitting smoothing spline log-linear regression model
 predict.ssllrm              Evaluating log-linear regression model fits
 project.ssllrm              Projecting ssllrm fits for model diagnostic
 print.ssllrm                Print function for ssllrm objects
+
+sshzd                       Estimating hazard function using smoothing splines
+project.sshzd               Projecting sshzd fits for model diagnostic
+sshzd1                      Estimating hazard function using smoothing splines
+project.sshzd1              Projecting sshzd1 fits for model diagnostic
+hzdrate.sshzd               Evaluating hazard estimates
+hzdcurve.sshzd              Evaluating hazard curves
+survexp.sshzd               Computing expected survivals
+print.sshzd                 Print function for sshzd objects
+
+sscox                       Estimating relative risk using smoothing splines
+predict.sscox               Projecting sscox fits for model diagnostic
+project.sscox               Predicting from sscox fits
+print.sscox                 Print function for sscox objects
 
 ## UTILITIES FOR MAKING MODEL TERMS
 mkterm                      Making model terms
@@ -94,6 +97,8 @@ mkran                       Generating random effects in mixed-effect models
 mkcov.arma                  Making covariance function for ARMA models
 mkcov.long                  Making covariance function for longitudinal data
 mkcov.known                 Passing known covariance function to ssanova9
+
+mkint                       Generating integrals of basis terms for ssden1 suite
 
 ## UTILITIES FOR DISTRIBUTION FAMILIES
 mkdata.binomial             Making pseudo data for logistic regression
@@ -194,6 +199,8 @@ ngreg.proj                  Calculate Kullback-Leibler projection for NG regress
 
 sspdsty                     Compute density estimate with single smoothing parameter
 mspdsty                     Compute density estimate with multiple smoothing parameters
+sspdsty1                    Compute density estimate with single smoothing parameter
+mspdsty1                    Compute density estimate with multiple smoothing parameters
 mspcdsty                    Compute conditional density estimate
 mspcdsty1                   Compute conditional density estimate
 msphzd                      Compute hazard estimate with single or multiple smoothing parameters

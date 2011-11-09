@@ -4,6 +4,7 @@
 \alias{project.ssanova9}
 \alias{project.gssanova}
 \alias{project.ssden}
+\alias{project.ssden1}
 \alias{project.sscden}
 \alias{project.sscden1}
 \alias{project.sshzd}
@@ -21,6 +22,7 @@ project(object, ...)
 \method{project}{ssanova9}(object, include, ...)
 \method{project}{gssanova}(object, include, ...)
 \method{project}{ssden}(object, include, mesh=FALSE, ...)
+\method{project}{ssden1}(object, include, ...)
 \method{project}{sscden}(object, include, ...)
 \method{project}{sscden1}(object, include, ...)
 \method{project}{sshzd}(object, include, mesh=FALSE, ...)
@@ -30,8 +32,9 @@ project(object, ...)
 }
 \arguments{
     \item{object}{Object of class \code{"ssanova"}, \code{"gssanova"},
-        \code{"ssden"}, \code{"sscden"}, \code{"sscden1"},
-	\code{"sshzd"}, \code{"sshzd1"}, or \code{"ssllrm"}.}
+        \code{"ssden"}, \code{"ssden1"}, \code{"sscden"},
+	\code{"sscden1"}, \code{"sshzd"}, \code{"sshzd1"}, or
+	\code{"ssllrm"}.}
     \item{...}{Additional arguments.  Ignored in \code{project.x}.}
     \item{include}{List of model terms to be included in the reduced
         model space.  The \code{partial} and \code{offset} terms, if
@@ -55,8 +58,8 @@ project(object, ...)
     \item{mesh}{The evaluations of the projection.}
 }
 \note{
-    \code{project.sscden1} and \code{project.sshzd1} calculates square
-    error projections.
+    \code{project.ssden1}, \code{project.sscden1}, and
+    \code{project.sshzd1} calculates square error projections.
 }
 \details{
     The entropy KL(fit0,null) can be decomposed as the sum of

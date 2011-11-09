@@ -2,6 +2,8 @@
 \alias{dssden}
 \alias{pssden}
 \alias{qssden}
+\alias{d.ssden}
+\alias{d.ssden1}
 \title{Evaluating PDF, CDF, and Quantiles of Smoothing Spline Density Estimates}
 \description{
     Evaluate pdf, cdf, and quantiles for smoothing spline density
@@ -11,6 +13,8 @@
 dssden(object, x)
 pssden(object, q)
 qssden(object, p)
+d.ssden(object, x)
+d.ssden1(object, x)
 }
 \arguments{
     \item{object}{Object of class \code{"ssden"}.}

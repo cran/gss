@@ -1,5 +1,6 @@
 \name{ssden}
 \alias{ssden}
+\alias{ssden1}
 \title{Estimating Probability Density Using Smoothing Splines}
 \description{
     Estimate probability densities using smoothing spline ANOVA models.
@@ -11,6 +12,10 @@ ssden(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
       domain=as.list(NULL), quad=NULL, qdsz.depth=NULL, bias=NULL,
       prec=1e-7, maxiter=30, skip.iter=FALSE)
+
+ssden1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
+       subset, na.action=na.omit, id.basis=NULL, nbasis=NULL, seed=NULL,
+       domain=as.list(NULL), quad=NULL, prec=1e-7, maxiter=30)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit.}
@@ -76,34 +81,43 @@ ssden(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     appropriate for the default cubic splines for numerical vectors.
 }
 \note{
-    Default quadrature will be constructed for numerical vectors on a
-    hyper cube, then outer product with factor levels will be taken
-    if factors are involved.  The sides of the hyper cube are specified
-    by \code{domain}; for \code{domain$x} missing, the default is
-    \code{c(min(x),max(x))+c(-1,1)*(max(x)-mimn(x))*.05}.
-
-    On a 1-D interval, the quadrature is the 200-point Gauss-Legendre
-    formula returned from \code{\link{gauss.quad}}.  For multiple
-    numerical vectors, delayed Smolyak cubatures from
-    \code{\link{smolyak.quad}} are used on cubes with the marginals
+    In \code{ssden}, default quadrature will be constructed for
+    numerical vectors on a hyper cube, then outer product with factor
+    levels will be taken if factors are involved.  The sides of the
+    hyper cube are specified by \code{domain}; for \code{domain$x}
+    missing, the default is
+    \code{c(min(x),max(x))+c(-1,1)*(max(x)-mimn(x))*.05}.  In 1-D, the
+    quadrature is the 200-point Gauss-Legendre formula returned from
+    \code{\link{gauss.quad}}.  In multi-D, delayed Smolyak cubatures
+    from \code{\link{smolyak.quad}} are used on cubes with the marginals
     properly transformed; see Gu and Wang (2003) for the marginal
     transformations.
 
+    For reasonable execution time in higher dimensions, set
+    \code{skip.iter=TRUE} in call to \code{ssden}.
+
+    \code{ssden1} does not involve multi-D quadrature but does not
+    perform as well as \code{ssden}.  It can be used in very high
+    dimensions where \code{ssden} is infeasible.
+
     The results may vary from run to run.  For consistency, specify
     \code{id.basis} or set \code{seed}.
-
-    For reasonable execution time in high dimensions, set
-    \code{skip.iter=TRUE}.
 }
 \value{
     \code{ssden} returns a list object of class \code{"ssden"}.
+    \code{ssden1} returns a list object of class
+    \code{c("ssden1","ssden")}.
 
     \code{\link{dssden}} and \code{\link{cdssden}} can be used to
     evaluate the estimated joint density and conditional density;
     \code{\link{pssden}}, \code{\link{qssden}}, \code{\link{cpssden}},
     and \code{\link{cqssden}} can be used to evaluate (conditional) cdf
-    and quantiles.  The method \code{\link{project.ssden}} can be used
-    to calculate the Kullback-Leibler projection for model selection.
+    and quantiles.
+
+    The method \code{\link{project.ssden}} can be used to calculate the
+    Kullback-Leibler projection of \code{"ssden"} objects for model
+    selection; \code{\link{project.ssden1}} can be used to calculate the
+    square error projection of \code{"ssden1"} objects.
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{

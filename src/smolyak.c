@@ -129,9 +129,9 @@ double int_smolyak(int dd, int qq, double(*ff)(int,double xx[]), int size)
   /* free space                  */
   frei(root);
  /* statistics ( if desired )    */
-  if (size) {                                   
+  /*  if (size) {                                   
     printf("%i function calls and ", count);      
-    printf("%i coefficient calculations \n", wcount);}
+    printf("%i coefficient calculations \n", wcount);}*/
 
   return quafo;
 }

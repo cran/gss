@@ -1,6 +1,8 @@
 \name{drkpk}
 \alias{sspdsty}
 \alias{mspdsty}
+\alias{sspdsty1}
+\alias{mspdsty1}
 \alias{mspcdsty}
 \alias{mspcdsty1}
 \alias{msphzd}
@@ -15,7 +17,11 @@
 }
 \usage{
 sspdsty(s, r, q, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, bias)
-mspdsty(s, r, id.basis, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, bias, skip.iter)
+mspdsty(s, r, id.basis, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha,
+bias, skip.iter)
+
+sspdsty1(s, r, q, cnt, int, prec, maxiter, alpha)
+mspdsty1(s, r, id.basis, cnt, int, prec, maxiter, alpha)
 
 mspcdsty(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, qd.wt, prec, maxiter, alpha, skip.iter)
 
@@ -59,7 +65,8 @@ mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, random, prec, maxiter, alpha, sk
       parameter selection.}
     \item{bias}{List of arrays incorporating possible sampling bias.}
     \item{skip.iter}{Flag indicating whether to use initial values of
-        theta and skip theta iteration.}
+      theta and skip theta iteration.}
+    \item{int}{Integrals of basis terms.}
     \item{int.s}{Integrals of unpenalized terms.}
     \item{int.r}{Integrals of basis of penalized terms.}
     \item{rho}{rho function value on failure times.}
