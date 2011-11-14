@@ -62,8 +62,13 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
         mx <- domain[2,]
         dm <- ncol(domain)
         if (dm==1) {
-            ## Gauss-Legendre quadrature
-            quad <- gauss.quad(200,c(mn,mx))
+            ## Gauss-Legendre or uniform quadrature
+            xlab <- names(domain)
+            if (type[[xlab]][[1]]%in%c("per","cubic.per","linear.per")) {
+                quad <- list(pt=mn+(1:200)/200*(mx-mn),
+                             wt=rep((mx-mn)/200,200))
+            }
+            else quad <- gauss.quad(200,c(mn,mx))
             quad$pt <- data.frame(quad$pt)
             colnames(quad$pt) <- colnames(domain)
         }
@@ -230,8 +235,10 @@ sspdsty <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,bias)
     ## initialization
     mu.r <- apply(qd.wt*t(qd.r),2,sum)/sum(qd.wt)
     v.r <- apply(qd.wt*t(qd.r^2),2,sum)/sum(qd.wt)
-    mu.s <- apply(qd.wt*t(qd.s),2,sum)/sum(qd.wt)
-    v.s <- apply(qd.wt*t(qd.s^2),2,sum)/sum(qd.wt)
+    if (nnull) {
+        mu.s <- apply(qd.wt*t(qd.s),2,sum)/sum(qd.wt)
+        v.s <- apply(qd.wt*t(qd.s^2),2,sum)/sum(qd.wt)
+    }
     if (is.null(s)) theta <- 0
     else theta <- log10(sum(v.s-mu.s^2)/nnull/sum(v.r-mu.r^2)*nxi) / 2
     log.la0 <- log10(sum(v.r-mu.r^2)/sum(diag(q))) + theta

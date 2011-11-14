@@ -1,5 +1,5 @@
-99ca08125d5384a8c439d368c47ecfba *ChangeLog
-4a2087e2032ec46b78a5810852778ebc *DESCRIPTION
+474068825eab058358f1b8311c2d6906 *ChangeLog
+094ad904a67e6ed85387f73d9aef43b7 *DESCRIPTION
 9c5d121fe294d62864f07b89239cbc87 *INDEX
 9fdfeb11f7ddba6f3aab9aaa6b1ac5dd *NAMESPACE
 24a938d7b0fd256e13009b9911b920d6 *R/cdsscden.R
@@ -34,7 +34,7 @@ f1ff88099b5b7bf8b479fa874c9356ce *R/project.ssanova9.R
 e13f8e60c93dfc1027c77d27c22c3b7c *R/project.sscden1.R
 d0644a4ee89553f05af42c8b6b0e8c1e *R/project.sscox.R
 fc5edd459d378702212895aa35f13fcc *R/project.ssden.R
-22c8fcf05d5db5e822441d82fcd78c36 *R/project.ssden1.R
+a0a1811e5726d5a58334dfe4887a13d0 *R/project.ssden1.R
 fdc26fdef9a730f792d3c3bd146c0940 *R/project.sshzd.R
 a665eb50b1943f434d7816bbfbc019c2 *R/project.sshzd1.R
 98859d878d20617f367496f69fbadafe *R/project.ssllrm.R
@@ -45,8 +45,8 @@ b8658cb16e5908073ac20c5a92c98073 *R/ssanova9.R
 1d9866e3496be9066c5468fdb24bfc0d *R/sscden.R
 d351a5c8f8857da65745512e4af7a85f *R/sscden1.R
 80be57b689d449f518db6939797faa64 *R/sscox.R
-e296cc641c002195d69a9ea7e7fac517 *R/ssden.R
-2cc1602a0da2e2ac82b21c374e26a58f *R/ssden1.R
+5cb7ef525baef30ed62017b884a4e576 *R/ssden.R
+7189229deb63934777971d6d0a63d121 *R/ssden1.R
 275e724f27c1d9f0bd9cc8256aa33d42 *R/sshzd.R
 443a09d83b87ccf9f83ea416e4328ede *R/sshzd1.R
 2fc377570f46c1f17e6770b6e6c133d8 *R/ssllrm.R
@@ -58,6 +58,7 @@ e296cc641c002195d69a9ea7e7fac517 *R/ssden.R
 8a2124eea6acfa1b2c9f4e2b077a0dfa *R/zzz.R
 9ed5c6a2df1e7364c04199c13728b2ee *data/ColoCan.rda
 796e2c35f3288dad6517bbe01ec014a6 *data/LakeAcidity.rda
+920a15f135813ea0dbf20c2e6d6ce1d2 *data/NO2.rda
 2ff2d7ece1c715ceb14841da98735bba *data/aids.rda
 389bed61b1b276a4986f62c8ff8e68eb *data/bacteriuria.rda
 98635e79343dce75e0116ebcc0dae1fe *data/buffalo.rda
@@ -72,6 +73,7 @@ b23036bc7e4f8843b7d2b1431af0ddf1 *data/ozone.rda
 0a80d320e791a9d0eef2c61fb11f49b2 *data/wesdr.rda
 2229ffd403706072d98f7099eec8d387 *man/ColoCan.Rd
 793f6947019c179822061319b015d57c *man/LakeAcid.Rd
+d5a2a41462333c2bbaa0444a74b087dd *man/NO2.Rd
 55ee7c180c457d46907a6ff14771804b *man/aids.Rd
 ffb9bbbf8ef1fbbed74487941bb5cfb3 *man/bacteriuria.Rd
 1b0fc9c7907479928613d262fa968c5d *man/buffalo.Rd

@@ -83,7 +83,7 @@ project.ssden1 <- function(object,include,...)
         rkv <- z$rkv
         while (v[rkv,rkv]<2*sqrt(m.eps)*v[1,1]) rkv <- rkv - 1
         if (rkv<nn) v[(1:nn)>rkv,(1:nn)>rkv] <- diag(v[1,1],nn-rkv)
-        mu <- backsolve(v,mu[z$jpvt],tran=TRUE)
+        mu <- backsolve(v,mu[z$jpvt],transpose=TRUE)
         eta2 - sum(mu[1:rkv]^2)
     }
     cv.wk <- function(theta) cv.scale*rkl(theta)+cv.shift

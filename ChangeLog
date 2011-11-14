@@ -1,3 +1,13 @@
+Mon Nov 14 00:35:22 EST 2011, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.0-4.
+
+	* R: Bug fixes in ssden and ssden1.
+
+	* data: Added NO2.
+
+	* man: Added documentation for NO2.
+
 Tue Nov  8 14:09:09 EST 2011, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.0-3.
