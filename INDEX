@@ -99,6 +99,7 @@ mkcov.long                  Making covariance function for longitudinal data
 mkcov.known                 Passing known covariance function to ssanova9
 
 mkint                       Generating integrals of basis terms for ssden1 suite
+mkint2                      Generating integrals of basis terms for ssden1 suite
 
 ## UTILITIES FOR DISTRIBUTION FAMILIES
 mkdata.binomial             Making pseudo data for logistic regression

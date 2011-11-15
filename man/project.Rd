@@ -22,7 +22,7 @@ project(object, ...)
 \method{project}{ssanova9}(object, include, ...)
 \method{project}{gssanova}(object, include, ...)
 \method{project}{ssden}(object, include, mesh=FALSE, ...)
-\method{project}{ssden1}(object, include, ...)
+\method{project}{ssden1}(object, include, drop1=FALSE, ...)
 \method{project}{sscden}(object, include, ...)
 \method{project}{sscden1}(object, include, ...)
 \method{project}{sshzd}(object, include, mesh=FALSE, ...)
@@ -42,6 +42,8 @@ project(object, ...)
 	\code{"offset"}, respectively.}
     \item{mesh}{Flag indicating whether to return evaluations of the
         projection.}
+    \item{drop1}{If TRUE, calculate \code{p<-length(include)} projections
+	with \code{include[-i]}, \code{i=1,...,p}.}
 }
 \value{
     The functions return a list consisting of the following components.

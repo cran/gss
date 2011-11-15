@@ -327,14 +327,12 @@ mkint <- function(mf,type,id.basis,quad,term,rho,rho.int)
     }
     ## Create phi and rk
     nbasis <- length(id.basis)
-    phi.term <- rk.term <- list(NULL)
     nvar <- length(names(mf))
     s <- r <- s.rho <- r.rho <- NULL
     ns <- nq <- 0
     for (label in term.labels) {
         ns <- ns+term[[label]]$nphi
         nq <- nq+term[[label]]$nrk
-        phi.term[[label]] <- rk.term[[label]] <- list(NULL)
         vlist <- xvars[as.logical(xfacs[,label])]
         x <- mf[,vlist]
         dm <- length(vlist)
@@ -411,9 +409,6 @@ mkint <- function(mf,type,id.basis,quad,term,rho,rho.int)
                 rk <- rk.fun$fun(xmesh,xx,rk.fun$env,TRUE)
             }
             wmesh <- quad[[vlist]]$wt
-            nmesh <- length(wmesh)
-            phi.term[[label]][[vlist]] <- phi
-            rk.term[[label]][[vlist]] <- rk
             if (!is.null(phi)) {
                 s.rho.wk <- rho.int*sum(wmesh*phi)
                 s.rho.wk[names(mf)==vlist] <- sum(wmesh*rho[[vlist]]*phi)
@@ -421,7 +416,6 @@ mkint <- function(mf,type,id.basis,quad,term,rho,rho.int)
                 s.rho <- c(s.rho,sum(s.rho.wk))
             }
             if (!is.null(rk)) {
-                rk.term[[label]][[vlist]] <- array(rk,c(nmesh,nbasis,1))
                 r.rho.wk <- outer(apply(wmesh*rk,2,sum),rho.int)
                 r.rho.wk[,names(mf)==vlist] <- apply(wmesh*rho[[vlist]]*rk,2,sum)
                 r <- cbind(r,apply(wmesh*rk,2,sum))
@@ -509,8 +503,6 @@ mkint <- function(mf,type,id.basis,quad,term,rho,rho.int)
                             ind <- ind%/%n.phi[i]
                             phi <- phi.wk$fun(xmesh,code,phi.wk$env)
                         }
-                        phi.term[[label]][[vlist[i]]] <-
-                            cbind(phi.term[[label]][[vlist[i]]],phi)
                         wmesh <- quad[[vlist[i]]]$wt
                         s.wk <- s.wk*sum(wmesh*phi)
                         id1 <- names(mf)==vlist[i]
@@ -549,10 +541,6 @@ mkint <- function(mf,type,id.basis,quad,term,rho,rho.int)
                             }
                         }
                         wmesh <- quad[[vlist[i]]]$wt
-                        nmesh <- length(wmesh)
-                        rk.term[[label]][[vlist[i]]] <-
-                            array(c(rk.term[[label]][[vlist[i]]],rk),
-                                  c(nmesh,nbasis,nu))
                         r.wk <- r.wk*apply(wmesh*rk,2,sum)
                         id1 <- names(mf)==vlist[i]
                         r.rho.wk[,id1] <- r.rho.wk[,id1]*apply(wmesh*rho[[vlist[i]]]*rk,2,sum)
@@ -564,94 +552,5 @@ mkint <- function(mf,type,id.basis,quad,term,rho,rho.int)
             }
         }
     }
-    ## create arrays
-    ss <- matrix(1,ns,ns)
-    sr <- array(1,c(ns,nbasis,nq))
-    rr <- array(1,c(nbasis,nbasis,nq,nq))
-    for (label1 in term.labels) {
-        if (!term[[label1]]$nphi) id.s1 <- NULL
-        else id.s1 <- term[[label1]]$iphi+(1:term[[label1]]$nphi)-2
-        if (!term[[label1]]$nrk) id.r1 <- NULL
-        else id.r1 <- term[[label1]]$irk+(1:term[[label1]]$nrk)-1
-        irk1 <- term[[label1]]$irk
-        for (label2 in term.labels) {
-            if (!term[[label2]]$nphi) id.s2 <- NULL
-            else id.s2 <- term[[label2]]$iphi+(1:term[[label2]]$nphi)-2
-            if (!term[[label2]]$nrk) id.r2 <- NULL
-            else id.r2 <- term[[label2]]$irk+(1:term[[label2]]$nrk)-1
-            irk2 <- term[[label2]]$irk
-            for (xlab in names(mf)) {
-                wmesh <- quad[[xlab]]$wt
-                phi1 <- phi.term[[label1]][[xlab]]
-                phi2 <- phi.term[[label2]][[xlab]]
-                rk1 <- rk.term[[label1]][[xlab]]
-                rk2 <- rk.term[[label2]][[xlab]]
-                ## ss
-                if (!is.null(id.s1)&!is.null(id.s2)) {
-                    if ((!is.null(phi1))&(!is.null(phi2))) {
-                        ss[id.s1,id.s2] <- ss[id.s1,id.s2]*(t(wmesh*phi1)%*%phi2)
-                    }
-                    else {
-                        if (!is.null(phi1)) {
-                            ss[id.s1,id.s2] <- ss[id.s1,id.s2]*apply(wmesh*matrix(phi1),2,sum)
-                        }
-                        else {
-                            if (!is.null(phi2)) {
-                                ss[id.s1,id.s2] <- t(t(ss[id.s1,id.s2])*
-                                                     apply(wmesh*matrix(phi2),2,sum))
-                            }
-                        }
-                    }
-                }
-                ## sr
-                if (!is.null(id.s1)&!is.null(id.r2)) {
-                    if ((!is.null(phi1))&(!is.null(rk2))) {
-                        for (i in id.r2) {
-                            sr[id.s1,,i] <- sr[id.s1,,i]*(t(wmesh*phi1)%*%rk2[,,i-irk2+1])
-                        }
-                    }
-                    else {
-                        if (!is.null(phi1)) {
-                            sr[id.s1,,id.r2] <- sr[id.s1,,id.r2]*apply(wmesh*matrix(phi1),2,sum)
-                        }
-                        else {
-                            if (!is.null(rk2)) {
-                                for (i in id.r2) {
-                                    sr[id.s1,,i] <- t(t(sr[id.s1,,i])*
-                                                      apply(wmesh*rk2[,,i-irk2+1],2,sum))
-                                }
-                            }
-                        }
-                    }
-                }
-                ## rr
-                if (!is.null(id.r1)&!is.null(id.r2)) {
-                    if ((!is.null(rk1))&(!is.null(rk2))) {
-                        for (i in id.r1) {
-                            for (j in id.r2) {
-                                rr[,,i,j] <- rr[,,i,j]*(t(wmesh*rk1[,,i-irk1+1])%*%rk2[,,j-irk2+1])
-                            }
-                        }
-                    }
-                    else {
-                        if (!is.null(rk1)) {
-                            for (i in id.r1) {
-                                rr[,,i,id.r2] <- rr[,,i,id.r2]*apply(wmesh*rk1[,,i-irk1+1],2,sum)
-                            }
-                        }
-                        else {
-                            if (!is.null(rk2)) {
-                                for (j in id.r2) {
-                                    rr[,,id.r1,j] <-
-                                        aperm(aperm(rr[,,id.r1,j,drop=FALSE],c(2,1,3,4))*
-                                              apply(wmesh*rk2[,,j-irk2+1],2,sum),c(2,1,3,4))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    list(s=s,r=r,s.rho=s.rho,r.rho=r.rho,ss=ss,sr=sr,rr=rr)
+    list(s=s,r=r,s.rho=s.rho,r.rho=r.rho,var.type=var.type)
 }
