@@ -1,6 +1,6 @@
 ## Fit hazard model
 sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
-                   weights=NULL,subset,na.action=na.omit,
+                   weights=NULL,subset,na.action=na.omit,rho=list("marginal"),
                    partial=NULL,id.basis=NULL,nbasis=NULL,seed=NULL,
                    random=NULL,prec=1e-7,maxiter=30,skip.iter=FALSE)
 {
@@ -23,7 +23,7 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     ## Obtain model frame and model terms
     mf <- match.call()
     mf$type <- mf$alpha <- mf$random <- mf$partial <- NULL
-    mf$id.basis <- mf$nbasis <- mf$seed <- NULL
+    mf$id.basis <- mf$nbasis <- mf$seed <- mf$rho <- NULL
     mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
     term.wk <- terms.formula(formula)
     ## response
@@ -145,20 +145,39 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     }
     else stop("gss error in sshzd1: missing covariate")
     ## calculate rho
-    rho <- sshzd(Surv(end,status,start)~end,data=yy,
-                 id.basis=id.basis,weights=cnt,alpha=2)
-    rho.qd <- hzdcurve.sshzd(rho,quad$pt)
-    rhowk <- hzdcurve.sshzd(rho,yy$end[yy$status])
+    if (is.null(rho$fun)) {
+        type <- rho[[1]]
+        if (type=="marginal") {
+            rho <- sshzd(Surv(end,status,start)~end,data=yy,
+                         id.basis=id.basis,weights=cnt,alpha=2)
+            rho.qd <- hzdcurve.sshzd(rho,quad$pt)
+            rhowk <- hzdcurve.sshzd(rho,yy$end[yy$status])
+        }
+        if (type=="weibull") {
+            y.wk <- cbind(yy$end,yy$status,yy$start)
+            form <- as.formula(paste("y.wk~",paste(xnames,collapse="+")))
+            rho <- gssanova(form,family="weibull",partial=partial,data=data,
+                            id.basis=id.basis,weights=cnt,alpha=2)
+            yhat <- predict(rho,rho$mf)
+            rho.qd <- exp(rho$nu*outer(log(quad$pt),yhat[!x.dup.ind],"-"))/quad$pt
+            rhowk <- (exp(rho$nu*(log(yy$end)-yhat))/yy$end)[yy$status]
+        }
+    }
+    else {
+        rho.qd <- rho$fun(quad$pt,x.pt,rho$env,outer=TRUE)
+        rhowk <- rho$fun(yy$end,xx,rho$env,outer=FALSE)[yy$status]
+    }
     ## integration weights at x.pt[i,]
     qd.wt <- matrix(0,nmesh,nx)
     for (i in 1:nobs) {
         wk <- (quad$pt<=yy$end[i])&(quad$pt>yy$start[i])
+        if (is.vector(rho.qd)) wk <- wk*rho.qd
+        else wk <- wk*rho.qd[,x.ind[i]]
         if (is.null(cnt)) qd.wt[,x.ind[i]] <- qd.wt[,x.ind[i]]+wk
         else qd.wt[,x.ind[i]] <- qd.wt[,x.ind[i]]+cnt[i]*wk
     }
     if (is.null(cnt)) qd.wt <- quad$wt*qd.wt/nobs
     else qd.wt <- quad$wt*qd.wt/sum(cnt)
-    qd.wt <- rho.qd*qd.wt
     ## Generate s, r, int.s, and int.r
     s <- r <- int.s <- int.r <- NULL
     nq <- 0

@@ -14,9 +14,9 @@ sshzd(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
       nbasis=NULL, seed=NULL, random=NULL, prec=1e-7, maxiter=30,
       skip.iter=FALSE)
 sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
-       subset, na.action=na.omit, partial=NULL, id.basis=NULL,
-       nbasis=NULL, seed=NULL, random=NULL, prec=1e-7, maxiter=30,
-       skip.iter=FALSE)
+       subset, na.action=na.omit, rho=list("marginal"), partial=NULL,
+       id.basis=NULL, nbasis=NULL, seed=NULL, random=NULL, prec=1e-7,
+       maxiter=30, skip.iter=FALSE)
 }
 \arguments{
     \item{formula}{Symbolic description of the model to be fit, where
@@ -49,6 +49,7 @@ sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     \item{skip.iter}{Flag indicating whether to use initial values of
         theta and skip theta iteration.  See \code{\link{ssanova}} for
 	notes on skipping theta iteration.}
+    \item{rho}{rho function needed for sshzd1.}
 }
 \details{
     The model specification via \code{formula} is for the log hazard.
