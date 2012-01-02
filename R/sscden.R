@@ -41,21 +41,26 @@ sscden <- function(formula,response,type=NULL,data=list(),weights,
     if(!all(ynames%in%vars)) stop("gss error in sscden: response missing in model")
     xnames <- vars[!(vars%in%ynames)]
     if (is.null(xnames)) stop("gss error in sscden: missing covariate")
-    ## Set type for given ydomain
+    ## Set ydomain and type
     for (ylab in ynames) {
         y <- mf[[ylab]]
         if (!is.factor(y)) {
-            if (!is.null(ydomain[[ylab]])) {
-                if (!is.vector(y)) stop("gss error in sscden: can only set domain in 1-D")
-                if (is.null(type[[ylab]]))
-                    type[[ylab]] <- list("cubic",ydomain[[ylab]])
-                else {
-                    if (length(type[[ylab]])==1)
-                        type[[ylab]] <- list(type[[ylab]][[1]],ydomain[[ylab]])
-                }
+            if (!is.vector(y)) stop("gss error in sscden: can only set domain in 1-D")
+            if (is.null(ydomain[[ylab]])) {
+                mn <- min(y)
+                mx <- max(y)
+                ydomain[[ylab]] <- c(mn,mx)+c(-1,1)*(mx-mn)*.05
+            }
+            else ydomain[[ylab]] <- c(min(ydomain[[ylab]]),max(ydomain[[ylab]]))
+            if (is.null(type[[ylab]]))
+                type[[ylab]] <- list("cubic",ydomain[[ylab]])
+            else {
+                if (length(type[[ylab]])==1)
+                    type[[ylab]] <- list(type[[ylab]][[1]],ydomain[[ylab]])
             }
         }
     }
+    ydomain <- data.frame(ydomain)
     ## Generate terms    
     term <- mkterm(mf,type)
     term.labels <- labels(mt)

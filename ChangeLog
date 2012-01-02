@@ -1,3 +1,11 @@
+Mon Jan  2 18:39:24 EST 2012, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.0-7.
+
+	* R: i) Bug fixes in sscden.  ii) Reworked survexp.sshzd.
+
+	* man: Updated to reflect changes in R.
+
 Tue Dec 20 15:44:32 EST 2011, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.0-6.

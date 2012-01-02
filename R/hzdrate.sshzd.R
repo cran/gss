@@ -138,34 +138,94 @@ function(object,time,covariates=NULL,start=0) {
     nt <- dim(lmt)[1]
     if (is.null(covariates)) ncov <- 1
     else ncov <- dim(covariates)[1]
-    if (length(xnames)&&(nt-1)&&(ncov-1)&&(nt-ncov))
-        stop("gss error in survexp.sshzd: size mismatch")
     mn <- min(object$tdomain)
     mx <- max(object$tdomain)
     if ((min(start)<mn)|(max(time)>mx))
         stop("gss error in survexp.sshzd: time range beyond the domain")
     ## Calculate
+    qd.hize <- 200
+    qd <- gauss.quad(2*qd.hize,c(mn,mx))
+    gap <- diff(qd$pt)
+    g.wk <- gap[qd.hize]/2
+    for (i in 1:(qd.hize-2)) g.wk <- c(g.wk,gap[qd.hize+i]-g.wk[i])
+    g.wk <- 2*g.wk
+    g.wk <- c(g.wk,(mx-mn)/2-sum(g.wk))
+    gap[qd.hize:1] <- gap[qd.hize+(1:qd.hize)] <- g.wk
+    brk <- cumsum(c(mn,gap))
     if (is.null(covariates)) {
         zz <- NULL
+        d.qd <- hzdcurve.sshzd(object,qd$pt)
         for (i in 1:nt) {
-            nqd <- max(20,ceiling((lmt[i,2]-lmt[i,1])/(mx-mn)*200))
-            quad <- gauss.quad(nqd,lmt[i,])
-            zz <- c(zz,sum(quad$wt*hzdrate.sshzd(object,quad$pt)))
+            ind <- (1:(2*qd.hize))[(qd$pt<lmt[i,2])&(qd$pt>lmt[i,1])]
+            if (length(ind)) {
+                wk <- sum(d.qd[ind]*qd$wt[ind])
+                id.mx <- max(ind)
+                if (lmt[i,2]<brk[id.mx+1])
+                    wk <- wk-d.qd[id.mx]*qd$wt[id.mx]*(brk[id.mx+1]-lmt[i,2])/gap[id.mx]
+                else wk <- wk+d.qd[id.mx+1]*qd$wt[id.mx+1]*(lmt[i,2]-brk[id.mx+1])/gap[id.mx+1]
+                id.mn <- min(ind)
+                if (lmt[i,1]<brk[id.mn])
+                    wk <- wk+d.qd[id.mn-1]*qd$wt[id.mn-1]*(brk[id.mn]-lmt[i,1])/gap[id.mn-1]
+                else wk <- wk-d.qd[id.mn]*qd$wt[id.mn]*(lmt[i,1]-brk[id.mn])/gap[id.mn]
+            }
+            else {
+                if (lmt[i,1]<=qd$pt[1])
+                    wk <- d.qd[1]*qd$wt[1]*(lmt[i,2]-lmt[i,1])/gap[1]
+                if (lmt[i,1]>=qd$pt[2*qd.hize])
+                    wk <- d.qd[2*qd.hize]*qd$wt[2*qd.hize]*(lmt[i,2]-lmt[i,1])/gap[2*qd.hize]
+                if ((lmt[i,1]>qd$pt[1])&(lmt[i,1]<qd$pt[2*qd.hize])) {
+                    i.wk <- min((1:(2*qd.hize))[qd$pt>lmt[i,1]])
+                    if (brk[i.wk]<=lmt[i,1])
+                        wk <- d.qd[i.wk]*qd$wt[i.wk]*(lmt[i,2]-lmt[i,1])/gap[i.wk]
+                    if (brk[i.wk]>=lmt[i,2])
+                        wk <- d.qd[i.wk-1]*qd$wt[i.wk-1]*(lmt[i,2]-lmt[i,1])/gap[i.wk-1]
+                    if ((brk[i.wk]<lmt[i,2])&(brk[i.wk]>lmt[i,1]))
+                        wk <- d.qd[i.wk]*qd$wt[i.wk]*(lmt[i,2]-brk[i.wk])/gap[i.wk]+
+                          d.qd[i.wk-1]*qd$wt[i.wk-1]*(brk[i.wk]-lmt[i,1])/gap[i.wk-1]
+                }
+            }
+            zz <- c(zz,wk)
         }
     }
     else {
-        if (ncov>nt)
-            lmt <- matrix(lmt,ncov,2,byrow=TRUE)
-        if (ncov<nt)
-            covariates <- covariates[rep(1,nt),,drop=FALSE]
         zz <- NULL
-        for (i in 1:max(ncov,nt)) {
-            nqd <- max(20,ceiling((lmt[i,2]-lmt[i,1])/(mx-mn)*200))
-            quad <- gauss.quad(nqd,lmt[i,])
-            wk <- covariates[rep(i,nqd),,drop=FALSE]
-            wk[[tname]] <- quad$pt
-            zz <- c(zz,sum(quad$wt*hzdrate.sshzd(object,wk)))
+        for (j in 1:ncov) {
+            zz.wk <- NULL
+            d.qd <- hzdcurve.sshzd(object,qd$pt,covariates[j,,drop=FALSE])
+            for (i in 1:nt) {
+                ind <- (1:(2*qd.hize))[(qd$pt<lmt[i,2])&(qd$pt>lmt[i,1])]
+                if (length(ind)) {
+                    wk <- sum(d.qd[ind]*qd$wt[ind])
+                    id.mx <- max(ind)
+                    if (lmt[i,2]<brk[id.mx+1])
+                        wk <- wk-d.qd[id.mx]*qd$wt[id.mx]*(brk[id.mx+1]-lmt[i,2])/gap[id.mx]
+                    else wk <- wk+d.qd[id.mx+1]*qd$wt[id.mx+1]*(lmt[i,2]-brk[id.mx+1])/gap[id.mx+1]
+                    id.mn <- min(ind)
+                    if (lmt[i,1]<brk[id.mn])
+                        wk <- wk+d.qd[id.mn-1]*qd$wt[id.mn-1]*(brk[id.mn]-lmt[i,1])/gap[id.mn-1]
+                    else wk <- wk-d.qd[id.mn]*qd$wt[id.mn]*(lmt[i,1]-brk[id.mn])/gap[id.mn]
+                }
+                else {
+                    if (lmt[i,1]<=qd$pt[1])
+                        wk <- d.qd[1]*qd$wt[1]*(lmt[i,2]-lmt[i,1])/gap[1]
+                    if (lmt[i,1]>=qd$pt[2*qd.hize])
+                        wk <- d.qd[2*qd.hize]*qd$wt[2*qd.hize]*(lmt[i,2]-lmt[i,1])/gap[2*qd.hize]
+                    if ((lmt[i,1]>qd$pt[1])&(lmt[i,1]<qd$pt[2*qd.hize])) {
+                        i.wk <- min((1:(2*qd.hize))[qd$pt>lmt[i,1]])
+                        if (brk[i.wk]<=lmt[i,1])
+                            wk <- d.qd[i.wk]*qd$wt[i.wk]*(lmt[i,2]-lmt[i,1])/gap[i.wk]
+                        if (brk[i.wk]>=lmt[i,2])
+                            wk <- d.qd[i.wk-1]*qd$wt[i.wk-1]*(lmt[i,2]-lmt[i,1])/gap[i.wk-1]
+                        if ((brk[i.wk]<lmt[i,2])&(brk[i.wk]>lmt[i,1]))
+                            wk <- d.qd[i.wk]*qd$wt[i.wk]*(lmt[i,2]-brk[i.wk])/gap[i.wk]+
+                              d.qd[i.wk-1]*qd$wt[i.wk-1]*(brk[i.wk]-lmt[i,1])/gap[i.wk-1]
+                    }
+                }
+                zz.wk <- c(zz.wk,wk)
+            }
+            zz <- cbind(zz,as.vector(zz.wk))
         }
+        if (ncov==1) zz <- as.vector(zz)
     }
     exp(-zz)
 }

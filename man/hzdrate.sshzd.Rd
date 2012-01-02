@@ -32,10 +32,10 @@ survexp.sshzd(object, time, covariates=NULL, start=0)
     \item{fit}{Vector or columns of hazard.}
     \item{se.fit}{Vector or columns of standard errors for log hazard.}
 
-    \code{survexp.sshzd} returns a vector of expected survivals based on
-    the cumulative hazards over (\code{start}, \code{time}), which in
-    fact are the (conditional) survival probabilities
-    \eqn{S(time)/S(start)}.
+    \code{survexp.sshzd} returns a vector or columns of expected
+    survivals based on the cumulative hazards over (\code{start},
+    \code{time}) at the \code{covariates} values, which in fact are the
+    (conditional) survival probabilities \eqn{S(time)/S(start)}.
 }
 \note{
     For left-truncated data, \code{start} must be at or after the
