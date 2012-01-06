@@ -1,3 +1,13 @@
+Fri Jan  6 12:39:56 EST 2012, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.0-8.
+
+	* NAMESPACE: Manually created the file.
+
+	* data: Added Sachs.
+
+	* man: Added documentation for Sachs.
+
 Mon Jan  2 18:39:24 EST 2012, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.0-7.

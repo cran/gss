@@ -1,7 +1,7 @@
-d2f8e4691e9745a36c21734c9f6b7e8b *ChangeLog
-1be43e55d3d0f8c0855eb81027345d56 *DESCRIPTION
+716bf324046c9384a476906fd4ffacdf *ChangeLog
+88686ecbe1870c5913f2b31dab599c21 *DESCRIPTION
 eca5196595388643c45d01f286cc00c5 *INDEX
-9fdfeb11f7ddba6f3aab9aaa6b1ac5dd *NAMESPACE
+cf5749d5f1cd87e0cf069c015ab66f38 *NAMESPACE
 24a938d7b0fd256e13009b9911b920d6 *R/cdsscden.R
 ff7639c197dba63535f8c612471c057d *R/cdssden.R
 915b3421114ddcf377a424d7379dae5f *R/dsscden.R
@@ -59,10 +59,12 @@ f9114838f50e07a90bb4b7154b6a92e1 *R/sshzd1.R
 9ed5c6a2df1e7364c04199c13728b2ee *data/ColoCan.rda
 796e2c35f3288dad6517bbe01ec014a6 *data/LakeAcidity.rda
 920a15f135813ea0dbf20c2e6d6ce1d2 *data/NO2.rda
+72b627ad385a4d24e8ae7583e4fa3e89 *data/Sachs.rda
 2ff2d7ece1c715ceb14841da98735bba *data/aids.rda
 389bed61b1b276a4986f62c8ff8e68eb *data/bacteriuria.rda
 98635e79343dce75e0116ebcc0dae1fe *data/buffalo.rda
 fe7f0df3bb36c4f55ac64201186757e3 *data/clim.rda
+055e9fadee24ba54787da431569a449f *data/datalist
 d8f4d2eb2c0d3aa6d7272b653b0bb006 *data/esc.rda
 966a8ab9a720156fb3f25bdae36158b1 *data/eyetrack.rda
 4cc18c72faa9ddd403cf61434e14c4f5 *data/gastric.rda
@@ -74,6 +76,7 @@ b23036bc7e4f8843b7d2b1431af0ddf1 *data/ozone.rda
 2229ffd403706072d98f7099eec8d387 *man/ColoCan.Rd
 793f6947019c179822061319b015d57c *man/LakeAcid.Rd
 d5a2a41462333c2bbaa0444a74b087dd *man/NO2.Rd
+3806b7ddf7467c95b32a0091da8c2cdb *man/Sachs.Rd
 55ee7c180c457d46907a6ff14771804b *man/aids.Rd
 ffb9bbbf8ef1fbbed74487941bb5cfb3 *man/bacteriuria.Rd
 1b0fc9c7907479928613d262fa968c5d *man/buffalo.Rd
