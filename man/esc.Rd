@@ -20,9 +20,6 @@
     }
 }
 \references{
-    Gu, C. and Ma, P. (2010), Nonparametric regression with
-    cross-classified responses.  Manuscript.
-    
     Cai, J., Xie, D., Fan, Z., Chipperfield, H., Marden, J., Wong,
     W. H., and Zhong, S. (2010), Modeling co-expression across species
     for complex traits: insights to the difference of human and mouse

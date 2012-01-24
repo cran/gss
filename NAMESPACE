@@ -7,7 +7,7 @@ export(cdsscden, cpsscden, cqsscden, cdssden, cpssden, cqssden,
        smolyak.size, ssanova, ssanova0, ssanova9, sscden, sscden1,
        sscox, ssden, ssden1, sshzd, sshzd1, ssllrm, survexp.sshzd)
 # export internal functions used in examples
-export(mkphi.cubic, mkphi.tp, mkran, mkrk.cubic, mkrk.tp)
+export(mkterm, mkphi.cubic, mkphi.tp, mkran, mkrk.cubic, mkrk.tp)
 # register S3 methods
 S3method(fitted, gssanova)
 S3method(fitted, ssanova)

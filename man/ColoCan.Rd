@@ -25,7 +25,7 @@
 }
 \details{
     \code{geog} was generated from \code{lat} and \code{lon} using the
-    code given in the Example section.
+    code given in the example section.
 }
 \source{
     Dr. Tonglin Zhang.

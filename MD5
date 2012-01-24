@@ -1,7 +1,7 @@
-716bf324046c9384a476906fd4ffacdf *ChangeLog
-88686ecbe1870c5913f2b31dab599c21 *DESCRIPTION
+4b064c770d2770dcab2d74809a50496c *ChangeLog
+4ff24875e9c3c87604a5ea570a92d89d *DESCRIPTION
 eca5196595388643c45d01f286cc00c5 *INDEX
-cf5749d5f1cd87e0cf069c015ab66f38 *NAMESPACE
+c824a05aa12d87570d13e924703bcd3b *NAMESPACE
 24a938d7b0fd256e13009b9911b920d6 *R/cdsscden.R
 ff7639c197dba63535f8c612471c057d *R/cdssden.R
 915b3421114ddcf377a424d7379dae5f *R/dsscden.R
@@ -28,7 +28,7 @@ d13575dc8c9528fee8c77521bb33fe97 *R/predict.sscox.R
 4d34edb87f3d582dabfe1847bd13a162 *R/predict.ssllrm.R
 f01e1d4537bc9ebe6ea2b167dab205d5 *R/print.R
 ed751f9cd8ea2639ebfcda808c7f6c79 *R/project.gssanova.R
-cd3cd5764ede362cabe9aa3e7f98de37 *R/project.ssanova.R
+c511a9c01081ef3e9318c9985f32bd1a *R/project.ssanova.R
 f1ff88099b5b7bf8b479fa874c9356ce *R/project.ssanova9.R
 07bb4623a8a0780be2630053df4f4676 *R/project.sscden.R
 e13f8e60c93dfc1027c77d27c22c3b7c *R/project.sscden1.R
@@ -55,7 +55,6 @@ f9114838f50e07a90bb4b7154b6a92e1 *R/sshzd1.R
 83514de0b7fdb4adcfdbd04efeb54818 *R/summary.ssanova.R
 40f6550ca74d0c14b1717ca3a0ea1fcf *R/summary.ssanova0.R
 6bb0e53f597c1a69389bd66e10f4bfec *R/summary.ssanova9.R
-8a2124eea6acfa1b2c9f4e2b077a0dfa *R/zzz.R
 9ed5c6a2df1e7364c04199c13728b2ee *data/ColoCan.rda
 796e2c35f3288dad6517bbe01ec014a6 *data/LakeAcidity.rda
 920a15f135813ea0dbf20c2e6d6ce1d2 *data/NO2.rda
@@ -73,10 +72,10 @@ b23036bc7e4f8843b7d2b1431af0ddf1 *data/ozone.rda
 63e3f29a4505eafb20d4cca1d2a0af0a *data/penny.rda
 1acbe2e049340deb3d880e924fa74a85 *data/stan.rda
 0a80d320e791a9d0eef2c61fb11f49b2 *data/wesdr.rda
-2229ffd403706072d98f7099eec8d387 *man/ColoCan.Rd
+32d73dfce00a970c059641055a5b649b *man/ColoCan.Rd
 793f6947019c179822061319b015d57c *man/LakeAcid.Rd
 d5a2a41462333c2bbaa0444a74b087dd *man/NO2.Rd
-3806b7ddf7467c95b32a0091da8c2cdb *man/Sachs.Rd
+d04b205cce2af540f0afa08176afd0fc *man/Sachs.Rd
 55ee7c180c457d46907a6ff14771804b *man/aids.Rd
 ffb9bbbf8ef1fbbed74487941bb5cfb3 *man/bacteriuria.Rd
 1b0fc9c7907479928613d262fa968c5d *man/buffalo.Rd
@@ -86,7 +85,7 @@ b606ea90fa245fd20b122af9d614fd8e *man/cdsscden.Rd
 d7f46dc3410e908001f7cf5e9a5009c2 *man/drkpk.Rd
 5136c9fcf98724df23adbfaa0f1a3031 *man/dsscden.Rd
 82d09278017ba1cdddaa4af1a373dd8b *man/dssden.Rd
-159e5c7d6dcc7709575dbd1a72d9d0a3 *man/esc.Rd
+114f4cc486a64d7674ccaeb0b857debb *man/esc.Rd
 686bb2d546beb831a4fe7ba867d2756e *man/eyetrack.Rd
 dcd29838f3b17b8a7da609a71c702a34 *man/family.Rd
 dda15a9a83ecb188869a62fe8c365bbc *man/fitted.ssanova.Rd

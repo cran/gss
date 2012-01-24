@@ -1,3 +1,5 @@
+## S3 method
+project <- function (object,...) UseMethod("project")
 ## Calculate Kullback-Leibler projection from ssanova objects
 project.ssanova <- function(object,include,...)
 {
