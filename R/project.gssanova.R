@@ -110,14 +110,16 @@ project.gssanova <- function(object,include,...)
     }
     cv.wk <- function(theta) cv.scale*my.wls(theta)+cv.shift
     ## initialization
-    r.wk <- 0
-    for (i in 1:nq) r.wk <- r.wk + 10^theta[i]*r[,,i]
-    if (is.null(s)) theta.wk <- 0
-    else theta.wk <- log10(sum(s^2)/ncol(s)/sum(r.wk^2)*nxi) / 2
-    theta <- theta + theta.wk
-    tmp <- NULL
-    for (i in 1:nq) tmp <- c(tmp,10^theta[i]*sum(r[cbind(object$id.basis,1:nxi,i)]))
-    fix <- rev(order(tmp))[1]
+    if (nq) {
+        r.wk <- 0
+        for (i in 1:nq) r.wk <- r.wk + 10^theta[i]*r[,,i]
+        if (is.null(s)) theta.wk <- 0
+        else theta.wk <- log10(sum(s^2)/ncol(s)/sum(r.wk^2)*nxi) / 2
+        theta <- theta + theta.wk
+        tmp <- NULL
+        for (i in 1:nq) tmp <- c(tmp,10^theta[i]*sum(r[cbind(object$id.basis,1:nxi,i)]))
+        fix <- rev(order(tmp))[1]
+    }
     ## projection
     if (nq) dc <- c(object$d[philist],10^(-theta.wk)*object$c)
     else dc <- c(object$d[philist],0)

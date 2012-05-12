@@ -117,8 +117,10 @@ project.sscden1 <- function(object,include,...)
         id.s <- c(id.s,object$id.s.list[[label]])
         id.r <- c(id.r,object$id.r.list[[label]])
     }
+    if (is.null(id.s)&is.null(id.r))
+        stop("gss error in project.sscden1: include some terms")
     if (!all(id.s%in%object$id.s)|!all(id.r%in%object$id.r))
-      stop("gss error in project.sscden1: included terms are not in the model")
+        stop("gss error in project.sscden1: included terms are not in the model")
     ## calculate projection
     rkl <- function(theta1=NULL) {
         theta.wk <- 1:nq0
@@ -128,17 +130,23 @@ project.sscden1 <- function(object,include,...)
         id.s0 <- (1:length(object$id.s))[object$id.s%in%id.s]
         id.r0 <- (1:length(object$id.r))[object$id.r%in%id.r]
         ss.wk <- ss[id.s0,id.s0,drop=FALSE]
-        r.eta.wk <- rr.wk <- 0
-        sr.wk <- matrix(0,length(id.s),nbasis)
-        for (i in 1:length(id.r0)) {
-            r.eta.wk <- r.eta.wk + 10^theta.wk[i]*r.eta[,id.r0[i]]
-            sr.wk <- sr.wk + 10^theta.wk[i]*sr[id.s0,,id.r0[i]]
-            for (j in 1:length(id.r0)) {
-                rr.wk <- rr.wk + 10^(theta.wk[i]+theta.wk[j])*rr[,,id.r0[i],id.r0[j]]
+        if (length(id.r0)) {
+            r.eta.wk <- rr.wk <- 0
+            sr.wk <- matrix(0,length(id.s),nbasis)
+            for (i in 1:length(id.r0)) {
+                r.eta.wk <- r.eta.wk + 10^theta.wk[i]*r.eta[,id.r0[i]]
+                sr.wk <- sr.wk + 10^theta.wk[i]*sr[id.s0,,id.r0[i]]
+                for (j in 1:length(id.r0)) {
+                    rr.wk <- rr.wk + 10^(theta.wk[i]+theta.wk[j])*rr[,,id.r0[i],id.r0[j]]
+                }
             }
+            v <- cbind(rbind(ss.wk,t(sr.wk)),rbind(sr.wk,rr.wk))
+            mu <- c(s.eta[id.s0],r.eta.wk)
         }
-        v <- cbind(rbind(ss.wk,t(sr.wk)),rbind(sr.wk,rr.wk))
-        mu <- c(s.eta[id.s0],r.eta.wk)
+        else {
+            v <- ss.wk
+            mu <- s.eta[id.s0]
+        }
         nn <- length(mu)
         z <- .Fortran("dchdc",
                       v=as.double(v), as.integer(nn), as.integer(nn),
@@ -161,7 +169,7 @@ project.sscden1 <- function(object,include,...)
     theta <- object$theta[id.r]
     ## projection
     nq0 <- length(id.r)
-    if (nq0-1) {
+    if (nq0>1) {
         if (object$skip.iter) se <- rkl(theta[-fix])
         else {
             if (nq0-2) {

@@ -84,6 +84,8 @@ project.sscden <- function(object,include,...)
             }
         }
     }
+    if (is.null(qd.s)&is.null(qd.r))
+        stop("gss error in project.sscden: include some terms")
     nnull <- length(d)
     nxis <- nbasis+nnull
     ## calculate projection
@@ -116,64 +118,82 @@ project.sscden <- function(object,include,...)
         z$wt[1]
     }
     cv.wk <- function(theta) cv.scale*rkl(theta)+cv.shift
-    ## initialization
-    if (!nnull) theta.wk <- 0
-    else {
-        qd.r.wk <- array(0,c(nmesh,nbasis,nx))
-        for (i in 1:nq) {
-            if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
-            else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
-        }
-        v.s <- v.r <- 0
-        for (i in 1:nx) {
-            mu.s <- apply(fit0[i,]*qd.s[,i,,drop=FALSE],2,sum)
-            v.s.wk <- apply(fit0[i,]*qd.s[,i,,drop=FALSE]^2,2,sum)-mu.s^2
-            mu.r <- apply(fit0[i,]*qd.r.wk[,,i,drop=FALSE],2,sum)
-            v.r.wk <- apply(fit0[i,]*qd.r.wk[,,i,drop=FALSE]^2,2,sum)-mu.r^2
-            v.s <- v.s + xx.wt[i]*v.s.wk
-            v.r <- v.r + xx.wt[i]*v.r.wk
-        }
-        theta.wk <- log10(sum(v.s)/nnull/sum(v.r)*nbasis) / 2
-    }
-    theta <- theta + theta.wk
-    tmp <- NULL
-    for (i in 1:nq) tmp <- c(tmp,10^theta[i]*sum(q[,i]))
-    fix <- rev(order(tmp))[1]
-    ## projection
-    cd <- c(10^(-theta.wk)*object$c,d)
-    mesh1 <- NULL
-    if (nq-1) {
-        if (object$skip.iter) kl <- rkl(theta[-fix])
+    if (nq) {
+        ## initialization
+        if (!nnull) theta.wk <- 0
         else {
-            if (nq-2) {
-                ## scale and shift cv
-                tmp <- abs(rkl(theta[-fix]))
-                cv.scale <- 1
-                cv.shift <- 0
-                if (tmp<1&tmp>10^(-4)) {
-                    cv.scale <- 10/tmp
-                    cv.shift <- 0
-                }
-                if (tmp<10^(-4)) {
-                    cv.scale <- 10^2
-                    cv.shift <- 10
-                }
-                zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
+            qd.r.wk <- array(0,c(nmesh,nbasis,nx))
+            for (i in 1:nq) {
+                if (length(dim(qd.r[[i]]))==3) qd.r.wk <- qd.r.wk + 10^theta[i]*qd.r[[i]]
+                else qd.r.wk <- qd.r.wk + as.vector(10^theta[i]*qd.r[[i]])
             }
-            else {
-                the.wk <- theta[-fix]
-                repeat {
-                    mn <- the.wk-1
-                    mx <- the.wk+1
-                    zz <- nlm0(rkl,c(mn,mx))
-                    if (min(zz$est-mn,mx-zz$est)>=1e-3) break
-                    else the.wk <- zz$est
-                }
+            v.s <- v.r <- 0
+            for (i in 1:nx) {
+                mu.s <- apply(fit0[i,]*qd.s[,i,,drop=FALSE],2,sum)
+                v.s.wk <- apply(fit0[i,]*qd.s[,i,,drop=FALSE]^2,2,sum)-mu.s^2
+                mu.r <- apply(fit0[i,]*qd.r.wk[,,i,drop=FALSE],2,sum)
+                v.r.wk <- apply(fit0[i,]*qd.r.wk[,,i,drop=FALSE]^2,2,sum)-mu.r^2
+                v.s <- v.s + xx.wt[i]*v.s.wk
+                v.r <- v.r + xx.wt[i]*v.r.wk
             }
-            kl <- rkl(zz$est)
+            theta.wk <- log10(sum(v.s)/nnull/sum(v.r)*nbasis) / 2
         }
+        theta <- theta + theta.wk
+        tmp <- NULL
+        for (i in 1:nq) tmp <- c(tmp,10^theta[i]*sum(q[,i]))
+        fix <- rev(order(tmp))[1]
+        ## projection
+        cd <- c(10^(-theta.wk)*object$c,d)
+        mesh1 <- NULL
+        if (nq-1) {
+            if (object$skip.iter) kl <- rkl(theta[-fix])
+            else {
+                if (nq-2) {
+                    ## scale and shift cv
+                    tmp <- abs(rkl(theta[-fix]))
+                    cv.scale <- 1
+                    cv.shift <- 0
+                    if (tmp<1&tmp>10^(-4)) {
+                        cv.scale <- 10/tmp
+                        cv.shift <- 0
+                    }
+                    if (tmp<10^(-4)) {
+                        cv.scale <- 10^2
+                        cv.shift <- 10
+                    }
+                    zz <- nlm(cv.wk,theta[-fix],stepmax=.5,ndigit=7)
+                }
+                else {
+                    the.wk <- theta[-fix]
+                    repeat {
+                        mn <- the.wk-1
+                        mx <- the.wk+1
+                        zz <- nlm0(rkl,c(mn,mx))
+                        if (min(zz$est-mn,mx-zz$est)>=1e-3) break
+                        else the.wk <- zz$est
+                    }
+                }
+                kl <- rkl(zz$est)
+            }
+        }
+        else kl <- rkl()
     }
-    else kl <- rkl()
+    else {
+        z <- .Fortran("cdenrkl",
+                      cd=as.double(d), as.integer(nnull),
+                      as.double(aperm(qd.s,c(1,3,2))), as.integer(nmesh), as.integer(nx),
+                      as.double(xx.wt), as.double(qd.wt), as.double(t(fit0)),
+                      as.double(.Machine$double.eps),
+                      wt=double(nmesh*nx), double(nmesh*nx), double(nnull),
+                      double(nnull), double(nnull*nnull), double(nnull*nnull),
+                      integer(nnull), double(nnull), as.double(1e-6), as.integer(30),
+                      info=integer(1), PACKAGE="gss")
+        if (z$info==1)
+            stop("gss error in project.ssllrm: Newton iteration diverges")
+        if (z$info==2)
+            warning("gss warning in project.ssllrm: Newton iteration fails to converge")
+        kl <- z$wt[1]
+    }
     ## cfit
     cfit <- matrix(1,nmesh,nx)
     for (ylab in object$ynames) {
