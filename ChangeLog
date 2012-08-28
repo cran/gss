@@ -1,3 +1,10 @@
+Tue Aug 28 18:28:31 EDT 2012, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.0-11.
+
+	* R: Bug fixes in fitting functions to prevent overflow in
+	oversmoothing cases.
+
 Sat May 12 19:52:54 EDT 2012, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.0-10.

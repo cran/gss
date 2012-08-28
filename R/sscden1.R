@@ -437,6 +437,7 @@ mspcdsty1 <- function(s,r,id.basis,cnt,int.s,int.r,prec,maxiter,alpha,skip.iter)
     repeat {
         mn <- la-1
         mx <- la+1
+        if (mx>log.la0+6) break
         zz <- nlm0(cv.s,c(mn,mx))
         if (min(zz$est-mn,mx-zz$est)>=1e-3) break
         else la <- zz$est
@@ -482,6 +483,7 @@ mspcdsty1 <- function(s,r,id.basis,cnt,int.s,int.r,prec,maxiter,alpha,skip.iter)
     repeat {
         mn <- la-1
         mx <- la+1
+        if (mx>log.la0+6) break
         zz <- nlm0(cv.s,c(mn,mx))
         if (min(zz$est-mn,mx-zz$est)>=1e-3) break
         else la <- zz$est
