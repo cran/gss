@@ -32,10 +32,8 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
     if ((substr(deparse(resp),1,5)!='Surv(')
         |(substr(deparse(resp),ind.wk,ind.wk)!=')'))
         stop("gss error in sshzd: response should be Surv(...)")
-    attach(data)
-    yy <- eval(resp)
+    yy <- with(data,eval(resp))
     tname <- yy$tname
-    detach(data)
     ## model frame
     term.labels <- attr(term.wk,"term.labels")
     if (!(tname%in%term.labels))

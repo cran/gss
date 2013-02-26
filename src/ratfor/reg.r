@@ -81,10 +81,12 @@ if (method==3) {
         }
     }
     call  dcopy (nxi, wk, 1, q, nxi+1)
-    call  rs (nobs, nxi, sr, mu, 0, dum, wk, y, info)
+#    call  rs (nobs, nxi, sr, mu, 0, dum, wk, y, info)
+    call  dsyev ('n', 'u', nxi, sr, nobs, mu, wk, 3*nxi, info)
     trc = 0.d0
     for (i=1;i<=rkv-nnull;i=i+1)  trc = trc + dlog (mu(nxi-i+1))
-    call  rs (nxi, nxi, q, mu, 0, dum, wk, y, info)
+#    call  rs (nxi, nxi, q, mu, 0, dum, wk, y, info)
+    call  dsyev ('n', 'u', nxi, q, nxi, mu, wk, 3*nxi, info)
     for (i=1;i<=rkv-nnull;i=i+1)  trc = trc - dlog (mu(nxi-i+1))
     #   return values
     score = rss / dfloat (nobs) * dexp (trc/dfloat(nobs-nnull))

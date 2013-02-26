@@ -31,9 +31,7 @@ sscox <- function(formula,type=NULL,data=list(),weights=NULL,subset,
     if ((substr(deparse(resp),1,5)!='Surv(')
         |(substr(deparse(resp),ind.wk,ind.wk)!=')'))
         stop("gss error in sscox: response should be Surv(...)")
-    attach(data)
-    yy <- eval(resp)
-    detach(data)
+    yy <- with(data,eval(resp))
     ## model frame
     term.labels <- attr(term.wk,"term.labels")
     mf[[1]] <- as.name("model.frame")

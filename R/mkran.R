@@ -1,7 +1,7 @@
 ## Make random effects for mixed-effect models
 mkran <- function(formula,data)
 {
-    attach(data)
+    with(data,{
     ## decipher formula
     form.wk <- terms.formula(formula)[[2]]
     if (!("|"%in%strsplit(deparse(form.wk),'')[[1]]))
@@ -44,6 +44,6 @@ mkran <- function(formula,data)
         }
         sigma <- list(fun=fun,env=env)
     }
-    detach(data)
     list(z=z,sigma=sigma,init=init)
+    })
 }

@@ -169,7 +169,7 @@ sspreg1 <- function(s,r,q,y,wt,method,alpha,varht,random)
                           as.double(.Machine$double.eps),
                           chol=double(nn*nn), double(nn),
                           jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
-                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          wk=double(3*nobs+nnull+nz), rkv=integer(1), info=integer(1),
                           PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
                 z$score <- score
                 assign("fit",z[c(1:5,7)],inherits=TRUE)
@@ -185,7 +185,7 @@ sspreg1 <- function(s,r,q,y,wt,method,alpha,varht,random)
                           as.double(.Machine$double.eps),
                           chol=double(nn*nn), double(nn),
                           jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
-                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          wk=double(3*nobs+nnull+nz), rkv=integer(1), info=integer(1),
                           PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
             if (z$info) stop("gss error in ssanova: evaluation of GML score fails")
             assign("fit",z[c(1:5,7)],inherits=TRUE)
@@ -346,7 +346,7 @@ mspreg1 <- function(s,r,id.basis,y,wt,method,alpha,varht,random,skip.iter)
                           as.double(.Machine$double.eps),
                           chol=double(nn*nn), double(nn),
                           jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
-                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          wk=double(3*nobs+nnull+nz), rkv=integer(1), info=integer(1),
                           PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
                 z$score <- score
                 assign("fit",z[c(1:5,7)],inherits=TRUE)
@@ -362,7 +362,7 @@ mspreg1 <- function(s,r,id.basis,y,wt,method,alpha,varht,random,skip.iter)
                           as.double(.Machine$double.eps),
                           chol=double(nn*nn), double(nn),
                           jpvt=as.integer(c(rep(1,nnull),rep(0,nxiz))),
-                          wk=double(nobs+nnull+nz), rkv=integer(1), info=integer(1),
+                          wk=double(3*nobs+nnull+nz), rkv=integer(1), info=integer(1),
                           PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
             if (z$info) stop("gss error in ssanova: evaluation of GML score fails")
             assign("fit",z[c(1:5,7)],inherits=TRUE)

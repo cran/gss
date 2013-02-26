@@ -116,7 +116,7 @@ sscden1(formula, response, type=NULL, data=list(), weights, subset,
 }
 \examples{
 data(penny); set.seed(5732)
-fit <- sscden(~year*mil,~mil,data=penny,
+fit <- sscden1(~year*mil,~mil,data=penny,
               ydomain=data.frame(mil=c(49,61)))
 yy <- 1944+(0:92)/2
 quan <- qsscden(fit,c(.05,.25,.5,.75,.95),

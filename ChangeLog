@@ -1,3 +1,16 @@
+Tue Feb 26 14:42:15 EST 2013, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.0-12.
+
+	* R: i) Bug fixes in summary.gssanova and project.gssanova.  ii)
+	Changes in ssanova and ssanova9 to supply sufficient work array
+	for altered reg.f.  iii) Replaced 'attach/detach' by 'with' in
+	mkran, sscox, sshzd, and sshzd1 following suggection by Professor
+	Brian Ripley.
+
+	* src: Replaced EISPACK routine rs by LAPACK routine dsyev in
+	reg.f, and add $(LAPACK_LIBS) to Makevars.
+
 Tue Aug 28 18:28:31 EDT 2012, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.0-11.

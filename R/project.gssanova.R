@@ -81,10 +81,14 @@ project.gssanova <- function(object,include,...)
         }
     }
     if (!is.null(object$partial)) {
+        nu <- length(object$d)-length(object$lab.p)
         matx.p <- model.matrix(object$partial$mt,object$mf)[,-1,drop=FALSE]
         matx.p <- scale(matx.p)
         for (label in labels.p) {
-            if (label%in%include) s <- cbind(s,matx.p[,label])
+            nu <- nu+1
+            if (!any(label==include)) next
+            philist <- c(philist,nu)
+            s <- cbind(s,matx.p[,label])
         }
     }
     ## calculate projection

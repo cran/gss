@@ -153,7 +153,7 @@ sspreg91 <- function(s,r,q,y,cov,method,alpha,varht)
                       as.double(.Machine$double.eps),
                       chol=double(nn*nn), double(nn),
                       jpvt=as.integer(c(rep(1,nnull),rep(0,nxi))),
-                      wk=double(nobs+nnull), rkv=integer(1), info=integer(1),
+                      wk=double(3*nobs+nnull), rkv=integer(1), info=integer(1),
                       PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
         if (z$info) stop("gss error in ssanova9: evaluation of GML score fails")
         if (!nnull|method%in%c("u","v")) detw <- 2*sum(log(diag(ww)))
@@ -288,7 +288,7 @@ mspreg91 <- function(s,r,id.basis,y,cov,method,alpha,varht,skip.iter)
                       as.double(.Machine$double.eps),
                       chol=double(nn*nn), double(nn),
                       jpvt=as.integer(c(rep(1,nnull),rep(0,nxi))),
-                      wk=double(nobs+nnull), rkv=integer(1), info=integer(1),
+                      wk=double(3*nobs+nnull), rkv=integer(1), info=integer(1),
                       PACKAGE="gss")[c("score","varht","dc","chol","jpvt","wk","rkv","info")]
         if (z$info) stop("gss error in ssanova9: evaluation of GML score fails")
         if (!nnull|method%in%c("u","v")) detw <- 2*sum(log(diag(ww)))

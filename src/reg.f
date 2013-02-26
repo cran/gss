@@ -111,7 +111,7 @@ C Output from Public domain Ratfor, version 1.01
       goto 23039
 23041 continue
       call dcopy (nxi, wk, 1, q, nxi+1)
-      call rs (nobs, nxi, sr, mu, 0, dum, wk, y, info)
+      call dsyev ('n', 'u', nxi, sr, nobs, mu, wk, 3*nxi, info)
       trc = 0.d0
       i=1
 23045 if(.not.(i.le.rkv-nnull))goto 23047
@@ -119,7 +119,7 @@ C Output from Public domain Ratfor, version 1.01
 23046 i=i+1
       goto 23045
 23047 continue
-      call rs (nxi, nxi, q, mu, 0, dum, wk, y, info)
+      call dsyev ('n', 'u', nxi, q, nxi, mu, wk, 3*nxi, info)
       i=1
 23048 if(.not.(i.le.rkv-nnull))goto 23050
       trc = trc - dlog (mu(nxi-i+1))
