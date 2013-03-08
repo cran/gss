@@ -148,19 +148,13 @@ project.sscden1 <- function(object,include,...)
             mu <- s.eta[id.s0]
         }
         nn <- length(mu)
-        z <- .Fortran("dchdc",
-                      v=as.double(v), as.integer(nn), as.integer(nn),
-                      double(nn),
-                      jpvt=as.integer(rep(0,nn)),
-                      as.integer(1),
-                      rkv=integer(1),
-                      PACKAGE="base")
+        z <- chol(v,pivot=TRUE)
+        v <- z
+        rkv <- attr(z,"rank")
         m.eps <- .Machine$double.eps
-        v <- matrix(z$v,nn,nn)
-        rkv <- z$rkv
         while (v[rkv,rkv]<2*sqrt(m.eps)*v[1,1]) rkv <- rkv - 1
         if (rkv<nn) v[(1:nn)>rkv,(1:nn)>rkv] <- diag(v[1,1],nn-rkv)
-        mu <- backsolve(v,mu[z$jpvt],transpose=TRUE)
+        mu <- backsolve(v,mu[attr(z,"pivot")],transpose=TRUE)
         eta2 - sum(mu[1:rkv]^2)
     }
     cv.wk <- function(theta) cv.scale*rkl(theta)+cv.shift

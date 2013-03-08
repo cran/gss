@@ -503,18 +503,14 @@ regaux <- function(s,r,q,nlambda,fit)
     wk1[1:nnull,1:nnull] <- sms
     wk1[1:nnull,nnull+(1:rkq)] <- -t(t(dr)/val)
     wk1[nnull+(1:rkq),nnull+(1:rkq)] <- wk2
-    z <- .Fortran("dchdc",
-                  v=as.double(wk1), as.integer(nnull+rkq), as.integer(nnull+rkq),
-                  double(nnull+rkq), jpvt=as.integer(rep(0,nnull+rkq)),
-                  as.integer(1), rkv=integer(1),
-                  PACKAGE="base")[c("v","jpvt","rkv")]
-    wk1 <- matrix(z$v,nnull+rkq,nnull+rkq)
-    rkw <- z$rkv
+    z <- chol(wk1,pivot=TRUE)
+    wk1 <- z
+    rkw <- attr(z,"rank")
     while (wk1[rkw,rkw]<wk1[1,1]*sqrt(.Machine$double.eps)) rkw <- rkw-1
     wk1[row(wk1)>col(wk1)] <- 0
     if (rkw<nnull+rkq)
         wk1[(rkw+1):(nnull+rkq),(rkw+1):(nnull+rkq)] <- diag(0,nnull+rkq-rkw)
     hfac <- wk1
-    hfac[,z$jpvt] <- wk1
+    hfac[,attr(z,"pivot")] <- wk1
     list(vec=vec,hfac=hfac)
 }

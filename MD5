@@ -1,5 +1,5 @@
-3a59944c8d743e2f2a95abf1daa3da65 *ChangeLog
-bca8bca6036a11f4b221961ff2d015ea *DESCRIPTION
+97bc12b6f6270961cf9ebff2686ee63d *ChangeLog
+0937ff700a129ea7c3ae0c0f5a9476b8 *DESCRIPTION
 eca5196595388643c45d01f286cc00c5 *INDEX
 c824a05aa12d87570d13e924703bcd3b *NAMESPACE
 24a938d7b0fd256e13009b9911b920d6 *R/cdsscden.R
@@ -7,7 +7,7 @@ ff7639c197dba63535f8c612471c057d *R/cdssden.R
 915b3421114ddcf377a424d7379dae5f *R/dsscden.R
 5f782e191a8b9759d3ca6701a71d03cd *R/dssden.R
 37285f0de98de7b4ca81d051b584c2b7 *R/family.R
-84c9e4d9392bfb2f377670704743b48f *R/family.cv.R
+338884f63e0fa55b0d5929c62dadb039 *R/family.cv.R
 84d226cfeebcf3dd3f6ca6c63ec7b4b6 *R/family.proj.R
 77b83ce9a1e1675db0d5aae93881190f *R/family.surv.R
 2554f868bff22587a632b1f6caa01423 *R/fitted.R
@@ -31,15 +31,15 @@ ba1fa1a85018429cb42c361cc52869e2 *R/project.gssanova.R
 3fef61b1442b64eafea88b93284af6cf *R/project.ssanova.R
 023ed96bb4991e538c3f38a7a8bb3224 *R/project.ssanova9.R
 2c28889012a2007157681009a520cb2f *R/project.sscden.R
-c6ca078a6ec0a225cae96fac6d49edcd *R/project.sscden1.R
+db0715f3db5e886a111b3a6fd297165e *R/project.sscden1.R
 50ed5e000696a4ec366834a09673e448 *R/project.sscox.R
 89a6175fe772e65c76ab3eb644acd316 *R/project.ssden.R
-4499dc11a3bfeebae7a7f50863752735 *R/project.ssden1.R
+a948c637178c65e4a7e6a0d76016e327 *R/project.ssden1.R
 fdc26fdef9a730f792d3c3bd146c0940 *R/project.sshzd.R
-a665eb50b1943f434d7816bbfbc019c2 *R/project.sshzd1.R
+e827ffb1a4973f4c5b4008d8ea0089e3 *R/project.sshzd1.R
 d7b175eb55e8c56e19f77839a1e9388f *R/project.ssllrm.R
 d44fab9e998870ebdb9a3c393d0ef756 *R/smolyak.R
-204ff564b682745b613f43434efe31e4 *R/ssanova.R
+1cf58c0dde897146740077eba63ba119 *R/ssanova.R
 73dcde70d001d3c208508c7187c28158 *R/ssanova0.R
 e7d4f9d4616ad4c53f58dc98d399720d *R/ssanova9.R
 e9e3033693e36096bfe81769534f1df8 *R/sscden.R

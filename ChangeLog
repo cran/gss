@@ -1,3 +1,10 @@
+Fri Mar  8 16:04:21 EST 2013, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.0-13.
+
+	* R: Replaced direct calls to LINPACK dchdc by chol(), in ssanova,
+	cv.poisson, project.ssden1, project.sscden1, and project.sshzd1.
+
 Tue Feb 26 14:42:15 EST 2013, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.0-12.
