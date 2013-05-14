@@ -133,7 +133,7 @@ integer  i, j, infowk
 for (i=1;i<=nr;i=i+1) {
     call  dprmut (r(1,i), nn, jpvt, 0)
     call  dtrsl (v, nn, nn, r(1,i), 11, infowk)
-    call  dset (nn-rkv, 0.d0, r(rkv+1,i), 1)
+    if (nn-rkv>0)  call  dset (nn-rkv, 0.d0, r(rkv+1,i), 1)
     call  dtrsl (v, nn, nn, r(1,i), 01, infowk)
     call  dprmut (r(1,i), nn, jpvt, 1)
 }

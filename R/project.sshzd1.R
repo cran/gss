@@ -87,7 +87,8 @@ project.sshzd1 <- function(object,include,...)
     for (i in 1:nq) {
         tmp <- c(tmp,10^(2*theta[i])*sum(diag(rr[,,i,i])))
         s.eta <- s.eta + 10^theta[i]*sr[,,i]%*%c
-        r.eta.wk <- t(sr[,,i])%*%d
+        if (length(d)==1) r.eta.wk <- sr[,,i]*d
+        else r.eta.wk <- t(sr[,,i])%*%d
         r.wk <- r.wk + 10^theta[i]*r[,i]
         sr.wk <- sr.wk + 10^theta[i]*sr[,,i]
         for (j in 1:nq) {

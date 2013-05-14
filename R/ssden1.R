@@ -60,12 +60,13 @@ ssden1 <- function(formula,type=NULL,data=list(),alpha=1.4,
                 if (length(type[[xlab]])==1)
                     type[[xlab]] <- list(type[[xlab]][[1]],domain[[xlab]])
             }
-            rho[[xlab]] <- ssden(~x,domain=data.frame(x=domain[[xlab]]),
-                                 type=list(x=type[[xlab]]),
+            form <- as.formula(paste("~",xlab))
+            rho[[xlab]] <- ssden(form,data=mf,type=type[xlab],
+                                 domain=data.frame(domain[xlab]),
                                  alpha=2,id.basis=id.basis)
             qd.wk <- rho[[xlab]]$quad
-            qd.wk$pt <- qd.wk$pt[[1]]
             rho.wk <- dssden(rho[[xlab]],qd.wk$pt)
+            qd.wk$pt <- qd.wk$pt[[1]]
             qd.wk$wt <- rho.wk*qd.wk$wt
             quad[[xlab]] <- qd.wk
             rho.log[[xlab]] <- log(rho.wk)
@@ -77,10 +78,13 @@ ssden1 <- function(formula,type=NULL,data=list(),alpha=1.4,
             if (is.null(quad[[xlab]])|is.null(quad))
                 stop("gss error in ssden1: no default quadrature")
             else {
-                rho[[xlab]] <- ssden(~x,quad=quad[[xlab]],
-                                     type=list(x=type[[xlab]]),
+                qd.wk <- quad[[xlab]]
+                qd.wk$pt <- data.frame(I(qd.wk$pt))
+                colnames(qd.wk$pt) <- xlab
+                form <- as.formula(paste("~",xlab))
+                rho[[xlab]] <- ssden(form,data=mf,type=type[xlab],quad=qd.wk,
                                      alpha=2,id.basis=id.basis)
-                rho.wk <- dssden(rho[[xlab]],quad[[xlab]]$pt)
+                rho.wk <- dssden(rho[[xlab]],qd.wk$pt)
                 quad[[xlab]]$wt <- rho.wk*quad[[xlab]]$wt
                 rho.log[[xlab]] <- log(rho.wk)
                 rho.int <- c(rho.int,sum(log(rho.wk)*quad[[xlab]]$wt))

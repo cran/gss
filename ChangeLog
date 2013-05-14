@@ -1,3 +1,9 @@
+Tue May 14 14:51:58 EDT 2013, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.0-14.
+
+	* R: Bug fixes in ssden1, sscden, sscden1 suites.
+
 Fri Mar  8 16:04:21 EST 2013, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.0-13.

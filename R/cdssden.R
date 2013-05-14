@@ -45,15 +45,15 @@ function (object,x,cond,int=NULL) {
                 quad <- smolyak.quad(ncol(domain.wk),code[ncol(domain.wk)-1])
                 for (i in 1:ncol(domain.wk)) {
                     xlab <- colnames(domain.wk)[i]
-                    wk <- object$mf[[xlab]]
-                    jk <- ssden(~wk,domain=data.frame(wk=domain.wk[,i]),alpha=2,
+                    form <- as.formula(paste("~",xlab))
+                    jk <- ssden(form,data=object$mf,domain=domain.wk[i],alpha=2,
                                 id.basis=object$id.basis)
                     quad$pt[,i] <- qssden(jk,quad$pt[,i])
                     quad$wt <- quad$wt/dssden(jk,quad$pt[,i])
                 }
-                jk <- wk <- NULL
+                jk <- NULL
                 quad$pt <- data.frame(quad$pt)
-                colnames(quad.pt) <- colnames(domain.wk)
+                colnames(quad$pt) <- colnames(domain.wk)
             }
         }
         else quad <- list(pt=data.frame(dum=1),wt=1)

@@ -1,4 +1,4 @@
-## Calculate Kullback-Leibler projection from ssllrm objects
+## Calculate Kullback-Leibler projection from sscden objects
 project.sscden <- function(object,include,...)
 {
     mf <- object$mf
@@ -111,9 +111,9 @@ project.sscden <- function(object,include,...)
                       integer(nxis), double(nxis), as.double(1e-6), as.integer(30),
                       info=integer(1), PACKAGE="gss")
         if (z$info==1)
-            stop("gss error in project.ssllrm: Newton iteration diverges")
+            stop("gss error in project.sscden: Newton iteration diverges")
         if (z$info==2)
-            warning("gss warning in project.ssllrm: Newton iteration fails to converge")
+            warning("gss warning in project.sscden: Newton iteration fails to converge")
         assign("cd",z$cd,inherits=TRUE)
         z$wt[1]
     }
@@ -189,9 +189,9 @@ project.sscden <- function(object,include,...)
                       integer(nnull), double(nnull), as.double(1e-6), as.integer(30),
                       info=integer(1), PACKAGE="gss")
         if (z$info==1)
-            stop("gss error in project.ssllrm: Newton iteration diverges")
+            stop("gss error in project.sscden: Newton iteration diverges")
         if (z$info==2)
-            warning("gss warning in project.ssllrm: Newton iteration fails to converge")
+            warning("gss warning in project.sscden: Newton iteration fails to converge")
         kl <- z$wt[1]
     }
     ## cfit
@@ -210,9 +210,14 @@ project.sscden <- function(object,include,...)
             }
         }
         else {
-            wk <- ssden(~y,domain=object$ydomain,alpha=object$alpha,
+            if (!is.vector(y)) qd.wk <- object$yquad
+            else qd.wk <- NULL
+            qd.wk <- object$yquad
+            form <- as.formula(paste("~",ylab))
+            wk <- ssden(form,data=object$mf,quad=qd.wk,
+                        domain=object$ydomain,alpha=object$alpha,
                         id.basis=object$id.basis)
-            cfit <- cfit*dssden(wk,qd.pt[,ylab])
+            cfit <- cfit*dssden(wk,qd.pt[ylab])
         }
     }
     cfit <- t(cfit*qd.wt)

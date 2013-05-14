@@ -29,10 +29,12 @@ mspcdsty1(s, r, id.basis, cnt, int.s, int.r, prec, maxiter, alpha, skip.iter)
 
 msphzd(s, r, id.wk, Nobs, cnt, qd.s, qd.r, qd.wt, random, prec, maxiter, alpha, skip.iter)
 
-msphzd1(s, r, id.wk, Nobs, cnt, int.s, int.r, rho, random, prec, maxiter, alpha, skip.iter)
+msphzd1(s, r, id.wk, Nobs, cnt, int.s, int.r, rho, random, prec, maxiter, alpha,
+        skip.iter)
 
 sspcox(s, r, q, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, random, bias)
-mspcox(s, r, id.basis, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, random, bias, skip.iter)
+mspcox(s, r, id.basis, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, random, bias,
+       skip.iter)
 
 mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, random, prec, maxiter, alpha, skip.iter)
 }

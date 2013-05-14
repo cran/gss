@@ -240,7 +240,7 @@ for (i=1;i<=nobs;i=i+1) {
     call  dprmut (rs(1,i), nxis, jpvt, 0)
     if (cntsum!=0)  call  dscal (nxis, dsqrt(dfloat(cnt(i))), rs(1,i), 1)
     call  dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
-    call  dset (nxis-rkv, 0.d0, rs(rkv+1,i), 1)
+    if (nxis-rkv>0)  call  dset (nxis-rkv, 0.d0, rs(rkv+1,i), 1)
 }
 trc = ddot (nobs*nxis, rs, 1, rs, 1)
 if (cntsum==0) {

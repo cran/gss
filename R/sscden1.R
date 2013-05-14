@@ -49,19 +49,21 @@ sscden1 <- function(formula,response,type=NULL,data=list(),weights,
             ydomain[[ylab]] <- NULL
         }
         else {
-            if (!is.vector(y))
+            if (!is.vector(y)&is.null(yquad))
                 stop("gss error in sscden1: no default quadrature")
-            if (is.null(ydomain[[ylab]])) {
-                mn <- min(y)
-                mx <- max(y)
-                ydomain[[ylab]] <- c(mn,mx)+c(-1,1)*(mx-mn)*.05
-            }
-            else ydomain[[ylab]] <- c(min(ydomain[[ylab]]),max(ydomain[[ylab]]))
-            if (is.null(type[[ylab]]))
-                type[[ylab]] <- list("cubic",ydomain[[ylab]])
-            else {
-                if (length(type[[ylab]])==1)
-                    type[[ylab]] <- list(type[[ylab]][[1]],ydomain[[ylab]])
+            if (is.vector(y)) {
+                if (is.null(ydomain[[ylab]])) {
+                    mn <- min(y)
+                    mx <- max(y)
+                    ydomain[[ylab]] <- c(mn,mx)+c(-1,1)*(mx-mn)*.05
+                }
+                else ydomain[[ylab]] <- c(min(ydomain[[ylab]]),max(ydomain[[ylab]]))
+                if (is.null(type[[ylab]]))
+                    type[[ylab]] <- list("cubic",ydomain[[ylab]])
+                else {
+                    if (length(type[[ylab]])==1)
+                        type[[ylab]] <- list(type[[ylab]][[1]],ydomain[[ylab]])
+                }
             }
         }
     }

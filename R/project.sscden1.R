@@ -37,7 +37,7 @@ project.sscden1 <- function(object,include,...)
             qd.xy <- data.frame(matrix(0,nmesh,length(vlist)))
             names(qd.xy) <- vlist
             qd.xy[,y.list] <- qd.pt[,y.list]
-            if (length(x.list)) xx <- mf[id.x,x.list,drop=FALSE]
+            if (length(x.list)) xx <- mf[rep(id.x,nmesh),x.list,drop=FALSE]
             else xx <- NULL
             nphi <- term[[label]]$nphi
             nrk <- term[[label]]$nrk
@@ -74,13 +74,15 @@ project.sscden1 <- function(object,include,...)
                 }
             }
         }
-        qd.s <- sweep(qd.s,2,apply(qd.s*rho.wt[,k],2,sum))
-        s.rho <- s.rho + xx.wt[k]*apply(qd.s*rho.d[,k]*rho.wt[,k],2,sum)
-        ss <- ss + xx.wt[k]*t(rho.wt[,k]*qd.s)%*%qd.s
+        if (ns) {
+            qd.s <- sweep(qd.s,2,apply(qd.s*rho.wt[,k],2,sum))
+            s.rho <- s.rho + xx.wt[k]*apply(qd.s*rho.d[,k]*rho.wt[,k],2,sum)
+            ss <- ss + xx.wt[k]*t(rho.wt[,k]*qd.s)%*%qd.s
+        }
         for (i in 1:iq) {
             qd.r[[i]] <- sweep(qd.r[[i]],2,apply(qd.r[[i]]*rho.wt[,k],2,sum))
             r.rho[,i] <- r.rho[,i] + xx.wt[k]*apply(qd.r[[i]]*rho.d[,k]*rho.wt[,k],2,sum)
-            sr[,,i] <- sr[,,i] + xx.wt[k]*t(rho.wt[,k]*qd.s)%*%qd.r[[i]]
+            if (ns) sr[,,i] <- sr[,,i] + xx.wt[k]*t(rho.wt[,k]*qd.s)%*%qd.r[[i]]
             for (j in 1:i) {
                 rr.wk <- xx.wt[k]*t(rho.wt[,k]*qd.r[[i]])%*%qd.r[[j]]
                 rr[,,i,j] <- rr[,,i,j] + rr.wk
@@ -89,27 +91,33 @@ project.sscden1 <- function(object,include,...)
         }
     }
     ## evaluate full model
-    d <- object$d[object$id.s]
+    if (ns) d <- object$d[object$id.s]
     c <- object$c
     theta <- object$theta[object$id.r]
     nq <- length(theta)
-    s.eta <- ss%*%d
+    if (ns) s.eta <- ss%*%d
     r.eta <- tmp <- NULL
     r.rho.wk <- sr.wk <- rr.wk <- 0
     for (i in 1:nq) {
         tmp <- c(tmp,10^(2*theta[i])*sum(diag(rr[,,i,i])))
-        s.eta <- s.eta + 10^theta[i]*sr[,,i]%*%c
-        r.eta.wk <- t(sr[,,i])%*%d
+        if (ns) {
+            s.eta <- s.eta + 10^theta[i]*sr[,,i]%*%c
+            if (length(d)==1) r.eta.wk <- sr[,,i]*d
+            else r.eta.wk <- t(sr[,,i])%*%d
+            sr.wk <- sr.wk + 10^theta[i]*sr[,,i]
+        }
+        else r.eta.wk <- 0
         r.rho.wk <- r.rho.wk + 10^theta[i]*r.rho[,i]
-        sr.wk <- sr.wk + 10^theta[i]*sr[,,i]
         for (j in 1:nq) {
             r.eta.wk <- r.eta.wk + 10^theta[j]*rr[,,i,j]%*%c
             rr.wk <- rr.wk + 10^(theta[i]+theta[j])*rr[,,i,j]
         }
         r.eta <- cbind(r.eta,r.eta.wk)
     }
-    rho.eta <- sum(s.rho*d) + sum(r.rho.wk*c)
-    eta2 <- sum(c*(rr.wk%*%c)) + sum(d*(ss%*%d)) + 2*sum(d*(sr.wk%*%c))
+    rho.eta <- sum(r.rho.wk*c)
+    if (ns) rho.eta <- rho.eta + sum(r.rho.wk*c)
+    eta2 <- sum(c*(rr.wk%*%c))
+    if (ns) eta2 <- eta2 + sum(d*(ss%*%d)) + 2*sum(d*(sr.wk%*%c))
     mse <- eta2 + rho2 + 2*rho.eta
     ## extract terms in subspace
     id.s <- id.r <- NULL
@@ -129,19 +137,25 @@ project.sscden1 <- function(object,include,...)
         ##
         id.s0 <- (1:length(object$id.s))[object$id.s%in%id.s]
         id.r0 <- (1:length(object$id.r))[object$id.r%in%id.r]
-        ss.wk <- ss[id.s0,id.s0,drop=FALSE]
+        if (length(id.s0)) ss.wk <- ss[id.s0,id.s0,drop=FALSE]
         if (length(id.r0)) {
             r.eta.wk <- rr.wk <- 0
             sr.wk <- matrix(0,length(id.s),nbasis)
             for (i in 1:length(id.r0)) {
                 r.eta.wk <- r.eta.wk + 10^theta.wk[i]*r.eta[,id.r0[i]]
-                sr.wk <- sr.wk + 10^theta.wk[i]*sr[id.s0,,id.r0[i]]
+                if (length(id.s0)) sr.wk <- sr.wk + 10^theta.wk[i]*sr[id.s0,,id.r0[i]]
                 for (j in 1:length(id.r0)) {
                     rr.wk <- rr.wk + 10^(theta.wk[i]+theta.wk[j])*rr[,,id.r0[i],id.r0[j]]
                 }
             }
-            v <- cbind(rbind(ss.wk,t(sr.wk)),rbind(sr.wk,rr.wk))
-            mu <- c(s.eta[id.s0],r.eta.wk)
+            if (length(id.s0)) {
+                v <- cbind(rbind(ss.wk,t(sr.wk)),rbind(sr.wk,rr.wk))
+                mu <- c(s.eta[id.s0],r.eta.wk)
+            }
+            else {
+                v <- rbind(sr.wk,rr.wk)
+                mu <- r.eta.wk
+            }
         }
         else {
             v <- ss.wk

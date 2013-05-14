@@ -351,7 +351,9 @@ C Output from Public domain Ratfor, version 1.01
       call dscal (nxis, dsqrt(dfloat(cnt(i))), rs(1,i), 1)
       endif
       call dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
+      if(nxis-rkv.gt.0)then
       call dset (nxis-rkv, 0.d0, rs(rkv+1,i), 1)
+      endif
 23132 i=i+1
       goto 23131
 23133 continue
@@ -360,29 +362,29 @@ C Output from Public domain Ratfor, version 1.01
       trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
       lkhd = 0.d0
       i=1
-23138 if(.not.(i.le.nobs))goto 23140
+23140 if(.not.(i.le.nobs))goto 23142
       lkhd = lkhd + dlog (fit(i))
-23139 i=i+1
-      goto 23138
-23140 continue
+23141 i=i+1
+      goto 23140
+23142 continue
       lkhd = lkhd / dfloat (nobs)
       else
       trc = trc / dfloat(cntsum) / (dfloat(cntsum)-1.d0)
       lkhd = 0.d0
       i=1
-23141 if(.not.(i.le.nobs))goto 23143
+23143 if(.not.(i.le.nobs))goto 23145
       lkhd = lkhd + dfloat (cnt(i)) * dlog (fit(i))
-23142 i=i+1
-      goto 23141
-23143 continue
+23144 i=i+1
+      goto 23143
+23145 continue
       lkhd = lkhd / dfloat (cntsum)
       endif
       m=1
-23144 if(.not.(m.le.nt))goto 23146
+23146 if(.not.(m.le.nt))goto 23148
       lkhd = lkhd - bwt(m) * dlog (wtsum(m))
-23145 m=m+1
-      goto 23144
-23146 continue
+23147 m=m+1
+      goto 23146
+23148 continue
       mrs(1) = lkhd
       mrs(2) = trc
       return

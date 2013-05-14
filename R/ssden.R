@@ -78,13 +78,13 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
             quad <- smolyak.quad(dm,qdsz.depth)
             for (i in 1:ncol(domain)) {
                 xlab <- colnames(domain)[i]
-                wk <- mf[[xlab]]
-                jk <- ssden(~wk,domain=data.frame(wk=domain[,i]),alpha=2,
+                form <- as.formula(paste("~",xlab))
+                jk <- ssden(form,data=mf,domain=domain[i],alpha=2,
                             id.basis=id.basis,weights=cnt)
                 quad$pt[,i] <- qssden(jk,quad$pt[,i])
                 quad$wt <- quad$wt/dssden(jk,quad$pt[,i])
             }
-            jk <- wk <- NULL
+            jk <- NULL
             quad$pt <- data.frame(quad$pt)
             colnames(quad$pt) <- colnames(domain)
         }
@@ -105,9 +105,13 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
         for (xlab in names(mf)) {
             x <- mf[[xlab]]
             if (is.vector(x)&!is.factor(x)) {
-                mn <- min(x,quad$pt[[xlab]])
-                mx <- max(x,quad$pt[[xlab]])
-                range <- c(mn,mx)+c(-1,1)*(mx-mn)*.05
+                if (is.null(range <- domain[[xlab]])) {
+                    mn <- min(x)
+                    mx <- max(x)
+                    range <- c(mn,mx)+c(-1,1)*(mx-mn)*.05
+                    range[1] <- min(c(range[1],quad$pt[[xlab]]))
+                    range[2] <- max(c(range[2],quad$pt[[xlab]]))
+                }
                 if (is.null(type[[xlab]]))
                     type[[xlab]] <- list("cubic",range)
                 else {

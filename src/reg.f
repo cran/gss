@@ -160,7 +160,9 @@ C Output from Public domain Ratfor, version 1.01
 23056 if(.not.(i.le.nr))goto 23058
       call dprmut (r(1,i), nn, jpvt, 0)
       call dtrsl (v, nn, nn, r(1,i), 11, infowk)
+      if(nn-rkv.gt.0)then
       call dset (nn-rkv, 0.d0, r(rkv+1,i), 1)
+      endif
       call dtrsl (v, nn, nn, r(1,i), 01, infowk)
       call dprmut (r(1,i), nn, jpvt, 1)
 23057 i=i+1
@@ -169,22 +171,22 @@ C Output from Public domain Ratfor, version 1.01
       call dset (nn*nnull, 0.d0, wk, 1)
       call dset (nnull, 1.d0, wk, nn+1)
       i=1
-23059 if(.not.(i.le.nnull))goto 23061
+23061 if(.not.(i.le.nnull))goto 23063
       call dtrsl (v, nn, nn, wk(1,i), 11, infowk)
-23060 i=i+1
-      goto 23059
-23061 continue
+23062 i=i+1
+      goto 23061
+23063 continue
       i=1
-23062 if(.not.(i.le.nnull))goto 23064
+23064 if(.not.(i.le.nnull))goto 23066
       j=i
-23065 if(.not.(j.le.nnull))goto 23067
+23067 if(.not.(j.le.nnull))goto 23069
       sms(i,j) = ddot (nn, wk(1,i), 1, wk(1,j), 1)
       sms(j,i) = sms(i,j)
-23066 j=j+1
-      goto 23065
-23067 continue
-23063 i=i+1
-      goto 23062
-23064 continue
+23068 j=j+1
+      goto 23067
+23069 continue
+23065 i=i+1
+      goto 23064
+23066 continue
       return
       end

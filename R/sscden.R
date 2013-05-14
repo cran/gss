@@ -42,22 +42,25 @@ sscden <- function(formula,response,type=NULL,data=list(),weights,
     xnames <- vars[!(vars%in%ynames)]
     if (is.null(xnames)) stop("gss error in sscden: missing covariate")
     ## Set ydomain and type
+    mtrx.y <- FALSE
     for (ylab in ynames) {
         y <- mf[[ylab]]
         if (!is.factor(y)) {
-            if (!is.vector(y)) stop("gss error in sscden: can only set domain in 1-D")
-            if (is.null(ydomain[[ylab]])) {
-                mn <- min(y)
-                mx <- max(y)
-                ydomain[[ylab]] <- c(mn,mx)+c(-1,1)*(mx-mn)*.05
+            if (is.vector(y)) {
+                if (is.null(ydomain[[ylab]])) {
+                    mn <- min(y)
+                    mx <- max(y)
+                    ydomain[[ylab]] <- c(mn,mx)+c(-1,1)*(mx-mn)*.05
+                }
+                else ydomain[[ylab]] <- c(min(ydomain[[ylab]]),max(ydomain[[ylab]]))
+                if (is.null(type[[ylab]]))
+                    type[[ylab]] <- list("cubic",ydomain[[ylab]])
+                else {
+                    if (length(type[[ylab]])==1)
+                        type[[ylab]] <- list(type[[ylab]][[1]],ydomain[[ylab]])
+                }
             }
-            else ydomain[[ylab]] <- c(min(ydomain[[ylab]]),max(ydomain[[ylab]]))
-            if (is.null(type[[ylab]]))
-                type[[ylab]] <- list("cubic",ydomain[[ylab]])
-            else {
-                if (length(type[[ylab]])==1)
-                    type[[ylab]] <- list(type[[ylab]][[1]],ydomain[[ylab]])
-            }
+            else mtrx.y <- TRUE
         }
     }
     ydomain <- data.frame(ydomain)
@@ -71,6 +74,7 @@ sscden <- function(formula,response,type=NULL,data=list(),weights,
     term$labels <- term.labels[ind.wk]
     ## Generate quadrature
     if (is.null(yquad)) {
+        if (mtrx.y) stop("gss error in sscden: no default quadrature")
         yquad <- ssden(response,id.basis=id.basis,data=data,weights=cnt,
                        alpha=2,domain=ydomain)$quad
     }
