@@ -86,8 +86,9 @@ ssllrm(formula, response, type=NULL, data=list(), weights, subset,
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Gu, C. and Ma, P. (2009), Log-linear nonparametric regression
-    models.  Manuscript.
+    Gu, C. and Ma, P. (2011), Nonparametric regression with
+    cross-classified responses.  \emph{The Canadian Journal of
+    Statistics}, \bold{39}, 591--609.
 }
 \examples{
 ## Simulate data

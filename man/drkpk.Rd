@@ -77,13 +77,6 @@ mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, random, prec, maxiter, alpha, sk
         mixed-effect models.}
 }
 \references{
-    Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
-    Springer-Verlag.
-
-    Gu, C. and Wang, J. (2003), Penalized likelihood density
-    estimation: Direct cross-validation and scalable approximation.
-    \emph{Statistica Sinica}, \bold{13}, 811--826.
-
     Du, P. and Gu, C. (2006), Penalized likelihood hazard estimation:
     efficient approximation and Bayesian confidence intervals.
     \emph{Statistics and Probability Letters}, \bold{76}, 244--254.
@@ -92,5 +85,12 @@ mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, random, prec, maxiter, alpha, sk
     Estimation: A Fast Alternative to Penalized Likelihood.
     \emph{Journal of Statistical Planning and Inference}, \bold{139},
     891--899.
+
+    Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
+    York: Springer-Verlag.
+
+    Gu, C. and Wang, J. (2003), Penalized likelihood density
+    estimation: Direct cross-validation and scalable approximation.
+    \emph{Statistica Sinica}, \bold{13}, 811--826.
 }
 \keyword{internal}

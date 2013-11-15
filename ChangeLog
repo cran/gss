@@ -1,3 +1,12 @@
+Fri Nov 15 17:19:59 EST 2013, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.0-16.
+
+	* R: i) Bug fix in survexp.sshzd.  ii) Modified default values of
+	qdsz.depth in ssden.
+
+	* man: i) Updated references.  ii) Added note in ssden.Rd.
+
 Wed Oct  9 11:44:05 EDT 2013, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.0-15.

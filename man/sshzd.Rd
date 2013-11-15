@@ -13,6 +13,7 @@ sshzd(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
       subset, offset, na.action=na.omit, partial=NULL, id.basis=NULL,
       nbasis=NULL, seed=NULL, random=NULL, prec=1e-7, maxiter=30,
       skip.iter=FALSE)
+
 sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
        subset, na.action=na.omit, rho=list("marginal"), partial=NULL,
        id.basis=NULL, nbasis=NULL, seed=NULL, random=NULL, prec=1e-7,
@@ -120,9 +121,6 @@ sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
-    Springer-Verlag.
-
     Du, P. and Gu, C. (2006), Penalized likelihood hazard estimation:
     efficient approximation and Bayesian confidence intervals.
     \emph{Statistics and Probability Letters}, \bold{76}, 244--254.
@@ -135,6 +133,9 @@ sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     Du, P. and Ma, S. (2010), Frailty Model with Spline Estimated
     Nonparametric Hazard Function, \emph{Statistica Sinica}, \bold{20},
     561--580.
+    
+    Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
+    York: Springer-Verlag.
 }
 \examples{
 ## Model with interaction

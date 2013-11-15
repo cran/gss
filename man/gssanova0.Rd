@@ -11,6 +11,7 @@
 gssanova0(formula, family, type=NULL, data=list(), weights, subset,
           offset, na.action=na.omit, partial=NULL, method=NULL,
           varht=1, nu=NULL, prec=1e-7, maxiter=30)
+
 gssanova1(formula, family, type=NULL, data=list(), weights, subset,
           offset, na.action=na.omit, partial=NULL, method=NULL,
           varht=1, alpha=1.4, nu=NULL, id.basis=NULL, nbasis=NULL,

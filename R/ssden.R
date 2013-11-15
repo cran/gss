@@ -74,7 +74,7 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
         }
         else {
             ## Smolyak cubature
-            if (is.null(qdsz.depth)) qdsz.depth <- switch(min(dm,6)-1,18,14,10,9,7)
+            if (is.null(qdsz.depth)) qdsz.depth <- switch(min(dm,6)-1,18,14,12,11,10)
             quad <- smolyak.quad(dm,qdsz.depth)
             for (i in 1:ncol(domain)) {
                 xlab <- colnames(domain)[i]

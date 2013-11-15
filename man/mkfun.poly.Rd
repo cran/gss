@@ -56,7 +56,7 @@ mkrk.linear.per(range)
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
-    Springer-Verlag.
+    Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
+    York: Springer-Verlag.
 }
 \keyword{internal}

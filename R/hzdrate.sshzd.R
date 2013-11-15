@@ -197,7 +197,7 @@ function(object,time,covariates=NULL,start=0) {
                 if (length(ind)) {
                     wk <- sum(d.qd[ind]*qd$wt[ind])
                     id.mx <- max(ind)
-                    if (lmt[i,2]<brk[id.mx+1])
+                    if (lmt[i,2]<=brk[id.mx+1])
                         wk <- wk-d.qd[id.mx]*qd$wt[id.mx]*(brk[id.mx+1]-lmt[i,2])/gap[id.mx]
                     else wk <- wk+d.qd[id.mx+1]*qd$wt[id.mx+1]*(lmt[i,2]-brk[id.mx+1])/gap[id.mx+1]
                     id.mn <- min(ind)

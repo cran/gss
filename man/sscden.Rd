@@ -13,6 +13,7 @@ sscden(formula, response, type=NULL, data=list(), weights, subset,
        na.action=na.omit, alpha=1.4, id.basis=NULL, nbasis=NULL,
        seed=NULL, ydomain=as.list(NULL), yquad=NULL, prec=1e-7,
        maxiter=30, skip.iter=FALSE)
+
 sscden1(formula, response, type=NULL, data=list(), weights, subset,
         na.action=na.omit, alpha=1.4, id.basis=NULL, nbasis=NULL,
         seed=NULL, rho=list("xy"), ydomain=as.list(NULL), yquad=NULL,

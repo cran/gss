@@ -37,9 +37,9 @@ ssden1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
         Ignored when \code{id.basis} is specified.}
     \item{domain}{Data frame specifying marginal support of density.}
     \item{quad}{Quadrature for calculating integral.  Mandatory if
-      variables other than factors or numerical vectors are involved.}
+        variables other than factors or numerical vectors are involved.}
     \item{qdsz.depth}{Depth to be used in \code{\link{smolyak.quad}} for
-      the generation of quadrature.}
+        the generation of quadrature.}
     \item{bias}{Input for sampling bias.}
     \item{prec}{Precision requirement for internal iterations.}
     \item{maxiter}{Maximum number of iterations allowed for
@@ -96,6 +96,11 @@ ssden1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     For reasonable execution time in higher dimensions, set
     \code{skip.iter=TRUE} in call to \code{ssden}.
 
+    If you get an error message from \code{ssden} stating \code{"Newton
+    iteration diverges"}, try to use a larger \code{qdsz.depth} which
+    will execute slower, or switch to \code{ssden1}.  The default values
+    of \code{qdsz.depth} for dimensions 4, 5, 6+ are 12, 11, 10.
+
     \code{ssden1} does not involve multi-D quadrature but does not
     perform as well as \code{ssden}.  It can be used in very high
     dimensions where \code{ssden} is infeasible.
@@ -121,8 +126,8 @@ ssden1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Gu, C. (2002), \emph{Smoothing Spline ANOVA Models}.  New York:
-    Springer-Verlag.
+    Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
+    York: Springer-Verlag.
 
     Gu, C. and Wang, J. (2003), Penalized likelihood density
     estimation: Direct cross-validation and scalable approximation.
