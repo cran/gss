@@ -9,7 +9,7 @@ export(cdsscden, cpsscden, cqsscden, cdssden, cpssden, cqssden,
 # export internal functions used in examples
 export(mkterm, mkphi.cubic, mkphi.tp, mkran, mkrk.cubic, mkrk.tp)
 # export internal functions for use in gss2
-export(sspdsty, mspdsty, sspdsty1, mspdsty1, msphzd, msphzd1)
+export(sspdsty, mspdsty, msphzd, msphzd1)
 # register S3 methods
 S3method(fitted, gssanova)
 S3method(fitted, ssanova)

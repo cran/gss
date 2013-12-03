@@ -1,7 +1,7 @@
-b489521fdd0786f5d6d06f94fed4eea8 *ChangeLog
-c6d0ab393b8dba1ab9fdb5600c29793b *DESCRIPTION
+689ee0a8f2e45f8992f841f2ec6924d2 *ChangeLog
+663e0c2db3678fcb0958a98ef370a3c5 *DESCRIPTION
 eca5196595388643c45d01f286cc00c5 *INDEX
-f23c659711a6f054c777d1ea3125d53b *NAMESPACE
+c576f2bac1fb07452a6ec23dda16098b *NAMESPACE
 24a938d7b0fd256e13009b9911b920d6 *R/cdsscden.R
 091c206e07fed9bea67d7800d2bfcbdd *R/cdssden.R
 915b3421114ddcf377a424d7379dae5f *R/dsscden.R
@@ -47,8 +47,8 @@ d81b5893a029041a793643b2254c50f8 *R/sscden1.R
 68d5bf4df137f65d8d5b81110e5a4d72 *R/sscox.R
 aa5d0ae3fe0785af3cb7f0cf7d95bcee *R/ssden.R
 50813e0c624e9163bd68a173030effd3 *R/ssden1.R
-7fd18663d8b8ab4d640c3f68423f549d *R/sshzd.R
-8b61fb03aeadcef0d76261c2599af4a3 *R/sshzd1.R
+816db2e1bfe11fe8c63235da9dab877a *R/sshzd.R
+8191a0191bd549da16cad6ba07f8aded *R/sshzd1.R
 8201a09a4aa65fa1583d461ed2b8a11a *R/ssllrm.R
 1dfdd10b51a4a362e6cfad71c6662eff *R/summary.gssanova.R
 2a622501e271c83a3bb16a67050a8989 *R/summary.gssanova0.R
@@ -119,7 +119,7 @@ f639161a269b5077e789949c6ba73623 *man/ssanova0.Rd
 f99b9de5cdd2dbb6d5dbc42506210fe8 *man/sscden.Rd
 075af90c2d6e528b2d8668e022fe25cd *man/sscox.Rd
 96c922e3dc51b566de7b2d7433a11960 *man/ssden.Rd
-6ee66b2a6441587f2e9fda8282800e82 *man/sshzd.Rd
+72a934f38576787ddc74338c7d6252ac *man/sshzd.Rd
 7976585e4e457d4ec32f21b2d07e56a4 *man/ssllrm.Rd
 c6978a9dac3ca67cbbcbed67eceda37c *man/stan.Rd
 41767c7abd20dce51dbfd84014fb7f0f *man/summary.gssanova.Rd

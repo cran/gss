@@ -1,6 +1,6 @@
 ## Fit hazard model
 sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
-                   weights=NULL,subset,na.action=na.omit,rho=list("marginal"),
+                   weights=NULL,subset,na.action=na.omit,rho="marginal",
                    partial=NULL,id.basis=NULL,nbasis=NULL,seed=NULL,
                    random=NULL,prec=1e-7,maxiter=30,skip.iter=FALSE)
 {
@@ -16,7 +16,7 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
         if (any(start>time))
             stop("gss error in sshzd1: start after follow-up time")
         if (min(start)<0)
-            warning("gss warning in sshzd1: start before time 0")
+            stop("gss error in sshzd1: start before time 0")
         time <- cbind(start,time)
         list(tname=tname,start=time[,1],end=time[,2],status=as.logical(status))
     }
@@ -74,7 +74,9 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
         id.wk <- c(id.wk,(1:nT)[(1:nobs)[yy$status]%in%id.basis[i]])
     }
     ## set domain and type for time
-    tdomain <- c(min(yy$start),max(yy$end))
+    mn <- min(yy$start)
+    mx <- max(yy$end)
+    tdomain <- c(max(mn-.05*(mx-mn),0),mx)
     if (is.null(type[[tname]])) type[[tname]] <- list("cubic",tdomain)
     if (length(type[[tname]])==1) type[[tname]] <- c(type[[tname]],tdomain)
     if (!(type[[tname]][[1]]%in%c("cubic","linear")))
@@ -143,27 +145,20 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     }
     else stop("gss error in sshzd1: missing covariate")
     ## calculate rho
-    if (is.null(rho$fun)) {
-        type <- rho[[1]]
-        if (type=="marginal") {
-            rho <- sshzd(Surv(end,status,start)~end,data=yy,
-                         id.basis=id.basis,weights=cnt,alpha=2)
-            rho.qd <- hzdcurve.sshzd(rho,quad$pt)
-            rhowk <- hzdcurve.sshzd(rho,yy$end[yy$status])
-        }
-        if (type=="weibull") {
-            y.wk <- cbind(yy$end,yy$status,yy$start)
-            form <- as.formula(paste("y.wk~",paste(xnames,collapse="+")))
-            rho <- gssanova(form,family="weibull",partial=partial,data=data,
-                            id.basis=id.basis,weights=cnt,alpha=2)
-            yhat <- predict(rho,rho$mf)
-            rho.qd <- exp(rho$nu*outer(log(quad$pt),yhat[!x.dup.ind],"-"))/quad$pt
-            rhowk <- (exp(rho$nu*(log(yy$end)-yhat))/yy$end)[yy$status]
-        }
+    if (rho=="marginal") {
+        rho.wk <- sshzd(Surv(end,status,start)~end,data=yy,
+                        id.basis=id.basis,weights=cnt,alpha=2)
+        rho.qd <- hzdcurve.sshzd(rho.wk,quad$pt)
+        rhowk <- hzdcurve.sshzd(rho.wk,yy$end[yy$status])
     }
-    else {
-        rho.qd <- rho$fun(quad$pt,x.pt,rho$env,outer=TRUE)
-        rhowk <- rho$fun(yy$end,xx,rho$env,outer=FALSE)[yy$status]
+    if (rho=="weibull") {
+        y.wk <- cbind(yy$end,yy$status,yy$start)
+        form <- as.formula(paste("y.wk~",paste(xnames,collapse="+")))
+        rho.wk <- gssanova(form,family="weibull",partial=partial,data=data,
+                           id.basis=id.basis,weights=cnt,alpha=2)
+        yhat <- predict(rho.wk,rho.wk$mf)
+        rho.qd <- exp(rho.wk$nu*outer(log(quad$pt),yhat[!x.dup.ind],"-"))/quad$pt
+        rhowk <- (exp(rho.wk$nu*(log(yy$end)-yhat))/yy$end)[yy$status]
     }
     ## integration weights at x.pt[i,]
     qd.wt <- matrix(0,nmesh,nx)

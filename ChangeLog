@@ -1,3 +1,12 @@
+Tue Dec  3 01:02:41 EST 2013, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.1-0.
+
+	* R: i) Changed time domain specification in sshzd/sshzd1.  ii)
+	Removed from sshzd1 the option of external rho.
+
+	* man: Minor edit in sshzd.Rd.
+
 Fri Nov 15 17:19:59 EST 2013, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.0-16.

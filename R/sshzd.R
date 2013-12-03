@@ -16,7 +16,7 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
         if (any(start>time))
             stop("gss error in sshzd: start after follow-up time")
         if (min(start)<0)
-            warning("gss warning in sshzd: start before time 0")
+            stop("gss error in sshzd: start before time 0")
         time <- cbind(start,time)
         list(tname=tname,start=time[,1],end=time[,2],status=as.logical(status))
     }
@@ -70,7 +70,9 @@ sshzd <- function(formula,type=NULL,data=list(),alpha=1.4,
         id.wk <- c(id.wk,(1:nT)[(1:nobs)[yy$status]%in%id.basis[i]])
     }
     ## set domain and type for time
-    tdomain <- c(min(yy$start),max(yy$end))
+    mn <- min(yy$start)
+    mx <- max(yy$end)
+    tdomain <- c(max(mn-.05*(mx-mn),0),mx)
     if (is.null(type[[tname]])) type[[tname]] <- list("cubic",tdomain)
     if (length(type[[tname]])==1) type[[tname]] <- c(type[[tname]],tdomain)
     if (!(type[[tname]][[1]]%in%c("cubic","linear")))
