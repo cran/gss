@@ -278,12 +278,14 @@ sspcox <- function(s,r,q,cnt,qd.s,qd.r,qd.wt,prec,maxiter,alpha,random,bias)
         cv <- (zz$min-cv.shift)/cv.scale
     }
     else {
+        mn0 <- log.la0-6
+        mx0 <- log.la0+6
         repeat {
-            mn <- la-1
-            mx <- la+1
-            if (mx>log.la0+6) break
+            mn <- max(la-1,mn0)
+            mx <- min(la+1,mx0)
             zz <- nlm0(cv,c(mn,mx))
-            if (min(zz$est-mn,mx-zz$est)>=1e-3) break
+            if ((min(zz$est-mn,mx-zz$est)>=1e-1)||
+                (min(zz$est-mn0,mx0-zz$est)<1e-1)) break
             else la <- zz$est
         }
         cv <- zz$min

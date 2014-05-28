@@ -184,7 +184,7 @@ sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     ## lambda search
     dc <- rep(0,nn)
     fit <- NULL
-    la <- log.la0 - 1
+    la <- log.la0
     if (nu[[2]]) la <- c(la, log(nu[[1]]))
     if (!is.null(random)) la <- c(la,random$init)
     if (length(la)-1) {
@@ -213,11 +213,14 @@ sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         }
     }
     else {
+        mn0 <- log.la0-6
+        mx0 <- log.la0+6
         repeat {
-            mn <- la-2
-            mx <- la+1
+            mn <- max(la-1,mn0)
+            mx <- min(la+1,mx0)
             zz <- nlm0(cv,c(mn,mx))
-            if (min(zz$est-mn,mx-zz$est)>=1e-3) break
+            if ((min(zz$est-mn,mx-zz$est)>=1e-1)||
+                (min(zz$est-mn0,mx0-zz$est)<1e-1)) break
             else la <- zz$est
         }
     }
@@ -406,8 +409,6 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
     eta <- sr%*%dc
     if (!is.null(offset)) eta <- eta + offset
     if ((family=="nbinomial")&is.vector(y)) y <- cbind(y,nu[[1]])
-    iter <- 0
-    flag <- 0
     dev <- switch(family,
                   binomial=dev.resid.binomial(y,eta,wt),
                   nbinomial=dev.resid.nbinomial(y,eta,wt),
@@ -419,6 +420,27 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
                   loglogis=dev0.resid.loglogis(y,eta,wt,nu[[1]]))
     dev <- sum(dev) + t(cc)%*%q%*%cc
     ## Newton iteration
+    dc.new <- eta.new <- NULL
+    dev.line <- function(x) {
+        assign("dc.new",dc+x*dc.diff,inherits=TRUE)
+        cc <- dc.new[nnull+(1:nxi)]
+        eta.wk <- as.vector(sr%*%dc.new)
+        if (!is.null(offset)) eta.wk <- eta.wk + offset
+        assign("eta.new",eta.wk,inherits=TRUE)
+        dev.wk <- switch(family,
+                         binomial=dev.resid.binomial(y,eta.new,wt),
+                         nbinomial=dev.resid.nbinomial(y,eta.new,wt),
+                         poisson=dev.resid.poisson(y,eta.new,wt),
+                         Gamma=dev.resid.Gamma(y,eta.new,wt),
+                         inverse.gaussian=dev.resid.inverse.gaussian(y,eta.new,wt),
+                         weibull=dev.resid.weibull(y,eta.new,wt,nu[[1]]),
+                         lognorm=dev0.resid.lognorm(y,eta.new,wt,nu[[1]]),
+                         loglogis=dev0.resid.loglogis(y,eta.new,wt,nu[[1]]))
+        sum(dev.wk) + t(cc)%*%q%*%cc
+    }
+    iter <- 0
+    flag <- 0
+    flag2 <- 0
     repeat {
         iter <- iter+1
         dat <- switch(family,
@@ -431,12 +453,25 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
                       lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
                       loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
         ## weighted least squares fit
+        mumax <- 2*max(abs(t(sr)%*%dat$u+c(rep(0,nnull),q%*%dc[nnull+(1:nxi)])))
         w <- as.vector(sqrt(dat$wt))
         ywk <- w*dat$ywk
         srwk <- w*sr
         if (!is.finite(sum(w,ywk,srwk))) {
             if (flag) stop("gss error in gssanova: Newton iteration diverges")
+            dc <- rep(0,nn)
             eta <- rep(0,nobs)
+            if (!is.null(offset)) eta <- eta + offset
+            dev <- switch(family,
+                          binomial=dev.resid.binomial(y,eta,wt),
+                          nbinomial=dev.resid.nbinomial(y,eta,wt),
+                          poisson=dev.resid.poisson(y,eta,wt),
+                          Gamma=dev.resid.Gamma(y,eta,wt),
+                          inverse.gaussian=dev.resid.inverse.gaussian(y,eta,wt),
+                          weibull=dev.resid.weibull(y,eta,wt,nu[[1]]),
+                          lognorm=dev0.resid.lognorm(y,eta,wt,nu[[1]]),
+                          loglogis=dev0.resid.loglogis(y,eta,wt,nu[[1]]))
+            dev <- sum(dev)
             iter <- 0
             flag <- 1
             next
@@ -452,31 +487,36 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
                       double(max(nobs,nn)), integer(1), integer(1),
                       PACKAGE="gss")["dc"]
         dc.diff <- z$dc-dc
-        adj <- 0
         repeat {
-            dc.new <- dc + dc.diff
-            cc <- dc.new[nnull+(1:nxi)]
-            eta.new <- as.vector(sr%*%dc.new)
-            if (!is.null(offset)) eta.new <- eta.new + offset
-            dev.new <- switch(family,
-                              binomial=dev.resid.binomial(y,eta.new,wt),
-                              nbinomial=dev.resid.nbinomial(y,eta.new,wt),
-                              poisson=dev.resid.poisson(y,eta.new,wt),
-                              Gamma=dev.resid.Gamma(y,eta.new,wt),
-                              inverse.gaussian=dev.resid.inverse.gaussian(y,eta.new,wt),
-                              weibull=dev.resid.weibull(y,eta.new,wt,nu[[1]]),
-                              lognorm=dev0.resid.lognorm(y,eta.new,wt,nu[[1]]),
-                              loglogis=dev0.resid.loglogis(y,eta.new,wt,nu[[1]]))
-            dev.new <- sum(dev.new) + t(cc)%*%q%*%cc
-            if (!is.finite(dev.new)) dev.new <- Inf
-            if (dev.new-dev<(1+abs(dev))*1e-1) break
-            adj <- 1
-            dc.diff <- dc.diff/2
+            dev.new <- dev.line(1)
+            if (!is.finite(dev.new)) {
+                dc.diff <- dc.diff/2
+                next
+            }
+            if (!flag2) {
+                if (dev.new-dev<1e-7*(1+abs(dev))) break
+            }
+            zz <- nlm0(dev.line,c(0,1),1e-3)
+            dev.new <- dev.line(zz$est)
+            break
         }
+        disc0 <- max((mumax/(1+eta))^2,abs(eta.new-eta)/(1+eta))
         disc <- sum(dat$wt*((eta-eta.new)/(1+abs(eta)))^2)/sum(dat$wt)
         if (!is.finite(disc)) {
             if (flag) stop("gss error in gssanova: Newton iteration diverges")
+            dc <- rep(0,nn)
             eta <- rep(0,nobs)
+            if (!is.null(offset)) eta <- eta + offset
+            dev <- switch(family,
+                          binomial=dev.resid.binomial(y,eta,wt),
+                          nbinomial=dev.resid.nbinomial(y,eta,wt),
+                          poisson=dev.resid.poisson(y,eta,wt),
+                          Gamma=dev.resid.Gamma(y,eta,wt),
+                          inverse.gaussian=dev.resid.inverse.gaussian(y,eta,wt),
+                          weibull=dev.resid.weibull(y,eta,wt,nu[[1]]),
+                          lognorm=dev0.resid.lognorm(y,eta,wt,nu[[1]]),
+                          loglogis=dev0.resid.loglogis(y,eta,wt,nu[[1]]))
+            dev <- sum(dev)
             iter <- 0
             flag <- 1
             next
@@ -484,18 +524,15 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
         dc <- dc.new
         eta <- eta.new
         dev <- dev.new
-        if (adj) next
-        if (disc<1e-7) break
+        if (min(disc0,disc)<1e-7) break
         if (iter<=30) next
-        if (!flag) {
-            eta <- rep(0,nobs)
+        if (!flag2) {
+            flag2 <- 1
             iter <- 0
-            flag <- 1
+            next
         }
-        else {
-            warning("gss warning in gssanova: Newton iteration fails to converge")
-            break
-        }
+        warning("gss warning in gssanova: Newton iteration fails to converge")
+        break
     }
     ## calculate cv
     dat <- switch(family,

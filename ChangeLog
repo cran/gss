@@ -1,3 +1,11 @@
+Wed May 28 11:25:14 EDT 2014, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.1-1.
+
+	* R: i) Tuned Newton iteration algorithms in ngreg and ngreg.proj.
+	ii) Bug fixes in routines involving univariate minimization via
+	nlm0.  iii) Minor changes in makedata.x's.
+
 Tue Dec  3 01:02:41 EST 2013, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.1-0.

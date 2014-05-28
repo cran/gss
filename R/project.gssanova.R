@@ -172,9 +172,6 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
     nxi <- ncol(q)
     nnull <- nn-nxi
     if (!is.null(offset)) eta <- eta + offset
-    iter <- 0
-    flag <- 0
-    adj <- 0
     fit1 <- switch(family,
                    binomial=proj0.binomial(y0,eta,offset),
                    poisson=proj0.poisson(y0,eta,wt,offset),
@@ -184,14 +181,37 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                    weibull=proj0.weibull(y0,eta,wt,offset,nu),
                    lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
                    loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
-    kl <- fit1$kl
+    kl <- fit1$kl+t(dc[-(1:nnull)])%*%q%*%dc[-(1:nnull)]/2
     ## Newton iteration
+    dc.new <- eta.new <- NULL
+    kl.line <- function(x) {
+        assign("dc.new",dc+x*dc.diff,inherits=TRUE)
+        eta.wk <- sr%*%dc.new
+        if (!is.null(offset)) eta.wk <- eta.wk + offset
+        assign("eta.new",eta.wk,inherits=TRUE)
+        fit.wk <- switch(family,
+                         binomial=proj0.binomial(y0,eta.new,offset),
+                         poisson=proj0.poisson(y0,eta.new,wt,offset),
+                         Gamma=proj0.Gamma(y0,eta.new,wt,offset),
+                         inverse.gaussian=proj0.inverse.gaussian(y0,eta.new,wt,offset),
+                         nbinomial=proj0.nbinomial(y0,eta.new,wt,offset),
+                         weibull=proj0.weibull(y0,eta.new,wt,offset,nu),
+                         lognorm=proj0.lognorm(y0,eta.new,wt,offset,nu),
+                         loglogis=proj0.loglogis(y0,eta.new,wt,offset,nu))
+        assign("fit1",fit.wk,inherits=TRUE)
+        fit1$kl+t(dc.new[-(1:nnull)])%*%q%*%dc.new[-(1:nnull)]/2
+    }
+    iter <- 0
+    flag <- 0
+    flag2 <- 0
     repeat {
-        if (!adj) iter <- iter+1
+        iter <- iter+1
         ## weighted least squares fit
         if (!is.finite(sum(fit1$wt,fit1$ywk))) {
             if (flag) stop("gss error in project.gssanova: Newton iteration diverges")
+            dc <- rep(0,nn)
             eta <- rep(0,nobs)
+            if (!is.null(offset)) eta <- eta + offset
             fit1 <- switch(family,
                            binomial=proj0.binomial(y0,eta,offset),
                            poisson=proj0.poisson(y0,eta,wt,offset),
@@ -218,31 +238,26 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                       double(max(nobs,nn)), integer(1), integer(1),
                       PACKAGE="gss")["dc"]
         dc.diff <- z$dc-dc
-        adj <- 0
         repeat {
-            dc.new <- dc + dc.diff
-            eta.new <- sr%*%dc.new
-            if (!is.null(offset)) eta.new <- eta.new + offset
-            fit1 <- switch(family,
-                           binomial=proj0.binomial(y0,eta.new,offset),
-                           poisson=proj0.poisson(y0,eta.new,wt,offset),
-                           Gamma=proj0.Gamma(y0,eta.new,wt,offset),
-                           inverse.gaussian=proj0.inverse.gaussian(y0,eta.new,wt,offset),
-                           nbinomial=proj0.nbinomial(y0,eta.new,wt,offset),
-                           weibull=proj0.weibull(y0,eta.new,wt,offset,nu),
-                           lognorm=proj0.lognorm(y0,eta.new,wt,offset,nu),
-                           loglogis=proj0.loglogis(y0,eta.new,wt,offset,nu))
-            kl.new <- fit1$kl
-            if (!is.finite(kl.new)) kl.new <- Inf
-            if (kl.new-kl<(1e-4+abs(kl))*1e-1) break
-            adj <- 1
-            dc.diff <- dc.diff/2
+            kl.new <- kl.line(1)
+            if (!is.finite(kl.new)) {
+                dc.diff <- dc.diff/2
+                next
+            }
+            if (!flag2) {
+                if (kl.new-kl<1e-7*(1+abs(kl))) break
+            }
+            zz <- nlm0(kl.line,c(0,1),1e-3)
+            kl.new <- kl.line(zz$est)
+            break
         }
         disc0 <- max((mumax/(1+kl))^2,abs(kl.new-kl)/(1+kl))
         disc <- sum(fit1$wt*((eta-eta.new)/(1+abs(eta)))^2)/sum(fit1$wt)
         if (is.nan(disc)) {
             if (flag) stop("gss error in project.gssanova: Newton iteration diverges")
+            dc <- rep(0,nn)
             eta <- rep(0,nobs)
+            if (!is.null(offset)) eta <- eta + offset
             fit1 <- switch(family,
                            binomial=proj0.binomial(y0,eta,offset),
                            poisson=proj0.poisson(y0,eta,wt,offset),
@@ -260,11 +275,14 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
         dc <- dc.new
         eta <- eta.new
         kl <- kl.new
-        if (adj) next
-        if (disc0<1e-5) break
-        if (disc<1e-5) break
+        if (min(disc0,disc)<1e-5) break
         if (iter<=30) next
-        warning("gss warning in project.gssanova: Newton iteration fails to converge")
+        if (!flag2) {
+            flag2 <- 1
+            iter <- 0
+            next
+        }
+        warning("gss warning in gssanova: Newton iteration fails to converge")
         break
     }
     fit1 <- switch(family,

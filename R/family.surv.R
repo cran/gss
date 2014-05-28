@@ -25,7 +25,7 @@ mkdata.weibull <- function(y,eta,wt,offset,nu)
     w <- nu[[1]]^2*(xx^nu[[1]]-zz^nu[[1]])*exp(-nu[[1]]*eta)
     ywk <- eta-u/w-offset
     wt <- w*wt
-    list(ywk=ywk,wt=wt,nu=nu)
+    list(ywk=ywk,wt=wt,nu=nu,u=u*wt)
 }
 
 ## Calculate deviance residuals for Weibull regression
@@ -92,7 +92,7 @@ mkdata.lognorm <- function(y,eta,wt,offset,nu)
     w <- ifelse(w<1e-6,1e-6,w)
     ywk <- eta-u/w-offset
     wt <- w*wt
-    list(ywk=ywk,wt=wt,nu=nu)
+    list(ywk=ywk,wt=wt,nu=nu,u=u*wt)
 }
 
 ## Calculate deviance residuals for log normal regression
@@ -203,7 +203,7 @@ mkdata.loglogis <- function(y,eta,wt,offset,nu)
     w <- pmax(w,1e-6)
     ywk <- eta-u/w-offset
     wt <- w*wt
-    list(ywk=ywk,wt=wt,nu=nu)
+    list(ywk=ywk,wt=wt,nu=nu,u=u*wt)
 }
 
 ## Calculate deviance residuals for log logistic regression

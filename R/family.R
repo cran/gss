@@ -21,7 +21,7 @@ mkdata.binomial <- function(y,eta,wt,offset)
     w <- p*(1-p)
     ywk <- eta-u/w-offset
     wt <- w*wt
-    list(ywk=ywk,wt=wt)
+    list(ywk=ywk,wt=wt,u=u*wt)
 }
 
 ## Calculate deviance residuals for logistic regression
@@ -78,7 +78,7 @@ mkdata.poisson <- function(y,eta,wt,offset)
     w <- lambda
     ywk <- eta-u/w-offset
     wt <- w*wt
-    list(ywk=ywk,wt=wt)
+    list(ywk=ywk,wt=wt,u=u*wt)
 }
 
 ## Calculate deviance residuals for Poisson regression
@@ -121,7 +121,7 @@ mkdata.Gamma <- function(y,eta,wt,offset)
     mu <- exp(eta)
     u <- 1-y/mu
     ywk <- eta-u-offset
-    list(ywk=ywk,wt=wt)
+    list(ywk=ywk,wt=wt,u=u*wt)
 }
 
 ## Calculate deviance residuals for Gamma regression
@@ -165,7 +165,7 @@ mkdata.inverse.gaussian <- function(y,eta,wt,offset)
     w <- 1/mu
     ywk <- eta-u/w-offset
     wt <- w*wt
-    list(ywk=ywk,wt=wt)
+    list(ywk=ywk,wt=wt,u=u*wt)
 }
 
 ## Calculate deviance residuals for IG regression
@@ -234,7 +234,7 @@ mkdata.nbinomial <- function(y,eta,wt,offset,nu)
         w <- nu*(1-p)
         ywk <- eta-u/w-offset
         wt <- w*wt
-        list(ywk=ywk,wt=wt,nu=nu)
+        list(ywk=ywk,wt=wt,nu=nu,u=u*wt)
     }
 }
 
