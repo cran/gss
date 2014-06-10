@@ -82,11 +82,15 @@ ssanova0(formula, type=NULL, data=list(), weights, subset,
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
-    York: Springer-Verlag.
-    
     Wahba, G. (1990), \emph{Spline Models for Observational Data}.
     Philadelphia: SIAM.
+
+    Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
+    York: Springer-Verlag.
+
+    Chong Gu (2014), Smoothing Spline ANOVA Models: R Package gss.
+    \emph{Journal of Statistical Software}, 58(5), 1-25. URL
+    http://www.jstatsoft.org/v58/i05/.
 }
 \examples{
 ## Fit a cubic spline

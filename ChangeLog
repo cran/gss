@@ -1,3 +1,11 @@
+Tue Jun 10 18:52:28 EDT 2014, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.1-2.
+
+	* inst: created the directory and added CITATION.
+
+	* man: Updated references.
+
 Wed May 28 11:25:14 EDT 2014, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.1-1.

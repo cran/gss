@@ -118,6 +118,13 @@ para.arma(fit)
 \references{
     Han, C. and Gu, C. (2008), Optimal smoothing with correlated data,
     \emph{Sankhya}, \bold{70-A}, 38--72.
+
+    Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
+    York: Springer-Verlag.
+
+    Chong Gu (2014), Smoothing Spline ANOVA Models: R Package gss.
+    \emph{Journal of Statistical Software}, 58(5), 1-25. URL
+    http://www.jstatsoft.org/v58/i05/.
 }
 \examples{
 x <- runif(100); y <- 5 + 3*sin(2*pi*x) + rnorm(x)

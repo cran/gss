@@ -118,8 +118,8 @@ ssanova(formula, type=NULL, data=list(), weights, subset, offset,
 }
 \author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
-    Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
-    York: Springer-Verlag.
+    Wahba, G. (1990), \emph{Spline Models for Observational Data}.
+    Philadelphia: SIAM.
 
     Gu, C. and Wahba, G. (1991), Minimizing GCV/GML scores with multiple
     smoothing parameters via the Newton method.  \emph{SIAM Journal on
@@ -130,8 +130,12 @@ ssanova(formula, type=NULL, data=list(), weights, subset, offset,
     \emph{Journal of the Royal Statistical Society, Ser. B}, \bold{66},
     337--356.
     
-    Wahba, G. (1990), \emph{Spline Models for Observational Data}.
-    Philadelphia: SIAM.
+    Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
+    York: Springer-Verlag.
+
+    Chong Gu (2014), Smoothing Spline ANOVA Models: R Package gss.
+    \emph{Journal of Statistical Software}, 58(5), 1-25. URL
+    http://www.jstatsoft.org/v58/i05/.
 }
 \examples{
 ## Fit a cubic spline

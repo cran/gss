@@ -88,7 +88,11 @@ ssllrm(formula, response, type=NULL, data=list(), weights, subset,
 \references{
     Gu, C. and Ma, P. (2011), Nonparametric regression with
     cross-classified responses.  \emph{The Canadian Journal of
-    Statistics}, \bold{39}, 591--609.
+      Statistics}, \bold{39}, 591--609.
+
+    Chong Gu (2014), Smoothing Spline ANOVA Models: R Package gss.
+    \emph{Journal of Statistical Software}, 58(5), 1-25. URL
+    http://www.jstatsoft.org/v58/i05/.
 }
 \examples{
 ## Simulate data

@@ -157,6 +157,13 @@ gssanova1(formula, family, type=NULL, data=list(), weights, subset,
 \references{
     Gu, C. (1992), Cross-validating non Gaussian data. \emph{Journal
 	of Computational and Graphical Statistics}, \bold{1}, 169-179.
+
+    Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
+    York: Springer-Verlag.
+
+    Chong Gu (2014), Smoothing Spline ANOVA Models: R Package gss.
+    \emph{Journal of Statistical Software}, 58(5), 1-25. URL
+    http://www.jstatsoft.org/v58/i05/.
 }
 \examples{
 ## Fit a cubic smoothing spline logistic regression model

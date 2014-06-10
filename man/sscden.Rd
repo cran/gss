@@ -114,6 +114,10 @@ sscden1(formula, response, type=NULL, data=list(), weights, subset,
     Gu, C. (1995), Smoothing spline density estimation: Conditional
     distribution.  \emph{Statistica Sinica}, \bold{5}, 709--726.
     Springer-Verlag.
+
+    Chong Gu (2014), Smoothing Spline ANOVA Models: R Package gss.
+    \emph{Journal of Statistical Software}, 58(5), 1-25. URL
+    http://www.jstatsoft.org/v58/i05/.
 }
 \examples{
 data(penny); set.seed(5732)
