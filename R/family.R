@@ -16,9 +16,10 @@ mkdata.binomial <- function(y,eta,wt,offset)
         wt <- wt * (y[,1]+y[,2])
         y <- y[,1]/(y[,1]+y[,2])
     }
-    p <- 1-1/(1+exp(eta))
+    odds <- exp(eta)
+    p <- odds/(1+odds)
     u <- p - y
-    w <- p*(1-p)
+    w <- p/(1+odds)
     ywk <- eta-u/w-offset
     wt <- w*wt
     list(ywk=ywk,wt=wt,u=u*wt)
@@ -33,9 +34,9 @@ dev.resid.binomial <- function(y,eta,wt)
         wt <- wt * (y[,1]+y[,2])
         y <- y[,1]/(y[,1]+y[,2])
     }
-    p <- 1-1/(1+exp(eta))
-    as.vector(2*wt*(y*log(ifelse(y==0,1,y/p))
-                    +(1-y)*log(ifelse(y==1,1,(1-y)/(1-p)))))
+    odds <- exp(eta)
+    as.vector(2*wt*(y*log(ifelse(y==0,1,y*(1+odds)/odds))
+                    +(1-y)*log(ifelse(y==1,1,(1-y)*(1+odds)))))
 }
 
 ## Calculate null deviance for logistic regression
@@ -48,19 +49,21 @@ dev.null.binomial <- function(y,wt,offset)
         y <- y[,1]/(y[,1]+y[,2])
     }
     p <- sum(wt*y)/sum(wt)
+    odds <- p/(1-p)
     if (!is.null(offset)) {
-        eta <- log(p/(1-p)) - mean(offset)
+        eta <- log(odds) - mean(offset)
         repeat {
-            p <- 1-1/(1+exp(eta+offset))
+            odds <- exp(eta+offset)
+            p <- odds/(1+odds)
             u <- p - y
-            w <- p*(1-p)
+            w <- p/(1+odds)
             eta.new <- eta-sum(wt*u)/sum(wt*w)
             if (abs(eta-eta.new)/(1+abs(eta))<1e-7) break
             eta <- eta.new    
         }
     }
-    sum(2*wt*(y*log(ifelse(y==0,1,y/p))
-              +(1-y)*log(ifelse(y==1,1,(1-y)/(1-p)))))
+    sum(2*wt*(y*log(ifelse(y==0,1,y*(1+odds)/odds))
+              +(1-y)*log(ifelse(y==1,1,(1-y)*(1+odds)))))
 }
 
 

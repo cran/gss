@@ -17,11 +17,12 @@ cv.binomial <- function(y,eta,wt,hat,alpha)
         y <- y[,1]/m
     }
     wtt <- wt * m
-    p <- 1-1/(1+exp(eta))
-    w <- p*(1-p)
-    lkhd <- -sum(wtt*(y*eta+log(1-p)))/sum(wtt)
+    odds <- exp(eta)
+    p <- odds/(1+odds)
+    w <- p/(1+odds)
+    lkhd <- -sum(wtt*(y*eta-log(1+odds)))/sum(wtt)
     aux1 <- sum(hat/w)/(sum(wtt)-sum(hat))
-    aux2 <- sum(wtt*y*(1-p))/sum(wtt)
+    aux2 <- sum(wtt*y/(1+odds))/sum(wtt)
     list(score=lkhd+abs(alpha)*aux1*aux2,varht=1,w=as.vector(wtt*w))
 }
 

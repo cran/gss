@@ -2,25 +2,29 @@
 y0.binomial <- function(y,eta0,wt)
 {
     if (is.matrix(y)) wt <- wt * (y[,1]+y[,2])
-    p <- plogis(eta0)
-    list(p=p,eta=eta0,wt=wt)
+    odds <- exp(eta0)
+    p <- odds/(1+odds)
+    q <- 1/(1+odds)
+    list(p=p,q=q,eta=eta0,wt=wt)
 }
 proj0.binomial <- function(y0,eta,offset)
 {
     if (is.null(offset)) offset <- rep(0,length(eta))
-    p <- plogis(eta)
+    odds <- exp(eta)
+    p <- odds/(1+odds)
     u <- p - y0$p
-    w <- p*(1-p)
+    w <- p/(1+odds)
     ywk <- eta-u/w-offset
     wt <- w*y0$wt
-    kl <- sum(y0$wt*(y0$p*(y0$eta-eta)+log((1-y0$p)/(1-p))))/sum(y0$wt)
+    kl <- sum(y0$wt*(y0$p*(y0$eta-eta)+log(y0$q*(1+odds))))/sum(y0$wt)
     list(ywk=ywk,wt=wt,kl=kl,u=wt*u)
 }
 kl.binomial <- function(eta0,eta1,wt)
 {
-    p0 <- plogis(eta0)
-    p1 <- plogis(eta1)
-    sum(wt*(p0*(eta0-eta1)+log((1-p0)/(1-p1))))/sum(wt)
+    odds0 <- exp(eta0)
+    odds1 <- exp(eta1)
+    p0 <- odds0/(1+odds0)
+    sum(wt*(p0*(eta0-eta1)+log((1+odds1)/(1+odds0))))/sum(wt)
 }
 cfit.binomial <- function(y,wt,offset)
 {
@@ -34,9 +38,10 @@ cfit.binomial <- function(y,wt,offset)
     else {
         eta <- qlogis(p)-mean(offset)
         repeat {
-            p <- plogis(eta+offset)
+            odds <- exp(eta+offset)
+            p <- odds/(1+odds)
             u <- p - y
-            w <- p*(1-p)
+            w <- p/(1+odds)
             eta.new <- eta-sum(wt*u)/sum(wt*w)
             if (abs(eta-eta.new)/(1+abs(eta))<1e-7) break
             eta <- eta.new    
