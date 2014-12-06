@@ -212,18 +212,22 @@ mkdata.nbinomial <- function(y,eta,wt,offset,nu)
             stop("gss error: negative binomial response should be nonnegative")
         if (min(y[,2])<=0)
             stop("gss error: negative binomial size should be positive")
-        p <- 1-1/(1+exp(eta))
-        u <- (y[,1]+y[,2])*p-y[,2]
-        w <- y[,2]*(1-p)
+        odds <- exp(eta)
+        p <- odds/(1+odds)
+        q <- 1/(1+odds)
+        u <- y[,1]*p-y[,2]*q
+        w <- y[,2]*q
         ywk <- eta-u/w-offset
         wt <- w*wt
-        list(ywk=ywk,wt=wt)
+        list(ywk=ywk,wt=wt,u=u*wt)
     }
     else {
         if (min(y)<0)
             stop("gss error: negative binomial response should be nonnegative")
-        p <- 1-1/(1+exp(eta))
-        if (is.null(nu)) log.nu <- log(mean(y*exp(eta)))
+        odds <- exp(eta)
+        p <- odds/(1+odds)
+        q <- 1/(1+odds)
+        if (is.null(nu)) log.nu <- log(mean(y*odds))
         else log.nu <- log(nu)
         repeat {
             nu <- exp(log.nu)
@@ -233,8 +237,8 @@ mkdata.nbinomial <- function(y,eta,wt,offset,nu)
             if (abs(log.nu-log.nu.new)/(1+abs(log.nu))<1e-7) break
             log.nu <- log.nu.new
         }
-        u <- (y+nu)*p-nu
-        w <- nu*(1-p)
+        u <- y*p-nu*q
+        w <- nu*q
         ywk <- eta-u/w-offset
         wt <- w*wt
         list(ywk=ywk,wt=wt,nu=nu,u=u*wt)
@@ -245,8 +249,10 @@ mkdata.nbinomial <- function(y,eta,wt,offset,nu)
 dev.resid.nbinomial <- function(y,eta,wt)
 {
     if (is.null(wt)) wt <- rep(1,dim(y)[1])
-    p <- 1-1/(1+exp(eta))
-    as.vector(2*wt*(y[,1]*log(ifelse(y[,1]==0,1,y[,1]/(y[,1]+y[,2])/(1-p)))
+    odds <- exp(eta)
+    p <- odds/(1+odds)
+    q <- 1/(1+odds)
+    as.vector(2*wt*(y[,1]*log(ifelse(y[,1]==0,1,y[,1]/(y[,1]+y[,2])/q))
                     +y[,2]*log(y[,2]/(y[,1]+y[,2])/p)))
 }
 
@@ -258,14 +264,16 @@ dev.null.nbinomial <- function(y,wt,offset)
     if (!is.null(offset)) {
         eta <- log(p/(1-p)) - mean(offset)
         repeat {
-            p <- 1-1/(1+exp(eta+offset))
-            u <- (y[,1]+y[,2])*p-y[,2]
-            w <- y[,2]*(1-p)
+            odds <- exp(eta+offset)
+            p <- odds/(1+odds)
+            q <- 1/(1+odds)
+            u <- y[,1]*p-y[,2]*q
+            w <- y[,2]*q
             eta.new <- eta-sum(wt*u)/sum(wt*w)
             if (abs(eta-eta.new)/(1+abs(eta))<1e-7) break
             eta <- eta.new    
         }
     }
-    sum(2*wt*(y[,1]*log(ifelse(y[,1]==0,1,y[,1]/(y[,1]+y[,2])/(1-p)))
+    sum(2*wt*(y[,1]*log(ifelse(y[,1]==0,1,y[,1]/(y[,1]+y[,2])/q))
               +y[,2]*log(y[,2]/(y[,1]+y[,2])/p)))
 }

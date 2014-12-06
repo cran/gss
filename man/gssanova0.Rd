@@ -161,8 +161,8 @@ gssanova1(formula, family, type=NULL, data=list(), weights, subset,
     Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
     York: Springer-Verlag.
 
-    Chong Gu (2014), Smoothing Spline ANOVA Models: R Package gss.
-    \emph{Journal of Statistical Software}, 58(5), 1-25. URL
+    GU, C. (2014), Smoothing Spline ANOVA Models: R Package
+    gss. \emph{Journal of Statistical Software}, 58(5), 1-25. URL
     http://www.jstatsoft.org/v58/i05/.
 }
 \examples{

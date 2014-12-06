@@ -168,9 +168,11 @@ y0.nbinomial <- function(y,eta0,nu)
 proj0.nbinomial <- function(y0,eta,wt,offset)
 {
     if (is.null(offset)) offset <- rep(0,length(eta))
-    p <- plogis(eta)
-    u <- (y0$mu+y0$nu)*p-y0$nu
-    w <- (y0$mu+y0$nu)*p*(1-p)
+    odds <- exp(eta)
+    p <- odds/(1+odds)
+    q <- 1/(1+odds)
+    u <- y0$mu*p-y0$nu*q
+    w <- (y0$mu+y0$nu)*p*q
     ywk <- eta-u/w-offset
     kl <- sum(wt*((y0$nu+y0$mu)*log((1+exp(eta))/(1+exp(y0$eta)))
                    +y0$nu*(y0$eta-eta)))/sum(wt)
@@ -193,9 +195,11 @@ cfit.nbinomial <- function(y,wt,offset,nu)
     else {
         eta <- qlogis(p)-mean(offset)
         repeat {
-            p <- plogis(eta+offset)
-            u <- (y+nu)*p-nu
-            w <- (y+nu)*p*(1-p)
+            odds <- exp(eta+offset)
+            p <- odds/(1+odds)
+            q <- 1/(1+odds)
+            u <- y*p-nu*q
+            w <- (y+nu)*p*q
             eta.new <- eta-sum(wt*u)/sum(wt*w)
             if (abs(eta-eta.new)/(1+abs(eta))<1e-7) break
             eta <- eta.new    

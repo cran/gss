@@ -115,7 +115,7 @@ sscden1(formula, response, type=NULL, data=list(), weights, subset,
     distribution.  \emph{Statistica Sinica}, \bold{5}, 709--726.
     Springer-Verlag.
 
-    Chong Gu (2014), Smoothing Spline ANOVA Models: R Package gss.
+    Gu, C. (2014), Smoothing Spline ANOVA Models: R Package gss.
     \emph{Journal of Statistical Software}, 58(5), 1-25. URL
     http://www.jstatsoft.org/v58/i05/.
 }

@@ -1,3 +1,11 @@
+Sat Dec  6 10:36:46 EST 2014, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.1-4.
+
+	* R: Along with a bug fix, edited utility functions for the
+	nbinomial family in the gssanova suite, eliminating unnecessary
+	subtractions to preserve numerical precision.
+
 Mon Jul 21 00:14:45 EDT 2014, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.1-3.

@@ -110,10 +110,12 @@ cv.nbinomial <- function(y,eta,wt,hat,alpha)
         stop("gss error: negative binomial response should be nonnegative")
     if (min(y[,2])<=0)
         stop("gss error: negative binomial size should be positive")
-    p <- 1-1/(1+exp(eta))
-    u <- (y[,1]+y[,2])*p-y[,2]
-    w <- y[,2]*(1-p)
-    lkhd <- sum(wt*(-(y[,1]+y[,2])*log(1-p)-y[,2]*eta))/sum(wt)
+    odds <- exp(eta)
+    p <- odds/(1+odds)
+    q <- 1/(1+odds)
+    u <- y[,1]*p-y[,2]*q
+    w <- y[,2]*q
+    lkhd <- sum(wt*(-(y[,1]+y[,2])*log(q)-y[,2]*eta))/sum(wt)
     lkhd <- lkhd+sum(wt*(lgamma(y[,2])-lgamma(y[,1]+y[,2])))/sum(wt)
     aux1 <- sum(hat/w)/(sum(wt)-sum(hat))
     aux2 <- sum(wt*y[,1]*p*u)/sum(wt)
