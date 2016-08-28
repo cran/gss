@@ -1,7 +1,7 @@
 C Output from Public domain Ratfor, version 1.0
       subroutine dgold (vmu, q, ldq, n, z, low, upp, nlaht, score, varht
      *, info, twk, work)
-      character*1 vmu
+      character vmu
       integer ldq, n, info
       double precision q(ldq,*), z(*), low, upp, nlaht, score, varht, tw
      *k(2,*), work(*)

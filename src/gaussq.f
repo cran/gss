@@ -303,8 +303,8 @@ c
 c     ------------------------------------------------------------------
 c
       integer i, j, k, l, m, n, ii, mml, ierr
-      real*8 d(n), e(n), z(n), b, c, f, g, p, r, s, machep
-      real*8 dsqrt, dabs, dsign, d1mach
+      double precision d(n), e(n), z(n), b, c, f, g, p, r, s, machep
+      double precision dsqrt, dabs, dsign, d1mach
 c
       machep=d1mach(4)
 c

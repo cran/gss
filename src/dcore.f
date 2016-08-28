@@ -1,7 +1,7 @@
 C Output from Public domain Ratfor, version 1.0
       subroutine dcore (vmu, q, ldq, nobs, nnull, tol, z, job, limnla, n
      *laht, score, varht, info, twk, work)
-      character*1 vmu
+      character vmu
       integer ldq, nobs, nnull, job, info
       double precision q(ldq,*), tol, z(*), limnla(2), nlaht, score(*), 
      *varht, twk(2,*), work(*)

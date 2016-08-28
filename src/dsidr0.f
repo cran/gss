@@ -5,7 +5,7 @@ C Output from Public domain Ratfor, version 1.0
       integer lds, nobs, nnull, ldq, job, jpvt(*), info
       double precision s(lds,*), y(*), q(ldq,*), tol, limnla(2), nlaht, 
      *score(*), varht, c(*), d(*), qraux(*), wk(*)
-      character*1 vmu1
+      character vmu1
       if( vmu .eq. 1 )then
       vmu1 = 'v'
       endif

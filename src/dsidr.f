@@ -1,7 +1,7 @@
 C Output from Public domain Ratfor, version 1.0
       subroutine dsidr (vmu, s, lds, nobs, nnull, y, q, ldq, tol, job, l
      *imnla, nlaht, score, varht, c, d, qraux, jpvt, wk, info)
-      character*1 vmu
+      character vmu
       integer lds, nobs, nnull, ldq, job, jpvt(*), info
       double precision s(lds,*), y(*), q(ldq,*), tol, limnla(2), nlaht, 
      *score(*), varht, c(*), d(*), qraux(*), wk(*)

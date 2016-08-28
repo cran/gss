@@ -6,7 +6,7 @@ C Output from Public domain Ratfor, version 1.0
       integer lds, nobs, nnull, ldqr, ldqc, nq, init, maxite, info
       double precision s(lds,*), q(ldqr,ldqc,*), y(*), tol, prec, theta(
      **), nlaht, score, varht, c(*), d(*), wk(*)
-      character*1 vmu1
+      character vmu1
       if( vmu .eq. 1 )then
       vmu1 = 'v'
       endif

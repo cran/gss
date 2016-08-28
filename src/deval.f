@@ -1,7 +1,7 @@
 C Output from Public domain Ratfor, version 1.0
       subroutine deval (vmu, q, ldq, n, z, nint, low, upp, nlaht, score,
      * varht, info, twk, work)
-      character*1 vmu
+      character vmu
       integer ldq, n, nint, info
       double precision q(ldq,*), z(*), low, upp, nlaht, score(*), varht,
      * twk(2,*), work(*)

@@ -1,6 +1,6 @@
 C Output from Public domain Ratfor, version 1.0
       subroutine dtrev (vmu, t, ldt, n, z, score, varht, info, work)
-      character*1 vmu
+      character vmu
       integer n, info
       double precision t(ldt,*), z(*), score, varht, work(*)
       double precision nume, deno, tmp, alph, la, dasum, ddot
