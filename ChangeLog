@@ -1,3 +1,15 @@
+Thu Feb 23 20:55:02 EST 2017, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.1-7.
+
+	* R: i) Added mkran1 and modified mkran to allow for multiple
+	terms of random effects.  ii) Added predict1.ssanova to allow for
+	the evaluation of f(x1)-f(x2) along with standard errors.  iii)
+	Bug fixes in project.ssanova and summary.ssanova involving random
+	effects.
+
+	* man: Updated to reflect changes in R.
+
 Sun Aug 28 09:47:18 EDT 2016, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.1-6.

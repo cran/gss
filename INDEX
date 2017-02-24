@@ -1,6 +1,7 @@
 ## SSANOVA, GSSANOVA, SSDEN, SSCDEN, SSLLRM, SSHZD, AND SSCOX SUITES
 ssanova                     Fitting smoothing spline ANOVA models
 predict.ssanova             Predicting from ssanova fits
+predict1.ssanova            Predicting from ssanova fits
 summary.ssanova             Summarizing ssanova fits
 project.ssanova             Projecting ssanova fits for model diagnostic
 ssanova9                    Fitting smoothing spline ANOVA models with correlated data
@@ -93,6 +94,7 @@ mkrk.nominal                Making RK function for nominal factors
 mkrk.ordinal                Making RK function for ordinal factors
 
 mkran                       Generating random effects in mixed-effect models
+mkran1                      Combining random effects in mixed-effect models
 
 mkcov.arma                  Making covariance function for ARMA models
 mkcov.long                  Making covariance function for longitudinal data

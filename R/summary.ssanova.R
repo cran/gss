@@ -43,8 +43,8 @@ summary.ssanova <- function(object,diagnostics=FALSE,...)
         for (label in c(object$terms$labels,labels.p)) {
             if (label=="1") next
             if (label=="offset") next
-            comp <- cbind(comp,predict(object,mf,inc=label))
-            jk <- sum(obj.wk$c*predict(obj.wk,mf[object$id.basis,],inc=label))
+            comp <- cbind(comp,predict(object,object$mf,inc=label))
+            jk <- sum(obj.wk$c*predict(obj.wk,obj.wk$mf[object$id.basis,],inc=label))
             p.dec <- c(p.dec,10^object$nlambda*jk)
         }
         term.label <- object$terms$labels[object$terms$labels!="1"]

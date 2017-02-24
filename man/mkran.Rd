@@ -1,5 +1,6 @@
 \name{mkran}
 \alias{mkran}
+\alias{mkran1}
 \title{
     Generating Random Effects in Mixed-Effect Models
 }
@@ -8,19 +9,22 @@
 }
 \usage{
 mkran(formula, data)
+mkran1(ran1, ran2)
 }
 \arguments{
     \item{formula}{Symbolic description of the random effects.}
     \item{data}{Data frame containing the variables in the model.}
+    \item{ran1}{Random effects in the form of the value of \code{mkran}}.
+    \item{ran2}{Random effects in the form of the value of \code{mkran}}.
 }
 \details{
-    This function generates random effect terms from simple grouping
+    \code{mkran} generates random effect terms from simple grouping
     variables, for use in nonparametric mixed-effect models as described
     in Gu and Ma (2005a, b).  The syntax of the formula resembles that
     of similar utilities for linear and nonlinear mixed-effect models,
     as described in Pinheiro and Bates (2000).
 
-    Currently, \code{mkran} takes only two kinds of formulas,
+    Currently, \code{mkran} takes only two kinds of basic formulas,
     \code{~1|grp2} or \code{~grp1|grp2}.  Both \code{grp1} and
     \code{grp2} should be factors, and for the second formula, the
     levels of \code{grp2} should be nested under those of \code{grp1}.
@@ -33,6 +37,15 @@ mkran(formula, data)
     parameter.  For \code{~grp1|grp2}, the number of parameters equals
     the number of levels of \code{grp1}, with each parameter shared by
     the \code{grp2} levels nested under the same \code{grp1} level.
+
+    \code{mkran1} adds together two independent random effects, and can
+    be used recursively to add more than two terms.  The arguments are
+    of the form of the value of \code{mkran} or \code{mkran1}, which may
+    or may not be created by \code{mkran} or \code{mkran1}.
+
+    Multiple terms of random effects can also be specified via the likes
+    of \code{mkran(~1|grp1+1|grp2,data)}, which is equivalent to
+    \code{mkran1(mkran(~1|grp1,data),mkran(~1|grp2,data))}.
 }
 \value{
     A list of three components.

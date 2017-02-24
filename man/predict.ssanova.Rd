@@ -1,6 +1,8 @@
 \name{predict.ssanova}
 \alias{predict.ssanova}
 \alias{predict.ssanova0}
+\alias{predict1}
+\alias{predict1.ssanova}
 \title{Predicting from Smoothing Spline ANOVA Fits}
 \description{
     Evaluate terms in a smoothing spline ANOVA fit at arbitrary points.
@@ -12,6 +14,8 @@
                           include=c(object$terms$labels,object$lab.p), ...)
 \method{predict}{ssanova0}(object, newdata, se.fit=FALSE,
                            include=c(object$terms$labels,object$lab.p), ...)
+\method{predict1}{ssanova}(object, contr=c(1,-1), newdata, se.fit=TRUE,
+                           include=c(object$terms$labels,object$lab.p), ...)
 }
 \arguments{
     \item{object}{Object of class inheriting from \code{"ssanova"}.}
@@ -20,6 +24,7 @@
     \item{include}{List of model terms to be included in the
 	prediction.  The \code{offset} term, if present, is to be
 	specified by \code{"offset"}.}
+    \item{contr}{Contrast coefficients.}
     \item{...}{Ignored.}
 }
 \value{
@@ -37,6 +42,11 @@
     To supply the Z matrix, add a component \code{random=I(...)} in
     \code{newdata}, where the as-is function \code{I(...)} preserves the
     integrity of the Z matrix in data frame.
+
+    \code{predict1.ssanova} takes a list of data frames in
+    \code{newdata} representing x1, x2, etc.  By default, it calculates
+    f(x1)-f(x2) along with standard errors.  While pairwise contrast is
+    the targeted application, all linear combinations can be computed.
 }
 \seealso{
     Fitting functions \code{\link{ssanova}}, \code{\link{ssanova0}},

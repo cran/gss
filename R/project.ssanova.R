@@ -10,7 +10,7 @@ project.ssanova <- function(object,include,...)
     labels.p <- object$lab.p
     ## evaluate full model
     mf <- object$mf
-    yy <- predict(object,mf)
+    yy <- fitted(object)
     wt <- model.weights(object$mf)
     if (!is.null(wt)) wt.wk <- sqrt(wt)
     offset <- model.offset(object$mf)

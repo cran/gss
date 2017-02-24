@@ -1,18 +1,19 @@
 useDynLib(gss)
 # export user functions
-importFrom(stats, as.formula, dnorm, model.frame, model.matrix,
-           model.offset, model.response, model.weights, na.omit,
-           nlm, pnorm, predict, qlogis, quantile, residuals,
+importFrom(stats, as.formula, dnorm, fitted, model.frame,
+           model.matrix, model.offset, model.response, model.weights,
+           na.omit, nlm, pnorm, predict, qlogis, quantile, residuals,
            terms, terms.formula, var)
 export(cdsscden, cpsscden, cqsscden, cdssden, cpssden, cqssden,
        dsscden, dssden, gauss.quad, gssanova, gssanova0,
        gssanova1, hzdcurve.sshzd, hzdrate.sshzd, nlm0, para.arma,
-       project, psscden, pssden, qsscden, qssden, smolyak.quad,
-       smolyak.size, ssanova, ssanova0, ssanova9, sscden, sscden1,
-       sscox, ssden, ssden1, sshzd, sshzd1, ssllrm, survexp.sshzd)
+       predict1, project, psscden, pssden, qsscden, qssden,
+       smolyak.quad, smolyak.size, ssanova, ssanova0, ssanova9,
+       sscden, sscden1, sscox, ssden, ssden1, sshzd, sshzd1, ssllrm,
+       survexp.sshzd)
 # export internal functions used in examples
-export(mkterm, mkphi.cubic, mkphi.tp, mkran, mkrk.cubic, mkrk.tp)
-# export internal functions for use in gss2
+export(mkterm, mkphi.cubic, mkphi.tp, mkran, mkran1, mkrk.cubic, mkrk.tp)
+# export internal functions for use in gsscopu
 export(sspdsty, mspdsty, msphzd, msphzd1)
 export(ngreg.proj)
 # register S3 methods
@@ -22,6 +23,7 @@ S3method(predict, ssanova)
 S3method(predict, ssanova0)
 S3method(predict, sscox)
 S3method(predict, ssllrm)
+S3method(predict1, ssanova)
 S3method(print, gssanova)
 S3method(print, ssanova)
 S3method(print, ssanova0)
