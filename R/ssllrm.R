@@ -63,9 +63,12 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
         xx <- cbind(xx,random$z)
     }
     xx <- apply(xx,1,function(x)paste(x,collapse="\r"))
-    x.dup.ind <- duplicated(xx)    
-    if (!is.null(cnt)) xx <- rep(xx,cnt)
-    xx.wt <- as.vector(table(xx)[unique(xx)])
+    x.dup.ind <- duplicated(xx)
+    if (!is.null(cnt)) {
+        xx.wt <- NULL
+        for (x.wk in unique(xx)) xx.wt <- c(xx.wt,sum(cnt[xx==x.wk]))
+    }
+    else xx.wt <- as.vector(table(xx)[unique(xx)])
     xx.wt <- xx.wt/sum(xx.wt)
     nx <- length(xx.wt)
     ## Generate Random
@@ -228,7 +231,7 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
                         cd=as.double(cd), as.integer(nn),
                         as.double(q.wk0), as.integer(nxiz),
                         as.double(t(cbind(r.wk,s))), as.integer(nobs),
-                        as.integer(sum(cnt)), as.integer(cnt),
+                        as.integer(sum(cnt)), as.double(cnt),
                         as.double(qd.r.wk), as.integer(nqd), as.integer(nx),
                         as.double(xx.wt),
                         as.double(prec), as.integer(maxiter),
@@ -289,7 +292,7 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
                         cd=as.double(cd), as.integer(nn),
                         as.double(q.wk0), as.integer(nxiz),
                         as.double(t(cbind(r.wk0,s))), as.integer(nobs),
-                        as.integer(sum(cnt)), as.integer(cnt),
+                        as.integer(sum(cnt)), as.double(cnt),
                         as.double(qd.r.wk0), as.integer(nqd), as.integer(nx),
                         as.double(xx.wt),
                         as.double(prec), as.integer(maxiter),

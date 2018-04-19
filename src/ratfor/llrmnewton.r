@@ -6,8 +6,9 @@
 subroutine  llrmnewton (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt,
                         prec, maxiter, mchpr, jpvt, wk, info)
 
-integer  nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, maxiter, jpvt(*), info
-double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), xxwt(*), prec, mchpr, wk(*)
+integer  nxis, nxi, nobs, cntsum, nqd, nx, maxiter, jpvt(*), info
+double precision  cd(*), q(nxi,*), rs(nxis,*), cnt(*), qdrs(nqd,nxis,*), xxwt(*),
+                  prec, mchpr, wk(*)
 
 integer  iwt, iwtsum, imrs, ifit, imu, imuwk, iv, ivwk, icdnew, iwtnew, iwtnewsum,
          ifitnew, iwk
@@ -44,16 +45,18 @@ subroutine  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx,
                          prec, maxiter, mchpr, wt, wtsum, mrs, fit, mu, muwk,
                          v, vwk, jpvt, cdnew, wtnew, wtnewsum, fitnew, wk, info)
 
-integer  nxis, nxi, nobs, cntsum, cnt(*), nqd, nx, maxiter, jpvt(*), info
-double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), xxwt(*), prec, mchpr,
-                  wt(nqd,*), wtsum(*), mrs(*), fit(*), mu(*), muwk(*), v(nxis,*),
+integer  nxis, nxi, nobs, cntsum, nqd, nx, maxiter, jpvt(*), info
+double precision  cd(*), q(nxi,*), rs(nxis,*), cnt(*), qdrs(nqd,nxis,*), xxwt(*), prec,
+                  mchpr, wt(nqd,*), wtsum(*), mrs(*), fit(*), mu(*), muwk(*), v(nxis,*),
                   vwk(nxis,*), cdnew(*), wtnew(nqd,*), wtnewsum(*), fitnew(*), wk(*)
 
 integer  i, j, k, kk, iter, flag, rkv, idamax, infowk
-double precision  norm, tmp, ddot, fitmean, lkhd, mumax, lkhdnew, disc, disc0, trc
+double precision  cnt1, norm, tmp, ddot, fitmean, lkhd, mumax, lkhdnew, disc, disc0, trc
 
 #   Calculate constants
 info = 0
+cnt1 = 0.d0
+for (j=1;j<=nobs;j=j+1)  cnt1 = cnt1 + cnt(j)
 for (i=1;i<=nxis;i=i+1) {
     mrs(i) = 0.d0
     if (cntsum==0) {
@@ -61,12 +64,12 @@ for (i=1;i<=nxis;i=i+1) {
         mrs(i) = mrs(i) / dfloat (nobs)
     }
     else {
-        for (j=1;j<=nobs;j=j+1)  mrs(i) = mrs(i) + rs(i,j) * dfloat (cnt(j))
-        mrs(i) = mrs(i) / dfloat (cntsum)
+        for (j=1;j<=nobs;j=j+1)  mrs(i) = mrs(i) + rs(i,j) * cnt(j)
+        mrs(i) = mrs(i) / cnt1
     }
 }
 if (cntsum==0)  trc = 1.d0 / dfloat (nobs)
-else  trc = 1.d0 / dfloat (cntsum)
+else  trc = 1.d0 / cnt1
 #   Initialization
 norm = 0.d0
 for (kk=1;kk<=nx;kk=kk+1) {
@@ -81,7 +84,7 @@ fitmean = 0.d0
 for (i=1;i<=nobs;i=i+1) {
     tmp = ddot (nxis, rs(1,i), 1, cd, 1)
     fit(i) = dexp (tmp)
-    if (cntsum!=0)  tmp = tmp * dfloat (cnt(i))
+    if (cntsum!=0)  tmp = tmp * cnt(i)
     fitmean = fitmean + tmp
 }
 call  dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
@@ -149,7 +152,7 @@ repeat {
                     break
                 }
                 fitnew(i) = dexp (tmp)
-                if (cntsum!=0)  tmp = tmp * dfloat (cnt(i))
+                if (cntsum!=0)  tmp = tmp * cnt(i)
                 fitmean = fitmean + tmp
             }
             call  dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
@@ -221,7 +224,7 @@ repeat {
 for (i=1;i<=nobs;i=i+1) {
     call  daxpy (nxis, -1.d0, mrs, 1, rs(1,i), 1)
     call  dprmut (rs(1,i), nxis, jpvt, 0)
-    if (cntsum!=0)  call  dscal (nxis, dsqrt(dfloat(cnt(i))), rs(1,i), 1)
+    if (cntsum!=0)  call  dscal (nxis, dsqrt(cnt(i)), rs(1,i), 1)
     call  dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
 }
 trc = ddot (nobs*nxis, rs, 1, rs, 1)
@@ -232,10 +235,10 @@ if (cntsum==0) {
     lkhd = lkhd / dfloat (nobs)
 }
 else {
-    trc = trc / dfloat(cntsum) / (dfloat(cntsum)-1.d0)
+    trc = trc / cnt1 / (cnt1-1.d0)
     lkhd = 0.d0
-    for (i=1;i<=nobs;i=i+1)  lkhd = lkhd + dfloat (cnt(i)) * dlog (fit(i))
-    lkhd = lkhd / dfloat (cntsum)
+    for (i=1;i<=nobs;i=i+1)  lkhd = lkhd + cnt(i) * dlog (fit(i))
+    lkhd = lkhd / cnt1
 }
 for (kk=1;kk<=nx;kk=kk+1)  lkhd = lkhd - xxwt(kk) * dlog (wtsum(kk))
 wtsum(1) = lkhd

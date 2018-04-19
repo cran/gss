@@ -3,7 +3,7 @@ useDynLib(gss)
 importFrom(stats, as.formula, dnorm, fitted, model.frame,
            model.matrix, model.offset, model.response, model.weights,
            na.omit, nlm, pnorm, predict, qlogis, quantile, residuals,
-           terms, terms.formula, var)
+           terms, terms.formula, var, runif)
 export(cdsscden, cpsscden, cqsscden, cdssden, cpssden, cqssden,
        dsscden, dssden, gauss.quad, gssanova, gssanova0,
        gssanova1, hzdcurve.sshzd, hzdrate.sshzd, nlm0, para.arma,

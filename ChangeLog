@@ -1,3 +1,9 @@
+Wed Apr 18 11:46:02 EDT 2018, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.1-8.
+
+	* R: Edited ssllrm to allow for non-integer weights.
+
 Thu Feb 23 20:55:02 EST 2017, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.1-7.
