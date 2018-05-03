@@ -36,7 +36,8 @@ sspcox(s, r, q, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, random, bias)
 mspcox(s, r, id.basis, cnt, qd.s, qd.r, qd.wt, prec, maxiter, alpha, random, bias,
        skip.iter)
 
-mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, random, prec, maxiter, alpha, skip.iter)
+mspllrm(s, r, id.basis, cnt, qd.s, qd.r, xx.wt, qd.wt, random, prec, maxiter, alpha,
+        skip.iter)
 }
 \details{
     \code{sspdsty} is used by \code{\link{ssden}} to compute

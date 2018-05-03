@@ -4,11 +4,11 @@
 #::::::::::::::::
 
 subroutine  llrmnewton (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt,
-                        prec, maxiter, mchpr, jpvt, wk, info)
+                        qdwt, prec, maxiter, mchpr, jpvt, wk, info)
 
 integer  nxis, nxi, nobs, cntsum, nqd, nx, maxiter, jpvt(*), info
 double precision  cd(*), q(nxi,*), rs(nxis,*), cnt(*), qdrs(nqd,nxis,*), xxwt(*),
-                  prec, mchpr, wk(*)
+                  qdwt(*), prec, mchpr, wk(*)
 
 integer  iwt, iwtsum, imrs, ifit, imu, imuwk, iv, ivwk, icdnew, iwtnew, iwtnewsum,
          ifitnew, iwk
@@ -27,7 +27,7 @@ iwtnewsum = iwtnew + nqd*nx
 ifitnew = iwtnewsum + nx
 iwk = ifitnew + nobs
 
-call  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt,
+call  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt, qdwt,
                    prec, maxiter, mchpr, wk(iwt), wk(iwtsum), wk(imrs), wk(ifit),
                    wk(imu), wk(imuwk), wk(iv), wk(ivwk), jpvt, wk(icdnew),
                    wk(iwtnew), wk(iwtnewsum), wk(ifitnew), wk(iwk), info)
@@ -42,21 +42,24 @@ end
 #:::::::::::::::::
 
 subroutine  llrmnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, qdrs, nqd, nx, xxwt,
-                         prec, maxiter, mchpr, wt, wtsum, mrs, fit, mu, muwk,
+                         qdwt, prec, maxiter, mchpr, wt, wtsum, mrs, fit, mu, muwk,
                          v, vwk, jpvt, cdnew, wtnew, wtnewsum, fitnew, wk, info)
 
 integer  nxis, nxi, nobs, cntsum, nqd, nx, maxiter, jpvt(*), info
-double precision  cd(*), q(nxi,*), rs(nxis,*), cnt(*), qdrs(nqd,nxis,*), xxwt(*), prec,
-                  mchpr, wt(nqd,*), wtsum(*), mrs(*), fit(*), mu(*), muwk(*), v(nxis,*),
-                  vwk(nxis,*), cdnew(*), wtnew(nqd,*), wtnewsum(*), fitnew(*), wk(*)
+double precision  cd(*), q(nxi,*), rs(nxis,*), cnt(*), qdrs(nqd,nxis,*), xxwt(*), qdwt(*),
+                  prec, mchpr, wt(nqd,*), wtsum(*), mrs(*), fit(*), mu(*), muwk(*),
+                  v(nxis,*), vwk(nxis,*), cdnew(*), wtnew(nqd,*), wtnewsum(*), fitnew(*),
+                  wk(*)
 
 integer  i, j, k, kk, iter, flag, rkv, idamax, infowk
 double precision  cnt1, norm, tmp, ddot, fitmean, lkhd, mumax, lkhdnew, disc, disc0, trc
 
 #   Calculate constants
 info = 0
-cnt1 = 0.d0
-for (j=1;j<=nobs;j=j+1)  cnt1 = cnt1 + cnt(j)
+if (cntsum!=0) {
+    cnt1 = 0.d0
+    for (j=1;j<=nobs;j=j+1)  cnt1 = cnt1 + cnt(j)
+}
 for (i=1;i<=nxis;i=i+1) {
     mrs(i) = 0.d0
     if (cntsum==0) {
@@ -75,7 +78,7 @@ norm = 0.d0
 for (kk=1;kk<=nx;kk=kk+1) {
     wtsum(kk) = 0.d0
     for (i=1;i<=nqd;i=i+1) {
-        wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1))
+        wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1)) * qdwt(i)
         wtsum(kk) = wtsum(kk) + wt(i,kk)
     }
     norm = norm + xxwt(kk) * dlog (wtsum(kk))
@@ -138,7 +141,7 @@ repeat {
         for (kk=1;kk<=nx;kk=kk+1) {
             wtnewsum(kk) = 0.d0
             for (i=1;i<=nqd;i=i+1) {
-                wtnew(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cdnew, 1))
+                wtnew(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cdnew, 1)) * qdwt(i)
                 wtnewsum(kk) = wtnewsum(kk) + wtnew(i,kk)
             }
             norm = norm + xxwt(kk) * dlog (wtnewsum(kk))
@@ -161,12 +164,13 @@ repeat {
         #   Reset iteration with uniform starting value
         if (flag==1) {
             call  dset (nxis, 0.d0, cd, 1)
-            tmp = dfloat (nqd)
-            call  dset (nqd*nx, 1.d0, wt, 1)
+            for (kk=1;kk<=nx;kk=kk+1)
+                call  dcopy (nqd, qdwt, 1, wt(1,kk), 1)
+            tmp = 0.d0
+            for (i=1;i<=nqd;i=i+1) tmp = tmp + qdwt(i)
             call  dset (nx, tmp, wtsum, 1)
-            call  dset (nobs, 1.d0/tmp, fit, 1)
-            fitmean = - dlog (tmp)
-            lkhd = - fitmean
+            call  dset (nobs, 1.d0, fit, 1)
+            lkhd = 0.d0
             iter = 0
             break
         }
@@ -206,12 +210,13 @@ repeat {
     if (flag==0) {
         #   Reset iteration with uniform starting value
         call  dset (nxis, 0.d0, cd, 1)
-        tmp = dfloat (nqd)
-        call  dset (nqd*nx, 1.d0, wt, 1)
+        for (kk=1;kk<=nx;kk=kk+1)
+            call  dcopy (nqd, qdwt, 1, wt(1,kk), 1)
+        tmp = 0.d0
+        for (i=1;i<=nqd;i=i+1) tmp = tmp + qdwt(i)
         call  dset (nx, tmp, wtsum, 1)
-        call  dset (nobs, 1.d0/tmp, fit, 1)
-        fitmean = - dlog (tmp)
-        lkhd = - fitmean
+        call  dset (nobs, 1.d0, fit, 1)
+        lkhd = 0.d0
         iter = 0
         flag = 2
     }
@@ -252,11 +257,11 @@ end
 #   llrmaux
 #:::::::::::::
 
-subroutine  llrmaux (cd, nxis, q, nxi, qdrs, nqd, nx, xxwt, mchpr, wt, wtsum,
+subroutine  llrmaux (cd, nxis, q, nxi, qdrs, nqd, nx, xxwt, qdwt, mchpr, wt, wtsum,
                      mu, v, vwk, jpvt)
 
 integer  nxis, nxi, nqd, nx, jpvt(*)
-double precision  cd(*), q(nxi,*), qdrs(nqd,nxis,*), xxwt(*), mchpr, wt(nqd,*),
+double precision  cd(*), q(nxi,*), qdrs(nqd,nxis,*), xxwt(*), qdwt(*), mchpr, wt(nqd,*),
                   wtsum(*), mu(*), v(nxis,*), vwk(nxis,*)
 
 integer  i, j, k, kk, rkv
@@ -266,7 +271,7 @@ double precision  ddot
 for (kk=1;kk<=nx;kk=kk+1) {
     wtsum(kk) = 0.d0
     for (i=1;i<=nqd;i=i+1) {
-        wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1))
+        wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1)) * qdwt(i)
         wtsum(kk) = wtsum(kk) + wt(i,kk)
     }
 }
@@ -305,12 +310,12 @@ end
 #   llrmrkl
 #::::::::::::
 
-subroutine  llrmrkl (cd, nxis, qdrs, nqd, nx, xxwt, wt0, offset, mchpr,
+subroutine  llrmrkl (cd, nxis, qdrs, nqd, nx, xxwt, qdwt, wt0, offset, mchpr,
                      wt, wtnew, mu, muwk, v, vwk, jpvt, cdnew,
                      prec, maxiter, info)
 
 integer  nxis, nqd, nx, jpvt(*), maxiter, info
-double precision  cd(*), qdrs(nqd,nxis,*), xxwt(*), wt0(nqd,*), offset(nqd,*),
+double precision  cd(*), qdrs(nqd,nxis,*), xxwt(*), qdwt(*), wt0(nqd,*), offset(nqd,*),
                   mchpr, wt(nqd,*), wtnew(nqd,*), mu(*), muwk(*), v(nxis,*),
                   vwk(nxis,*), cdnew(*), prec
 
@@ -321,7 +326,7 @@ double precision  ddot, dasum, rkl, tmp, mumax, rklnew, disc, disc0
 #   Initialization
 for (kk=1;kk<=nx;kk=kk+1) {
     for (i=1;i<=nqd;i=i+1) {
-        wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1) + offset(i,kk))
+        wt(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cd, 1) + offset(i,kk)) * qdwt(i)
     }
     call  dscal (nqd, 1.d0/dasum(nqd,wt(1,kk),1), wt(1,kk), 1)
 }
@@ -368,7 +373,7 @@ repeat {
         call  daxpy (nxis, 1.d0, cd, 1, cdnew, 1)
         for (kk=1;kk<=nx;kk=kk+1) {
             for (i=1;i<=nqd;i=i+1) {
-                wtnew(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cdnew, 1) + offset(i,kk))
+                wtnew(i,kk) = dexp (ddot (nxis, qdrs(i,1,kk), nqd, cdnew, 1) + offset(i,kk)) * qdwt(i)
             }
             call  dscal (nqd, 1.d0/dasum(nqd,wtnew(1,kk),1), wtnew(1,kk), 1)
         }
@@ -385,7 +390,7 @@ repeat {
             call  dset (nxis, 0.d0, cd, 1)
             for (kk=1;kk<=nx;kk=kk+1) {
                 for (i=1;i<=nqd;i=i+1) {
-                    wt(i,kk) = dexp (offset(i,kk))
+                    wt(i,kk) = dexp (offset(i,kk)) * qdwt(i)
                 }
                 call  dscal (nqd, 1.d0/dasum(nqd,wt(1,kk),1), wt(1,kk), 1)
             }
@@ -430,7 +435,12 @@ repeat {
     if (flag==0) {
         #   Reset iteration with uniform starting value
         call  dset (nxis, 0.d0, cd, 1)
-        call  dset (nqd*nx, 1.d0/dfloat(nqd), wt, 1)
+        for (kk=1;kk<=nx;kk=kk+1) {
+            for (i=1;i<=nqd;i=i+1) {
+                wt(i,kk) = dexp (offset(i,kk)) * qdwt(i)
+            }
+            call  dscal (nqd, 1.d0/dasum(nqd,wt(1,kk),1), wt(1,kk), 1)
+        }
         rkl = 0.d0
         for (kk=1;kk<=nx;kk=kk+1) {
             tmp = 0.d0

@@ -7,8 +7,8 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
     ## Obtain model frame and model terms
     mf <- match.call()
     mf$response <- mf$type <- mf$alpha <- NULL
-    mf$id.basis <- mf$nbasis <- mf$seed <- NULL
-    mf$random <- mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
+    mf$id.basis <- mf$nbasis <- mf$seed <- mf$random <- NULL
+    mf$prec <- mf$maxiter <- mf$skip.iter <- NULL
     term.wk <- terms.formula(formula)
     ynames <- as.character(attr(terms(response),"variables"))[-1]
     mf[[1]] <- as.name("model.frame")
@@ -47,10 +47,24 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
     term$labels <- term.labels[ind.wk]
     ## Generate quadrature
     qd.pt <- data.frame(levels(mf[,ynames[1]]))
+    if (is.null(cnt)) wt.wk <- table(mf[,ynames[1]])
+    else {
+        wt.wk <- NULL
+        for (lvl in levels(mf[,ynames[1]]))
+          wt.wk <- c(wt.wk,sum(cnt[mf[,ynames[1]]==lvl]))
+    }
+    qd.wt <- wt.wk/sum(wt.wk)
     if (length(ynames)>1) {
         for (ylab in ynames[-1]) {
             wk <- expand.grid(levels(mf[,ylab]),1:dim(qd.pt)[1])
             qd.pt <- data.frame(qd.pt[wk[,2],],wk[,1])
+            if (is.null(cnt)) wt.wk <- table(mf[,ylab])
+            else {
+                wt.wk <- NULL
+                for (lvl in levels(mf[,ylab]))
+                  wt.wk <- c(wt.wk,sum(cnt[mf[,ylab]==lvl]))
+            }
+            qd.wt <- as.vector(outer(wt.wk/sum(wt.wk),qd.wt))
         }
     }
     colnames(qd.pt) <- ynames
@@ -185,7 +199,8 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
             stop("gss error in ssllrm: unpenalized terms are linearly dependent")
     }
     ## Fit the model
-    z <- mspllrm(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,Random,prec,maxiter,alpha,skip.iter)
+    z <- mspllrm(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,qd.wt,Random,
+                 prec,maxiter,alpha,skip.iter)
     ## Brief description of model terms
     desc <- NULL
     for (label in term$labels)
@@ -195,8 +210,8 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
     colnames(desc) <- c("Unpenalized","Penalized")
     ## Return the results
     obj <- c(list(call=match.call(),mf=mf,cnt=cnt,terms=term,desc=desc,
-                  qd.pt=qd.pt,xx.wt=xx.wt,x.dup.ind=x.dup.ind,alpha=alpha,
-                  ynames=ynames,xnames=xnames,id.basis=id.basis,
+                  qd.pt=qd.pt,qd.wt=qd.wt,xx.wt=xx.wt,x.dup.ind=x.dup.ind,
+                  alpha=alpha,ynames=ynames,xnames=xnames,id.basis=id.basis,
                   random=random,Random=Random,skip.iter=skip.iter),z)
     if (is.null(cnt)) obj$se.aux$v <- sqrt(nobs)*obj$se.aux$v
     else obj$se.aux$v <- sqrt(sum(cnt))*obj$se.aux$v
@@ -205,7 +220,8 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
 }
 
 ## Fit (multiple smoothing parameter) log-linear regression model
-mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,skip.iter)
+mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,qd.wt,
+                    random,prec,maxiter,alpha,skip.iter)
 {
     nobs <- dim(r)[1]
     nxi <- dim(r)[2]
@@ -217,7 +233,8 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
     else nz <- 0
     nxiz <- nxi + nz
     nn <- nxiz + nnull
-    if (is.null(cnt)) cnt <- 0
+    if (is.null(cnt)) cntsum <- cnt <- 0
+    else cntsum <- 1
     ## cv functions
     cv.s <- function(lambda) {
         if (is.null(random)) q.wk0 <- 10^(lambda)*q.wk
@@ -231,9 +248,9 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
                         cd=as.double(cd), as.integer(nn),
                         as.double(q.wk0), as.integer(nxiz),
                         as.double(t(cbind(r.wk,s))), as.integer(nobs),
-                        as.integer(sum(cnt)), as.double(cnt),
+                        as.integer(cntsum), as.double(cnt),
                         as.double(qd.r.wk), as.integer(nqd), as.integer(nx),
-                        as.double(xx.wt),
+                        as.double(xx.wt), as.double(qd.wt),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps), integer(nn),
                         wk=double(2*(nqd+1)*nx+2*nobs+nn*(2*nn+5)),
@@ -292,9 +309,9 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
                         cd=as.double(cd), as.integer(nn),
                         as.double(q.wk0), as.integer(nxiz),
                         as.double(t(cbind(r.wk0,s))), as.integer(nobs),
-                        as.integer(sum(cnt)), as.double(cnt),
+                        as.integer(cntsum), as.double(cnt),
                         as.double(qd.r.wk0), as.integer(nqd), as.integer(nx),
-                        as.double(xx.wt),
+                        as.double(xx.wt), as.double(qd.wt),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps), integer(nn),
                         wk=double(2*(nqd+1)*nx+2*nobs+nn*(2*nn+5)),
@@ -431,7 +448,7 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
                            as.double(cd), as.integer(nn),
                            as.double(q.wk0), as.integer(nxiz),
                            as.double(qd.r.wk), as.integer(nqd),
-                           as.integer(nx), as.double(xx.wt),
+                           as.integer(nx), as.double(xx.wt), as.double(qd.wt),
                            as.double(.Machine$double.eps), double(nqd*nx),
                            double(nx), double(nn),
                            v=double(nn*nn), double(nn*nn),
@@ -566,7 +583,7 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
                            as.double(cd), as.integer(nn),
                            as.double(q.wk0), as.integer(nxiz),
                            as.double(qd.r.wk), as.integer(nqd),
-                           as.integer(nx), as.double(xx.wt),
+                           as.integer(nx), as.double(xx.wt), as.double(qd.wt),
                            as.double(.Machine$double.eps), double(nqd*nx),
                            double(nx), double(nn),
                            v=double(nn*nn), double(nn*nn),
@@ -647,7 +664,7 @@ mspllrm <- function(s,r,id.basis,cnt,qd.s,qd.r,xx.wt,random,prec,maxiter,alpha,s
                        as.double(cd), as.integer(nn),
                        as.double(q.wk0), as.integer(nxiz),
                        as.double(qd.r.wk), as.integer(nqd),
-                       as.integer(nx), as.double(xx.wt),
+                       as.integer(nx), as.double(xx.wt), as.double(qd.wt),
                        as.double(.Machine$double.eps), double(nqd*nx),
                        double(nx), double(nn),
                        v=double(nn*nn), double(nn*nn),

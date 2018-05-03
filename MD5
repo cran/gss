@@ -1,5 +1,5 @@
-4c4ebbaebafe6dcc57af742a8134951a *ChangeLog
-6b259f90c33e4b7a4276c80868a24ff5 *DESCRIPTION
+f4c070531a4a598b63664efb156b8345 *ChangeLog
+4c263f7c57cad02c77e1764e211c68d8 *DESCRIPTION
 9700779a63cd8a89b9dffaa067db072a *INDEX
 629765d6b4c7d73b0c55c10e4c910585 *NAMESPACE
 24a938d7b0fd256e13009b9911b920d6 *R/cdsscden.R
@@ -25,7 +25,7 @@ fc77d100b2edf15f7250cb7af2bde8a7 *R/mkterm.R
 d0a27b81504af2d1dd02c301a9e6a5ed *R/predict.ssanova.R
 4075695b83a644ae4481fe43d19d5e6f *R/predict.ssanova0.R
 d13575dc8c9528fee8c77521bb33fe97 *R/predict.sscox.R
-4d34edb87f3d582dabfe1847bd13a162 *R/predict.ssllrm.R
+4f515341a8413f5d451eb1ec5b1d7b03 *R/predict.ssllrm.R
 808455292bf453956a2805408f579c0e *R/predict1.ssanova.R
 f01e1d4537bc9ebe6ea2b167dab205d5 *R/print.R
 cb8057792dbbbd7b018938fad48ad9e4 *R/project.gssanova.R
@@ -38,7 +38,7 @@ cb8057792dbbbd7b018938fad48ad9e4 *R/project.gssanova.R
 c95e17013f7411b89d0f8e14b6d2a3b1 *R/project.ssden1.R
 fdc26fdef9a730f792d3c3bd146c0940 *R/project.sshzd.R
 5d77baee61428e3359defc8a7599c68b *R/project.sshzd1.R
-d7b175eb55e8c56e19f77839a1e9388f *R/project.ssllrm.R
+bf5f875bbef9fb78e75bafa5aa4be563 *R/project.ssllrm.R
 d44fab9e998870ebdb9a3c393d0ef756 *R/smolyak.R
 c1e008d561780b72c7b07a39e7562b3f *R/ssanova.R
 73dcde70d001d3c208508c7187c28158 *R/ssanova0.R
@@ -48,10 +48,9 @@ edb14e97f6de2cb36d610cc02725ba3a *R/sscden.R
 b9fad02c0244197802cc8fd0fcdde239 *R/sscox.R
 798839d145d7071b356b45477464b050 *R/ssden.R
 f4eff44cf8c99748f1e7519312dca1c6 *R/ssden1.R
-7f5ca5150f1809293fa3f8a0bcc3d812 *R/ssden9.R
 67d899fc643fa74ac9cfb47f399480eb *R/sshzd.R
 24b82d00b79e0e87ee401586f65e8e7c *R/sshzd1.R
-71701a7a54bbb1b6fd01894715bb8f02 *R/ssllrm.R
+12966202a0ca51bde529f980caf59a0d *R/ssllrm.R
 1dfdd10b51a4a362e6cfad71c6662eff *R/summary.gssanova.R
 2a622501e271c83a3bb16a67050a8989 *R/summary.gssanova0.R
 f9805d33f3e9d8013a2af47d14dc19a1 *R/summary.ssanova.R
@@ -85,7 +84,7 @@ ffb9bbbf8ef1fbbed74487941bb5cfb3 *man/bacteriuria.Rd
 b606ea90fa245fd20b122af9d614fd8e *man/cdsscden.Rd
 056ddf9a7adb6c3713656e397d10ad26 *man/cdssden.Rd
 1b62cd411e4c41b609b3612f1361fda4 *man/clim.Rd
-0b874d489e22b4904a55c4075b894b30 *man/drkpk.Rd
+64e72138ea19c94dcd982f953e9bc1de *man/drkpk.Rd
 5136c9fcf98724df23adbfaa0f1a3031 *man/dsscden.Rd
 82d09278017ba1cdddaa4af1a373dd8b *man/dssden.Rd
 114f4cc486a64d7674ccaeb0b857debb *man/esc.Rd
@@ -130,7 +129,7 @@ e028282718950be71868552204a1616b *man/summary.gssanova0.Rd
 739b553d3ae05774a78ea9ec0341c07c *man/summary.ssanova.Rd
 059d93eed2184e0a2c369361c320f7c1 *man/wesdr.Rd
 3996e7c16bfb96fad295ee425815cb4d *src/Makevars
-c8985664225b0d7a37105119ecc6e41e *src/cdennewton.f
+0423a47eb8c93a22c1ec15136a2419f5 *src/cdennewton.f
 ac411cbbffa81ff956cb59e79f67403c *src/cdennewton10.f
 7660189020bc629e33531dfccc58721f *src/dcoef.f
 b95abc103e26f67dc5c543096d0a9967 *src/dcore.f
@@ -144,8 +143,6 @@ c0ab4f9cc1f65edb4c43ad86d2a64b4f *src/dmudr.f
 6c6f13458304e0da10e423bd76d76e97 *src/dmudr1.f
 59b20c85da8741fb6141544fad63de6e *src/dnewton.f
 236a823523a4999f6bb6937076c03e19 *src/dnewton10.f
-5c1f41ed4705ce959629dec41561d1f8 *src/dnewton9.f
-a1c70121febfbd902ba718b8c1712811 *src/dnewton99.f
 578daa3fc73da505c7fe8147b6d0cf5c *src/dprmut.f
 45037df0af9f0aae663bf7ceac7477ff *src/dqrslm.f
 f816883ff01da700646bdd7e0e9b98e1 *src/drkl.f
@@ -160,9 +157,9 @@ fd182860bce46df715d6618be98fd5a0 *src/gaussq.f
 53df31681eb9b0911ec8bb3b5e9cc0c5 *src/hzdaux.f
 44cf970d0d0271b391ccdfc5475d3561 *src/hzdnewton.f
 fa5c780f4bb48e1aa23fa7cd9be53e57 *src/hzdnewton10.f
-96bebd6dd87aaaed21868410273d7974 *src/init.c
-a00e5a8470386af4b01831bd47b7b71e *src/llrmnewton.f
-3c2fe0dab31f225e1c7240644c62b2a8 *src/ratfor/cdennewton.r
+025f13952295246b24cba4e9fce7b2d4 *src/init.c
+946e7257e372eac1629e256df6afde4a *src/llrmnewton.f
+88109ec6b4f9ff4bd8b525f0a866c332 *src/ratfor/cdennewton.r
 025d7e6ce3a32679a292ebb44bb3e4ec *src/ratfor/cdennewton10.r
 a88394b27c51d87b94aaada67b8a36e5 *src/ratfor/dcoef.r
 3722b52a6f217b9a8e119151febeb385 *src/ratfor/dcore.r
@@ -176,8 +173,6 @@ b5de2d268965e24796578eac17e02aaf *src/ratfor/dmudr0.r
 fc6dd5378adf7f3d4effbe44d8ea44a2 *src/ratfor/dmudr1.r
 3330573d8207e42ed551bd5dffeaa484 *src/ratfor/dnewton.r
 829b14c267cb3cd60dc563116b4480b1 *src/ratfor/dnewton10.r
-ed98e1160e19aee65de891f1d785a908 *src/ratfor/dnewton9.r
-0445095a6cff660278c88073e3861029 *src/ratfor/dnewton99.r
 690c1d1d61531b1b4eb1f9736fc1baa1 *src/ratfor/dqrslm.r
 920a2f40fb8c655aed667974d8d2ebd4 *src/ratfor/drkl.r
 31fc15c59df5d0b4ad128fbaea7a0afa *src/ratfor/dsidr.r
@@ -189,7 +184,7 @@ d78307ac7e378775eb8b61efdb1789e6 *src/ratfor/dtrev.r
 bcdbcc551d93478fb042faab91d07de3 *src/ratfor/hzdaux.r
 b516cc286d27bb2f6352e1f992090620 *src/ratfor/hzdnewton.r
 df44e4da028c763537d22147a73cc45e *src/ratfor/hzdnewton10.r
-b3376646e99aa3e3e5615e7bce073e9b *src/ratfor/llrmnewton.r
+7273d6c5aef12d292268778b3a71459a *src/ratfor/llrmnewton.r
 8f8cd246140c79187ca75c3e03a45bb2 *src/ratfor/reg.r
 f82c3d3fd78708d54e61fefd100d8a94 *src/reg.f
 492e9abffe084eca767a9a7d6f462aee *src/smolyak.c

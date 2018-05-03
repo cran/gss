@@ -373,7 +373,10 @@ repeat {
     if (flag==0) {
         #   Reset iteration with uniform starting value
         call  dset (nxis, 0.d0, cd, 1)
-        call  dset (nqd*nx, 1.d0/dfloat(nqd), wt, 1)
+        for (kk=1;kk<=nx;kk=kk+1) {
+            call  dcopy (nqd, qdwt, 1, wt(1,kk), 1)
+            call  dscal (nqd, 1.d0/dasum(nqd,wt(1,kk),1), wt(1,kk), 1)
+        }
         rkl = 0.d0
         for (kk=1;kk<=nx;kk=kk+1) {
             tmp = 0.d0

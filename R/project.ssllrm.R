@@ -6,6 +6,7 @@ project.ssllrm <- function(object,include,...)
     id.basis <- object$id.basis
     qd.pt <- object$qd.pt
     xx.wt <- object$xx.wt
+    qd.wt <- object$qd.wt
     ## evaluate full model
     x <- object$mf[!object$x.dup.ind,object$xnames,drop=FALSE]
     fit0 <- object$fit
@@ -106,8 +107,8 @@ project.ssllrm <- function(object,include,...)
         z <- .Fortran("llrmrkl",
                       cd=as.double(cd), as.integer(nxis),
                       as.double(qd.rs), as.integer(nmesh), as.integer(nx),
-                      as.double(xx.wt), as.double(t(fit0)), as.double(offset),
-                      as.double(.Machine$double.eps),
+                      as.double(xx.wt), as.double(qd.wt), as.double(t(fit0)),
+                      as.double(offset), as.double(.Machine$double.eps),
                       wt=double(nmesh*nx), double(nmesh*nx), double(nxis),
                       double(nxis), double(nxis*nxis), double(nxis*nxis),
                       integer(nxis), double(nxis), as.double(1e-6), as.integer(30),
@@ -184,8 +185,8 @@ project.ssllrm <- function(object,include,...)
         z <- .Fortran("llrmrkl",
                       cd=as.double(d), as.integer(nnull),
                       as.double(aperm(qd.s,c(1,3,2))), as.integer(nmesh), as.integer(nx),
-                      as.double(xx.wt), as.double(t(fit0)), as.double(offset),
-                      as.double(.Machine$double.eps),
+                      as.double(xx.wt), as.double(qd.wt), as.double(t(fit0)),
+                      as.double(offset), as.double(.Machine$double.eps),
                       wt=double(nmesh*nx), double(nmesh*nx), double(nnull),
                       double(nnull), double(nnull*nnull), double(nnull*nnull),
                       integer(nnull), double(nnull), as.double(1e-6), as.integer(30),
@@ -207,6 +208,13 @@ project.ssllrm <- function(object,include,...)
         lvl <- levels(object$mf[,ylab])
         if (is.null(object$cnt)) wk <- table(object$mf[,ylab])
         else wk <- table(rep(object$mf[,ylab],object$cnt))
+
+        if (is.null(object$cnt)) wk <- table(object$mf[,ylab])
+        else {
+            wk <- NULL
+            for (lvl in levels(object$mf[,ylab]))
+                wk <- c(wk,sum(object$cnt[object$mf[,ylab]==lvl]))
+        }
         wk <- wk/sum(wk)
         nlvl <- length(wk)
         if (is.null(object$b)) {

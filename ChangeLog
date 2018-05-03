@@ -1,3 +1,14 @@
+Sun Apr 22 09:19:19 EDT 2018, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.1-9.
+
+	* R: Reworked ssllrm suite to add qd.wt.
+
+	* man: Minor edit to reflect changes in R.
+
+	* src: i) Changes and bug fixes in llrmnewton.  ii) Minor edit in
+	cdennewton.
+
 Wed Apr 18 11:46:02 EDT 2018, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.1-8.
@@ -35,7 +46,7 @@ Sat Dec  6 10:36:46 EST 2014, Chong Gu  <chong@stat.purdue.edu>
 	* R: Along with a bug fix, edited utility functions for the
 	nbinomial family in the gssanova suite, eliminating unnecessary
 	subtractions to preserve numerical precision.
-
+ man
 Mon Jul 21 00:14:45 EDT 2014, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.1-3.

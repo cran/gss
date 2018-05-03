@@ -536,21 +536,27 @@ C Output from Public domain Ratfor, version 1.01
       endif
       if(flag.eq.0)then
       call dset (nxis, 0.d0, cd, 1)
-      call dset (nqd*nx, 1.d0/dfloat(nqd), wt, 1)
-      rkl = 0.d0
       kk=1
 23210 if(.not.(kk.le.nx))goto 23212
-      tmp = 0.d0
-      i=1
-23213 if(.not.(i.le.nqd))goto 23215
-      tmp = tmp + dlog(wt0(i,kk)/wt(i,kk)) * wt0(i,kk)
-23214 i=i+1
-      goto 23213
-23215 continue
-      rkl = rkl + xxwt(kk) * tmp
+      call dcopy (nqd, qdwt, 1, wt(1,kk), 1)
+      call dscal (nqd, 1.d0/dasum(nqd,wt(1,kk),1), wt(1,kk), 1)
 23211 kk=kk+1
       goto 23210
 23212 continue
+      rkl = 0.d0
+      kk=1
+23213 if(.not.(kk.le.nx))goto 23215
+      tmp = 0.d0
+      i=1
+23216 if(.not.(i.le.nqd))goto 23218
+      tmp = tmp + dlog(wt0(i,kk)/wt(i,kk)) * wt0(i,kk)
+23217 i=i+1
+      goto 23216
+23218 continue
+      rkl = rkl + xxwt(kk) * tmp
+23214 kk=kk+1
+      goto 23213
+23215 continue
       iter = 0
       flag = 2
       else
@@ -561,18 +567,18 @@ C Output from Public domain Ratfor, version 1.01
 23139 continue
       rkl = 0.d0
       kk=1
-23216 if(.not.(kk.le.nx))goto 23218
+23219 if(.not.(kk.le.nx))goto 23221
       tmp = 0.d0
       i=1
-23219 if(.not.(i.le.nqd))goto 23221
+23222 if(.not.(i.le.nqd))goto 23224
       tmp = tmp + dlog(wt0(i,kk)/wt(i,kk)) * wt0(i,kk)
-23220 i=i+1
+23223 i=i+1
+      goto 23222
+23224 continue
+      rkl = rkl + xxwt(kk) * tmp
+23220 kk=kk+1
       goto 23219
 23221 continue
-      rkl = rkl + xxwt(kk) * tmp
-23217 kk=kk+1
-      goto 23216
-23218 continue
       wt(1,1) = rkl
       return
       end

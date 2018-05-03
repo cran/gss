@@ -29,9 +29,9 @@ extern void F77_NAME(hzdaux101)(void *, void *, void *, void *, void *, void *, 
 extern void F77_NAME(hzdaux2)(void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(hzdnewton)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(hzdnewton10)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void F77_NAME(llrmaux)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void F77_NAME(llrmnewton)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void F77_NAME(llrmrkl)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void F77_NAME(llrmaux)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void F77_NAME(llrmnewton)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void F77_NAME(llrmrkl)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(reg)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(regaux)(void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
@@ -60,9 +60,9 @@ static const R_FortranMethodDef FortranEntries[] = {
     {"hzdaux2",      (DL_FUNC) &F77_NAME(hzdaux2),       6},
     {"hzdnewton",    (DL_FUNC) &F77_NAME(hzdnewton),    19},
     {"hzdnewton10",  (DL_FUNC) &F77_NAME(hzdnewton10),  17},
-    {"llrmaux",      (DL_FUNC) &F77_NAME(llrmaux),      15},
-    {"llrmnewton",   (DL_FUNC) &F77_NAME(llrmnewton),   18},
-    {"llrmrkl",      (DL_FUNC) &F77_NAME(llrmrkl),      20},
+    {"llrmaux",      (DL_FUNC) &F77_NAME(llrmaux),      16},
+    {"llrmnewton",   (DL_FUNC) &F77_NAME(llrmnewton),   19},
+    {"llrmrkl",      (DL_FUNC) &F77_NAME(llrmrkl),      21},
     {"reg",          (DL_FUNC) &F77_NAME(reg),          18},
     {"regaux",       (DL_FUNC) &F77_NAME(regaux),        9},
     {NULL, NULL, 0}

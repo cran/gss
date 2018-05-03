@@ -15,6 +15,7 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
     mf <- object$mf
     term <- object$term
     qd.pt <- object$qd.pt
+    qd.wt <- object$qd.wt
     nmesh <- dim(qd.pt)[1]
     y.id <- NULL
     for (i in 1:dim(y)[1]) {
@@ -126,17 +127,18 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
             wk <- matrix(r[,,j],nmesh,nbasis)%*%object$c
             if (nnull) wk <- wk + matrix(s[,j,],nmesh,nnull)%*%object$d
             if (nZ) wk <- wk + matrix(z[,,j],nmesh,nZ)%*%object$b
-            wk <- exp(wk)
+            wk <- exp(wk)*qd.wt
             pdf <- cbind(pdf,wk/sum(wk))
         }
         return(t(pdf[y.id,]))
     }
     else {
-        s.wk <- r.wk <- z.wk <- 0
+        s.wk <- r.wk <- z.wk <- w.wk <- 0
         for (i in 1:length(odds)) {
             r.wk <- r.wk + odds[i]*r[i,,]
             if (nnull) s.wk <- s.wk + odds[i]*s[i,,]
             if (nZ) z.wk <- z.wk + odds[i]*z[i,,]
+            w.wk <- w.wk + odds[i]*log(qd.wt[y.id[i]])
         }
         s.wk <- matrix(s.wk,nobs,nnull)
         r.wk <- t(matrix(r.wk,nbasis,nobs))
@@ -144,7 +146,7 @@ predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
         rs <- cbind(r.wk,z.wk,s.wk)
         if (!se.odds) as.vector(rs%*%c(object$c,object$b,object$d))
         else {
-            fit <- as.vector(rs%*%c(object$c,object$b,object$d))
+            fit <- as.vector(rs%*%c(object$c,object$b,object$d)) + w.wk
             se.fit <- .Fortran("hzdaux2",
                                as.double(object$se.aux$v), as.integer(dim(rs)[2]),
                                as.integer(object$se.aux$jpvt),
