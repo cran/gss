@@ -16,8 +16,26 @@ if ( vmu == 1 )  vmu1 = 'v'
 if ( vmu == 2 )  vmu1 = 'm'
 if ( vmu == 3 )  vmu1 = 'u'
 
-call  dsidr (vmu1, s, lds, nobs, nnull, y, q, ldq, tol, job, limnla,
-             nlaht, score, varht, c, d, qraux, jpvt, wk, info)
+info = 0
+
+#   check dimension
+if ( nnull < 1 | nnull >= nobs | nobs > lds | nobs > ldq ) {
+    info = -1
+    return
+}
+
+#   main process
+
+call  dstup (s, lds, nobs, nnull, qraux, jpvt, y, q, ldq, nobs, 1, info,_
+             wk)
+if ( info != 0 )  return
+
+call  dcore (vmu1, q, ldq, nobs, nnull, tol, y, job, limnla, nlaht, score,_
+             varht, info, wk, wk(2*nobs+1))
+if ( info != 0 )  return
+
+call  dcoef (s, lds, nobs, nnull, qraux, jpvt, y, q, ldq, nlaht, c, d,_
+             info, wk)
 
 return
 end

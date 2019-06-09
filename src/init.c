@@ -16,7 +16,7 @@ extern void F77_NAME(cdennewton10)(void *, void *, void *, void *, void *, void 
 extern void F77_NAME(cdenrkl)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(coxaux)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(dcrdr)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void F77_NAME(dmudr0)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void F77_NAME(dmudr0)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(dnewton)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(dnewton10)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(drkl)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -47,7 +47,7 @@ static const R_FortranMethodDef FortranEntries[] = {
     {"cdenrkl",      (DL_FUNC) &F77_NAME(cdenrkl),      20},
     {"coxaux",       (DL_FUNC) &F77_NAME(coxaux),       16},
     {"dcrdr",        (DL_FUNC) &F77_NAME(dcrdr),        18},
-    {"dmudr0",       (DL_FUNC) &F77_NAME(dmudr0),       22},
+    {"dmudr0",       (DL_FUNC) &F77_NAME(dmudr0),       23},
     {"dnewton",      (DL_FUNC) &F77_NAME(dnewton),      19},
     {"dnewton10",    (DL_FUNC) &F77_NAME(dnewton10),    15},
     {"drkl",         (DL_FUNC) &F77_NAME(drkl),         14},

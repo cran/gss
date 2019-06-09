@@ -5,7 +5,7 @@ C Output from Public domain Ratfor, version 1.01
      *dc(*), mchpr, v(nnull+nxi,*), mu(*), wk(*)
       integer nobs, nnull, nxi, method, jpvt(*), rkv, info
       double precision ddot, dasum, rss, trc, dum
-      integer i, j, nn, idamax, infowk
+      integer i, j, nn, idamax, infowk, idum
       info = 0
       nn = nnull + nxi
       i=1
@@ -75,7 +75,7 @@ C Output from Public domain Ratfor, version 1.01
       if(method.eq.3)then
       rss = ddot (nobs, y, 1, wk, 1)
       if(nnull.gt.0)then
-      call dqrdc (sr, nobs, nobs, nnull, wk, dum, dum, 0)
+      call dqrdc (sr, nobs, nobs, nnull, wk, idum, dum, 0)
       i=1
 23030 if(.not.(i.le.nxi))goto 23032
       call dqrsl (sr, nobs, nobs, nnull, wk, sr(1,nnull+i), dum, sr(1,nn

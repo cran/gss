@@ -11,7 +11,7 @@ double precision  sr(nobs,*), q(nxi,*), y(*), alpha, varht, score, dc(*),
 integer  nobs, nnull, nxi, method, jpvt(*), rkv, info
 
 double precision  ddot, dasum, rss, trc, dum
-integer  i, j, nn, idamax, infowk
+integer  i, j, nn, idamax, infowk, idum
 
 info = 0
 nn = nnull + nxi
@@ -61,7 +61,7 @@ if (method==3) {
     rss = ddot (nobs, y, 1, wk, 1)
     #   determinant
     if (nnull>0) {
-        call  dqrdc (sr, nobs, nobs, nnull, wk, dum, dum, 0)
+        call  dqrdc (sr, nobs, nobs, nnull, wk, idum, dum, 0)
         for (i=1;i<=nxi;i=i+1) {
             call  dqrsl (sr, nobs, nobs, nnull, wk, sr(1,nnull+i),
                          dum, sr(1,nnull+i), dum, dum, dum, 01000, infowk)

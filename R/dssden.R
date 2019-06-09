@@ -20,6 +20,7 @@ function(object,q) {
     qd.hize <- 200
     qd <- gauss.quad(2*qd.hize,c(mn,mx))
     d.qd <- dssden(object,qd$pt)
+    d.qd <- d.qd/sum(d.qd*qd$wt)
     gap <- diff(qd$pt)
     g.wk <- gap[qd.hize]/2
     for (i in 1:(qd.hize-2)) g.wk <- c(g.wk,gap[qd.hize+i]-g.wk[i])
@@ -63,6 +64,7 @@ function(object,p) {
     qd.hize <- 200
     qd <- gauss.quad(2*qd.hize,c(mn,mx))
     d.qd <- dssden(object,qd$pt)
+    d.qd <- d.qd/sum(d.qd*qd$wt)
     gap <- diff(qd$pt)
     g.wk <- gap[qd.hize]/2
     for (i in 1:(qd.hize-2)) g.wk <- c(g.wk,gap[qd.hize+i]-g.wk[i])

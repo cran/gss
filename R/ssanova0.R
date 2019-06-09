@@ -176,6 +176,7 @@ mspreg0 <- function(s,q,y,method="v",varht=1,prec=1e-7,maxiter=30)
                   theta=double(nq), nlambda=double(1),
                   score=double(1), varht=as.double(varht),
                   c=double(nobs), d=double(nnull),
+                  integer(nnull+nq),
                   double(nobs*nobs*(nq+2)),
                   info=integer(1),PACKAGE="gss")[c("theta","info")]
     ## Check info for error
