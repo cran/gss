@@ -14,6 +14,7 @@ extern void size_smolyak(void *, void *, void *);
 extern void F77_NAME(cdennewton)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(cdennewton10)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(cdenrkl)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void F77_NAME(copu2newton)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void*);
 extern void F77_NAME(coxaux)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(dcrdr)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(dmudr0)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -45,6 +46,7 @@ static const R_FortranMethodDef FortranEntries[] = {
     {"cdennewton",   (DL_FUNC) &F77_NAME(cdennewton),   19},
     {"cdennewton10", (DL_FUNC) &F77_NAME(cdennewton10), 15},
     {"cdenrkl",      (DL_FUNC) &F77_NAME(cdenrkl),      20},
+    {"copu2newton",  (DL_FUNC) &F77_NAME(copu2newton),  34},
     {"coxaux",       (DL_FUNC) &F77_NAME(coxaux),       16},
     {"dcrdr",        (DL_FUNC) &F77_NAME(dcrdr),        18},
     {"dmudr0",       (DL_FUNC) &F77_NAME(dmudr0),       23},

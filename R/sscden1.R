@@ -97,11 +97,11 @@ sscden1 <- function(formula,response,type=NULL,data=list(),weights,
                 }
             }
             else {
-                qd.pt <- data.frame(levels(mf[,ynames[1]]))
+                qd.pt <- data.frame(levels(mf[,ynames[1]]),stringsAsFactors=TRUE)
                 if (length(ynames)>1) {
                     for (ylab in ynames[-1]) {
                         wk <- expand.grid(levels(mf[,ylab]),1:dim(qd.pt)[1])
-                        qd.pt <- data.frame(qd.pt[wk[,2],],wk[,1])
+                        qd.pt <- data.frame(qd.pt[wk[,2],],wk[,1],stringsAsFactors=TRUE)
                     }
                 }
                 colnames(qd.pt) <- ynames
@@ -148,7 +148,7 @@ sscden1 <- function(formula,response,type=NULL,data=list(),weights,
                     wk <- expand.grid(levels(mf[[fac.list[i]]]),1:length(quad$wt))
                     quad$wt <- quad$wt[wk[,2]]
                     col.names <- c(fac.list[i],colnames(quad$pt))
-                    quad$pt <- data.frame(wk[,1],quad$pt[wk[,2],])
+                    quad$pt <- data.frame(wk[,1],quad$pt[wk[,2],],stringsAsFactors=TRUE)
                     colnames(quad$pt) <- col.names
                 }
             }

@@ -130,6 +130,10 @@ ssden1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     estimation: Direct cross-validation and scalable approximation.
     \emph{Statistica Sinica}, \bold{13}, 811--826.
 
+    Gu, C., Jeon, Y., and Lin, Y. (2013), Nonparametric density
+    estimation in high dimensions.  \emph{Statistica Sinica},
+    \bold{23}, 1131--1153.
+
     Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
     York: Springer-Verlag.
 
@@ -178,7 +182,7 @@ fit <- ssden(~futime*trt,data=gastric)
 ## conditional density
 cdssden(fit,c("1","2"),cond=data.frame(futime=150))
 ## conditional quantiles
-cqssden(fit,c(.05,.25,.5,.75,.95),data.frame(trt="1"))
+cqssden(fit,c(.05,.25,.5,.75,.95),data.frame(trt=as.factor("1")))
 ## Clean up
 \dontrun{rm(gastric,fit)}
 

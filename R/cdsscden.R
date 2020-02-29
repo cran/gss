@@ -11,7 +11,7 @@ function (object,y,x,cond,int=NULL) {
     if (any(length(ynames)==c(0,length(object$ynames))))
         stop("gss error in cdsscden: not a conditional density")
     if (length(ynames)==1&is.vector(y)) {
-        y <- data.frame(y)
+        y <- data.frame(y,stringsAsFactors=TRUE)
         colnames(y) <- ynames
     }
     if (!all(sort(ynames)==sort(colnames(y))))
@@ -68,7 +68,7 @@ function (object,y,x,cond,int=NULL) {
                 wk <- expand.grid(levels(object$mf[[fac.list[i]]]),1:length(quad$wt))
                 quad$wt <- quad$wt[wk[,2]]
                 col.names <- c(fac.list[i],colnames(quad$pt))
-                quad$pt <- data.frame(wk[,1],quad$pt[wk[,2],])
+                quad$pt <- data.frame(wk[,1],quad$pt[wk[,2],],stringsAsFactors=TRUE)
                 colnames(quad$pt) <- col.names
             }
         }

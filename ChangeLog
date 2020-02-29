@@ -1,3 +1,14 @@
+Fri Feb 28 19:40:49 EST 2020, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.1-11.
+
+	Edits in R/ and man/ to prepare for the coming default
+	data.frame(...,stringsAsFactors=FALSE).
+
+	Merged gsscopu package into this one, adding sscopu/sscopu2 suites
+	for copula density estimation, and sshzd2d/sshzd2d1 suites for 2-D
+	hazard estimation.
+
 Wed Jun  5 13:14:18 EDT 2019, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.1-10.

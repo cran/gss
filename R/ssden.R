@@ -95,7 +95,7 @@ ssden <- function(formula,type=NULL,data=list(),alpha=1.4,
                   expand.grid(levels(mf[[fac.list[i]]]),1:length(quad$wt))
                 quad$wt <- quad$wt[wk[,2]]
                 col.names <- c(fac.list[i],colnames(quad$pt))
-                quad$pt <- data.frame(wk[,1],quad$pt[wk[,2],])
+                quad$pt <- data.frame(wk[,1],quad$pt[wk[,2],],stringsAsFactors=TRUE)
                 colnames(quad$pt) <- col.names
             }
         }

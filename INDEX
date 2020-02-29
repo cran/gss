@@ -75,8 +75,25 @@ predict.sscox               Projecting sscox fits for model diagnostic
 project.sscox               Predicting from sscox fits
 print.sscox                 Print function for sscox objects
 
+## SSCOPU, SSCOPU2, SSHZD2D, AND SSHZD2D1 SUITES
+sscopu                      Fitting copula density using smoothing splines
+sscopu2                     Fitting 2-D copula density using smoothing splines
+dsscopu                     Evaluating pdf of sscopu estimates
+cdsscopu                    Evaluating 1-D conditional pdf of sscopu estimates
+cpsscopu                    Evaluating 1-D conditional cdf of sscopu estimates
+cqsscopu                    Evaluating 1-D conditional quantiles of sscopu estimates
+summary.sscopu              Calculating Kendall's tau and Spearman's rho of sscopu estimates
+print.sscopu                Print function for sscopu objects
+
+sshzd2d                     Estimating 2-D hazard function using smoothing splines
+sshzd2d1                    Estimating 2-D hazard function using smoothing splines
+hzdrate.sshzd2d             Evaluating 2-D hazard estimates
+survexp.sshzd2d             Evaluating 2-D survival estimates
+print.sshzd2d               Print function for sshzd2d objects
+
 ## UTILITIES FOR MAKING MODEL TERMS
 mkterm                      Making model terms
+mkterm.copu                 Making model terms for sscopu/sscopu2
 
 mkphi.cubic                 Making phi function for cubic splines
 mkrk.cubic                  Making RK function for cubic splines
@@ -212,3 +229,5 @@ sspcox                      Compute relative risk estimate with single smoothing
 mspcox                      Compute relative risk estimate with multiple smoothing parameters
 
 mspllrm                     Compute log-linear regression model with multiple smoothing parameters
+
+mspcopu2                    Compute 2-D copula density estimate under censoring/truncation

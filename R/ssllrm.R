@@ -46,7 +46,7 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
         ind.wk <- c(ind.wk,any(facs[ynames,lab]))
     term$labels <- term.labels[ind.wk]
     ## Generate quadrature
-    qd.pt <- data.frame(levels(mf[,ynames[1]]))
+    qd.pt <- data.frame(levels(mf[,ynames[1]]),stringsAsFactors=TRUE)
     if (is.null(cnt)) wt.wk <- table(mf[,ynames[1]])
     else {
         wt.wk <- NULL
@@ -57,7 +57,7 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
     if (length(ynames)>1) {
         for (ylab in ynames[-1]) {
             wk <- expand.grid(levels(mf[,ylab]),1:dim(qd.pt)[1])
-            qd.pt <- data.frame(qd.pt[wk[,2],],wk[,1])
+            qd.pt <- data.frame(qd.pt[wk[,2],],wk[,1],stringsAsFactors=TRUE)
             if (is.null(cnt)) wt.wk <- table(mf[,ylab])
             else {
                 wt.wk <- NULL

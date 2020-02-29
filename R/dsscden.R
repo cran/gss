@@ -5,7 +5,7 @@ function (object,y,x) {
     if (!all(sort(object$xnames)==sort(colnames(x))))
         stop("gss error in dsscden: mismatched x variable names")
     if (length(object$ynames)==1&is.vector(y)) {
-        y <- data.frame(y)
+        y <- data.frame(y,stringsAsFactors=TRUE)
         colnames(y) <- object$ynames
     }
     if (!all(sort(object$ynames)==sort(colnames(y))))

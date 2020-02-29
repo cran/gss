@@ -8,7 +8,7 @@ function (object,x,cond,int=NULL) {
     if (any(length(xnames)==c(0,ncol(object$mf))))
         stop("gss error in cdssden: not a conditional density")
     if (length(xnames)==1&is.vector(x)) {
-        x <- data.frame(x)
+        x <- data.frame(x,stringsAsFactors=TRUE)
         colnames(x) <- xnames
     }
     if (!all(sort(xnames)==sort(colnames(x))))
@@ -63,7 +63,7 @@ function (object,x,cond,int=NULL) {
                 wk <- expand.grid(levels(object$mf[[fac.list[i]]]),1:length(quad$wt))
                 quad$wt <- quad$wt[wk[,2]]
                 col.names <- c(fac.list[i],colnames(quad$pt))
-                quad$pt <- data.frame(wk[,1],quad$pt[wk[,2],])
+                quad$pt <- data.frame(wk[,1],quad$pt[wk[,2],],stringsAsFactors=TRUE)
                 colnames(quad$pt) <- col.names
             }
         }

@@ -3,7 +3,7 @@ function (object,x,se=FALSE,include=c(object$terms$labels,object$lab.p)) {
     if (!any(class(object)=="sshzd"))
         stop("gss error in hzdrate.sshzd: not a sshzd object")
     if (dim(object$mf)[2]==1&is.vector(x)) {
-        x <- data.frame(x)
+        x <- data.frame(x,stringsAsFactors=TRUE)
         colnames(x) <- colnames(object$mf)
     }
     if (!is.null(object$d)) s <- matrix(0,dim(x)[1],length(object$d))

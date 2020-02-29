@@ -11,6 +11,8 @@ export(cdsscden, cpsscden, cqsscden, cdssden, cpssden, cqssden,
        smolyak.quad, smolyak.size, ssanova, ssanova0, ssanova9,
        sscden, sscden1, sscox, ssden, ssden1, sshzd, sshzd1, ssllrm,
        survexp.sshzd)
+export(sscopu, sscopu2, dsscopu, cdsscopu, cpsscopu, cqsscopu,
+       sshzd2d, sshzd2d1, hzdrate.sshzd2d, survexp.sshzd2d)
 # export internal functions used in examples
 export(mkterm, mkphi.cubic, mkphi.tp, mkran, mkran1, mkrk.cubic, mkrk.tp)
 # export internal functions for use in gsscopu
@@ -53,3 +55,6 @@ S3method(summary, ssanova0)
 S3method(summary, ssanova9)
 S3method(residuals, gssanova)
 S3method(residuals, ssanova)
+S3method(print, sscopu)
+S3method(print, sshzd2d)
+S3method(summary, sscopu)
