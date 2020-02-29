@@ -657,7 +657,7 @@ C Output from Public domain Ratfor, version 1.01
       else
       call daxpy (nxis, -1.d0, mut, 1, muwk, 1)
       endif
-      call daxpy (nxis, -1.d0, msr2, 1, muwk, 1)
+      call daxpy (nxis, -1.d0, mrs2, 1, muwk, 1)
       call dprmut (muwk, nxis, jpvt, 0)
       if(cntsum1.ne.0)then
       call dscal (nxis, dsqrt(dfloat(cnt1(i))), muwk, 1)

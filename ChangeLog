@@ -1,3 +1,9 @@
+Sat Feb 29 10:50:40 EST 2020, Chong Gu  <chong@stat.purdue.edu>
+
+	* DESCRIPTION: Version 2.1-12
+
+	* src: Bug fix in copu2newton, thanks to Elliott Sales de Andrade.
+
 Fri Feb 28 19:40:49 EST 2020, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.1-11.

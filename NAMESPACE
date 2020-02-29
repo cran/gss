@@ -15,8 +15,6 @@ export(sscopu, sscopu2, dsscopu, cdsscopu, cpsscopu, cqsscopu,
        sshzd2d, sshzd2d1, hzdrate.sshzd2d, survexp.sshzd2d)
 # export internal functions used in examples
 export(mkterm, mkphi.cubic, mkphi.tp, mkran, mkran1, mkrk.cubic, mkrk.tp)
-# export internal functions for use in gsscopu
-export(sspdsty, mspdsty, msphzd, msphzd1)
 export(ngreg.proj)
 # register S3 methods
 S3method(fitted, gssanova)

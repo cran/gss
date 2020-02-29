@@ -393,7 +393,7 @@ for (i=1;i<=n1;i=i+1) {
         muwk(j) = ddot (nqd, eta1(1,i), 1, qdrs1(1,j,i), 1) / tmp
     if (nt>1)  call  daxpy (nxis, -1.d0, mut(1,tind(n0+i)), 1, muwk, 1)
     else  call  daxpy (nxis, -1.d0, mut, 1, muwk, 1)
-    call  daxpy (nxis, -1.d0, msr2, 1, muwk, 1)
+    call  daxpy (nxis, -1.d0, mrs2, 1, muwk, 1)
     call  dprmut (muwk, nxis, jpvt, 0)
     if (cntsum1!=0)  call  dscal (nxis, dsqrt(dfloat(cnt1(i))), muwk, 1)
     call  dtrsl (v, nxis, nxis, muwk, 11, infowk)

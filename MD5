@@ -1,7 +1,7 @@
-05877e91ead4a0c47f778bcbf16cf884 *ChangeLog
-c951eb8921c1d0d55c0f1ef96fe3e216 *DESCRIPTION
+2c6aa723e04d1a94e09541df1d66973d *ChangeLog
+dd814e1a8d987ed3f639ea5b2cdfa9d5 *DESCRIPTION
 36e3cfe85c481dd36e248c9c03e60a89 *INDEX
-d60c4cc32ebd9bdfcdef568ab18619ac *NAMESPACE
+64471046bff65bc640469fac797fe026 *NAMESPACE
 1d00015b10d8256aaede525722621ffc *R/cdsscden.R
 03873ecc380382307d04da914fb5a866 *R/cdssden.R
 a4cf561453300bc881519be811e6e36c *R/dsscden.R
@@ -148,7 +148,7 @@ b0e7665b79306793fbd628809d571433 *man/summary.sscopu.Rd
 3996e7c16bfb96fad295ee425815cb4d *src/Makevars
 0423a47eb8c93a22c1ec15136a2419f5 *src/cdennewton.f
 ac411cbbffa81ff956cb59e79f67403c *src/cdennewton10.f
-899d36a27ded7307677a5d34d5a85a03 *src/copu2newton.f
+08b22168d8e387134de819afae34c70d *src/copu2newton.f
 7660189020bc629e33531dfccc58721f *src/dcoef.f
 b95abc103e26f67dc5c543096d0a9967 *src/dcore.f
 b05ac68613d1536384c72933d4d089be *src/dcrdr.f
@@ -177,7 +177,7 @@ fa5c780f4bb48e1aa23fa7cd9be53e57 *src/hzdnewton10.f
 946e7257e372eac1629e256df6afde4a *src/llrmnewton.f
 88109ec6b4f9ff4bd8b525f0a866c332 *src/ratfor/cdennewton.r
 025d7e6ce3a32679a292ebb44bb3e4ec *src/ratfor/cdennewton10.r
-110b8c987bbf117ace21f86bb63bad38 *src/ratfor/copu2newton.r
+a0ce238b2ce570c1c13879c33090ee1d *src/ratfor/copu2newton.r
 a88394b27c51d87b94aaada67b8a36e5 *src/ratfor/dcoef.r
 3722b52a6f217b9a8e119151febeb385 *src/ratfor/dcore.r
 a9e6c989d58c2f3f2b43225ce9f57f92 *src/ratfor/dcrdr.r
