@@ -32,14 +32,14 @@
     the evaluated fit.
 
     For \code{se.fit=TRUE}, \code{predict.ssanova} returns a list
-    consisting of the following components.
+    consisting of the following elements.
     \item{fit}{Vector of evaluated fit.}
     \item{se.fit}{Vector of standard errors.}
 }
 \note{
     For mixed-effect models through \code{\link{ssanova}} or
     \code{\link{gssanova}}, the Z matrix is set to 0 if not supplied.
-    To supply the Z matrix, add a component \code{random=I(...)} in
+    To supply the Z matrix, add an element \code{random=I(...)} in
     \code{newdata}, where the as-is function \code{I(...)} preserves the
     integrity of the Z matrix in data frame.
 
@@ -47,6 +47,9 @@
     \code{newdata} representing x1, x2, etc.  By default, it calculates
     f(x1)-f(x2) along with standard errors.  While pairwise contrast is
     the targeted application, all linear combinations can be computed.
+
+    For \code{"gssanova"} objects, the results are on the link scale.
+    See also \code{\link{predict9.gssanova}}.
 }
 \seealso{
     Fitting functions \code{\link{ssanova}}, \code{\link{ssanova0}},
@@ -55,7 +58,6 @@
     \code{\link{summary.gssanova}}, \code{\link{summary.gssanova0}},
     \code{\link{project.ssanova}}, \code{\link{fitted.ssanova}}.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (1992), Penalized likelihood regression: a Bayesian
     analysis.  \emph{Statistica Sinica}, \bold{2}, 255--264.

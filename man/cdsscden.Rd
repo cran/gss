@@ -27,7 +27,7 @@ cqsscden(object, p, x, cond)
 }
 \value{
     \code{cdsscden} returns a list object with the following
-    components.
+    elements.
     \item{pdf}{Matrix or vector of conditional pdf f(y1|x,y2), with each
         column corresponding to a distinct x value.}
     \item{int}{Vector of normalizing constants.}

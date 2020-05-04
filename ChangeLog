@@ -1,3 +1,15 @@
+Sun May  3 14:34:28 EDT 2020, Chong Gu  <chong@purdue.edu>
+
+	* DESCRIPTION: Version 2.2-0.
+
+	* R: i) Reworked the gssanova, gssanova1, and gssanova0 suites, to
+	add support for the "polr" family.  ii) Added predict9.gssanova
+	for response scale prediction.
+
+	* data: Added wesdr1.
+
+	* man: Updated to reflect changes in R and data.
+
 Sat Feb 29 10:50:40 EST 2020, Chong Gu  <chong@stat.purdue.edu>
 
 	* DESCRIPTION: Version 2.1-12

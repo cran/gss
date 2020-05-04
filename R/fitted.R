@@ -22,13 +22,23 @@ fitted.gssanova <- function(object,...)
 ## Obtain residuals from gssanova objects
 residuals.gssanova <- function(object,type="working",...)
 {
-    y <- model.response(object$mf,"numeric")
+    if (object$family=="polr") {
+        y <- model.response(object$mf)
+        if (!is.factor(y))
+            stop("gss error in gssanova1: need factor response for polr family")
+        lvls <- levels(y)
+        if (nlvl <- length(lvls)<3)
+            stop("gss error in gssanova1: need at least 3 levels to fit polr family")
+        y <- outer(y,lvls,"==")
+    }
+    else y <- model.response(object$mf,"numeric")
     wt <- model.weights(object$mf)
     offset <- NULL
     if ((object$family=="nbinomial")&(!is.null(object$nu))) y <- cbind(y,object$nu)
     dat <- switch(object$family,
                   binomial=mkdata.binomial(y,object$eta,wt,offset),
                   nbinomial=mkdata.nbinomial(y,object$eta,wt,offset,object$nu),
+                  polr=mkdata.polr(y,object$eta,wt,offset,object$nu),
                   poisson=mkdata.poisson(y,object$eta,wt,offset),
                   inverse.gaussian=mkdata.inverse.gaussian(y,object$eta,wt,offset),
                   Gamma=mkdata.Gamma(y,object$eta,wt,offset),
@@ -40,6 +50,7 @@ residuals.gssanova <- function(object,type="working",...)
         dev.resid <- switch(object$family,
                             binomial=dev.resid.binomial(y,object$eta,wt),
                             nbinomial=dev.resid.nbinomial(y,object$eta,wt),
+                            polr=dev.resid.polr(y,object$eta,wt,object$nu),
                             poisson=dev.resid.poisson(y,object$eta,wt),
                             inverse.gaussian=dev.resid.inverse.gaussian(y,object$eta,wt),
                             Gamma=dev.resid.Gamma(y,object$eta,wt),

@@ -13,7 +13,7 @@ gauss.quad(size, interval)
     \item{interval}{Interval to be covered.}
 }
 \value{
-    \code{gauss.quad} returns a list object with the following components.
+    \code{gauss.quad} returns a list object with the following elements.
     \item{pt}{Quadrature nodes.}
     \item{wt}{Quadrature weights.}
 }

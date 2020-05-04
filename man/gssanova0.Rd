@@ -24,7 +24,9 @@ gssanova1(formula, family, type=NULL, data=list(), weights, subset,
 	\code{"Gamma"}, \code{"inverse.gaussian"}, and
 	\code{"nbinomial"}.  Also supported are accelerated life model
 	families \code{"weibull"}, \code{"lognorm"}, and
-	\code{"loglogis"}.}
+	\code{"loglogis"}.  Further more, proportional odds logistic
+        regression \code{"polr"} for ordinal response is also
+        supported.} 
     \item{type}{List specifying the type of spline for each variable.
         See \code{\link{mkterm}} for details.}
     \item{data}{Optional data frame containing the variables in the
@@ -118,6 +120,8 @@ gssanova1(formula, family, type=NULL, data=list(), weights, subset,
     follow-up time, the second the censoring status, and the third the
     left-truncation time.  For data with no truncation, the third column
     can be omitted.
+
+    For \code{family="polr"}, the response should be an ordered factor.
 }
 \value{
     \code{gssanova0} returns a list object of class
@@ -153,7 +157,6 @@ gssanova1(formula, family, type=NULL, data=list(), weights, subset,
     In \emph{gss} versions earlier than 1.0, \code{gssanova0} was under
     the name \code{gssanova}.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (1992), Cross-validating non Gaussian data. \emph{Journal
 	of Computational and Graphical Statistics}, \bold{1}, 169-179.

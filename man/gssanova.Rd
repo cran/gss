@@ -19,7 +19,9 @@ gssanova(formula, family, type=NULL, data=list(), weights, subset,
 	\code{"Gamma"}, \code{"inverse.gaussian"}, and
 	\code{"nbinomial"}.  Also supported are accelerated life model
 	families \code{"weibull"}, \code{"lognorm"}, and
-	\code{"loglogis"}.}
+	\code{"loglogis"}.  Further more, proportional odds logistic
+	regression \code{"polr"} for ordinal response is also
+	supported.}
     \item{type}{List specifying the type of spline for each variable.
         See \code{\link{mkterm}} for details.}
     \item{data}{Optional data frame containing the variables in the
@@ -98,6 +100,8 @@ gssanova(formula, family, type=NULL, data=list(), weights, subset,
     follow-up time, the second the censoring status, and the third the
     left-truncation time.  For data with no truncation, the third column
     can be omitted.
+
+    For \code{family="polr"}, the response should be an ordered factor.
 }
 \note{
     For simpler models and moderate sample sizes, the exact solution of
@@ -122,7 +126,6 @@ gssanova(formula, family, type=NULL, data=list(), weights, subset,
     \code{\link{residuals.gssanova}} and \code{\link{fitted.gssanova}}
     extract the respective traits from the fits.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. and Xiang, D. (2001), Cross validating non Gaussian data:
     generalized approximate cross validation revisited.  \emph{Journal

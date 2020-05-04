@@ -48,7 +48,7 @@ mkran1(ran1, ran2)
     \code{mkran1(mkran(~1|grp1,data),mkran(~1|grp2,data))}.
 }
 \value{
-    A list of three components.
+    A list of three elements.
     \item{z}{Z matrix.}
     \item{sigma}{Sigma matrix to be evaluated through
         \code{sigma$fun(para,sigma$env)}.}
@@ -61,7 +61,6 @@ mkran1(ran1, ran2)
     list using \code{mkran}.  A list should be of the same form as the
     value of \code{mkran}.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. and Ma, P. (2005), Optimal smoothing in nonparametric
     mixed-effect models.  \emph{The Annals of Statistics}, \bold{33},

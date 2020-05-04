@@ -46,17 +46,17 @@ project(object, ...)
 	with \code{include[-i]}, \code{i=1,...,p}.}
 }
 \value{
-    The functions return a list consisting of the following components.
+    The functions return a list consisting of the following elements.
     \item{ratio}{KL(fit0,fit1)/KL(fit0,null); the smaller the value, the
         more feasible the reduced model is.}
     \item{kl}{KL(fit0,fit1).}
 
-    For regression fits, the list also contains the following component.
+    For regression fits, the list also contains the following element.
     \item{check}{KL(fit0,fit1)/KL(fit0,null)+KL(fit1,null)/KL(fit0,null);
         a value closer to 1 is preferred.}
 
     For density and hazard fits, the list may contain the following
-    optional component.
+    optional element.
     \item{mesh}{The evaluations of the projection.}
 }
 \note{
@@ -77,7 +77,6 @@ project(object, ...)
     For mixed-effect models from \code{ssanova} and \code{gssanova},
     the estimated random effects are treated as offset.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (2004), Model diagnostics for smoothing spline ANOVA models.
     \emph{The Canadian Journal of Statistics}, \bold{32}, 347--358.

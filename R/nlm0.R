@@ -54,7 +54,7 @@ nlm0 <- function(fun,range,prec=1e-7)
         }
         range.l <- mm.x-ll.x
         range.u <- uu.x-mm.x
-        delta <- min(abs(nn.x-c(ll.x,mm.x,uu.x)))
+        delta <- min(abs(c(nn.x)-c(ll.x,mm.x,uu.x)))
         ## Safeguard
         if ((nn.x<ll.x)|(nn.x>uu.x)|(delta<prec)) {
             if (range.u>range.l) nn.x <- uu.x - ratio*range.u

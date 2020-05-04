@@ -109,7 +109,6 @@ sscden1(formula, response, type=NULL, data=list(), weights, subset,
     be used to calculate the Kullback-Leibler or square-error
     projections for model selection.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (1995), Smoothing spline density estimation: Conditional
     distribution.  \emph{Statistica Sinica}, \bold{5}, 709--726.

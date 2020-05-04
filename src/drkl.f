@@ -29,7 +29,7 @@ C Output from Public domain Ratfor, version 1.01
      *chpr, mrs(*), wt(nt,*), wtsum(*), mu(*), muwk(*), v(nxis,*), vwk(n
      *xis,*), cdnew(*), wtnew(nt,*), wtnewsum(*), prec
       integer i, j, k, m, iter, flag, idamax, infowk
-      double precision tmp, ddot, rkl, rklnew, mumax, disc, disc0
+      double precision tmp, ddot, rkl, rklnew, mumax, disc
       info = 0
       call dset (nxis, 0.d0, mrs, 1)
       m=1

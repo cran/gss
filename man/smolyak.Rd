@@ -17,7 +17,7 @@ smolyak.size(d, k)
 }
 \value{
     \code{smolyak.quad} returns a list object with the following
-    components.
+    elements.
     \item{pt}{Quadrature nodes in rows of matrix.}
     \item{wt}{Quadrature weights.}
 

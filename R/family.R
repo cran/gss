@@ -219,7 +219,7 @@ mkdata.nbinomial <- function(y,eta,wt,offset,nu)
         w <- y[,2]*q
         ywk <- eta-u/w-offset
         wt <- w*wt
-        list(ywk=ywk,wt=wt,u=u*wt)
+        list(ywk=ywk,wt=wt,nu=1,u=u*wt)
     }
     else {
         if (min(y)<0)
@@ -229,14 +229,11 @@ mkdata.nbinomial <- function(y,eta,wt,offset,nu)
         q <- 1/(1+odds)
         if (is.null(nu)) log.nu <- log(mean(y*odds))
         else log.nu <- log(nu)
-        repeat {
+        lkhd <- function(log.nu) {
             nu <- exp(log.nu)
-            ua <- sum(digamma(y+nu)-digamma(nu)+log(p))*nu
-            wa <- sum(trigamma(y+nu)-trigamma(nu))*nu*nu+ua
-            log.nu.new <- log.nu - ua/wa
-            if (abs(log.nu-log.nu.new)/(1+abs(log.nu))<1e-7) break
-            log.nu <- log.nu.new
+            lgamma(nu)-sum(wt*lgamma(nu+y))/sum(wt)-nu*sum(wt*log(p))/sum(wt)
         }
+        nu <- exp(nlm(lkhd,log.nu,stepmax=.5)$est)
         u <- y*p-nu*q
         w <- nu*q
         ywk <- eta-u/w-offset
@@ -276,4 +273,167 @@ dev.null.nbinomial <- function(y,wt,offset)
     }
     sum(2*wt*(y[,1]*log(ifelse(y[,1]==0,1,y[,1]/(y[,1]+y[,2])/q))
               +y[,2]*log(y[,2]/(y[,1]+y[,2])/p)))
+}
+
+
+##%%%%%%%%%%  Proportional Odds Logistic Regression %%%%%%%%%%
+
+## Make pseudo data for PO logistic regression
+mkdata.polr <- function(y,eta,wt,offset,nu)
+{
+    if (is.null(wt)) wt <- rep(1,dim(y)[1])
+    if (is.null(offset)) offset <- rep(0,dim(y)[1])
+    nnu <- length(nu)
+    hess <- matrix(0,nnu,nnu)
+    G <- c(0,cumsum(nu))
+    P <- exp(outer(eta,G,"+"))
+    lkhd <- 0
+    for (i in 1:(nnu+1))
+        lkhd <- lkhd+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
+    for (i in 1:nnu) lkhd <- lkhd-sum(wt*y[,i+1])/sum(wt)*log(exp(nu[i])-1)
+    if (nnu>1) {
+        for (i in 1:(nnu-1)) {
+            tmp <- 0
+            for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
+            lkhd <- lkhd-tmp*nu[i]
+        }
+    }
+    dd <- log(nu)
+    repeat {
+        ## gradient and hessian
+        grad <- hess.wk <- NULL
+        for (i in 1:nnu) {
+            g.wk <- h.wk <- 0
+            for (j in (i+1):(nnu+1)) {
+                g.wk <- g.wk+sum(wt*(y[,j]+y[,j+1])*P[,j]/(1+P[,j]))/sum(wt)
+                if (j<=nnu) g.wk <- g.wk-sum(wt*y[,j+1])/sum(wt)
+                h.wk <- h.wk+sum(wt*(y[,j]+y[,j+1])*P[,j]/(1+P[,j])^2)/sum(wt)
+            }
+            g.wk <- g.wk-exp(nu[i])/(exp(nu[i])-1)*sum(wt*y[,i+1])/sum(wt)
+            grad <- c(grad,g.wk)
+            hess.wk <- c(hess.wk,h.wk)
+        }
+        for (i in 1:nnu) {
+            hess[1:i,i] <- hess.wk[i]
+            hess[i,i] <- hess[i,i]+exp(nu[i])/(exp(nu[i])-1)^2*sum(wt*y[,i+1])/sum(wt)
+        }
+        grad <- grad*nu
+        hess <- hess*outer(nu,nu)
+        diag(hess) <- diag(hess)+grad
+        ## modify hessian if necessary
+        if (nnu>1) {
+            z <- .Fortran("dmcdc",
+                          as.double(hess), as.integer(nnu), as.integer(nnu),
+                          ee=double(nnu),
+                          pivot=integer(nnu),
+                          integer(1), PACKAGE="gss")
+            if (max(z$ee)) {
+                z$ee[z$pivot] <- z$ee
+                hess <- hess+diag(z$ee)
+            }
+        }
+        else hess <- abs(hess)
+        ## update nu
+        mumax <- max(abs(grad))
+        repeat {
+            ddnew <- dd-solve(hess,grad)
+            nu <- exp(ddnew)
+            G <- c(0,cumsum(nu))
+            P <- exp(outer(eta,G,"+"))
+            lkhdnew <- 0
+            for (i in 1:(nnu+1))
+                lkhdnew <- lkhdnew+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
+            for (i in 1:nnu) lkhdnew <- lkhdnew-sum(wt*y[,i+1])/sum(wt)*log(exp(nu[i])-1)
+            if (nnu>1) {
+                for (i in 1:(nnu-1)) {
+                    tmp <- 0
+                    for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
+                    lkhdnew <- lkhdnew-tmp*nu[i]
+                }
+            }
+            if (!is.finite(lkhdnew)) {
+                grad <- grad/2
+                next
+            }
+            if (lkhdnew-lkhd<(1+abs(lkhd)*10*.Machine$double.eps)) break
+            grad <- grad/2
+            if (max(grad)/mumax<10*.Machine$double.eps) break
+        }
+        disc <- abs(lkhdnew-lkhd)/(1+abs(lkhd))
+        disc <- max(disc,max(abs(dd-ddnew)/(1+abs(dd))))
+        disc0 <- (mumax/(1+abs(lkhd)))^2
+        dd <- ddnew
+        lkhd <- lkhdnew
+        if (min(disc,disc0)<1e-7) break
+    }
+    u <- -1+y[,nnu+2]
+    for (i in 1:(nnu+1)) u <- u+(y[,i]+y[,i+1])*P[,i]/(1+P[,i])
+    w <- P[,2]/(1+P[,2])*P[,1]/(1+P[,1])^2
+    w <- w+1/(1+P[,nnu])*P[,nnu+1]/(1+P[,nnu+1])^2
+    if (nnu>1) {
+        for (i in 2:nnu)
+            w <- w+(P[,i+1]-P[,i-1])/(1+P[,i+1])/(1+P[,i-1])*P[,i]/(1+P[,i])^2
+    }
+    ywk <- eta-u/w-offset
+    wt <- w*wt
+    list(ywk=ywk,wt=wt,nu=nu,u=u*wt)
+}
+
+## Calculate deviance residuals for PO logistic regression
+dev.resid.polr <- function(y,eta,wt,nu)
+{
+    if (is.null(wt)) wt <- rep(1,dim(y)[1])
+    nnu <- length(nu)
+    G <- c(0,cumsum(nu))
+    P <- plogis(outer(eta,G,"+"))
+    wk <- NULL
+    for (i in 1:length(wt)) {
+        idx <- (1:(nnu+2))[y[i,]]
+        if (idx==1) wk <- c(wk,P[i,1])
+        if (idx==nnu+2) wk <- c(wk,1-P[i,nnu+1])
+        if ((idx>1)&(idx<nnu+2)) wk <- c(wk,P[i,idx]-P[i,idx-1])
+    }
+    as.vector(-2*wt*log(wk))
+}
+
+## Calculate null deviance for PO logistic regression
+dev.null.polr <- function(y,wt,offset)
+{
+    if (is.null(wt)) wt <- rep(1,dim(y)[1])
+    nobs <- dim(y)[1]
+    P <- apply(y*wt,2,sum)
+    P <- P/sum(P)
+    wk <- NULL
+    for (i in 1:nobs) {
+        idx <- (1:length(P))[y[i,]]
+        wk <- c(wk,P[idx])
+    }
+    if (!is.null(offset)) {
+        P <- cumsum(P)
+        J <- length(P)
+        eta0 <- qlogis(P[-J])-mean(offset)
+        eta0[-1] <- log(diff(P))
+        lkhd <- function(eta) {
+            eta <- cumsum(c(eta[1],exp(eta[-1])))
+            tmp <- 0
+            for (i in 1:nobs) {
+              idx <- (1:J)[y[i,]]
+              if (idx==1) wk <- wk-wt[i]*log(plogis(eta[1]+offset[i]))
+              if (idx==J) wk <- wk-wt[i]*log(1-plogis(eta[J-1]+offset[i]))
+              if ((idx>1)&(idx<J))
+                  wk <- wk-wt[i]*log(plogis(eta[idx]+offset[i])-plogis(eta[idx-1]+offset[i]))
+            }
+        }
+        eta <- nlm(lkhd,eta0,stepmax=1)$est
+        eta <- cumsum(c(eta[1],exp(eta[-1])))
+        wk <- NULL
+        for (i in 1:nobs) {
+            idx <- (1:length(P))[y[i,]]
+            if (idx==1) wk <- c(wk,plogis(eta[1]+offset[i]))
+            if (idx==J) wk <- c(wk,1-plogis(eta[J-1]+offset[i]))
+            if ((idx>1)&(idx<J))
+                wk <- c(wk,log(plogis(eta[idx]+offset[i])-plogis(eta[idx-1]+offset[i])))
+        }
+    }
+    sum(-2*wt*log(wk))
 }

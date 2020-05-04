@@ -210,6 +210,99 @@ cfit.nbinomial <- function(y,wt,offset,nu)
 }
 
 
+##%%%%%%%%%%  PO Logistic Regression Family %%%%%%%%%%
+y0.polr <- function(eta0)
+{
+    G <- c(0,cumsum(eta0$nu))
+    plogis(outer(eta0$eta,G,"+"))
+}
+proj0.polr <- function(y0,eta,wt,offset,nu)
+{
+    if (is.null(offset)) offset <- rep(0,length(eta))
+    nnu <- length(nu)
+    y <- y0[,1]
+    for (i in 2:(nnu+1)) y <- cbind(y,y0[,i]-y0[,i-1])
+    y <- cbind(y,1-y0[,nnu+1])
+    lkhd <- function(log.nu) {
+        nu <- exp(nu)
+        G <- c(0,cumsum(nu))
+        P <- exp(outer(eta,G,"+"))
+        lkhd <- 0
+        for (i in 1:(nnu+1))
+            lkhd <- lkhd+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
+        for (i in 1:nnu) lkhd <- lkhd-sum(wt*y[,i+1])/sum(wt)*log(exp(nu[i])-1)
+        if (nnu>1) {
+            for (i in 1:(nnu-1)) {
+                tmp <- 0
+                for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
+                lkhd <- lkhd-tmp*nu[i]
+            }
+        }
+        lkhd
+    }
+    nu <- exp(nlm(lkhd,log(nu),stepmax=.5)$est)
+    G <- c(0,cumsum(nu))
+    P <- exp(outer(eta,G,"+"))
+    u <- -1+y[,nnu+2]
+    for (i in 1:(nnu+1)) u <- u+(y[,i]+y[,i+1])*P[,i]/(1+P[,i])
+    w <- P[,2]/(1+P[,2])*P[,1]/(1+P[,1])^2
+    w <- w+1/(1+P[,nnu])*P[,nnu+1]/(1+P[,nnu+1])^2
+    if (nnu>1) {
+        for (i in 2:nnu)
+            w <- w+(P[,i+1]-P[,i-1])/(1+P[,i+1])/(1+P[,i-1])*P[,i]/(1+P[,i])^2
+    }
+    ywk <- eta-u/w-offset
+    kl <- 0
+    P <- P/(1+P)
+    for (i in 1:length(eta)) {
+        tmp <- diff(c(0,P[i,],1))
+        kl <- kl+wt[i]*sum(y[i,]*log(y[i,]/tmp))
+    }
+    kl <- kl/sum(wt)
+    wt <- w*wt
+    list(ywk=ywk,wt=wt,kl=kl,nu=nu,u=wt*u)
+}
+kl.polr <- function(eta0,eta1,wt)
+{
+    P0 <- plogis(outer(eta0$eta,c(0,cumsum(eta0$nu)),"+"))
+    P1 <- plogis(outer(eta1$eta,c(0,cumsum(eta1$nu)),"+"))
+    kl <- 0
+    for (i in 1:length(eta0$eta)) {
+        tmp0 <- diff(c(0,P0[i,],1))
+        tmp1 <- diff(c(0,P1[i,],1))
+        kl <- kl+wt[i]*sum(tmp0*log(tmp0/tmp1))
+    }
+    kl/sum(wt)
+}
+cfit.polr <- function(y,wt,offset)
+{
+    nobs <- dim(y)[1]
+    P <- apply(y*wt,2,sum)
+    J <- length(P)
+    P <- P/sum(P)
+    P <- qlogis(cumsum(P[-J]))
+    if (!is.null(offset)) {
+        eta0 <- P-mean(offset)
+        eta0[-1] <- log(diff(P))
+        lkhd <- function(eta) {
+            eta[-1] <- cumsum(c(eta[1],exp(eta[-1])))
+            tmp <- 0
+            for (i in 1:nobs) {
+              idx <- (1:J)[y[i,]]
+              if (idx==1) wk <- wk-wt[i]*log(plogis(eta[1]+offset[i]))
+              if (idx==J) wk <- wk-wt[i]*log(1-plogis(eta[J-1]+offset[i]))
+              if ((idx>1)&(idx<J))
+                  wk <- wk-wt[i]*log(plogis(eta[idx]+offset[i])-plogis(eta[idx-1]+offset[i]))
+            }
+        }
+        eta <- nlm(lkhd,eta0,stepmax=1)$est
+        zz <- list(eta=eta[1]+offset,nu=exp(eta[-1]))
+    }
+    else zz <- list(eta=rep(P[1],nobs),nu=diff(P))
+    zz
+}
+
+
 ##%%%%%%%%%%  Weibull Family %%%%%%%%%%
 y0.weibull <- function(y,eta0,nu)
 {

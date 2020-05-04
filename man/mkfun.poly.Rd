@@ -28,7 +28,7 @@ mkrk.linear.per(range)
 	range on which the function to be crafted is defined.}
 }
 \value{
-    A list of two components.
+    A list of two elements.
     \item{fun}{Function definition.}
     \item{env}{Portable local constants derived from the argument.}
 }
@@ -54,7 +54,6 @@ mkrk.linear.per(range)
     periodic polynomial spline construction in Gu (2002, Sec. 4.2.1) for
     \eqn{m=2,1}.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
     York: Springer-Verlag.

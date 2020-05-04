@@ -26,17 +26,16 @@ mkint2(mf, type, id.basis, quad, term)
     the second moments for use in \code{project.ssden1}.
 }
 \value{
-    \code{mkint} returns a list of five components.
+    \code{mkint} returns a list of five elements.
     \item{s}{First moments of phi's.}
     \item{r}{First moments of rk's.}
     \item{s.rho}{Cross moments of phi*log(rho).}
     \item{r.rho}{Cross moments of rk*log(rho).}
     \item{var.type}{Types for variables.}
 
-    \code{mkint2} returns a list of three components.
+    \code{mkint2} returns a list of three elements.
     \item{ss}{Second moments of phi's.}
     \item{sr}{Cross moments of phi's and rk's.}
     \item{rr}{Second moments of rk.}
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \keyword{internal}

@@ -34,7 +34,7 @@ mkcov.known(w)
     \code{ssanova9}.
 }
 \value{
-    A list of three components.
+    A list of three elements.
     \item{fun}{Covariance matrix to be evaluated through
     \code{fun(gamma,env)} or \code{fun(env)}.}
     \item{env}{Constants in covariance function.}
@@ -47,5 +47,4 @@ mkcov.known(w)
     \code{cov=list("arma",c(p,q))}, \code{cov=list("long",id)}, or
     \code{cov=list("known",w)}.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \keyword{internal}

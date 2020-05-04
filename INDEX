@@ -18,6 +18,7 @@ print.summary.ssanova       Print function for summary.ssanova objects
 
 gssanova                    Fitting smoothing spline ANOVA models with non Gaussian data
 gssanova1                   Fitting smoothing spline ANOVA models with non Gaussian data
+predict9.gssanova           Predicting from gssanova fits
 summary.gssanova            Summarizing gssanova fits
 project.gssanova            Projecting gssanova1 fits for model diagnostic
 gssanova0                   Fitting smoothing spline ANOVA models with non Gaussian data
@@ -139,10 +140,10 @@ proj0.poisson               Making pseudo data for projection of Poisson fit
 kl.poisson                  Computing KL distance between Poisson fits
 cfit.poisson                Computing constant Poisson fit
 
-mkdata.Gamma                Making pseudo data for gamma regression
-dev.resid.Gamma             Deviance residuals for gamma regression
-dev.null.Gamma              Null model deviance for gamma regression
-cv.Gamma                    CV score for gamma regression
+mkdata.Gamma                Making pseudo data for Gamma regression
+dev.resid.Gamma             Deviance residuals for Gamma regression
+dev.null.Gamma              Null model deviance for Gamma regression
+cv.Gamma                    CV score for Gamma regression
 y0.Gamma                    Preparing for KL projection of Gamma fit
 proj0.Gamma                 Making pseudo data for projection of Gamma fit
 kl.Gamma                    Computing KL distance between Gamma fits
@@ -151,6 +152,11 @@ cfit.Gamma                  Computing constant Gamma fit
 mkdata.inverse.gaussian     Making pseudo data for IG regression
 dev.resid.inverse.gaussian  Deviance residuals for IG regression
 dev.null.inverse.gaussian   Null model deviance for IG regression
+cv.inverse.gaussian         CV score for IG regression
+y0.inverse.gaussian         Preparing for KL projection of IG fit
+proj0.inverse.gaussian      Making pseudo data for projection of IG fit
+kl.inverse.gaussian         Computing KL distance between IG fits
+cfit.inverse.gaussian       Computing constant IG fit
 
 mkdata.nbinomial            Making pseudo data for negative binomial regression
 dev.resid.nbinomial         Deviance residuals for negative binomial regression
@@ -160,6 +166,15 @@ y0.nbinomial                Preparing for KL projection of negative binomial fit
 proj0.nbinomial             Making pseudo data for projection of negative binomial fit
 kl.nbinomial                Computing KL distance between negative binomial fits
 cfit.nbinomial              Computing constant negative binomial fit
+
+mkdata.polr                 Making pseudo data for proportional odds regression
+dev.resid.polr              Deviance residuals for proportional odds regression
+dev.null.polr               Null model deviance for proportional odds regression
+cv.polr                     CV score for proportional odds regression
+y0.polr                     Preparing for KL projection of proportional odds fit
+proj0.polr                  Making pseudo data for projection of proportional odds fit
+kl.polr                     Computing KL distance between proportional odds fits
+cfit.polr                   Computing constant proportional odds fit
 
 mkdata.weibull              Making pseudo data for Weibull regression
 dev.resid.weibull           Deviance residuals for Weibull regression

@@ -103,10 +103,12 @@ fit <- sscopu(x)
 fit2 <- sscopu2(x,id=fit$id)
 ## symmetric fit
 fit.s <- sscopu(x,sym=TRUE,id=fit$id)
+\dontrun{
 ## Kendall's tau and Spearman's rho
 summary(fit); summary(fit2); summary(fit.s)
 ## clean up
-\dontrun{rm(x,fit,fit2,fit.s)}
+rm(x,fit,fit2,fit.s)
+}
 }
 \keyword{smooth}
 \keyword{models}

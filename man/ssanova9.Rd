@@ -114,7 +114,6 @@ para.arma(fit)
     \code{para.arma} returns the fitted ARMA coefficients for
     \code{cov=list("arma",c(p,q))} in the call to \code{ssanova9}.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Han, C. and Gu, C. (2008), Optimal smoothing with correlated data,
     \emph{Sankhya}, \bold{70-A}, 38--72.

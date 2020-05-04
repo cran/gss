@@ -120,7 +120,6 @@ sshzd1(formula, type=NULL, data=list(), alpha=1.4, weights=NULL,
     selection; \code{\link{project.sshzd1}} can be used to calculate the
     square error projection of \code{"sshzd1"} objects.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Du, P. and Gu, C. (2006), Penalized likelihood hazard estimation:
     efficient approximation and Bayesian confidence intervals.

@@ -7,7 +7,7 @@ C Output from Public domain Ratfor, version 1.01
      **)
       double precision s(lds,*), q(ldqr,ldqc,*), y(*), tol, prec, theta(
      **), nlaht, score, varht, c(*), d(*), wk(*)
-      character*1 vmu1
+      character vmu1
       integer n, n0
       integer iqraux, itraux, itwk, iqwk, iywk, ithewk, ihes, igra, ihwk
      *1, ihwk2, igwk1, igwk2, ikwk, iwork1, iwork2, ijpvt, ipvtwk

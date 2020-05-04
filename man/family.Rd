@@ -39,6 +39,14 @@
 \alias{proj0.nbinomial}
 \alias{kl.nbinomial}
 \alias{cfit.nbinomial}
+\alias{mkdata.polr}
+\alias{dev.resid.polr}
+\alias{dev.null.polr}
+\alias{cv.polr}
+\alias{y0.polr}
+\alias{proj0.polr}
+\alias{kl.polr}
+\alias{cfit.polr}
 \alias{mkdata.weibull}
 \alias{dev.resid.weibull}
 \alias{dev.null.weibull}
@@ -115,6 +123,15 @@ y0.nbinomial(y,eta0,nu)
 proj0.nbinomial(y0, eta, wt, offset)
 kl.nbinomial(eta0, eta1, wt, nu)
 cfit.nbinomial(y, wt, offset, nu)
+
+mkdata.polr(y, eta, wt, offset, nu)
+dev.resid.polr(y, eta, wt, nu)
+dev.null.polr(y, wt, offset)
+cv.polr(y, eta, wt, hat, nu, alpha)
+y0.polr(eta0)
+proj0.polr(y0, eta, wt, offset, nu)
+kl.polr(eta0, eta1, wt)
+cfit.polr(y, wt, offset)
 
 mkdata.weibull(y, eta, wt, offset, nu)
 dev.resid.weibull(y, eta, wt, nu)

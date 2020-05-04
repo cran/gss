@@ -46,15 +46,19 @@ cv.poisson <- function(y,eta,wt,hat,alpha,sr,q)
     v <- t(sr)%*%(wt*w*sr)/sum(wt*w)-outer(mu,mu)
     v[(nnull+1):nn,(nnull+1):nn] <- v[(nnull+1):nn,(nnull+1):nn]+q/sum(wt*y)
     ## Cholesky decomposition of H
-    z <- chol(v,pivot=TRUE)
-    v <- z
-    rkv <- attr(z,"rank")
+    z <- .Fortran("dchdc0",
+                  v=as.double(v), as.integer(nn), as.integer(nn),
+                  double(nn), jpvt=as.integer(rep(0,nn)),
+                  as.integer(1), rkv=integer(1),
+                  PACKAGE="gss")[c("v","jpvt","rkv")]
+    v <- matrix(z$v,nn,nn)
+    rkv <- z$rkv
     while (v[rkv,rkv]<v[1,1]*sqrt(.Machine$double.eps)) rkv <- rkv-1
     if (rkv<nn) v[(rkv+1):nn,(rkv+1):nn] <- diag(v[1,1],nn-rkv)
     ## trace
     mu <- apply(wt*y*sr,2,sum)/sum(wt*y)
     sr <- sqrt(wt*y)*t(t(sr)-mu)
-    sr <- backsolve(v,t(sr[,attr(z,"pivot")]),transpose=TRUE)
+    sr <- backsolve(v,t(sr[,z$jpvt]),transpose=TRUE)
     aux1 <- sum(sr^2)
     aux2 <- 1/sum(wt*y)/(sum(wt*y)-1)
     list(score=lkhd+abs(alpha)*aux1*aux2,varht=1,w=as.vector(wt*w))
@@ -105,7 +109,6 @@ cv.inverse.gaussian <- function(y,eta,wt,hat,rss,alpha)
 cv.nbinomial <- function(y,eta,wt,hat,alpha)
 {
     if (is.null(wt)) wt <- rep(1,dim(y)[1])
-    if (is.null(offset)) offset <- rep(0,dim(y)[1])
     if (min(y[,1])<0)
         stop("gss error: negative binomial response should be nonnegative")
     if (min(y[,2])<=0)
@@ -123,6 +126,41 @@ cv.nbinomial <- function(y,eta,wt,hat,alpha)
 }
 
 
+##%%%%%%%%%%  PO Logistic Regression Family %%%%%%%%%%
+
+## Calculate CV score for PO logistic regression
+cv.polr <- function(y,eta,wt,hat,nu,alpha)
+{
+    if (is.null(wt)) wt <- rep(1,dim(y)[1])
+    nnu <- length(nu)
+    G <- c(0,cumsum(nu))
+    P <- exp(outer(eta,G,"+"))
+    lkhd <- 0
+    for (i in 1:(nnu+1))
+        lkhd <- lkhd+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
+    for (i in 1:nnu) lkhd <- lkhd-sum(wt*y[,i+1])/sum(wt)*log(exp(nu[i])-1)
+    if (nnu>1) {
+        for (i in 1:(nnu-1)) {
+            tmp <- 0
+            for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
+            lkhd <- lkhd-tmp*nu[i]
+        }
+    }
+    lkhd <- lkhd-sum(wt*eta*(1-y[,nnu+2]))/sum(wt)
+    u <- -1+y[,nnu+2]
+    for (i in 1:(nnu+1)) u <- u+(y[,i]+y[,i+1])*P[,i]/(1+P[,i])
+    w <- P[,2]/(1+P[,2])*P[,1]/(1+P[,1])^2
+    w <- w+1/(1+P[,nnu])*P[,nnu+1]/(1+P[,nnu+1])^2
+    if (nnu>1) {
+        for (i in 2:nnu)
+            w <- w+(P[,i+1]-P[,i-1])/(1+P[,i+1])/(1+P[,i-1])*P[,i]/(1+P[,i])^2
+    }
+    aux1 <- sum(hat/w)/(sum(wt)-sum(hat))
+    aux2 <- sum(wt*u^2)/sum(wt)
+    list(score=lkhd+alpha*aux1*aux2,varht=1,w=as.vector(wt*w))
+}
+
+
 ##%%%%%%%%%%  Weibull Family %%%%%%%%%%
 
 ## Calculate CV score for Weibull regression
@@ -130,7 +168,6 @@ cv.weibull <- function(y,eta,wt,hat,nu,alpha)
 {
     if (is.vector(y)) stop("gss error: missing censoring indicator")
     if (is.null(wt)) wt <- rep(1,dim(y)[1])
-    if (is.null(offset)) offset <- rep(0,dim(y)[1])
     xx <- y[,1]
     delta <- as.logical(y[,2])
     if (dim(y)[2]>=3) zz <- y[,3]
@@ -153,7 +190,6 @@ cv.lognorm <- function(y,eta,wt,hat,nu,alpha)
 {
     if (is.vector(y)) stop("gss error: missing censoring indicator")
     if (is.null(wt)) wt <- rep(1,dim(y)[1])
-    if (is.null(offset)) offset <- rep(0,dim(y)[1])
     xx <- y[,1]
     delta <- as.logical(y[,2])
     if (dim(y)[2]>=3) zz <- y[,3]
@@ -186,7 +222,6 @@ cv.loglogis <- function(y,eta,wt,hat,nu,alpha)
 {
     if (is.vector(y)) stop("gss error: missing censoring indicator")
     if (is.null(wt)) wt <- rep(1,dim(y)[1])
-    if (is.null(offset)) offset <- rep(0,dim(y)[1])
     xx <- y[,1]
     delta <- as.logical(y[,2])
     if (dim(y)[2]>=3) zz <- y[,3]

@@ -23,13 +23,13 @@
     the evaluated relative risk.
 
     For \code{se.fit=TRUE}, \code{predict.sscox} returns a list
-    consisting of the following components.
+    consisting of the following elements.
     \item{fit}{Vector of evaluated relative risk.}
     \item{se.fit}{Vector of standard errors for log relative risk.}
 }
 \note{
     For mixed-effect models through \code{\link{sscox}}, the Z matrix is
-    set to 0 if not supplied.  To supply the Z matrix, add a component
+    set to 0 if not supplied.  To supply the Z matrix, add an element
     \code{random=I(...)} in \code{newdata}, where the as-is function
     \code{I(...)} preserves the integrity of the Z matrix in data
     frame.
@@ -38,7 +38,6 @@
     Fitting functions \code{\link{sscox}} and method
     \code{\link{project.sscox}}.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \keyword{models}
 \keyword{regression}
 \keyword{smooth}

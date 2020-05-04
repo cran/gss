@@ -6,7 +6,7 @@ gssanova1 <- function(formula,family,type=NULL,data=list(),weights,
                       skip.iter=FALSE)
 {
     if (!(family%in%c("binomial","poisson","Gamma","nbinomial","inverse.gaussian",
-                      "weibull","lognorm","loglogis")))
+                      "polr","weibull","lognorm","loglogis")))
         stop("gss error in gssanova1: family not implemented")
     ## Obtain model frame and model terms
     mf <- match.call()
@@ -44,6 +44,7 @@ gssanova1 <- function(formula,family,type=NULL,data=list(),weights,
                          poisson="u",
                          inverse.gaussian="v",
                          Gamma="v",
+                         polr="u",
                          weibull="u",
                          lognorm="u",
                          loglogis="u")
@@ -94,7 +95,16 @@ gssanova1 <- function(formula,family,type=NULL,data=list(),weights,
     if (qr(s)$rank<dim(s)[2])
         stop("gss error in gssanova: unpenalized terms are linearly dependent")
     ## Prepare the data
-    y <- model.response(mf,"numeric")
+    if (family=="polr") {
+        y <- model.response(mf)
+        if (!is.factor(y))
+            stop("gss error in gssanova1: need factor response for polr family")
+        lvls <- levels(y)
+        if (nlvl <- length(lvls)<3)
+            stop("gss error in gssanova1: need at least 3 levels to fit polr family")
+        y <- outer(y,lvls,"==")
+    }
+    else y <- model.response(mf,"numeric")
     offset <- model.offset(mf)
     if (!is.null(offset)) {
         term$labels <- c(term$labels,"offset")
@@ -133,23 +143,50 @@ ngreg1 <- function(family,s,r,id.basis,y,wt,offset,method,varht,alpha,nu,
                    random,skip.iter)
 {
     nobs <- dim(s)[1]
+    nq <- dim(r)[3]
     eta <- rep(0,nobs)
-    iter <- 0
+    if (family%in%c("Gamma","inverse.gaussian")) {
+        yy <- log(y)
+        if (!is.null(offset)) yy <- yy-offset
+        if (nq==1) {
+            z <- sspreg1(s,r[,,1],r[id.basis,,1],yy,wt,"v",alpha,varht,random)
+            eta <- s%*%z$d+10^z$theta*r[,,1]%*%z$c
+            if (!is.null(random)) eta <- eta+random$z%*%z$b
+            eta <- as.vector(eta)
+        }
+        else {
+            z <- mspreg1(s,r,id.basis,yy,wt,"v",alpha,varht,random,skip.iter)
+            r.wk <- 0
+            for (i in 1:nq) r.wk <- r.wk+10^z$theta[i]*r[,,i]
+            eta <- s%*%z$d+r.wk%*%z$c
+            if (!is.null(random)) eta <- eta+random$z%*%z$b
+            eta <- as.vector(eta)
+        }
+    }
     if (nu[[2]]&is.null(nu[[1]])) {
-        eta <- rep(0,nobs)
         wk <- switch(family,
-                      nbinomial=mkdata.nbinomial(y,eta,wt,offset,NULL),
-                      weibull=mkdata.weibull(y,eta,wt,offset,nu),
-                      lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
-                      loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
+                     nbinomial=mkdata.nbinomial(y,eta,wt,offset,NULL),
+                     weibull=mkdata.weibull(y,eta,wt,offset,nu),
+                     lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
+                     loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
         nu <- wk$nu
     }
-    nq <- dim(r)[3]
+    if (family=="polr") {
+        if (is.null(wt)) P <- apply(y,2,sum)
+        else P <- apply(y*wt,2,sum)
+        P <- P/sum(P)
+        P <- cumsum(P)
+        nnu <- length(P)-2
+        eta <- rep(qlogis(P[1]),nobs)
+        nu <- diff(qlogis(P[-(nnu+2)]))
+    }
+    iter <- 0
     repeat {
         iter <- iter+1
         dat <- switch(family,
                       binomial=mkdata.binomial(y,eta,wt,offset),
                       nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
+                      polr=mkdata.polr(y,eta,wt,offset,nu),
                       poisson=mkdata.poisson(y,eta,wt,offset),
                       inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                       Gamma=mkdata.Gamma(y,eta,wt,offset),

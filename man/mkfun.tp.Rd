@@ -45,7 +45,7 @@ mkrk.sphere(order)
     Wahba (1981) for \eqn{m=2,3,4}.
 }
 \value{
-    A list of two components.
+    A list of two elements.
     \item{fun}{Function definition.}
     \item{env}{Portable local constants derived from the arguments.}
 }
@@ -58,7 +58,6 @@ mkrk.sphere(order)
     \code{fun(x,nu,env)}, where \code{x} is the argument and \code{nu}
     is the index.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
     York: Springer-Verlag.

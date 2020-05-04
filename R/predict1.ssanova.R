@@ -4,6 +4,8 @@ predict1 <- function (object,...) UseMethod("predict1")
 predict1.ssanova <- function(object,contr=c(1,-1),newdata,se.fit=TRUE,
                              include=c(object$terms$labels,object$lab.p),...)
 {
+    if (class(object)[1]%in%c("ssanova0","gssanova0"))
+        stop("gss error: predict1 is not implemented for ssanova0/gssanova0")
     ncontr <- length(contr)
     nnew <- nrow(newdata[[1]])
     nbasis <- length(object$id.basis)

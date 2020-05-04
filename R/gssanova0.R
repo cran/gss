@@ -3,6 +3,9 @@ gssanova0 <- function(formula,family,type=NULL,data=list(),weights,
                       subset,offset,na.action=na.omit,partial=NULL,
                       method=NULL,varht=1,nu=NULL,prec=1e-7,maxiter=30)
 {
+    if (!(family%in%c("binomial","poisson","Gamma","nbinomial","inverse.gaussian",
+                      "polr","weibull","lognorm","loglogis")))
+        stop("gss error in gssanova0: family not implemented")
     ## Obtain model frame and model terms
     mf <- match.call()
     mf$family <- mf$type <- mf$partial <- NULL
@@ -20,6 +23,7 @@ gssanova0 <- function(formula,family,type=NULL,data=list(),weights,
                          poisson="u",
                          inverse.gaussian="v",
                          Gamma="v",
+                         polr="u",
                          weibull="u",
                          lognorm="u",
                          loglogis="u")
@@ -67,7 +71,16 @@ gssanova0 <- function(formula,family,type=NULL,data=list(),weights,
     else part <- lab.p <- NULL
     if (qr(s)$rank<dim(s)[2])
         stop("gss error in gssanova0: unpenalized terms are linearly dependent")
-    y <- model.response(mf,"numeric")
+    if (family=="polr") {
+        y <- model.response(mf)
+        if (!is.factor(y))
+            stop("gss error in gssanova1: need factor response for polr family")
+        lvls <- levels(y)
+        if (nlvl <- length(lvls)<3)
+            stop("gss error in gssanova1: need at least 3 levels to fit polr family")
+        y <- outer(y,lvls,"==")
+    }
+    else y <- model.response(mf,"numeric")
     wt <- model.weights(mf)
     offset <- model.offset(mf)
     if (!is.null(offset)) {
@@ -122,14 +135,50 @@ sspregpoi <- function(family,s,q,y,wt,offset,method="u",
     eta <- rep(0,nobs)
     nla0 <- log10(mean(abs(diag(q))))
     limnla <- nla0+c(-.5,.5)
-    iter <- 0
+    if (family%in%c("Gamma","inverse.gaussian")) {
+        ywk <- log(y)
+        if (!is.null(offset)) ywk <- ywk-offset
+        swk <- s
+        qwk <- q
+        if (!is.null(wt)) {
+            w <- sqrt(wt)
+            ywk <- w*ywk
+            swk <- w*swk
+            qwk <- w*t(w*qwk)
+        }
+        else w <- 1
+        z <- .Fortran("dsidr0",
+                      as.integer(code),
+                      swk=as.double(swk), as.integer(nobs),
+                      as.integer(nobs), as.integer(nnull),
+                      as.double(ywk),
+                      qwk=as.double(qwk), as.integer(nobs),
+                      as.double(0), as.integer(-1), as.double(limnla),
+                      nlambda=double(1), score=double(1), varht=as.double(varht),
+                      c=double(nobs), d=double(nnull),
+                      qraux=double(nnull), jpvt=integer(nnull),
+                      double(3*nobs),
+                      info=integer(1),PACKAGE="gss")
+        eta <- (ywk-10^z$nlambda*z$c)/w
+    }
     if (family=="nbinomial") nu <- NULL
     else nu <- list(nu,is.null(nu))
+    if (family=="polr") {
+        if (is.null(wt)) P <- apply(y,2,sum)
+        else P <- apply(y*wt,2,sum)
+        P <- P/sum(P)
+        P <- cumsum(P)
+        nnu <- length(P)-2
+        eta <- rep(qlogis(P[1]),nobs)
+        nu <- diff(qlogis(P[-(nnu+2)]))
+    }
+    iter <- 0
     repeat {
         iter <- iter+1
         dat <- switch(family,
                       binomial=mkdata.binomial(y,eta,wt,offset),
                       nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
+                      polr=mkdata.polr(y,eta,wt,offset,nu),
                       poisson=mkdata.poisson(y,eta,wt,offset),
                       inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                       Gamma=mkdata.Gamma(y,eta,wt,offset),
@@ -208,15 +257,55 @@ mspregpoi <- function(family,s,q,y,wt,offset,method="u",
     eta <- rep(0,nobs)
     init <- 0
     theta <- rep(0,nq)
-    iter <- 0
+    if (family%in%c("Gamma","inverse.gaussian")) {
+        ywk <- log(y)
+        if (!is.null(offset)) ywk <- ywk-offset
+        swk <- s
+        qwk <- q
+        if (!is.null(wt)) {
+            w <- sqrt(wt)
+            ywk <- w*ywk
+            swk <- w*swk
+            for (i in 1:nq) qwk[,,i] <- w*t(w*qwk[,,i])
+        }
+        else w <- 1
+        ## Call RKPACK driver DMUDR
+        z <- .Fortran("dmudr0",
+                      as.integer(code),
+                      as.double(swk),   # s
+                      as.integer(nobs), as.integer(nobs), as.integer(nnull),
+                      as.double(qwk),   # q
+                      as.integer(nobs), as.integer(nobs), as.integer(nq),
+                      as.double(ywk),   # y
+                      as.double(0), as.integer(init),
+                      as.double(prec), as.integer(maxiter),
+                      theta=as.double(theta), nlambda=double(1),
+                      score=double(1), varht=as.double(varht),
+                      c=double(nobs), d=double(nnull),
+                      integer(nnull+nq),
+                      double(nobs*nobs*(nq+2)),
+                      info=integer(1),PACKAGE="gss")[c("theta","nlambda","c","info")]
+        eta <- (ywk-10^z$nlambda*z$c)/w
+    }
     if (family=="nbinomial") nu <- NULL
     else nu <- list(nu,is.null(nu))
+    if (family=="polr") {
+        if (is.null(wt)) P <- apply(y,2,sum)
+        else P <- apply(y*wt,2,sum)
+        P <- P/sum(P)
+        P <- cumsum(P)
+        nnu <- length(P)-2
+        eta <- rep(qlogis(P[1]),nobs)
+        nu <- diff(qlogis(P[-(nnu+2)]))
+    }
     qwk <- array(0,c(nobs,nobs,nq))
+    iter <- 0
     repeat {
         iter <- iter+1
         dat <- switch(family,
                       binomial=mkdata.binomial(y,eta,wt,offset),
                       nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
+                      polr=mkdata.polr(y,eta,wt,offset,nu),
                       poisson=mkdata.poisson(y,eta,wt,offset),
                       inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                       Gamma=mkdata.Gamma(y,eta,wt,offset),

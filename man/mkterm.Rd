@@ -91,12 +91,11 @@ mkterm(mf, type)
     not be overridden; the type is simply duplicated for each variable.
 }
 \value{
-    A list object with a component \code{labels} containing the labels
-    of all model terms.  For each of the model terms, there is a
-    component holding the numerical functions for calculating the
+    A list object with an element \code{labels} containing the labels
+    of all model terms.  For each of the model terms, there is an
+    element holding the numerical functions for calculating the
     unpenalized and penalized parts within the term.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
     York: Springer-Verlag.

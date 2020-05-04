@@ -14,7 +14,7 @@ nlm0(fun, range, prec=1e-7)
     \item{prec}{Desired precision of the solution.}
 }
 \value{
-    \code{nlm0} returns a list object with the following components.
+    \code{nlm0} returns a list object with the following elements.
     \item{estimate}{Minimizer.}
     \item{minimum}{Minimum.}
     \item{evaluations}{Number of function evaluations.}

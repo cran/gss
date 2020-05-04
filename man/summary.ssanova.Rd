@@ -18,7 +18,7 @@
 }
 \value{
     \code{summary.ssanova} returns a list object of \code{\link{class}}
-    \code{"summary.ssanova"} consisting of the following components.
+    \code{"summary.ssanova"} consisting of the following elements.
     The entries \code{pi}, \code{kappa}, \code{cosines}, and
     \code{roughness} are only calculated if \code{diagnostics=TRUE}; see
     the reference below for details concerning the diagnostics.
@@ -40,7 +40,6 @@
     \item{roughness}{Percentage decomposition of the roughness penalty
       \code{penalty} into model terms.}
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (1992), Diagnostics for nonparametric regression models with
     additive terms.  \emph{Journal of the American Statistical

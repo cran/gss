@@ -28,7 +28,7 @@ survexp.sshzd(object, time, covariates=NULL, start=0)
     hazard curve(s) evaluated on \code{time} points at the
     \code{covariates} values.  For \code{se=TRUE}, \code{hzdrate.sshzd}
     and \code{hzdcurve.sshzd} return a list consisting of the following
-    components.
+    elements.
     \item{fit}{Vector or columns of hazard.}
     \item{se.fit}{Vector or columns of standard errors for log hazard.}
 

@@ -84,7 +84,6 @@ ssllrm(formula, response, type=NULL, data=list(), weights, subset,
     \code{\link{project.ssllrm}} can be used to calculate the
     Kullback-Leibler projection for model selection.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. and Ma, P. (2011), Nonparametric regression with
     cross-classified responses.  \emph{The Canadian Journal of

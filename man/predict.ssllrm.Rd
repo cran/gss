@@ -25,7 +25,7 @@
     When \code{odds} is given, it should match \code{y} in length and
     the coefficients must add to zero; \code{predict.ssanova} then
     returns a vector of estimated "odds ratios" if \code{se.odds=FALSE}
-    or a list consisting of the following components if
+    or a list consisting of the following elements if
     \code{se.odds=TRUE}.
     \item{fit}{Vector of evaluated fit.}
     \item{se.fit}{Vector of standard errors.}
@@ -33,7 +33,6 @@
 \seealso{
     Fitting function \code{\link{ssllrm}}.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \keyword{models}
 \keyword{regression}
 \keyword{smooth}

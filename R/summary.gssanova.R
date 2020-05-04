@@ -1,13 +1,23 @@
 ## Summarize gssanova objects
 summary.gssanova <- function(object,diagnostics=FALSE,...)
 {
-    y <- model.response(object$mf,"numeric")
+    if (object$family=="polr") {
+        y <- model.response(object$mf)
+        if (!is.factor(y))
+            stop("gss error in gssanova1: need factor response for polr family")
+        lvls <- levels(y)
+        if (nlvl <- length(lvls)<3)
+            stop("gss error in gssanova1: need at least 3 levels to fit polr family")
+        y <- outer(y,lvls,"==")
+    }
+    else y <- model.response(object$mf,"numeric")
     wt <- model.weights(object$mf)
     offset <- model.offset(object$mf)
     if ((object$family=="nbinomial")&(!is.null(object$nu))) y <- cbind(y,object$nu)
     dev.null <- switch(object$family,
                        binomial=dev.null.binomial(y,wt,offset),
                        nbinomial=dev.null.nbinomial(y,wt,offset),
+                       polr=dev.null.polr(y,wt,offset),
                        poisson=dev.null.poisson(y,wt,offset),
                        Gamma=dev.null.Gamma(y,wt,offset),
                        weibull=dev.null.weibull(y,wt,offset,object$nu),

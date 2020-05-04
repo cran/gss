@@ -44,7 +44,7 @@ double precision  cd(*), qdrs(nqd,*), bwt(*), qdwt(nt,*), wt0(*), mchpr, mrs(*),
                   cdnew(*), wtnew(nt,*), wtnewsum(*), prec
 
 integer  i, j, k, m, iter, flag, idamax, infowk
-double precision  tmp, ddot, rkl, rklnew, mumax, disc, disc0
+double precision  tmp, ddot, rkl, rklnew, mumax, disc
 
 #   Initialization
 info = 0

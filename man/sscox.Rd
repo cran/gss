@@ -97,7 +97,6 @@ sscox(formula, type=NULL, data=list(), weights=NULL, subset,
     \code{\link{project.sscox}} can be used to calculate the
     Kullback-Leibler projection for model selection.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (2013), \emph{Smoothing Spline ANOVA Models (2nd Ed)}.  New
     York: Springer-Verlag.

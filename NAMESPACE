@@ -2,12 +2,12 @@ useDynLib(gss)
 # export user functions
 importFrom(stats, as.formula, dnorm, fitted, model.frame,
            model.matrix, model.offset, model.response, model.weights,
-           na.omit, nlm, pnorm, predict, qlogis, quantile, residuals,
-           terms, terms.formula, var, runif)
+           na.omit, nlm, pnorm, predict, plogis, qlogis, qnorm,
+           quantile, residuals, terms, terms.formula, var, runif)
 export(cdsscden, cpsscden, cqsscden, cdssden, cpssden, cqssden,
        dsscden, dssden, gauss.quad, gssanova, gssanova0,
        gssanova1, hzdcurve.sshzd, hzdrate.sshzd, nlm0, para.arma,
-       predict1, project, psscden, pssden, qsscden, qssden,
+       predict1, predict9, project, psscden, pssden, qsscden, qssden,
        smolyak.quad, smolyak.size, ssanova, ssanova0, ssanova9,
        sscden, sscden1, sscox, ssden, ssden1, sshzd, sshzd1, ssllrm,
        survexp.sshzd)
@@ -24,6 +24,7 @@ S3method(predict, ssanova0)
 S3method(predict, sscox)
 S3method(predict, ssllrm)
 S3method(predict1, ssanova)
+S3method(predict9, gssanova)
 S3method(print, gssanova)
 S3method(print, ssanova)
 S3method(print, ssanova0)

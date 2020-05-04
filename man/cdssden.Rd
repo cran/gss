@@ -25,7 +25,7 @@ cqssden(object, p, cond)
         to be calculated.}
 }
 \value{
-    \code{cdssden} returns a list object with the following components.
+    \code{cdssden} returns a list object with the following elements.
     \item{pdf}{Vector of conditional pdf.}
     \item{int}{Normalizing constant.}
       

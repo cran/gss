@@ -80,7 +80,6 @@ ssanova0(formula, type=NULL, data=list(), weights, subset,
     \code{\link{fitted.ssanova}} extract the respective traits from the
     fits.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Wahba, G. (1990), \emph{Spline Models for Observational Data}.
     Philadelphia: SIAM.

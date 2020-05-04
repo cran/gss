@@ -9,7 +9,16 @@ project.gssanova <- function(object,include,...)
     ## evaluate full model
     family <- object$family
     eta <- object$eta
-    y <- model.response(object$mf,"numeric")
+    if (object$family=="polr") {
+        y <- model.response(object$mf)
+        if (!is.factor(y))
+            stop("gss error in gssanova1: need factor response for polr family")
+        lvls <- levels(y)
+        if (nlvl <- length(lvls)<3)
+            stop("gss error in gssanova1: need at least 3 levels to fit polr family")
+        y <- outer(y,lvls,"==")
+    }
+    else y <- model.response(object$mf,"numeric")
     wt <- model.weights(object$mf)
     if(is.null(wt)) wt <- rep(1,nobs)
     offset <- model.offset(object$mf)
@@ -24,6 +33,7 @@ project.gssanova <- function(object,include,...)
                  Gamma=y0.Gamma(eta),
                  inverse.gaussian=y0.inverse.gaussian(eta),
                  nbinomial=y0.nbinomial(y,eta,nu),
+                 polr=y0.polr(list(eta=eta,nu=nu)),
                  weibull=y0.weibull(y,eta,nu),
                  lognorm=y0.lognorm(y,eta,nu),
                  loglogis=y0.loglogis(y,eta,nu))
@@ -34,6 +44,7 @@ project.gssanova <- function(object,include,...)
                    Gamma=cfit.Gamma(y,wt,offset),
                    inverse.gaussian=cfit.inverse.gaussian(y,wt,offset),
                    nbinomial=cfit.nbinomial(y,wt,offset,nu),
+                   polr=cfit.polr(y,wt,offset),
                    weibull=cfit.weibull(y,wt,offset,nu),
                    lognorm=cfit.lognorm(y,wt,offset,nu),
                    loglogis=cfit.loglogis(y,wt,offset,nu))
@@ -44,6 +55,7 @@ project.gssanova <- function(object,include,...)
                   Gamma=kl.Gamma(eta,cfit,wt),
                   inverse.gaussian=kl.inverse.gaussian(eta,cfit,wt),
                   nbinomial=kl.nbinomial(eta,cfit,wt,y0$nu),
+                  polr=kl.polr(list(eta=eta,nu=nu),cfit,wt),
                   weibull=kl.weibull(eta,cfit,wt,nu,y0$int),
                   lognorm=kl.lognorm(eta,cfit,wt,nu,y0),
                   loglogis=kl.loglogis(eta,cfit,wt,nu,y0))
@@ -110,6 +122,7 @@ project.gssanova <- function(object,include,...)
         }
         assign("dc",z$dc,inherits=TRUE)
         assign("eta1",z$eta,inherits=TRUE)
+        if (family=="polr") assign("nu",z$nu,inherits=TRUE)
         z$kl
     }
     cv.wk <- function(theta) cv.scale*my.wls(theta)+cv.shift
@@ -118,7 +131,7 @@ project.gssanova <- function(object,include,...)
         r.wk <- 0
         for (i in 1:nq) r.wk <- r.wk + 10^theta[i]*r[,,i]
         if (is.null(s)) theta.wk <- 0
-        else theta.wk <- log10(sum(s^2)/ncol(s)/sum(r.wk^2)*nxi) / 2
+        else theta.wk <- log10(sum(wt*s^2)/ncol(s)/sum(wt*r.wk^2)*nxi) / 2
         theta <- theta + theta.wk
         tmp <- NULL
         for (i in 1:nq) tmp <- c(tmp,10^theta[i]*sum(r[cbind(object$id.basis,1:nxi,i)]))
@@ -155,6 +168,7 @@ project.gssanova <- function(object,include,...)
                   Gamma=kl.Gamma(eta1,cfit,wt),
                   inverse.gaussian=kl.inverse.gaussian(eta1,cfit,wt),
                   nbinomial=kl.nbinomial(eta1,cfit,wt,y0$nu),
+                  polr=kl.polr(list(eta=eta1,nu=nu),cfit,wt),
                   weibull=kl.weibull(eta1,cfit,wt,nu,y0$int),
                   lognorm=kl.lognorm(eta1,cfit,wt,nu,y0),
                   loglogis=kl.loglogis(eta1,cfit,wt,nu,y0))
@@ -166,7 +180,7 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
 {
     ## initialization
     q <- 10^(-5)*q
-    eta <- sr%*%dc
+    eta <- as.vector(sr%*%dc)
     nobs <- length(eta)
     nn <- ncol(as.matrix(sr))
     nxi <- ncol(q)
@@ -178,15 +192,17 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                    Gamma=proj0.Gamma(y0,eta,wt,offset),
                    inverse.gaussian=proj0.inverse.gaussian(y0,eta,wt,offset),
                    nbinomial=proj0.nbinomial(y0,eta,wt,offset),
+                   polr=proj0.polr(y0,eta,wt,offset,nu),
                    weibull=proj0.weibull(y0,eta,wt,offset,nu),
                    lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
                    loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
-    kl <- fit1$kl+t(dc[-(1:nnull)])%*%q%*%dc[-(1:nnull)]/2
+    if (family=="polr") nu <- fit1$nu
+    kl <- fit1$kl
     ## Newton iteration
     dc.new <- eta.new <- NULL
     kl.line <- function(x) {
-        assign("dc.new",dc+x*dc.diff,inherits=TRUE)
-        eta.wk <- sr%*%dc.new
+        assign("dc.new",dc+c(x)*dc.diff,inherits=TRUE)
+        eta.wk <- as.vector(sr%*%dc.new)
         if (!is.null(offset)) eta.wk <- eta.wk + offset
         assign("eta.new",eta.wk,inherits=TRUE)
         fit.wk <- switch(family,
@@ -195,11 +211,13 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                          Gamma=proj0.Gamma(y0,eta.new,wt,offset),
                          inverse.gaussian=proj0.inverse.gaussian(y0,eta.new,wt,offset),
                          nbinomial=proj0.nbinomial(y0,eta.new,wt,offset),
+                         polr=proj0.polr(y0,eta.new,wt,offset,nu),
                          weibull=proj0.weibull(y0,eta.new,wt,offset,nu),
                          lognorm=proj0.lognorm(y0,eta.new,wt,offset,nu),
                          loglogis=proj0.loglogis(y0,eta.new,wt,offset,nu))
         assign("fit1",fit.wk,inherits=TRUE)
-        fit1$kl+t(dc.new[-(1:nnull)])%*%q%*%dc.new[-(1:nnull)]/2
+        if (family=="polr") nu <- fit1$nu
+        fit1$kl
     }
     iter <- 0
     flag <- 0
@@ -211,6 +229,16 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
             if (flag) stop("gss error in project.gssanova: Newton iteration diverges")
             dc <- rep(0,nn)
             eta <- rep(0,nobs)
+            if (family=="polr") {
+                if (is.null(wt)) P <- apply(y0,2,sum)
+                else P <- apply(y0*wt,2,sum)
+                P <- P/sum(P)
+                P <- cumsum(P)
+                nnu <- length(P)-2
+                dc[1] <- qlogis(P[1])
+                nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
+                eta <- as.vector(sr%*%dc)
+            }
             if (!is.null(offset)) eta <- eta + offset
             fit1 <- switch(family,
                            binomial=proj0.binomial(y0,eta,offset),
@@ -218,15 +246,17 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                            Gamma=proj0.Gamma(y0,eta,wt,offset),
                            inverse.gaussian=proj0.inverse.gaussian(y0,eta,wt,offset),
                            nbinomial=proj0.nbinomial(y0,eta,wt,offset),
+                           polr=proj0.polr(y0,eta,wt,offset,nu),
                            weibull=proj0.weibull(y0,eta,wt,offset,nu),
                            lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
                            loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
+            if (family=="polr") nu <- fit1$nu
             kl <- fit1$kl
             iter <- 0
             flag <- 1
             next
         }
-        mumax <- max(abs(t(sr)%*%fit1$u+c(rep(0,nnull),q%*%dc[-(1:nnull)])))
+        mumax <- max(abs(t(sr)%*%fit1$u))
         w <- sqrt(as.vector(fit1$wt))
         z <- .Fortran("reg",
                       as.double(w*sr), as.integer(nobs), as.integer(nnull),
@@ -257,6 +287,16 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
             if (flag) stop("gss error in project.gssanova: Newton iteration diverges")
             dc <- rep(0,nn)
             eta <- rep(0,nobs)
+            if (family=="polr") {
+                if (is.null(wt)) P <- apply(y0,2,sum)
+                else P <- apply(y0*wt,2,sum)
+                P <- P/sum(P)
+                P <- cumsum(P)
+                nnu <- length(P)-2
+                dc[1] <- qlogis(P[1])
+                nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
+                eta <- as.vector(sr%*%dc)
+            }
             if (!is.null(offset)) eta <- eta + offset
             fit1 <- switch(family,
                            binomial=proj0.binomial(y0,eta,offset),
@@ -264,9 +304,12 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                            Gamma=proj0.Gamma(y0,eta,wt,offset),
                            inverse.gaussian=proj0.inverse.gaussian(y0,eta,wt,offset),
                            nbinomial=proj0.nbinomial(y0,eta,wt,offset),
+                           polr=proj0.polr(y0,eta,wt,offset,nu),
+                           polr=proj0.polr(y0,eta,wt,offset),
                            weibull=proj0.weibull(y0,eta,wt,offset,nu),
                            lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
                            loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
+            if (family=="polr") nu <- fit1$nu
             kl <- fit1$kl
             iter <- 0
             flag <- 1
@@ -291,9 +334,11 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                    Gamma=proj0.Gamma(y0,eta,wt,offset),
                    inverse.gaussian=proj0.inverse.gaussian(y0,eta,wt,offset),
                    nbinomial=proj0.nbinomial(y0,eta,wt,offset),
+                   polr=proj0.polr(y0,eta,wt,offset,nu),
                    weibull=proj0.weibull(y0,eta,wt,offset,nu),
                    lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
                    loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
+    if (family=="polr") nu <- fit1$nu
     kl <- fit1$kl
-    list(dc=dc,eta=eta,kl=kl)
+    list(dc=dc,eta=eta,kl=kl,nu=nu)
 }

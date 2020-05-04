@@ -15,7 +15,7 @@
 }
 \value{
     \code{summary.gssanova0} returns a list object of \code{\link{class}}
-    \code{"summary.gssanova0"} consisting of the following components.
+    \code{"summary.gssanova0"} consisting of the following elements.
     The entries \code{pi}, \code{kappa}, \code{cosines}, and
     \code{roughness} are only calculated if \code{diagnostics=TRUE}.
     \item{call}{Fitting call.}
@@ -52,7 +52,6 @@
     The diagnostics are based on the "pseudo" Gaussian response model
     behind the weighted least squares problem at convergence.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \references{
     Gu, C. (1992), Diagnostics for nonparametric regression models with
     additive terms.  \emph{Journal of the American Statistical

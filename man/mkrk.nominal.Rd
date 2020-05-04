@@ -28,7 +28,7 @@ mkrk.ordinal(levels)
     \deqn{(f(1)-f(2))^2+\dots+(f(k-1)-f(k))^2}
 }
 \value{
-    A list of two components.
+    A list of two elements.
     \item{fun}{Function definition.}
     \item{env}{Portable local constants derived from the arguments.}
 }
@@ -37,7 +37,6 @@ mkrk.ordinal(levels)
     \code{fun(x,y,env,outer=FALSE)}, where \code{x}, \code{y} are real
     arguments and local constants can be passed in through \code{env}.
 }
-\author{Chong Gu, \email{chong@stat.purdue.edu}}
 \seealso{
     \code{\link{mkterm}}, \code{\link{mkrk.cubic}}, and
     \code{\link{mkrk.tp}}.

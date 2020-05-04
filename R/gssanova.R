@@ -6,7 +6,7 @@ gssanova <- function(formula,family,type=NULL,data=list(),weights,
                      skip.iter=FALSE)
 {
     if (!(family%in%c("binomial","poisson","Gamma","inverse.gaussian","nbinomial",
-                      "weibull","lognorm","loglogis")))
+                      "polr","weibull","lognorm","loglogis")))
         stop("gss error in gssanova: family not implemented")
     if (is.null(alpha)) {
         alpha <- 1.4
@@ -86,7 +86,16 @@ gssanova <- function(formula,family,type=NULL,data=list(),weights,
     if (qr(s)$rank<dim(s)[2])
         stop("gss error in gssanova: unpenalized terms are linearly dependent")
     ## Prepare the data
-    y <- model.response(mf,"numeric")
+    if (family=="polr") {
+        y <- model.response(mf)
+        if (!is.factor(y))
+            stop("gss error in gssanova1: need factor response for polr family")
+        lvls <- levels(y)
+        if (nlvl <- length(lvls)<3)
+            stop("gss error in gssanova1: need at least 3 levels to fit polr family")
+        y <- outer(y,lvls,"==")
+    }
+    else y <- model.response(mf,"numeric")
     offset <- model.offset(mf)
     if (!is.null(offset)) {
         term$labels <- c(term$labels,"offset")
@@ -159,10 +168,12 @@ sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         z <- ngreg(dc,family,cbind(s,10^theta*r),q.wk,y,wt,offset,nu.wk,alpha.wk)
         assign("dc",z$dc,inherits=TRUE)
         assign("fit",z[c(1:3,5:10)],inherits=TRUE)
+        if (family=="polr") assign("nu",z$nu,inherits=TRUE)
         z$score
     }
     cv.wk <- function(lambda) cv.scale*cv(lambda)+cv.shift
     ## initialization
+    dc <- rep(0,nn)
     tmp <- sum(r^2)
     if (is.null(s)) theta <- 0
     else theta <- log10(sum(s^2)/nnull/tmp*nxi) / 2
@@ -181,8 +192,16 @@ sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
                       loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
         nu[[1]] <- wk$nu[[1]]
     }
+    if (family=="polr") {
+        if (is.null(wt)) P <- apply(y,2,sum)
+        else P <- apply(y*wt,2,sum)
+        P <- P/sum(P)
+        P <- cumsum(P)
+        nnu <- length(P)-2
+        dc[1] <- qlogis(P[1])
+        nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
+    }
     ## lambda search
-    dc <- rep(0,nn)
     fit <- NULL
     la <- log.la0
     if (nu[[2]]) la <- c(la, log(nu[[1]]))
@@ -230,7 +249,7 @@ sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
         nu.wk <- exp(zz$est[2])
         zz$est <- zz$est[-2]
     }
-    else nu.wk <- NULL
+    else nu.wk <- nu[[1]]
     if (is.null(random)) q.wk <- 10^theta*q
     else {
         q.wk <- matrix(0,nxiz,nxiz)
@@ -303,6 +322,7 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
         z <- ngreg(dc,family,cbind(s,r.wk0),q.wk,y,wt,offset,nu.wk,alpha.wk)
         assign("dc",z$dc,inherits=TRUE)
         assign("fit",z[c(1:3,5:10)],inherits=TRUE)
+        if (family=="polr") assign("nu",z$nu,inherits=TRUE)
         z$score
     }
     cv.wk <- function(theta) cv.scale*cv(theta)+cv.shift
@@ -314,7 +334,7 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
     }
     ## theta adjustment
     z <- sspngreg(family,s,r.wk,r.wk[id.basis,],y,wt,offset,alpha,nu,random)
-    if (nu[[2]]) nu[[1]] <- z$nu
+    if (nu[[2]]|(family=="polr")) nu[[1]] <- z$nu
     theta <- theta + z$theta
     r.wk <- 0
     for (i in 1:nq) {
@@ -325,7 +345,7 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
     log.th0 <- theta-log.la0
     ## lambda search
     z <- sspngreg(family,s,r.wk,r.wk[id.basis,],y,wt,offset,alpha,nu,random)
-    if (nu[[2]]) nu[[1]] <- z$nu
+    if (nu[[2]]|(family=="polr")) nu[[1]] <- z$nu
     nlambda <- z$nlambda
     log.th0 <- log.th0 + z$lambda
     theta <- theta + z$theta
@@ -339,6 +359,15 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
     dc <- rep(0,nn)
     fit <- NULL
     theta.old <- theta
+    if (family=="polr") {
+        if (is.null(wt)) P <- apply(y,2,sum)
+        else P <- apply(y*wt,2,sum)
+        P <- P/sum(P)
+        P <- cumsum(P)
+        nnu <- length(P)-2
+        dc[1] <- qlogis(P[1])
+        nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
+    }
     if (nu[[2]]) theta <- c(theta, log(nu[[1]]))
     if (!is.null(random)) theta <- c(theta,z$zeta)
     counter <- 0
@@ -373,7 +402,7 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
         nu.wk <- exp(zz$est[nq+1])
         zz$est <- zz$est[-(nq+1)]
     }
-    else nu.wk <- NULL
+    else nu.wk <- nu[[1]]
     r.wk <- 0
     for (i in 1:nq) {
         r.wk <- r.wk + 10^zz$est[i]*r[,,i]
@@ -406,11 +435,12 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
     nnull <- nn - nxi
     ## initialization
     cc <- dc[nnull+(1:nxi)]
-    eta <- sr%*%dc
+    eta <- as.vector(sr%*%dc)
     if (!is.null(offset)) eta <- eta + offset
     if ((family=="nbinomial")&is.vector(y)) y <- cbind(y,nu[[1]])
     dev <- switch(family,
                   binomial=dev.resid.binomial(y,eta,wt),
+                  polr=dev.resid.polr(y,eta,wt,nu[[1]]),
                   nbinomial=dev.resid.nbinomial(y,eta,wt),
                   poisson=dev.resid.poisson(y,eta,wt),
                   Gamma=dev.resid.Gamma(y,eta,wt),
@@ -422,7 +452,7 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
     ## Newton iteration
     dc.new <- eta.new <- NULL
     dev.line <- function(x) {
-        assign("dc.new",dc+x*dc.diff,inherits=TRUE)
+        assign("dc.new",dc+c(x)*dc.diff,inherits=TRUE)
         cc <- dc.new[nnull+(1:nxi)]
         eta.wk <- as.vector(sr%*%dc.new)
         if (!is.null(offset)) eta.wk <- eta.wk + offset
@@ -430,6 +460,7 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
         dev.wk <- switch(family,
                          binomial=dev.resid.binomial(y,eta.new,wt),
                          nbinomial=dev.resid.nbinomial(y,eta.new,wt),
+                         polr=dev.resid.polr(y,eta.new,wt,nu[[1]]),
                          poisson=dev.resid.poisson(y,eta.new,wt),
                          Gamma=dev.resid.Gamma(y,eta.new,wt),
                          inverse.gaussian=dev.resid.inverse.gaussian(y,eta.new,wt),
@@ -446,12 +477,14 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
         dat <- switch(family,
                       binomial=mkdata.binomial(y,eta,wt,offset),
                       nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
+                      polr=mkdata.polr(y,eta,wt,offset,nu[[1]]),
                       poisson=mkdata.poisson(y,eta,wt,offset),
                       Gamma=mkdata.Gamma(y,eta,wt,offset),
                       inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                       weibull=mkdata.weibull(y,eta,wt,offset,nu),
                       lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
                       loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
+        if (family=="polr") nu[[1]] <- dat$nu
         ## weighted least squares fit
         mumax <- 2*max(abs(t(sr)%*%dat$u+c(rep(0,nnull),q%*%dc[nnull+(1:nxi)])))
         w <- as.vector(sqrt(dat$wt))
@@ -461,10 +494,21 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
             if (flag) stop("gss error in gssanova: Newton iteration diverges")
             dc <- rep(0,nn)
             eta <- rep(0,nobs)
+            if (family=="polr") {
+                if (is.null(wt)) P <- apply(y,2,sum)
+                else P <- apply(y*wt,2,sum)
+                P <- P/sum(P)
+                P <- cumsum(P)
+                nnu <- length(P)-2
+                dc[1] <- qlogis(P[1])
+                nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
+                eta <- as.vector(sr%*%dc)
+            }
             if (!is.null(offset)) eta <- eta + offset
             dev <- switch(family,
                           binomial=dev.resid.binomial(y,eta,wt),
                           nbinomial=dev.resid.nbinomial(y,eta,wt),
+                          polr=dev.resid.polr(y,eta,wt,nu[[1]]),
                           poisson=dev.resid.poisson(y,eta,wt),
                           Gamma=dev.resid.Gamma(y,eta,wt),
                           inverse.gaussian=dev.resid.inverse.gaussian(y,eta,wt),
@@ -506,10 +550,21 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
             if (flag) stop("gss error in gssanova: Newton iteration diverges")
             dc <- rep(0,nn)
             eta <- rep(0,nobs)
+            if (family=="polr") {
+                if (is.null(wt)) P <- apply(y,2,sum)
+                else P <- apply(y*wt,2,sum)
+                P <- P/sum(P)
+                P <- cumsum(P)
+                nnu <- length(P)-2
+                dc[1] <- qlogis(P[1])
+                nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
+                eta <- as.vector(sr%*%dc)
+            }
             if (!is.null(offset)) eta <- eta + offset
             dev <- switch(family,
                           binomial=dev.resid.binomial(y,eta,wt),
                           nbinomial=dev.resid.nbinomial(y,eta,wt),
+                          polr=dev.resid.polr(y,eta,wt,nu[[1]]),
                           poisson=dev.resid.poisson(y,eta,wt),
                           Gamma=dev.resid.Gamma(y,eta,wt),
                           inverse.gaussian=dev.resid.inverse.gaussian(y,eta,wt),
@@ -538,12 +593,14 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
     dat <- switch(family,
                   binomial=mkdata.binomial(y,eta,wt,offset),
                   nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
+                  polr=mkdata.polr(y,eta,wt,offset,nu[[1]]),
                   poisson=mkdata.poisson(y,eta,wt,offset),
                   Gamma=mkdata.Gamma(y,eta,wt,offset),
                   inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                   weibull=mkdata.weibull(y,eta,wt,offset,nu),
                   lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
                   loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
+    if (family=="polr") nu[[1]] <- dat$nu
     ## weighted least squares fit
     w <- as.vector(sqrt(dat$wt))
     ywk <- w*dat$ywk
@@ -564,8 +621,9 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
                  Gamma=cv.Gamma(y,eta,wt,z$hat[1:nobs],z$hat[nobs+1],alpha),
                  inverse.gaussian=cv.inverse.gaussian(y,eta,wt,z$hat[1:nobs],z$hat[nobs+1],alpha),
                  nbinomial=cv.nbinomial(y,eta,wt,z$hat[1:nobs],alpha),
+                 polr=cv.polr(y,eta,wt,z$hat[1:nobs],nu[[1]],alpha),
                  weibull=cv.weibull(y,eta,wt,z$hat[1:nobs],nu[[1]],alpha),
                  lognorm=cv.lognorm(y,eta,wt,z$hat[1:nobs],nu[[1]],alpha),
                  loglogis=cv.loglogis(y,eta,wt,z$hat[1:nobs],nu[[1]],alpha))
-    c(z,cv,list(eta=eta))
+    c(z,cv,list(eta=eta,nu=nu))
 }
