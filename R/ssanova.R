@@ -145,7 +145,7 @@ sspreg1 <- function(s,r,q,y,wt,method,alpha,varht,random)
                 10^(2*ran.scal)*random$sigma$fun(lambda[-1],random$sigma$env)
         }
         if (qr.trace) {
-            qq.wk <- chol(q.wk,pivot=TRUE)
+            suppressWarnings(qq.wk <- chol(q.wk,pivot=TRUE))
             sr <- cbind(s,10^theta*r[,attr(qq.wk,"pivot")])
             sr <- rbind(sr,cbind(matrix(0,nxiz,nnull),qq.wk))
             sr <- qr(sr,tol=0)
@@ -324,7 +324,7 @@ mspreg1 <- function(s,r,id.basis,y,wt,method,alpha,varht,random,skip.iter)
             r.wk0 <- wt*r.wk0
         }
         if (qr.trace) {
-            qq.wk <- chol(q.wk,pivot=TRUE)
+            suppressWarnings(qq.wk <- chol(q.wk,pivot=TRUE))
             sr <- cbind(s.wk,r.wk0[,attr(qq.wk,"pivot")])
             sr <- rbind(sr,cbind(matrix(0,nxiz,nnull),qq.wk))
             sr <- qr(sr,tol=0)
@@ -505,7 +505,7 @@ regaux <- function(s,r,q,nlambda,fit)
     wk1[1:nnull,1:nnull] <- sms
     wk1[1:nnull,nnull+(1:rkq)] <- -t(t(dr)/val)
     wk1[nnull+(1:rkq),nnull+(1:rkq)] <- wk2
-    z <- chol(wk1,pivot=TRUE)
+    suppressWarnings(z <- chol(wk1,pivot=TRUE))
     wk1 <- z
     rkw <- attr(z,"rank")
     while (wk1[rkw,rkw]<wk1[1,1]*sqrt(.Machine$double.eps)) rkw <- rkw-1

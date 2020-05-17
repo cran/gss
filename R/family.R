@@ -301,6 +301,9 @@ mkdata.polr <- function(y,eta,wt,offset,nu)
     dd <- log(nu)
     repeat {
         ## gradient and hessian
+        nu <- exp(dd)
+        G <- c(0,cumsum(nu))
+        P <- exp(outer(eta,G,"+"))
         grad <- hess.wk <- NULL
         for (i in 1:nnu) {
             g.wk <- h.wk <- 0
@@ -335,29 +338,36 @@ mkdata.polr <- function(y,eta,wt,offset,nu)
         else hess <- abs(hess)
         ## update nu
         mumax <- max(abs(grad))
+        dd.diff <- solve(hess,grad)
         repeat {
-            ddnew <- dd-solve(hess,grad)
-            nu <- exp(ddnew)
-            G <- c(0,cumsum(nu))
-            P <- exp(outer(eta,G,"+"))
-            lkhdnew <- 0
-            for (i in 1:(nnu+1))
-                lkhdnew <- lkhdnew+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
-            for (i in 1:nnu) lkhdnew <- lkhdnew-sum(wt*y[,i+1])/sum(wt)*log(exp(nu[i])-1)
-            if (nnu>1) {
-                for (i in 1:(nnu-1)) {
-                    tmp <- 0
-                    for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
-                    lkhdnew <- lkhdnew-tmp*nu[i]
+            lkhd.line <- function(x) {
+                ddnew <- dd-c(x)*dd.diff
+                nu <- exp(ddnew)
+                G <- c(0,cumsum(nu))
+                P <- exp(outer(eta,G,"+"))
+                lkhd <- 0
+                for (i in 1:(nnu+1))
+                    lkhd <- lkhd+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
+                for (i in 1:nnu) lkhd <- lkhd-sum(wt*y[,i+1])/sum(wt)*log(exp(nu[i])-1)
+                if (nnu>1) {
+                    for (i in 1:(nnu-1)) {
+                        tmp <- 0
+                        for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
+                        lkhd <- lkhd-tmp*nu[i]
+                    }
                 }
+                lkhd
             }
-            if (!is.finite(lkhdnew)) {
-                grad <- grad/2
+            if (!is.finite(lkhdnew <- lkhd.line(1))) {
+                dd.diff <- dd.diff/2
                 next
             }
-            if (lkhdnew-lkhd<(1+abs(lkhd)*10*.Machine$double.eps)) break
-            grad <- grad/2
-            if (max(grad)/mumax<10*.Machine$double.eps) break
+            ddnew <- dd-dd.diff
+            if (lkhdnew-lkhd<(1+abs(lkhd))*10*.Machine$double.eps) break
+            z <- nlm0(lkhd.line,c(0,1))
+            ddnew <- dd-z$est*dd.diff
+            lkhdnew <- z$min
+            break
         }
         disc <- abs(lkhdnew-lkhd)/(1+abs(lkhd))
         disc <- max(disc,max(abs(dd-ddnew)/(1+abs(dd))))

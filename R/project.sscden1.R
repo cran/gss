@@ -162,7 +162,7 @@ project.sscden1 <- function(object,include,...)
             mu <- s.eta[id.s0]
         }
         nn <- length(mu)
-        z <- chol(v,pivot=TRUE)
+        suppressWarnings(z <- chol(v,pivot=TRUE))
         v <- z
         rkv <- attr(z,"rank")
         m.eps <- .Machine$double.eps

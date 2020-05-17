@@ -36,7 +36,6 @@ extern void F77_NAME(llrmrkl)(void *, void *, void *, void *, void *, void *, vo
 extern void F77_NAME(reg)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(regaux)(void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void F77_NAME(dmcdc)(void *, void *, void *, void *, void *, void *);
-extern void F77_NAME(dchdc0)(void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CMethodDef CEntries[] = {
     {"quad_smolyak", (DL_FUNC) &quad_smolyak, 4},
@@ -70,7 +69,6 @@ static const R_FortranMethodDef FortranEntries[] = {
     {"reg",          (DL_FUNC) &F77_NAME(reg),          18},
     {"regaux",       (DL_FUNC) &F77_NAME(regaux),        9},
     {"dmcdc",        (DL_FUNC) &F77_NAME(dmcdc),         6},
-    {"dchdc0",        (DL_FUNC) &F77_NAME(dchdc0),       7},
     {NULL, NULL, 0}
 };
 

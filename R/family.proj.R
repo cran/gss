@@ -224,7 +224,7 @@ proj0.polr <- function(y0,eta,wt,offset,nu)
     for (i in 2:(nnu+1)) y <- cbind(y,y0[,i]-y0[,i-1])
     y <- cbind(y,1-y0[,nnu+1])
     lkhd <- function(log.nu) {
-        nu <- exp(nu)
+        nu <- exp(log.nu)
         G <- c(0,cumsum(nu))
         P <- exp(outer(eta,G,"+"))
         lkhd <- 0
@@ -256,7 +256,8 @@ proj0.polr <- function(y0,eta,wt,offset,nu)
     P <- P/(1+P)
     for (i in 1:length(eta)) {
         tmp <- diff(c(0,P[i,],1))
-        kl <- kl+wt[i]*sum(y[i,]*log(y[i,]/tmp))
+        if (min(tmp)<=0) kl <- Inf
+        else kl <- kl+wt[i]*sum(y[i,]*log(y[i,]/tmp))
     }
     kl <- kl/sum(wt)
     wt <- w*wt

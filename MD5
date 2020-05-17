@@ -1,5 +1,5 @@
-4beab7f87614ba21ae92f4879fe0e0df *ChangeLog
-5f847a7ff2964a8322acd73461e492bc *DESCRIPTION
+6959f91986b55fbefdf39cd95ed4b6e3 *ChangeLog
+eac28a5d66701a3fdb2d5109219e49ce *DESCRIPTION
 0f6b858d42fc1e6af7774e5d4a9c3300 *INDEX
 53174290c2c5d3bddfe81254c7abfa53 *NAMESPACE
 1d00015b10d8256aaede525722621ffc *R/cdsscden.R
@@ -7,9 +7,9 @@
 a4cf561453300bc881519be811e6e36c *R/dsscden.R
 28afb3bc3469b09d1db335b5bfe4c88e *R/dsscopu.R
 c887032085de3b8aa5728103301014ab *R/dssden.R
-66c8a55c9254540eb7cae2930446ae77 *R/family.R
-53e1b86f0b4f1981ec2da0fc5e7fb1d0 *R/family.cv.R
-bed7aa9ccb46dce38cd135aefe71349d *R/family.proj.R
+559874c71d989cb315af06eca7797c56 *R/family.R
+8cf03c37c38512d84831d3ddad9c33b7 *R/family.cv.R
+e845e29cbedeefa26e421410d897ebf5 *R/family.proj.R
 630dbcbb2a0ced555d40e693b7b3f4d4 *R/family.surv.R
 d67212f47d1a4287b478740f0fb89992 *R/fitted.R
 7b557a66a85c9a87034d408e71e30a95 *R/gauss.quad.R
@@ -36,15 +36,15 @@ d13575dc8c9528fee8c77521bb33fe97 *R/predict.sscox.R
 500416a79d3297d43b5f35c78b640fda *R/project.ssanova.R
 023ed96bb4991e538c3f38a7a8bb3224 *R/project.ssanova9.R
 5a78c5b0ac10960f45efb305efa74b00 *R/project.sscden.R
-523f48d90ebe5792f08cf63e387de5f1 *R/project.sscden1.R
+efcfe6ca48d01c38d4db04c26e138805 *R/project.sscden1.R
 50ed5e000696a4ec366834a09673e448 *R/project.sscox.R
 89a6175fe772e65c76ab3eb644acd316 *R/project.ssden.R
-c95e17013f7411b89d0f8e14b6d2a3b1 *R/project.ssden1.R
+8133bee08081d95af25fd6d2a1f905de *R/project.ssden1.R
 fdc26fdef9a730f792d3c3bd146c0940 *R/project.sshzd.R
-5d77baee61428e3359defc8a7599c68b *R/project.sshzd1.R
+794230b5f6c1e47dfca0fef94ebbf311 *R/project.sshzd1.R
 bf5f875bbef9fb78e75bafa5aa4be563 *R/project.ssllrm.R
 d44fab9e998870ebdb9a3c393d0ef756 *R/smolyak.R
-c1e008d561780b72c7b07a39e7562b3f *R/ssanova.R
+912a7cb4edd645076b72eaae69d220e6 *R/ssanova.R
 dd4aa54b10ec5e2a8b0cdff18780d562 *R/ssanova0.R
 9be84d7ff1b4e8a5922bd678ace8b40f *R/ssanova9.R
 edb14e97f6de2cb36d610cc02725ba3a *R/sscden.R
@@ -153,7 +153,6 @@ b764b3c234f939a11cd1ccee3b232504 *man/wesdr1.Rd
 0423a47eb8c93a22c1ec15136a2419f5 *src/cdennewton.f
 ac411cbbffa81ff956cb59e79f67403c *src/cdennewton10.f
 08b22168d8e387134de819afae34c70d *src/copu2newton.f
-1d0848b9a9c7ec70927d1385723b00fd *src/dchdc0.f
 7660189020bc629e33531dfccc58721f *src/dcoef.f
 b95abc103e26f67dc5c543096d0a9967 *src/dcore.f
 b05ac68613d1536384c72933d4d089be *src/dcrdr.f
@@ -178,7 +177,7 @@ fd182860bce46df715d6618be98fd5a0 *src/gaussq.f
 53df31681eb9b0911ec8bb3b5e9cc0c5 *src/hzdaux.f
 44cf970d0d0271b391ccdfc5475d3561 *src/hzdnewton.f
 fa5c780f4bb48e1aa23fa7cd9be53e57 *src/hzdnewton10.f
-16be7665de52ce87120138bcda100182 *src/init.c
+f3314da76ddac6f573346ba745289e56 *src/init.c
 946e7257e372eac1629e256df6afde4a *src/llrmnewton.f
 88109ec6b4f9ff4bd8b525f0a866c332 *src/ratfor/cdennewton.r
 025d7e6ce3a32679a292ebb44bb3e4ec *src/ratfor/cdennewton10.r

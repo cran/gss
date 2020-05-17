@@ -46,19 +46,15 @@ cv.poisson <- function(y,eta,wt,hat,alpha,sr,q)
     v <- t(sr)%*%(wt*w*sr)/sum(wt*w)-outer(mu,mu)
     v[(nnull+1):nn,(nnull+1):nn] <- v[(nnull+1):nn,(nnull+1):nn]+q/sum(wt*y)
     ## Cholesky decomposition of H
-    z <- .Fortran("dchdc0",
-                  v=as.double(v), as.integer(nn), as.integer(nn),
-                  double(nn), jpvt=as.integer(rep(0,nn)),
-                  as.integer(1), rkv=integer(1),
-                  PACKAGE="gss")[c("v","jpvt","rkv")]
-    v <- matrix(z$v,nn,nn)
-    rkv <- z$rkv
+    suppressWarnings(z <- chol(v,pivot=TRUE))
+    v <- z
+    rkv <- attr(z,"rank")
     while (v[rkv,rkv]<v[1,1]*sqrt(.Machine$double.eps)) rkv <- rkv-1
     if (rkv<nn) v[(rkv+1):nn,(rkv+1):nn] <- diag(v[1,1],nn-rkv)
     ## trace
     mu <- apply(wt*y*sr,2,sum)/sum(wt*y)
     sr <- sqrt(wt*y)*t(t(sr)-mu)
-    sr <- backsolve(v,t(sr[,z$jpvt]),transpose=TRUE)
+    sr <- backsolve(v,t(sr[,attr(z,"pivot")]),transpose=TRUE)
     aux1 <- sum(sr^2)
     aux2 <- 1/sum(wt*y)/(sum(wt*y)-1)
     list(score=lkhd+abs(alpha)*aux1*aux2,varht=1,w=as.vector(wt*w))

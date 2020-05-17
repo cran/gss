@@ -70,7 +70,7 @@ project.ssden1 <- function(object,include,drop1=FALSE,...)
         v <- cbind(rbind(ss.wk,t(sr.wk)),rbind(sr.wk,rr.wk))
         mu <- c(s.eta[id.s],r.eta.wk)
         nn <- length(mu)
-        z <- chol(v,pivot=TRUE)
+        suppressWarnings(z <- chol(v,pivot=TRUE))
         v <- z
         rkv <- attr(z,"rank")
         m.eps <- .Machine$double.eps
