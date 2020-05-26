@@ -1,3 +1,11 @@
+Tue May 26 00:21:21 EDT 2020, Chong Gu  <chong@purdue.edu>
+
+	* DESCRIPTION: Version 2.2-2.
+
+	* R: Added sscomp and sscomp2.
+
+	* man: Added documentation for sscomp and sscomp2.
+
 Sat May 16 15:49:33 EDT 2020, Chong Gu  <chong@purdue.edu>
 
 	* DESCRIPTION: Version 2.2-1.

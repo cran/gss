@@ -42,6 +42,8 @@ cdssden                     Evaluating conditional pdf of ssden estimates
 cpssden                     Evaluating 1-D conditional cdf of ssden estimates
 cqssden                     Evaluating 1-D conditional quantiles of ssden estimates
 print.ssden                 Print function for ssden objects
+sscomp                      Estimating composition with one sample
+sscomp2                     Estimating composition with multiple samples
 
 sscden                      Estimating conditional density using smoothing splines
 d.sscden                    Evaluating pdf of sscden estimates

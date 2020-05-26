@@ -1,7 +1,7 @@
-6959f91986b55fbefdf39cd95ed4b6e3 *ChangeLog
-eac28a5d66701a3fdb2d5109219e49ce *DESCRIPTION
-0f6b858d42fc1e6af7774e5d4a9c3300 *INDEX
-53174290c2c5d3bddfe81254c7abfa53 *NAMESPACE
+22fc0985d2cc9446dd1a3c39ab6526d7 *ChangeLog
+aa20d4dabee3fd8acde750d7fc5d3d43 *DESCRIPTION
+24ff2b8f15521a49b59f6d19146ae6df *INDEX
+20c494cb2d9aaa1a65f87cf5afd95df6 *NAMESPACE
 1d00015b10d8256aaede525722621ffc *R/cdsscden.R
 03873ecc380382307d04da914fb5a866 *R/cdssden.R
 a4cf561453300bc881519be811e6e36c *R/dsscden.R
@@ -49,6 +49,7 @@ dd4aa54b10ec5e2a8b0cdff18780d562 *R/ssanova0.R
 9be84d7ff1b4e8a5922bd678ace8b40f *R/ssanova9.R
 edb14e97f6de2cb36d610cc02725ba3a *R/sscden.R
 40ddb4f3d1511288c96182020673fa15 *R/sscden1.R
+1cbca9d45e7d735cd750a1f29c8b786a *R/sscomp.R
 58bfc87ec8debc40bdf3ad95f4df085e *R/sscopu.R
 111d09029fc69db43413326a418fb286 *R/sscopu2.R
 b9fad02c0244197802cc8fd0fcdde239 *R/sscox.R
@@ -136,6 +137,7 @@ ea1852ffb73163612798d83f5fcd234e *man/ssanova.Rd
 e2f739c757a04a968ec837b15ed91985 *man/ssanova0.Rd
 e54aa57ed8c94851cb790cd9de84b871 *man/ssanova9.Rd
 a56a56fb459ddc58c95c27e8b9e37ef8 *man/sscden.Rd
+a89272e0fa273b6524da0e23574f96bb *man/sscomp.Rd
 142a1be80d200caf0cbd80218c2db7bc *man/sscopu.Rd
 4df29e6fff4a4655285f24904cb212c3 *man/sscox.Rd
 97f4d0c57cfa8fac287275a9588eca88 *man/ssden.Rd

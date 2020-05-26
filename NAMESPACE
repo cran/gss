@@ -10,7 +10,7 @@ export(cdsscden, cpsscden, cqsscden, cdssden, cpssden, cqssden,
        predict1, predict9, project, psscden, pssden, qsscden, qssden,
        smolyak.quad, smolyak.size, ssanova, ssanova0, ssanova9,
        sscden, sscden1, sscox, ssden, ssden1, sshzd, sshzd1, ssllrm,
-       survexp.sshzd)
+       survexp.sshzd,sscomp,sscomp2)
 export(sscopu, sscopu2, dsscopu, cdsscopu, cpsscopu, cqsscopu,
        sshzd2d, sshzd2d1, hzdrate.sshzd2d, survexp.sshzd2d)
 # export internal functions used in examples
