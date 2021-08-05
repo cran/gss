@@ -12,9 +12,14 @@ sscomp <- function(x,wt=rep(1,length(x)),alpha=1.4)
     mf <- model.frame(~x)
     term <- mkterm(mf,NULL)
     rk <- term$x$rk
-    x.basis <- x[-nlvl]
-    r <- rk$fun(x.basis,x,nu=1,env=rk$env,out=TRUE)
-    q <- r[,-nlvl]
+    ## get basis functions
+    id.basis <- 1:nlvl
+    if (max(abs(wt-mean(wt)))/mean(wt)<.Machine$double.eps)
+        id.basis <- id.basis[cnt>0]
+    if (length(id.basis)==nlvl) id.basis <- id.basis[-nlvl]
+    ## generate matrices
+    r <- rk$fun(x[id.basis],x,nu=1,env=rk$env,out=TRUE)
+    q <- r[,id.basis]
     qd.wt <- as.vector(wt)
     ## Fit the model
     nt <- b.wt <- 1

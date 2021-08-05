@@ -58,7 +58,7 @@ static void fsum1(int, double *pt, double *wt);
 static void init();                          /* initialization              */
 
 static double calccoeff(int);                /* coefficient calculator      */
-static double calccoeff2(int,int);       /* coefficient calculator (slow)   */
+/* static double calccoeff2(int,int); */      /* coefficient calculator (slow)   */
 static double wl(int, int, int);             /* 'divide                     */
 static double we(int, int, int);             /*         and                 */
 static void sumind(int, int);                /*            conquer'         */
@@ -374,6 +374,7 @@ double we(int r,int s, int l)
 
 
 /********** method USUAL: (slow) ******************************/
+/*
 
 double calccoeff2 (int k, int l)
 {
@@ -406,7 +407,7 @@ double calccoeff2 (int k, int l)
   return wsum;
 }
 
-      
+*/
 /************* coefficients finished     **********************/
 
 /**************************************************************/

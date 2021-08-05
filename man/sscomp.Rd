@@ -16,6 +16,12 @@ sscomp2(x,alpha=1.4)
     \item{alpha}{Parameter defining cross-validation score for smoothing
       parameter selection.}
 }
+\value{
+    \code{sscomp} returns a column of estimated probabilities.
+
+    \code{sscomp2} returns a matrix of estimated probabilities, matching
+    the input \code{x} in dimensions.
+}
 \details{
     \code{sscomp} takes a vector \code{x} to estimate composition using
     density estimation on a nominal discrete domain; zero counts must be

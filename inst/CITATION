@@ -8,7 +8,7 @@ citEntry(entry = "Article",
   volume       = "58",
   number       = "5",
   pages        = "1--25",
-  url          = "http://www.jstatsoft.org/v58/i05/",
+  url          = "https://www.jstatsoft.org/v58/i05/",
 
   textVersion  =
   paste("Chong Gu (2014).",

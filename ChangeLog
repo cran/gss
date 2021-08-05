@@ -1,3 +1,11 @@
+Tue Aug  3 20:32:06 EDT 2021, Chong Gu  <chong@purdue.edu>
+
+	* DESCRIPTION: Version 2.2-3.
+
+	* R: Edited sscomp.
+
+	* src: Edits in smolyak.c to comment out unused calccoeff2.
+
 Tue May 26 00:21:21 EDT 2020, Chong Gu  <chong@purdue.edu>
 
 	* DESCRIPTION: Version 2.2-2.

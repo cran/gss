@@ -1,5 +1,5 @@
-22fc0985d2cc9446dd1a3c39ab6526d7 *ChangeLog
-aa20d4dabee3fd8acde750d7fc5d3d43 *DESCRIPTION
+c27137031aa0a8a364cfb4349aed00cc *ChangeLog
+39dd59783fdcd21c8a2d58da91cbad1d *DESCRIPTION
 24ff2b8f15521a49b59f6d19146ae6df *INDEX
 20c494cb2d9aaa1a65f87cf5afd95df6 *NAMESPACE
 1d00015b10d8256aaede525722621ffc *R/cdsscden.R
@@ -49,7 +49,7 @@ dd4aa54b10ec5e2a8b0cdff18780d562 *R/ssanova0.R
 9be84d7ff1b4e8a5922bd678ace8b40f *R/ssanova9.R
 edb14e97f6de2cb36d610cc02725ba3a *R/sscden.R
 40ddb4f3d1511288c96182020673fa15 *R/sscden1.R
-1cbca9d45e7d735cd750a1f29c8b786a *R/sscomp.R
+468b6ff1613445eb7dd882e25af66657 *R/sscomp.R
 58bfc87ec8debc40bdf3ad95f4df085e *R/sscopu.R
 111d09029fc69db43413326a418fb286 *R/sscopu2.R
 b9fad02c0244197802cc8fd0fcdde239 *R/sscox.R
@@ -85,7 +85,7 @@ ef02087079a643407bdc46053a4151d1 *data/esc.rda
 d6adf9da6fe5ecce007f045571b3446c *data/stan.rda
 8673483e369552cb0e689f3b6cc6d51a *data/wesdr.rda
 7acbab4695c3b911d69cf247b69307a6 *data/wesdr1.rda
-611a308d42006764a16057d0d78ccf5b *inst/CITATION
+e53cad353636f48cf163372a5278fa51 *inst/CITATION
 32d73dfce00a970c059641055a5b649b *man/ColoCan.Rd
 a45646c483d0bf6db3e2895d5465f584 *man/DiaRet.Rd
 793f6947019c179822061319b015d57c *man/LakeAcid.Rd
@@ -137,7 +137,7 @@ ea1852ffb73163612798d83f5fcd234e *man/ssanova.Rd
 e2f739c757a04a968ec837b15ed91985 *man/ssanova0.Rd
 e54aa57ed8c94851cb790cd9de84b871 *man/ssanova9.Rd
 a56a56fb459ddc58c95c27e8b9e37ef8 *man/sscden.Rd
-a89272e0fa273b6524da0e23574f96bb *man/sscomp.Rd
+1d92a0c060573da3d08e81b383fdbab9 *man/sscomp.Rd
 142a1be80d200caf0cbd80218c2db7bc *man/sscopu.Rd
 4df29e6fff4a4655285f24904cb212c3 *man/sscox.Rd
 97f4d0c57cfa8fac287275a9588eca88 *man/ssden.Rd
@@ -155,6 +155,7 @@ b764b3c234f939a11cd1ccee3b232504 *man/wesdr1.Rd
 0423a47eb8c93a22c1ec15136a2419f5 *src/cdennewton.f
 ac411cbbffa81ff956cb59e79f67403c *src/cdennewton10.f
 08b22168d8e387134de819afae34c70d *src/copu2newton.f
+1d0848b9a9c7ec70927d1385723b00fd *src/dchdc0.f
 7660189020bc629e33531dfccc58721f *src/dcoef.f
 b95abc103e26f67dc5c543096d0a9967 *src/dcore.f
 b05ac68613d1536384c72933d4d089be *src/dcrdr.f
@@ -208,4 +209,4 @@ df44e4da028c763537d22147a73cc45e *src/ratfor/hzdnewton10.r
 7273d6c5aef12d292268778b3a71459a *src/ratfor/llrmnewton.r
 1baad2beb994f9706611ec0b328fad33 *src/ratfor/reg.r
 044288232509525a872bfaea1a01d6f2 *src/reg.f
-492e9abffe084eca767a9a7d6f462aee *src/smolyak.c
+8edd8a4c9a720dc48435c7118d044305 *src/smolyak.c
