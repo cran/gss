@@ -1,7 +1,7 @@
 ## Calculate prediction and Bayesian SE from ssllrm objects
 predict.ssllrm <- function (object,x,y=object$qd.pt,odds=NULL,se.odds=FALSE,...)
 {
-    if (class(object)!="ssllrm")
+    if (!inherits(object,"ssllrm"))
         stop("gss error in predict.ssllrm: not a ssllrm object")
     if ("random"%in%colnames(x)) {
         zz <- x$random

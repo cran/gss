@@ -94,7 +94,7 @@ function(object,p) {
 
 d.ssden <- ## Evaluate density estimate
 function (object,x) {
-    if (class(object)!="ssden") stop("gss error in d.ssden: not a ssden object")
+    if (!inherits(object,"ssden")) stop("gss error in d.ssden: not a ssden object")
     if (dim(object$mf)[2]==1&is.vector(x)) {
         x <- data.frame(x,stringsAsFactors=TRUE)
         colnames(x) <- colnames(object$mf)

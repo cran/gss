@@ -1,8 +1,8 @@
 citHeader("To cite gss in publications use:")
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title        = "Smoothing Spline {ANOVA} Models: {R} Package {gss}",
-  author       = personList(as.person("Chong Gu")),
+  author       = c("Chong Gu"),
   journal      = "Journal of Statistical Software",
   year         = "2014",
   volume       = "58",

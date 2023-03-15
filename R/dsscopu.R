@@ -1,7 +1,7 @@
 dsscopu <-  ## Evaluate copula density
 function(object,x,copu=TRUE) {
     ## Check inputs
-    if (class(object)!="sscopu")
+    if (!inherits(object,"sscopu"))
         stop("gss error in dsscopu: not a sscopu object")
     if ((max(x)>1)|(min(x)<0)) stop("gss error in dsscopu: points out of range")
     if (is.vector(x)) x <- matrix(x,1,dim(object$basis)[2])
@@ -65,7 +65,7 @@ function(object,x,copu=TRUE) {
 
 cdsscopu <- ## Evaluate 1-D conditional density
 function (object,x,cond,pos=1,int=NULL) {
-    if (class(object)!="sscopu")
+    if (!inherits(object,"sscopu"))
         stop("gss error in cdsscopu: not a sscopu object")
     dm <- dim(object$basis)[2]
     if (length(cond)!=dm-1)
@@ -89,7 +89,7 @@ function (object,x,cond,pos=1,int=NULL) {
 
 cpsscopu <- ## Compute cdf for 1-D conditional density
 function(object,q,cond,pos=1) {
-    if (class(object)!="sscopu")
+    if (!inherits(object,"sscopu"))
         stop("gss error in cpsscopu: not a sscopu object")
     dm <- dim(object$basis)[2]
     if (length(cond)!=dm-1)
@@ -136,7 +136,7 @@ function(object,q,cond,pos=1) {
 
 cqsscopu <- ## Compute quantiles for 1-D conditional density
 function(object,p,cond,pos=1) {
-    if (class(object)!="sscopu")
+    if (!inherits(object,"sscopu"))
         stop("gss error in cqsscopu: not a sscopu object")
     dm <- dim(object$basis)[2]
     if (length(cond)!=dm-1)

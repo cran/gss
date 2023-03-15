@@ -34,7 +34,7 @@ gssanova1 <- function(formula,family,type=NULL,data=list(),weights,
     term <- mkterm(mf,type)
     ## Generate random
     if (!is.null(random)) {
-        if (class(random)=="formula") random <- mkran(random,data)
+        if (inherits(random,"formula")) random <- mkran(random,data)
     }
     ## Specify default method
     if (is.null(method)) {

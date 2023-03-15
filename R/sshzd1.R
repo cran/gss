@@ -88,7 +88,7 @@ sshzd1 <- function(formula,type=NULL,data=list(),alpha=1.4,
     term <- mkterm(mf,type)
     ## Generate random
     if (!is.null(random)) {
-        if (class(random)=="formula") random <- mkran(random,data)
+        if (inherits(random,"formula")) random <- mkran(random,data)
     }
     ## Generate Gauss-Legendre quadrature
     nmesh <- 200

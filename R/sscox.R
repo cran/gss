@@ -68,7 +68,7 @@ sscox <- function(formula,type=NULL,data=list(),weights=NULL,subset,
     term$labels <- term$labels[term$labels!="1"]
     ## Generate random
     if (!is.null(random)) {
-        if (class(random)=="formula") random <- mkran(random,data)
+        if (inherits(random,"formula")) random <- mkran(random,data)
         random$qd.z <- random$z
         random$z <- random$z[yy$status,]
     }

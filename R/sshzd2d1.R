@@ -22,24 +22,24 @@ sshzd2d1 <- function(formula1,formula2,symmetry=FALSE,data,alpha=1.4,weights=NUL
         data <- na.omit(data)
     }
     ## Extract formulas
-    if (class(formula1)=="formula") {
+    if (inherits(formula1,"formula")) {
         form1 <- formula1
         part1 <- random1 <- type1 <- NULL
     }
     else {
-        if (class(formula1)!="list")
+        if (!inherits(formula1,"list"))
             stop("gss error in sshzd2d1: models must be specified via formulas or lists")
         form1 <- formula1[[1]]
         part1 <- formula1$partial
         random1 <- formula1$random
         type1 <- formula1$type
     }
-    if (class(formula2)=="formula") {
+    if (inherits(formula2,"formula")) {
         form2 <- formula2
         part2 <- random2 <- type2 <- NULL
     }
     else {
-        if (class(formula2)!="list")
+        if (!inherits(formula2,"list"))
             stop("gss error in sshzd2d1: models must be specified via formulas or lists")
         form2 <- formula2[[1]]
         part2 <- formula2$partial
@@ -92,7 +92,7 @@ sshzd2d1 <- function(formula1,formula2,symmetry=FALSE,data,alpha=1.4,weights=NUL
         ## Random
         random.wk <- switch(i,random1,random2)
         if (!is.null(random.wk)) {
-            if (class(random.wk)=="formula") random.wk <- mkran(random.wk,data)
+            if (inherits(random.wk,"formula")) random.wk <- mkran(random.wk,data)
         }
         else random.wk <- NULL
         ## Set domain and type for time

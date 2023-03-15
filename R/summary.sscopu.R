@@ -2,7 +2,7 @@
 summary.sscopu <- function(object,...)
 {
     ## Check input
-    if (class(object)!="sscopu") stop("gss error in summary.sscopu: not a sscopu object")
+    if (!inherits(object,"sscopu")) stop("gss error in summary.sscopu: not a sscopu object")
     if (dim(object$mdsty)[2]!=2) stop("gss error in summary.sscopu: not a 2-D copula")
     ## Set up quadrature
     hsz <- 40

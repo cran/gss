@@ -2,7 +2,7 @@
 predict.sscox <- function (object,newdata,se.fit=FALSE,
                            include=c(object$terms$labels,object$lab.p),...)
 {
-    if (class(object)!="sscox") stop("gss error in predict.sscox: not a sscox object")
+    if (!inherits(object,"sscox")) stop("gss error in predict.sscox: not a sscox object")
     nnew <- nrow(newdata)
     nbasis <- length(object$id.basis)
     nnull <- length(object$d)

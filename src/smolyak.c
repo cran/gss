@@ -55,7 +55,7 @@ static void eval1(int, double *pt, double *wt);
 static void fsum1(int, double *pt, double *wt);
 /* get pt and wt from formula1, eval1, fsum1 -- C. Gu */
 
-static void init();                          /* initialization              */
+static void init(void);                          /* initialization              */
 
 static double calccoeff(int);                /* coefficient calculator      */
 /* static double calccoeff2(int,int); */      /* coefficient calculator (slow)   */
@@ -76,7 +76,7 @@ struct tnode {
 
 static struct tnode *root;
  
-static double coeff();                   /* tree manager            */
+static double coeff(void);                   /* tree manager            */
 
 static struct tnode *talloc(void);       /* node generator          */
 static void frei(struct tnode *p);       /* tree eraser             */
@@ -224,7 +224,7 @@ void eval1(int k, double *pt, double *wt)
 /********************** Coefficients ************************/
 /* Tree-functions: */
 
-double coeff ( )
+double coeff (void)
      /* looks for existing coefficient or calls its
 	calculation                                         */
 {
@@ -474,7 +474,7 @@ void fsum1 (int k, double *pt, double *wt)
 
 /* initialisation  */
 
-void init()
+void init(void)
 { 
   int i, j, formfakt, maxform;
   int nj[fn]  ={1,3,7,15,31,63}; /* # nodes of different basic formulae */

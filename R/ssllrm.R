@@ -73,7 +73,7 @@ ssllrm <- function(formula,response,type=NULL,data=list(),weights,
     ## obtain unique covariate observations
     xx <- mf[,xnames,drop=FALSE]
     if (!is.null(random)) {
-        if (class(random)=="formula") random <- mkran(random,data)
+        if (inherits(random,"formula")) random <- mkran(random,data)
         xx <- cbind(xx,random$z)
     }
     xx <- apply(xx,1,function(x)paste(x,collapse="\r"))

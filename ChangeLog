@@ -1,3 +1,14 @@
+Tue 14 Mar 2023 08:36:01 PM EDT, Chong Gu  <chong@purdue.edu>
+
+	* DESCRIPTION: Version 2.2-4.
+
+	* inst: edited CITATION to conform with new standard.
+
+	* R: Edited numerous functions to replace "class(obj)==string" by
+	"inherits(obj,string)".
+
+	* src: Edits in smolyak.c to fix init(void), coeff(void).
+
 Tue Aug  3 20:32:06 EDT 2021, Chong Gu  <chong@purdue.edu>
 
 	* DESCRIPTION: Version 2.2-3.

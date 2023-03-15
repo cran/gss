@@ -30,7 +30,7 @@ ssanova <- function(formula,type=NULL,data=list(),weights,subset,
     term <- mkterm(mf,type)
     ## Generate random
     if (!is.null(random)) {
-        if (class(random)=="formula") random <- mkran(random,data)
+        if (inherits(random,"formula")) random <- mkran(random,data)
     }
     ## Generate s, r, and y
     s <- r <- NULL
