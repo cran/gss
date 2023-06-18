@@ -60,7 +60,7 @@ C Output from Public domain Ratfor, version 1.01
       goto 23018
 23020 continue
       if(method.eq.5)then
-      wk(nobs+1) = ddot (nobs, wk, 1, wk, 1) / dfloat (nobs)
+      wk(nobs+1) = ddot (nobs, wk, 1, wk, 1) / dble (nobs)
       i=1
 23023 if(.not.(i.le.nobs))goto 23025
       call dcopy (nn, sr(i,1), nobs, mu, 1)
@@ -126,10 +126,10 @@ C Output from Public domain Ratfor, version 1.01
 23049 i=i+1
       goto 23048
 23050 continue
-      score = rss / dfloat (nobs) * dexp (trc/dfloat(nobs-nnull))
-      varht = rss / dfloat (nobs-nnull)
+      score = rss / dble (nobs) * dexp (trc/dble(nobs-nnull))
+      varht = rss / dble (nobs-nnull)
       else
-      rss = ddot (nobs, wk, 1, wk, 1) / dfloat (nobs)
+      rss = ddot (nobs, wk, 1, wk, 1) / dble (nobs)
       i=1
 23051 if(.not.(i.le.nobs))goto 23053
       call dcopy (nn, sr(i,1), nobs, mu, 1)
@@ -139,7 +139,7 @@ C Output from Public domain Ratfor, version 1.01
 23052 i=i+1
       goto 23051
 23053 continue
-      trc = dasum (nobs, wk, 1) / dfloat (nobs)
+      trc = dasum (nobs, wk, 1) / dble (nobs)
       if(method.eq.2)then
       score = rss / (1.d0-alpha*trc)**2
       varht = rss / (1.d0-trc)

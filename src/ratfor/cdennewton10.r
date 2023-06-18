@@ -46,7 +46,7 @@ info = 0
 for (i=1;i<=nobs;i=i+1) {
     tmp = ddot (nxis, rs(i,1), nobs, cd, 1)
     wt(i) = dexp (-tmp)
-    if (cntsum!=0)  wt(i) = wt(i) * dfloat (cnt(i))
+    if (cntsum!=0)  wt(i) = wt(i) * dble (cnt(i))
 }
 wtsum = dasum (nobs, wt, 1)
 lkhd = dlog (wtsum) + ddot (nxis, intrs, 1, cd, 1)
@@ -96,7 +96,7 @@ repeat {
                 break
             }
             wtnew(i) = dexp (-tmp)
-            if (cntsum!=0)  wtnew(i) = wtnew(i) * dfloat (cnt(i))
+            if (cntsum!=0)  wtnew(i) = wtnew(i) * dble (cnt(i))
         }
         wtsumnew = dasum (nobs, wtnew, 1)
         lkhdnew = dlog (wtsumnew) + ddot (nxis, intrs, 1, cdnew, 1)
@@ -107,7 +107,7 @@ repeat {
         if (flag==1) {
             call  dset (nxis, 0.d0, cd, 1)
             if (cntsum!=0) {
-                for (i=1;i<=nobs;i=i+1)  wt(i) = dfloat (cnt(i))
+                for (i=1;i<=nobs;i=i+1)  wt(i) = dble (cnt(i))
             }
             else  call  dset (nobs, 1.d0, wt, 1)
             wtsum = dasum (nobs, wt, 1)
@@ -147,7 +147,7 @@ repeat {
         #   Reset iteration with uniform starting value
         call  dset (nxis, 0.d0, cd, 1)
         if (cntsum!=0) {
-            for (i=1;i<=nobs;i=i+1)  wt(i) = dfloat (cnt(i))
+            for (i=1;i<=nobs;i=i+1)  wt(i) = dble (cnt(i))
         }
         else  call  dset (nobs, 1.d0, wt, 1)
         wtsum = dasum (nobs, wt, 1)
@@ -185,7 +185,7 @@ for (i=1;i<=nobs;i=i+1) {
     call  dtrsl (v, nxis, nxis, wk, 11, infowk)
     call  dset (nxis-rkv, 0.d0, wk(rkv+1), 1)
     wtnew(i) = wt(i) * ddot (nxis, wk, 1, wk, 1)
-    if (cntsum!=0)  wtnew(i) = wtnew(i) / dfloat (cnt(i))
+    if (cntsum!=0)  wtnew(i) = wtnew(i) / dble (cnt(i))
 }
 call  dcopy (nobs, wtnew, 1, wt, 1)
 

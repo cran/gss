@@ -86,7 +86,7 @@ character*1       vmu
 #  Routines called directly:
 #      Blas    -- dasum, daxpy, dcopy, ddot, dscal, idamax
 #      Blas2   -- dsymv
-#      Fortran -- dfloat, dlog, dlog10
+#      Fortran -- dble, dlog, dlog10
 #      Linpack -- dpofa, dposl, sqrsl
 #      Rkpack  -- dcoef, dcore, ddeev, dmcdc, dstup
 #      Other   -- dprmut, dset
@@ -94,7 +94,7 @@ character*1       vmu
 #  Routines called indirectly:
 #      Blas    -- dasum, daxpy, dcopy, ddot, dnrm2, dscal, dswap, idamax
 #      Blas2   -- dgemv, dsymv, dsyr2
-#      Fortran -- dabs, dexp, dfloat, dlog, dlog10, dsqrt
+#      Fortran -- dabs, dexp, dble, dlog, dlog10, dsqrt
 #      Linpack -- dpbfa, dpbsl, dqrdc, dqrsl, dtrsl
 #      Rkpack  -- deval, dgold, dqrslm, dsytr, dtrev
 #      Other   -- dprmut, dset

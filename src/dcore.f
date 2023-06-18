@@ -44,18 +44,18 @@ C Output from Public domain Ratfor, version 1.0
       call dgold (vmu, q(n0+1,n0+1), ldq, n, z(n0+1), low, upp, nlaht, s
      *core(1), varht, info, twk, work)
       if( vmu .eq. 'v' )then
-      score(1) = score(1) * dfloat (nobs) / dfloat (n)
+      score(1) = score(1) * dble (nobs) / dble (n)
       endif
       if( vmu .eq. 'm' )then
-      score(1) = score(1) * dfloat (n) / dfloat (nobs)
+      score(1) = score(1) * dble (n) / dble (nobs)
       endif
       if( vmu .eq. 'u' )then
-      score(1) = score(1) * dfloat (n) / dfloat (nobs) + 2.d0 * varht
+      score(1) = score(1) * dble (n) / dble (nobs) + 2.d0 * varht
       endif
       else
       call deval (vmu, q(n0+1,n0+1), ldq, n, z(n0+1), job, low, upp, nla
      *ht, score, varht, info, twk, work)
-      dum = dfloat (nobs) / dfloat (n)
+      dum = dble (nobs) / dble (n)
       j=1
 23018 if(.not.(j.le.job+1))goto 23020
       if( vmu .eq. 'v' )then

@@ -50,23 +50,23 @@ C Output from Public domain Ratfor, version 1.01
 23006 j=j+1
       goto 23005
 23007 continue
-      mrs(i) = mrs(i) / dfloat (nobs)
+      mrs(i) = mrs(i) / dble (nobs)
       else
       j=1
 23008 if(.not.(j.le.nobs))goto 23010
-      mrs(i) = mrs(i) + rs(i,j) * dfloat (cnt(j))
+      mrs(i) = mrs(i) + rs(i,j) * dble (cnt(j))
 23009 j=j+1
       goto 23008
 23010 continue
-      mrs(i) = mrs(i) / dfloat (cntsum)
+      mrs(i) = mrs(i) / dble (cntsum)
       endif
 23001 i=i+1
       goto 23000
 23002 continue
       if(cntsum.eq.0)then
-      trc = 1.d0 / dfloat (nobs)
+      trc = 1.d0 / dble (nobs)
       else
-      trc = 1.d0 / dfloat (cntsum)
+      trc = 1.d0 / dble (cntsum)
       endif
       norm = 0.d0
       kk=1
@@ -89,7 +89,7 @@ C Output from Public domain Ratfor, version 1.01
       tmp = ddot (nxis, rs(1,i), 1, cd, 1)
       fit(i) = dexp (tmp)
       if(cntsum.ne.0)then
-      tmp = tmp * dfloat (cnt(i))
+      tmp = tmp * dble (cnt(i))
       endif
       fitmean = fitmean + tmp
 23020 i=i+1
@@ -202,7 +202,7 @@ C Output from Public domain Ratfor, version 1.01
       endif
       fitnew(i) = dexp (tmp)
       if(cntsum.ne.0)then
-      tmp = tmp * dfloat (cnt(i))
+      tmp = tmp * dble (cnt(i))
       endif
       fitmean = fitmean + tmp
 23068 i=i+1
@@ -306,7 +306,7 @@ C Output from Public domain Ratfor, version 1.01
       call daxpy (nxis, -1.d0, mrs, 1, rs(1,i), 1)
       call dprmut (rs(1,i), nxis, jpvt, 0)
       if(cntsum.ne.0)then
-      call dscal (nxis, dsqrt(dfloat(cnt(i))), rs(1,i), 1)
+      call dscal (nxis, dsqrt(dble(cnt(i))), rs(1,i), 1)
       endif
       call dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
 23110 i=i+1
@@ -314,7 +314,7 @@ C Output from Public domain Ratfor, version 1.01
 23111 continue
       trc = ddot (nobs*nxis, rs, 1, rs, 1)
       if(cntsum.eq.0)then
-      trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
+      trc = trc / dble(nobs) / (dble(nobs)-1.d0)
       lkhd = 0.d0
       i=1
 23116 if(.not.(i.le.nobs))goto 23118
@@ -322,17 +322,17 @@ C Output from Public domain Ratfor, version 1.01
 23117 i=i+1
       goto 23116
 23118 continue
-      lkhd = lkhd / dfloat (nobs)
+      lkhd = lkhd / dble (nobs)
       else
-      trc = trc / dfloat(cntsum) / (dfloat(cntsum)-1.d0)
+      trc = trc / dble(cntsum) / (dble(cntsum)-1.d0)
       lkhd = 0.d0
       i=1
 23119 if(.not.(i.le.nobs))goto 23121
-      lkhd = lkhd + dfloat (cnt(i)) * dlog (fit(i))
+      lkhd = lkhd + dble (cnt(i)) * dlog (fit(i))
 23120 i=i+1
       goto 23119
 23121 continue
-      lkhd = lkhd / dfloat (cntsum)
+      lkhd = lkhd / dble (cntsum)
       endif
       kk=1
 23122 if(.not.(kk.le.nx))goto 23124

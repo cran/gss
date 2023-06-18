@@ -250,7 +250,7 @@ C Output from Public domain Ratfor, version 1.0
       goto 23105
 23107 continue
       if( vmu .eq. 'v' )then
-      trc = dfloat (nobs) * 10.d0 ** (-nlaht) * varht / score
+      trc = dble (nobs) * 10.d0 ** (-nlaht) * varht / score
       i=1
 23112 if(.not.(i.le.nq))goto 23114
       if( theta(i) .le. -25.d0 )then
@@ -261,7 +261,7 @@ C Output from Public domain Ratfor, version 1.0
 23113 i=i+1
       goto 23112
 23114 continue
-      call dscal (nq, dfloat (nobs), gra, 1)
+      call dscal (nq, dble (nobs), gra, 1)
       endif
       if( vmu .eq. 'u' )then
       dum = 10.d0 ** nlaht
@@ -274,7 +274,7 @@ C Output from Public domain Ratfor, version 1.0
 23120 i=i+1
       goto 23119
 23121 continue
-      call dscal (nq, 1.d0/dfloat (n), gra, 1)
+      call dscal (nq, 1.d0/dble (n), gra, 1)
       endif
       if( vmu .eq. 'm' )then
       det = 10.d0 ** (-nlaht) * varht / score
@@ -283,12 +283,12 @@ C Output from Public domain Ratfor, version 1.0
       if( theta(i) .le. -25.d0 )then
       goto 23127
       endif
-      gra(i) = gwk1(i) / det - dfloat (nobs) / dfloat (n) * score * gwk2
+      gra(i) = gwk1(i) / det - dble (nobs) / dble (n) * score * gwk2
      *(i)
 23127 i=i+1
       goto 23126
 23128 continue
-      call dscal (nq, 1.d0 / dfloat (nobs), gra, 1)
+      call dscal (nq, 1.d0 / dble (nobs), gra, 1)
       endif
       if( vmu .eq. 'v' )then
       i=1
@@ -303,12 +303,12 @@ C Output from Public domain Ratfor, version 1.0
       endif
       hes(i,j) = hwk1(i,j) / trc / trc - 2.d0 * gwk1(i) * gwk2(j) / trc 
      *** 3 - 2.d0 * gwk1(j) * gwk2(i) / trc ** 3 - 2.d0 * score * hwk2(i
-     *,j) / trc / dfloat (nobs) + 6.d0 * score * gwk2(i) * gwk2(j) / trc
-     * / trc / dfloat (nobs)
+     *,j) / trc / dble (nobs) + 6.d0 * score * gwk2(i) * gwk2(j) / trc
+     * / trc / dble (nobs)
 23139 j=j+1
       goto 23138
 23140 continue
-      call dscal (i, dfloat (nobs), hes(i,1), ldh)
+      call dscal (i, dble (nobs), hes(i,1), ldh)
 23134 i=i+1
       goto 23133
 23135 continue
@@ -328,7 +328,7 @@ C Output from Public domain Ratfor, version 1.0
 23151 j=j+1
       goto 23150
 23152 continue
-      call dscal (i, 1.d0/dfloat (n), hes(i,1), ldh)
+      call dscal (i, 1.d0/dble (n), hes(i,1), ldh)
 23146 i=i+1
       goto 23145
 23147 continue
@@ -344,14 +344,14 @@ C Output from Public domain Ratfor, version 1.0
       if( theta(j) .le. -25.d0 )then
       goto 23163
       endif
-      hes(i,j) = hwk1(i,j) / det - gwk1(i) * gwk2(j) / det / dfloat (n) 
-     *- gwk1(j) * gwk2(i) / det / dfloat (n) - dfloat (nobs) / dfloat (n
-     *) * score * hwk2(i,j) + dfloat (nobs) / dfloat (n) ** 2 * score * 
+      hes(i,j) = hwk1(i,j) / det - gwk1(i) * gwk2(j) / det / dble (n) 
+     *- gwk1(j) * gwk2(i) / det / dble (n) - dble (nobs) / dble (n
+     *) * score * hwk2(i,j) + dble (nobs) / dble (n) ** 2 * score * 
      *gwk2(i) * gwk2(j)
 23163 j=j+1
       goto 23162
 23164 continue
-      call dscal (i, 1.d0 / dfloat (nobs), hes(i,1), ldh)
+      call dscal (i, 1.d0 / dble (nobs), hes(i,1), ldh)
 23158 i=i+1
       goto 23157
 23159 continue

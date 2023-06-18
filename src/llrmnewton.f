@@ -57,7 +57,7 @@ C Output from Public domain Ratfor, version 1.01
 23011 j=j+1
       goto 23010
 23012 continue
-      mrs(i) = mrs(i) / dfloat (nobs)
+      mrs(i) = mrs(i) / dble (nobs)
       else
       j=1
 23013 if(.not.(j.le.nobs))goto 23015
@@ -71,7 +71,7 @@ C Output from Public domain Ratfor, version 1.01
       goto 23005
 23007 continue
       if(cntsum.eq.0)then
-      trc = 1.d0 / dfloat (nobs)
+      trc = 1.d0 / dble (nobs)
       else
       trc = 1.d0 / cnt1
       endif
@@ -335,7 +335,7 @@ C Output from Public domain Ratfor, version 1.01
 23122 continue
       trc = ddot (nobs*nxis, rs, 1, rs, 1)
       if(cntsum.eq.0)then
-      trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
+      trc = trc / dble(nobs) / (dble(nobs)-1.d0)
       lkhd = 0.d0
       i=1
 23127 if(.not.(i.le.nobs))goto 23129
@@ -343,7 +343,7 @@ C Output from Public domain Ratfor, version 1.01
 23128 i=i+1
       goto 23127
 23129 continue
-      lkhd = lkhd / dfloat (nobs)
+      lkhd = lkhd / dble (nobs)
       else
       trc = trc / cnt1 / (cnt1-1.d0)
       lkhd = 0.d0

@@ -40,7 +40,7 @@ double precision  t(ldt,*), z(*), score, varht, work(*)
 #      work       of size at least (n).
 
 #  Routines called directly:
-#      Fortran -- dexp, dfloat, dlog
+#      Fortran -- dexp, dble, dlog
 #      Blas    -- dasum, dcopy, ddot, dscal
 #      Linpack -- dpbfa, dpbsl
 
@@ -60,7 +60,7 @@ if ( vmu != 'v' & vmu != 'm' & vmu != 'u' ) {
 la = t(1,1)
 
 #   standardize the matrix for numerical stability
-alph = dfloat (n) / dasum (n, t(2,1), ldt)
+alph = dble (n) / dasum (n, t(2,1), ldt)
 call  dscal (n, alph, t(2,1), ldt)
 call  dscal (n-1, alph, t(1,2), ldt)
 
@@ -79,8 +79,8 @@ if ( vmu == 'v' ) {
         tmp = ( 1.d0 + t(1,j+1) * t(1,j+1) * tmp ) / t(2,j) / t(2,j)
         deno = deno + tmp
     }
-    nume = ddot (n, work, 1, work, 1) / dfloat (n)
-    deno = deno / dfloat (n)
+    nume = ddot (n, work, 1, work, 1) / dble (n)
+    deno = deno / dble (n)
     varht = alph * la * nume / deno
     score = nume / deno / deno
 }
@@ -89,21 +89,21 @@ if ( vmu == 'v' ) {
 if ( vmu == 'm' ) {
     deno = dlog (t(2,n))
     for (j=n-1;j>0;j=j-1)  deno = deno + dlog (t(2,j))
-    nume = ddot (n, z, 1, work, 1) / dfloat (n)
+    nume = ddot (n, z, 1, work, 1) / dble (n)
     varht = alph * la * nume
-    score = nume * dexp (2.d0 * deno / dfloat (n))
+    score = nume * dexp (2.d0 * deno / dble (n))
 }
 
 #   unbiased risk computation
 if ( vmu == 'u' ) {
-    nume = ddot (n, work, 1, work, 1) / dfloat (n)
+    nume = ddot (n, work, 1, work, 1) / dble (n)
     tmp = 1.d0 / t(2,n) / t(2,n)
     deno = tmp
     for (j=n-1;j>0;j=j-1) {
         tmp = ( 1.d0 + t(1,j+1) * t(1,j+1) * tmp ) / t(2,j) / t(2,j)
         deno = deno + tmp
     }
-    deno = deno / dfloat (n)
+    deno = deno / dble (n)
     score = alph * alph * la * la * nume - 2.d0 * varht * alph * la * deno
 }
 

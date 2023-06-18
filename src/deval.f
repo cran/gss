@@ -1,4 +1,5 @@
-C Output from Public domain Ratfor, version 1.0
+
+C     Output from Public domain Ratfor, version 1.0
       subroutine deval (vmu, q, ldq, n, z, nint, low, upp, nlaht, score,
      * varht, info, twk, work)
       character vmu
@@ -24,7 +25,7 @@ C Output from Public domain Ratfor, version 1.0
       endif
       j=1
 23006 if(.not.(j.le.nint+1))goto 23008
-      tmp = low + dfloat (j-1) * ( upp - low ) / dfloat (nint)
+      tmp = low + dble (j-1) * ( upp - low ) / dble (nint)
       call dset (n, 10.d0 ** (tmp), twk(2,1), 2)
       call daxpy (n, 1.d0, q, ldq+1, twk(2,1), 2)
       call dcopy (n-1, q(1,2), ldq+1, twk(1,2), 2)

@@ -42,7 +42,7 @@ double precision  q(ldq,*), z(*), low, upp, nlaht, score(*), varht,_
 #      work       array of length at least (n).
 
 #  Routines called directly:
-#      Fortran -- dfloat
+#      Fortran -- dble
 #      Blas    -- daxpy, dcopy
 #      Rkpack  -- dtrev
 #      Other   -- dset
@@ -75,7 +75,7 @@ if ( 1 > n | n > ldq ) {
 
 #   evaluation
 for (j=1;j<=nint+1;j=j+1) {
-    tmp = low + dfloat (j-1) * ( upp - low ) / dfloat (nint)
+    tmp = low + dble (j-1) * ( upp - low ) / dble (nint)
     call  dset (n, 10.d0 ** (tmp), twk(2,1), 2)
     call  daxpy (n, 1.d0, q, ldq+1, twk(2,1), 2)
     call  dcopy (n-1, q(1,2), ldq+1, twk(1,2), 2)

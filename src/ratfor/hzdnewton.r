@@ -55,9 +55,9 @@ for (i=1;i<=nxis;i=i+1) {
     mrs(i) = 0.d0
     for (j=1;j<=nt;j=j+1) {
         if (cntsum==0)  mrs(i) = mrs(i) + rs(i,j)
-        else  mrs(i) = mrs(i) + rs(i,j) * dfloat (cnt(j))
+        else  mrs(i) = mrs(i) + rs(i,j) * dble (cnt(j))
     }
-    mrs(i) = mrs(i) / dfloat (nobs)
+    mrs(i) = mrs(i) / dble (nobs)
 }
 #   Initialization
 for (kk=1;kk<=nx;kk=kk+1) {
@@ -68,10 +68,10 @@ fitmean = 0.d0
 for (i=1;i<=nt;i=i+1) {
     tmp = ddot (nxis, rs(1,i), 1, cd, 1)
     fit(i) = dexp (tmp)
-    if (cntsum!=0)  tmp = tmp * dfloat (cnt(i))
+    if (cntsum!=0)  tmp = tmp * dble (cnt(i))
     fitmean = fitmean + tmp
 }
-fitmean = fitmean / dfloat (nobs) - dasum (nqd*nx, wt, 1)
+fitmean = fitmean / dble (nobs) - dasum (nqd*nx, wt, 1)
 call  dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
 lkhd = ddot (nxi, cd, 1, wk, 1) / 2.d0 - fitmean
 iter = 0
@@ -137,10 +137,10 @@ repeat {
                     break
                 }
                 fitnew(i) = dexp (tmp)
-                if (cntsum!=0)  tmp = tmp * dfloat (cnt(i))
+                if (cntsum!=0)  tmp = tmp * dble (cnt(i))
                 fitmean = fitmean + tmp
             }
-            fitmean = fitmean / dfloat (nobs) - dasum (nqd*nx, wtnew, 1)
+            fitmean = fitmean / dble (nobs) - dasum (nqd*nx, wtnew, 1)
             call  dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
             lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean
         }
@@ -202,13 +202,13 @@ repeat {
 #   Calculate proxy loss
 for (i=1;i<=nt;i=i+1) {
     call  dprmut (rs(1,i), nxis, jpvt, 0)
-    if (cntsum!=0)  call  dscal (nxis, dsqrt(dfloat(cnt(i))), rs(1,i), 1)
+    if (cntsum!=0)  call  dscal (nxis, dsqrt(dble(cnt(i))), rs(1,i), 1)
     call  dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
 }
 call  dprmut (mrs, nxis, jpvt, 0)
 call  dtrsl (v, nxis, nxis, mrs, 11, infowk)
-trc = ddot (nxis*nt, rs, 1, rs, 1) - dfloat (nobs) * ddot (nxis, mrs, 1, mrs, 1)
-trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
+trc = ddot (nxis*nt, rs, 1, rs, 1) - dble (nobs) * ddot (nxis, mrs, 1, mrs, 1)
+trc = trc / dble(nobs) / (dble(nobs)-1.d0)
 mrs(1) = fitmean
 mrs(2) = trc
 for (kk=1;kk<=nx;kk=kk+1) {

@@ -32,16 +32,16 @@ C Output from Public domain Ratfor, version 1.01
       tmp = ddot (nxis, rs(i,1), nobs, cd, 1)
       wt(i) = dexp (-tmp)
       if(cntsum.ne.0)then
-      wt(i) = wt(i) * dfloat (cnt(i))
+      wt(i) = wt(i) * dble (cnt(i))
       endif
       wtsum = wtsum + wt(i)
 23001 i=i+1
       goto 23000
 23002 continue
       if(cntsum.eq.0)then
-      lkhd = wtsum / dfloat (nobs)
+      lkhd = wtsum / dble (nobs)
       else
-      lkhd = wtsum / dfloat (cntsum)
+      lkhd = wtsum / dble (cntsum)
       endif
       lkhd = dlog (lkhd) + ddot (nxis, intrs, 1, cd, 1)
       call dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
@@ -117,16 +117,16 @@ C Output from Public domain Ratfor, version 1.01
       endif
       wtnew(i) = dexp (-tmp)
       if(cntsum.ne.0)then
-      wtnew(i) = wtnew(i) * dfloat (cnt(i))
+      wtnew(i) = wtnew(i) * dble (cnt(i))
       endif
       wtsumnew = wtsumnew + wtnew(i)
 23036 i=i+1
       goto 23035
 23037 continue
       if(cntsum.eq.0)then
-      lkhdnew = wtsumnew / dfloat (nobs)
+      lkhdnew = wtsumnew / dble (nobs)
       else
-      lkhdnew = wtsumnew / dfloat (cntsum)
+      lkhdnew = wtsumnew / dble (cntsum)
       endif
       lkhdnew = dlog (lkhdnew) + ddot (nxis, intrs, 1, cdnew, 1)
       call dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
@@ -137,7 +137,7 @@ C Output from Public domain Ratfor, version 1.01
       i=1
 23046 if(.not.(i.le.nobs))goto 23048
       if(cntsum.ne.0)then
-      wt(i) = dfloat (cnt(i))
+      wt(i) = dble (cnt(i))
       else
       wt(i) = 1.d0
       endif
@@ -198,7 +198,7 @@ C Output from Public domain Ratfor, version 1.01
       i=1
 23072 if(.not.(i.le.nobs))goto 23074
       if(cntsum.ne.0)then
-      wt(i) = dfloat (cnt(i))
+      wt(i) = dble (cnt(i))
       else
       wt(i) = 1.d0
       endif
@@ -263,7 +263,7 @@ C Output from Public domain Ratfor, version 1.01
       call dset (nxis-rkv, 0.d0, wk(rkv+1), 1)
       wtnew(i) = wt(i) * ddot (nxis, wk, 1, wk, 1)
       if(cntsum.ne.0)then
-      wtnew(i) = wtnew(i) / dfloat (cnt(i))
+      wtnew(i) = wtnew(i) / dble (cnt(i))
       endif
 23097 i=i+1
       goto 23096

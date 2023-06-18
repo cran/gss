@@ -47,7 +47,7 @@ if (method==4)  return
 for (i=1;i<=nobs;i=i+1)  wk(i) = y(i) - ddot (nn, sr(i,1), nobs, dc, 1)
 #   diagonal of smoothing matrix
 if (method==5) {
-    wk(nobs+1) = ddot (nobs, wk, 1, wk, 1) / dfloat (nobs)
+    wk(nobs+1) = ddot (nobs, wk, 1, wk, 1) / dble (nobs)
     for (i=1;i<=nobs;i=i+1) {
         call  dcopy (nn, sr(i,1), nobs, mu, 1)
         call  dprmut (mu, nn, jpvt, 0)
@@ -89,12 +89,12 @@ if (method==3) {
     call  dsyev ('n', 'u', nxi, q, nxi, mu, wk, 3*nxi, info)
     for (i=1;i<=rkv-nnull;i=i+1)  trc = trc - dlog (mu(nxi-i+1))
     #   return values
-    score = rss / dfloat (nobs) * dexp (trc/dfloat(nobs-nnull))
-    varht = rss / dfloat (nobs-nnull)
+    score = rss / dble (nobs) * dexp (trc/dble(nobs-nnull))
+    varht = rss / dble (nobs-nnull)
 }
 else {
     #   GCV or Cp
-    rss = ddot (nobs, wk, 1, wk, 1) / dfloat (nobs)
+    rss = ddot (nobs, wk, 1, wk, 1) / dble (nobs)
     #   trace
     for (i=1;i<=nobs;i=i+1) {
         call  dcopy (nn, sr(i,1), nobs, mu, 1)
@@ -102,7 +102,7 @@ else {
         call  dtrsl (v, nn, nn, mu, 11, infowk)
         wk(i) = ddot (nn, mu, 1, mu, 1)
     }
-    trc = dasum (nobs, wk, 1) / dfloat (nobs)
+    trc = dasum (nobs, wk, 1) / dble (nobs)
     #   return values
     if (method==2) {
         score = rss / (1.d0-alpha*trc)**2

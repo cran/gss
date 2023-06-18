@@ -75,7 +75,7 @@ for (i=1;i<=nxis;i=i+1) {
     mrs(i) = 0.d0
     for (j=1;j<=n0;j=j+1) {
         if (cntsum0==0)  mrs(i) = mrs(i) + rs0(i,j)
-        else  mrs(i) = mrs(i) + rs0(i,j) * dfloat (cnt0(j))
+        else  mrs(i) = mrs(i) + rs0(i,j) * dble (cnt0(j))
     }
 }
 #   Initialization
@@ -83,7 +83,7 @@ for (i=1;i<=nqd*nqd;i=i+1)  eta(i) = dexp (ddot (nxis, qdrs(1,i), 1, cd, 1))
 lkhd = 0.d0
 for (i=1;i<=n0;i=i+1) {
     tmp = ddot (nxis, rs0(1,i), 1, cd, 1)
-    if (cntsum0!=0)  tmp = tmp * dfloat (cnt0(i))
+    if (cntsum0!=0)  tmp = tmp * dble (cnt0(i))
     lkhd = lkhd - tmp
 }
 for (i=1;i<=n1;i=i+1) {
@@ -91,14 +91,14 @@ for (i=1;i<=n1;i=i+1) {
         eta1(j,i) = dexp (ddot (nxis, qdrs1(j,1,i), nqd, cd, 1)) * wt1(j,i)
     }
     if (cntsum1==0)  lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1))
-    else  lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dfloat (cnt1(i))
+    else  lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dble (cnt1(i))
 }
 for (i=1;i<=n2;i=i+1) {
     for (j=1;j<=nqd;j=j+1) {
         eta2(j,i) = dexp (ddot (nxis, qdrs2(j,1,i), nqd, cd, 1)) * wt2(j,i)
     }
     if (cntsum2==0)  lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1))
-    else  lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dfloat (cnt2(i))
+    else  lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dble (cnt2(i))
 }
 for (i=1;i<=n3;i=i+1) {
     tmp = 0.d0
@@ -106,9 +106,9 @@ for (i=1;i<=n3;i=i+1) {
         tmp = tmp + ddot (nqd, eta((j-1)*nqd+1), 1, wt3(1,1,i), 1) * wt3(j,2,i)
     }
     if (cntsum3==0)  lkhd = lkhd - dlog (tmp)
-    else  lkhd = lkhd - dlog (tmp) * dfloat (cnt3(i))
+    else  lkhd = lkhd - dlog (tmp) * dble (cnt3(i))
 }
-lkhd = lkhd / dfloat (nobs)
+lkhd = lkhd / dble (nobs)
 for (i=1;i<=nt;i=i+1) {
     tmp = 0.d0
     for (j=1;j<=nqd;j=j+1) {
@@ -143,8 +143,8 @@ repeat {
             call  daxpy (nxis*nxis, -1.d0, vwk, 1, v, 1)
         }
         else {
-            call  daxpy (nxis, dfloat (cnt1(i)), muwk, 1, mu, 1)
-            call  daxpy (nxis*nxis, -dfloat (cnt1(i)), vwk, 1, v, 1)
+            call  daxpy (nxis, dble (cnt1(i)), muwk, 1, mu, 1)
+            call  daxpy (nxis*nxis, -dble (cnt1(i)), vwk, 1, v, 1)
         }
     }
     for (i=1;i<=n2;i=i+1) {
@@ -164,8 +164,8 @@ repeat {
             call  daxpy (nxis*nxis, -1.d0, vwk, 1, v, 1)
         }
         else {
-            call  daxpy (nxis, dfloat (cnt2(i)), muwk, 1, mu, 1)
-            call  daxpy (nxis*nxis, -dfloat (cnt2(i)), vwk, 1, v, 1)
+            call  daxpy (nxis, dble (cnt2(i)), muwk, 1, mu, 1)
+            call  daxpy (nxis*nxis, -dble (cnt2(i)), vwk, 1, v, 1)
         }
     }
     for (i=1;i<=n3;i=i+1) {
@@ -189,12 +189,12 @@ repeat {
             call  daxpy (nxis*nxis, -1.d0, vwk, 1, v, 1)
         }
         else {
-            call  daxpy (nxis, dfloat (cnt3(i)), muwk, 1, mu, 1)
-            call  daxpy (nxis*nxis, -dfloat (cnt3(i)), vwk, 1, v, 1)
+            call  daxpy (nxis, dble (cnt3(i)), muwk, 1, mu, 1)
+            call  daxpy (nxis*nxis, -dble (cnt3(i)), vwk, 1, v, 1)
         }
     }
-    call  dscal (nxis, 1.d0/dfloat(nobs), mu, 1)
-    call  dscal (nxis*nxis, 1.d0/dfloat(nobs), v, 1)
+    call  dscal (nxis, 1.d0/dble(nobs), mu, 1)
+    call  dscal (nxis*nxis, 1.d0/dble(nobs), v, 1)
     for (i=1;i<=nt;i=i+1) {
         for (j=1;j<=nqd;j=j+1) {
             for (k=1;k<=nqd;k=k+1)
@@ -250,7 +250,7 @@ repeat {
         lkhdnew = 0.d0
         for (i=1;i<=n0;i=i+1) {
             tmp = ddot (nxis, rs0(1,i), 1, cdnew, 1)
-            if (cntsum0!=0)  tmp = tmp * dfloat (cnt0(i))
+            if (cntsum0!=0)  tmp = tmp * dble (cnt0(i))
             lkhdnew = lkhdnew - tmp
         }
         for (i=1;i<=n1;i=i+1) {
@@ -258,14 +258,14 @@ repeat {
                 eta1(j,i) = dexp (ddot (nxis, qdrs1(j,1,i), nqd, cdnew, 1)) * wt1(j,i)
             }
             if (cntsum1==0)  lkhdnew = lkhdnew - dlog (dasum (nqd, eta1(1,i), 1))
-            else  lkhdnew = lkhdnew - dlog (dasum (nqd, eta1(1,i), 1)) * dfloat (cnt1(i))
+            else  lkhdnew = lkhdnew - dlog (dasum (nqd, eta1(1,i), 1)) * dble (cnt1(i))
         }
         for (i=1;i<=n2;i=i+1) {
             for (j=1;j<=nqd;j=j+1) {
                 eta2(j,i) = dexp (ddot (nxis, qdrs2(j,1,i), nqd, cdnew, 1)) * wt2(j,i)
             }
             if (cntsum2==0)  lkhdnew = lkhdnew - dlog (dasum (nqd, eta2(1,i), 1))
-            else  lkhdnew = lkhdnew - dlog (dasum (nqd, eta2(1,i), 1)) * dfloat (cnt2(i))
+            else  lkhdnew = lkhdnew - dlog (dasum (nqd, eta2(1,i), 1)) * dble (cnt2(i))
         }
         for (i=1;i<=n3;i=i+1) {
             tmp = 0.d0
@@ -273,9 +273,9 @@ repeat {
                 tmp = tmp + ddot (nqd, wk((j-1)*nqd+1), 1, wt3(1,1,i), 1) * wt3(j,2,i)
             }
             if (cntsum3==0)  lkhdnew = lkhdnew - dlog (tmp)
-            else  lkhdnew = lkhdnew - dlog (tmp) * dfloat (cnt3(i))
+            else  lkhdnew = lkhdnew - dlog (tmp) * dble (cnt3(i))
         }
-        lkhdnew = lkhdnew / dfloat (nobs)
+        lkhdnew = lkhdnew / dble (nobs)
         for (i=1;i<=nt;i=i+1) {
             tmp = 0.d0
             for (j=1;j<=nqd;j=j+1) {
@@ -294,18 +294,18 @@ repeat {
             lkhd = 0.d0
             for (i=1;i<=n1;i=i+1) {
                 if (cntsum1==0)  lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1))
-                else  lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dfloat (cnt1(i))
+                else  lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dble (cnt1(i))
             }
             for (i=1;i<=n2;i=i+1) {
                 if (cntsum2==0)  lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1))
-                else  lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dfloat (cnt2(i))
+                else  lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dble (cnt2(i))
             }
             for (i=1;i<=n3;i=i+1) {
                 tmp = dasum (nqd, wt3(1,1,i), 1) * dasum (nqd, wt3(1,2,i), 1)
                 if (cntsum3==0)  lkhdnew = lkhdnew - dlog (tmp)
-                else  lkhdnew = lkhdnew - dlog (tmp) * dfloat (cnt3(i))
+                else  lkhdnew = lkhdnew - dlog (tmp) * dble (cnt3(i))
             }
-            lkhd = lkhd / dfloat (nobs)
+            lkhd = lkhd / dble (nobs)
             for (i=1;i<=nt;i=i+1) {
                 tmp = dasum (nqd, qdwt(1,1,i), 1) * dasum (nqd, qdwt(1,2,i), 1)
                 lkhd = lkhd + dlog (tmp) * twt(i)
@@ -350,18 +350,18 @@ repeat {
         lkhd = 0.d0
         for (i=1;i<=n1;i=i+1) {
             if (cntsum1==0)  lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1))
-            else  lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dfloat (cnt1(i))
+            else  lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dble (cnt1(i))
         }
         for (i=1;i<=n2;i=i+1) {
             if (cntsum2==0)  lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1))
-            else  lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dfloat (cnt2(i))
+            else  lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dble (cnt2(i))
         }
         for (i=1;i<=n3;i=i+1) {
             tmp = dasum (nqd, wt3(1,1,i), 1) * dasum (nqd, wt3(1,2,i), 1)
             if (cntsum3==0)  lkhdnew = lkhdnew - dlog (tmp)
-            else  lkhdnew = lkhdnew - dlog (tmp) * dfloat (cnt3(i))
+            else  lkhdnew = lkhdnew - dlog (tmp) * dble (cnt3(i))
         }
-        lkhd = lkhd / dfloat (nobs)
+        lkhd = lkhd / dble (nobs)
         for (i=1;i<=nt;i=i+1) {
             tmp = dasum (nqd, qdwt(1,1,i), 1) * dasum (nqd, qdwt(1,2,i), 1)
             lkhd = lkhd + dlog (tmp) * twt(i)
@@ -382,7 +382,7 @@ for (i=1;i<=n0;i=i+1) {
     else  call  daxpy (nxis, -1.d0, mut, 1, muwk, 1)
     call  daxpy (nxis, -1.d0, mrs2, 1, muwk, 1)
     call  dprmut (muwk, nxis, jpvt, 0)
-    if (cntsum0!=0)  call  dscal (nxis, dsqrt(dfloat(cnt0(i))), muwk, 1)
+    if (cntsum0!=0)  call  dscal (nxis, dsqrt(dble(cnt0(i))), muwk, 1)
     call  dtrsl (v, nxis, nxis, muwk, 11, infowk)
     if (nxis-rkv>0)  call  dset (nxis-rkv, 0.d0, muwk(rkv+1), 1)
     trc = trc + ddot (nxis, muwk, 1, muwk, 1)
@@ -395,7 +395,7 @@ for (i=1;i<=n1;i=i+1) {
     else  call  daxpy (nxis, -1.d0, mut, 1, muwk, 1)
     call  daxpy (nxis, -1.d0, mrs2, 1, muwk, 1)
     call  dprmut (muwk, nxis, jpvt, 0)
-    if (cntsum1!=0)  call  dscal (nxis, dsqrt(dfloat(cnt1(i))), muwk, 1)
+    if (cntsum1!=0)  call  dscal (nxis, dsqrt(dble(cnt1(i))), muwk, 1)
     call  dtrsl (v, nxis, nxis, muwk, 11, infowk)
     if (nxis-rkv>0)  call  dset (nxis-rkv, 0.d0, muwk(rkv+1), 1)
     trc = trc + ddot (nxis, muwk, 1, muwk, 1)
@@ -408,7 +408,7 @@ for (i=1;i<=n2;i=i+1) {
     else  call  daxpy (nxis, -1.d0, mut, 1, muwk, 1)
     call  daxpy (nxis, -1.d0, mrs2, 1, muwk, 1)
     call  dprmut (muwk, nxis, jpvt, 0)
-    if (cntsum2!=0)  call  dscal (nxis, dsqrt(dfloat(cnt2(i))), muwk, 1)
+    if (cntsum2!=0)  call  dscal (nxis, dsqrt(dble(cnt2(i))), muwk, 1)
     call  dtrsl (v, nxis, nxis, muwk, 11, infowk)
     if (nxis-rkv>0)  call  dset (nxis-rkv, 0.d0, muwk(rkv+1), 1)
     trc = trc + ddot (nxis, muwk, 1, muwk, 1)
@@ -425,12 +425,12 @@ for (i=1;i<=n3;i=i+1) {
     else  call  daxpy (nxis, -1.d0, mut, 1, muwk, 1)
     call  daxpy (nxis, -1.d0, mrs2, 1, muwk, 1)
     call  dprmut (muwk, nxis, jpvt, 0)
-    if (cntsum3!=0)  call  dscal (nxis, dsqrt(dfloat(cnt3(i))), muwk, 1)
+    if (cntsum3!=0)  call  dscal (nxis, dsqrt(dble(cnt3(i))), muwk, 1)
     call  dtrsl (v, nxis, nxis, muwk, 11, infowk)
     if (nxis-rkv>0)  call  dset (nxis-rkv, 0.d0, muwk(rkv+1), 1)
     trc = trc + ddot (nxis, muwk, 1, muwk, 1)
 }
-trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
+trc = trc / dble(nobs) / (dble(nobs)-1.d0)
 call  dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, muwk, 1)
 lkhd = lkhd - ddot (nxi, cdnew, 1, muwk, 1) / 2.d0
 mrs(1) = lkhd

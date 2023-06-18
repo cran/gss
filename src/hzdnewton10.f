@@ -33,12 +33,12 @@ C Output from Public domain Ratfor, version 1.01
       tmp = ddot (nxis, rs(i,1), nt, cd, 1)
       wt(i) = dexp (-tmp) * rho(i)
       if(cntsum.ne.0)then
-      wt(i) = wt(i) * dfloat (cnt(i))
+      wt(i) = wt(i) * dble (cnt(i))
       endif
 23001 i=i+1
       goto 23000
 23002 continue
-      call dscal (nt, 1/dfloat(nobs), wt, 1)
+      call dscal (nt, 1/dble(nobs), wt, 1)
       lkhd = dasum(nt, wt, 1) + ddot (nxis, intrs, 1, cd, 1)
       call dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
       lkhd = lkhd + ddot (nxi, cd, 1, wk, 1) / 2.d0
@@ -106,12 +106,12 @@ C Output from Public domain Ratfor, version 1.01
       endif
       wtnew(i) = dexp (-tmp) * rho(i)
       if(cntsum.ne.0)then
-      wtnew(i) = wtnew(i) * dfloat (cnt(i))
+      wtnew(i) = wtnew(i) * dble (cnt(i))
       endif
 23031 i=i+1
       goto 23030
 23032 continue
-      call dscal (nt, 1/dfloat(nobs), wtnew, 1)
+      call dscal (nt, 1/dble(nobs), wtnew, 1)
       lkhdnew = dasum(nt, wtnew, 1) + ddot (nxis, intrs, 1, cdnew, 1)
       call dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
       lkhdnew = lkhdnew + ddot (nxi, cdnew, 1, wk, 1) / 2.d0
@@ -121,12 +121,12 @@ C Output from Public domain Ratfor, version 1.01
 23039 if(.not.(i.le.nt))goto 23041
       wt(i) = rho(i)
       if(cntsum.ne.0)then
-      wt(i) = wt(i) * dfloat (cnt(i))
+      wt(i) = wt(i) * dble (cnt(i))
       endif
 23040 i=i+1
       goto 23039
 23041 continue
-      call dscal (nt, 1/dfloat(nobs), wt, 1)
+      call dscal (nt, 1/dble(nobs), wt, 1)
       lkhd = dasum (nt, wt, 1)
       iter = 0
       goto 23029
@@ -179,12 +179,12 @@ C Output from Public domain Ratfor, version 1.01
 23065 if(.not.(i.le.nt))goto 23067
       wt(i) = rho(i)
       if(cntsum.ne.0)then
-      wt(i) = wt(i) * dfloat (cnt(i))
+      wt(i) = wt(i) * dble (cnt(i))
       endif
 23066 i=i+1
       goto 23065
 23067 continue
-      call dscal (nt, 1/dfloat(nobs), wt, 1)
+      call dscal (nt, 1/dble(nobs), wt, 1)
       lkhd = dasum (nt, wt, 1)
       iter = 0
       flag = 2
@@ -205,11 +205,11 @@ C Output from Public domain Ratfor, version 1.01
       call dset (nxis-rkv, 0.d0, wk(rkv+1), 1)
       wtnew(i) = wt(i) * ddot (nxis, wk, 1, wk, 1)
       if(cntsum.ne.0)then
-      wtnew(i) = wtnew(i) / dfloat (cnt(i))
+      wtnew(i) = wtnew(i) / dble (cnt(i))
       endif
       tmp = tmp + wt(i) * (dexp (wtnew(i)/(1.d0-wtnew(i))) - 1.d0)
       if(cntsum.ne.0)then
-      disc = disc + dfloat(cnt(i)) * wtnew(i)/(1.d0-wtnew(i))
+      disc = disc + dble(cnt(i)) * wtnew(i)/(1.d0-wtnew(i))
       else
       disc = disc + wtnew(i)/(1.d0-wtnew(i))
       endif
@@ -218,7 +218,7 @@ C Output from Public domain Ratfor, version 1.01
 23072 continue
       wt(1) = lkhd
       wt(2) = tmp
-      wt(3) = disc/dfloat(nobs)
+      wt(3) = disc/dble(nobs)
       return
       end
       subroutine hzdaux101 (cd, nxis, q, nxi, rs, nt, rho, mchpr, v, jpv

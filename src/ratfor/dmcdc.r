@@ -32,7 +32,7 @@ double precision  a(lda,*), e(*)
 
 #  Routines called directly:
 #      Blas    -- dasum, ddot, dscal, dswap, idamax
-#      Fortran -- dabs, dmax1, dfloat, dsqrt
+#      Fortran -- dabs, dmax1, dble, dsqrt
 
 #   Written:  Chong Gu, Statistics, UW-Madison, latest version 9/16/88.
 
@@ -52,13 +52,13 @@ tmp = 1.d0
 while ( 1.d0 + tmp > 1.d0 )  tmp = tmp / 2.d0
 jmax = idamax (p, a, lda+1)
 beta = dmax1 (2.d0 * tmp, dabs (a(jmax,jmax)))
-tmp = dsqrt (dfloat (p*p-1))
+tmp = dsqrt (dble (p*p-1))
 if ( tmp < 1.d0 )  tmp = 1.d0
 for (j=2;j<=p;j=j+1) {
     jmax = idamax (j-1, a(1,j), 1)
     beta = dmax1 (beta, dabs (a(jmax,j)) / tmp)
 }
-delta = dasum (p, a, lda+1) / dfloat (p) * 1.d-7
+delta = dasum (p, a, lda+1) / dble (p) * 1.d-7
 delta = dmax1 (delta, 1.d-10)
 for (j=1;j<=p;j=j+1)  jpvt(j) = j
 

@@ -46,9 +46,9 @@ info = 0
 for (i=1;i<=nt;i=i+1) {
     tmp = ddot (nxis, rs(i,1), nt, cd, 1)
     wt(i) = dexp (-tmp) * rho(i)
-    if (cntsum!=0)  wt(i) = wt(i) * dfloat (cnt(i))
+    if (cntsum!=0)  wt(i) = wt(i) * dble (cnt(i))
 }
-call  dscal (nt, 1/dfloat(nobs), wt, 1)
+call  dscal (nt, 1/dble(nobs), wt, 1)
 lkhd = dasum(nt, wt, 1) + ddot (nxis, intrs, 1, cd, 1)
 call  dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
 lkhd = lkhd + ddot (nxi, cd, 1, wk, 1) / 2.d0
@@ -94,9 +94,9 @@ repeat {
                 break
             }
             wtnew(i) = dexp (-tmp) * rho(i)
-            if (cntsum!=0)  wtnew(i) = wtnew(i) * dfloat (cnt(i))
+            if (cntsum!=0)  wtnew(i) = wtnew(i) * dble (cnt(i))
         }
-        call  dscal (nt, 1/dfloat(nobs), wtnew, 1)
+        call  dscal (nt, 1/dble(nobs), wtnew, 1)
         lkhdnew = dasum(nt, wtnew, 1) + ddot (nxis, intrs, 1, cdnew, 1)
         call  dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
         lkhdnew = lkhdnew + ddot (nxi, cdnew, 1, wk, 1) / 2.d0
@@ -105,9 +105,9 @@ repeat {
             call  dset (nxis, 0.d0, cd, 1)
             for (i=1;i<=nt;i=i+1) {
                 wt(i) = rho(i)
-                if (cntsum!=0)  wt(i) = wt(i) * dfloat (cnt(i))
+                if (cntsum!=0)  wt(i) = wt(i) * dble (cnt(i))
             }
-            call  dscal (nt, 1/dfloat(nobs), wt, 1)
+            call  dscal (nt, 1/dble(nobs), wt, 1)
             lkhd = dasum (nt, wt, 1)
             iter = 0
             break
@@ -144,9 +144,9 @@ repeat {
         call  dset (nxis, 0.d0, cd, 1)
         for (i=1;i<=nt;i=i+1) {
             wt(i) = rho(i)
-            if (cntsum!=0)  wt(i) = wt(i) * dfloat (cnt(i))
+            if (cntsum!=0)  wt(i) = wt(i) * dble (cnt(i))
         }
-        call  dscal (nt, 1/dfloat(nobs), wt, 1)
+        call  dscal (nt, 1/dble(nobs), wt, 1)
         lkhd = dasum (nt, wt, 1)
         iter = 0
         flag = 2
@@ -166,15 +166,15 @@ for (i=1;i<=nt;i=i+1) {
     call  dtrsl (v, nxis, nxis, wk, 11, infowk)
     call  dset (nxis-rkv, 0.d0, wk(rkv+1), 1)
     wtnew(i) = wt(i) * ddot (nxis, wk, 1, wk, 1)
-    if (cntsum!=0)  wtnew(i) = wtnew(i) / dfloat (cnt(i))
+    if (cntsum!=0)  wtnew(i) = wtnew(i) / dble (cnt(i))
     tmp = tmp + wt(i) * (dexp (wtnew(i)/(1.d0-wtnew(i))) - 1.d0)
 #    tmp = tmp + wt(i) * (1.d0/(1.d0-wtnew(i))**2-1.d0)/2.d0
-    if (cntsum!=0) disc = disc + dfloat(cnt(i)) * wtnew(i)/(1.d0-wtnew(i))
+    if (cntsum!=0) disc = disc + dble(cnt(i)) * wtnew(i)/(1.d0-wtnew(i))
     else  disc = disc + wtnew(i)/(1.d0-wtnew(i))
 }
 wt(1) = lkhd
 wt(2) = tmp
-wt(3) = disc/dfloat(nobs)
+wt(3) = disc/dble(nobs)
 
 return
 end

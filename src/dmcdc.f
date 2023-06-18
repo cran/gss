@@ -17,7 +17,7 @@ C Output from Public domain Ratfor, version 1.0
 23003 continue
       jmax = idamax (p, a, lda+1)
       beta = dmax1 (2.d0 * tmp, dabs (a(jmax,jmax)))
-      tmp = dsqrt (dfloat (p*p-1))
+      tmp = dsqrt (dble (p*p-1))
       if( tmp .lt. 1.d0 )then
       tmp = 1.d0
       endif
@@ -28,7 +28,7 @@ C Output from Public domain Ratfor, version 1.0
 23007 j=j+1
       goto 23006
 23008 continue
-      delta = dasum (p, a, lda+1) / dfloat (p) * 1.d-7
+      delta = dasum (p, a, lda+1) / dble (p) * 1.d-7
       delta = dmax1 (delta, 1.d-10)
       j=1
 23009 if(.not.(j.le.p))goto 23011

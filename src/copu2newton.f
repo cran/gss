@@ -76,7 +76,7 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum0.eq.0)then
       mrs(i) = mrs(i) + rs0(i,j)
       else
-      mrs(i) = mrs(i) + rs0(i,j) * dfloat (cnt0(j))
+      mrs(i) = mrs(i) + rs0(i,j) * dble (cnt0(j))
       endif
 23012 j=j+1
       goto 23011
@@ -95,7 +95,7 @@ C Output from Public domain Ratfor, version 1.01
 23019 if(.not.(i.le.n0))goto 23021
       tmp = ddot (nxis, rs0(1,i), 1, cd, 1)
       if(cntsum0.ne.0)then
-      tmp = tmp * dfloat (cnt0(i))
+      tmp = tmp * dble (cnt0(i))
       endif
       lkhd = lkhd - tmp
 23020 i=i+1
@@ -113,7 +113,7 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum1.eq.0)then
       lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1))
       else
-      lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dfloat (cnt1(i))
+      lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dble (cnt1(i))
       endif
 23025 i=i+1
       goto 23024
@@ -130,7 +130,7 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum2.eq.0)then
       lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1))
       else
-      lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dfloat (cnt2(i))
+      lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dble (cnt2(i))
       endif
 23033 i=i+1
       goto 23032
@@ -148,12 +148,12 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum3.eq.0)then
       lkhd = lkhd - dlog (tmp)
       else
-      lkhd = lkhd - dlog (tmp) * dfloat (cnt3(i))
+      lkhd = lkhd - dlog (tmp) * dble (cnt3(i))
       endif
 23041 i=i+1
       goto 23040
 23042 continue
-      lkhd = lkhd / dfloat (nobs)
+      lkhd = lkhd / dble (nobs)
       i=1
 23048 if(.not.(i.le.nt))goto 23050
       tmp = 0.d0
@@ -207,8 +207,8 @@ C Output from Public domain Ratfor, version 1.01
       call daxpy (nxis, 1.d0, muwk, 1, mu, 1)
       call daxpy (nxis*nxis, -1.d0, vwk, 1, v, 1)
       else
-      call daxpy (nxis, dfloat (cnt1(i)), muwk, 1, mu, 1)
-      call daxpy (nxis*nxis, -dfloat (cnt1(i)), vwk, 1, v, 1)
+      call daxpy (nxis, dble (cnt1(i)), muwk, 1, mu, 1)
+      call daxpy (nxis*nxis, -dble (cnt1(i)), vwk, 1, v, 1)
       endif
 23058 i=i+1
       goto 23057
@@ -244,8 +244,8 @@ C Output from Public domain Ratfor, version 1.01
       call daxpy (nxis, 1.d0, muwk, 1, mu, 1)
       call daxpy (nxis*nxis, -1.d0, vwk, 1, v, 1)
       else
-      call daxpy (nxis, dfloat (cnt2(i)), muwk, 1, mu, 1)
-      call daxpy (nxis*nxis, -dfloat (cnt2(i)), vwk, 1, v, 1)
+      call daxpy (nxis, dble (cnt2(i)), muwk, 1, mu, 1)
+      call daxpy (nxis*nxis, -dble (cnt2(i)), vwk, 1, v, 1)
       endif
 23075 i=i+1
       goto 23074
@@ -292,14 +292,14 @@ C Output from Public domain Ratfor, version 1.01
       call daxpy (nxis, 1.d0, muwk, 1, mu, 1)
       call daxpy (nxis*nxis, -1.d0, vwk, 1, v, 1)
       else
-      call daxpy (nxis, dfloat (cnt3(i)), muwk, 1, mu, 1)
-      call daxpy (nxis*nxis, -dfloat (cnt3(i)), vwk, 1, v, 1)
+      call daxpy (nxis, dble (cnt3(i)), muwk, 1, mu, 1)
+      call daxpy (nxis*nxis, -dble (cnt3(i)), vwk, 1, v, 1)
       endif
 23092 i=i+1
       goto 23091
 23093 continue
-      call dscal (nxis, 1.d0/dfloat(nobs), mu, 1)
-      call dscal (nxis*nxis, 1.d0/dfloat(nobs), v, 1)
+      call dscal (nxis, 1.d0/dble(nobs), mu, 1)
+      call dscal (nxis*nxis, 1.d0/dble(nobs), v, 1)
       i=1
 23114 if(.not.(i.le.nt))goto 23116
       j=1
@@ -401,7 +401,7 @@ C Output from Public domain Ratfor, version 1.01
 23157 if(.not.(i.le.n0))goto 23159
       tmp = ddot (nxis, rs0(1,i), 1, cdnew, 1)
       if(cntsum0.ne.0)then
-      tmp = tmp * dfloat (cnt0(i))
+      tmp = tmp * dble (cnt0(i))
       endif
       lkhdnew = lkhdnew - tmp
 23158 i=i+1
@@ -419,7 +419,7 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum1.eq.0)then
       lkhdnew = lkhdnew - dlog (dasum (nqd, eta1(1,i), 1))
       else
-      lkhdnew = lkhdnew - dlog (dasum (nqd, eta1(1,i), 1)) * dfloat (cnt
+      lkhdnew = lkhdnew - dlog (dasum (nqd, eta1(1,i), 1)) * dble (cnt
      *1(i))
       endif
 23163 i=i+1
@@ -437,7 +437,7 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum2.eq.0)then
       lkhdnew = lkhdnew - dlog (dasum (nqd, eta2(1,i), 1))
       else
-      lkhdnew = lkhdnew - dlog (dasum (nqd, eta2(1,i), 1)) * dfloat (cnt
+      lkhdnew = lkhdnew - dlog (dasum (nqd, eta2(1,i), 1)) * dble (cnt
      *2(i))
       endif
 23171 i=i+1
@@ -456,12 +456,12 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum3.eq.0)then
       lkhdnew = lkhdnew - dlog (tmp)
       else
-      lkhdnew = lkhdnew - dlog (tmp) * dfloat (cnt3(i))
+      lkhdnew = lkhdnew - dlog (tmp) * dble (cnt3(i))
       endif
 23179 i=i+1
       goto 23178
 23180 continue
-      lkhdnew = lkhdnew / dfloat (nobs)
+      lkhdnew = lkhdnew / dble (nobs)
       i=1
 23186 if(.not.(i.le.nt))goto 23188
       tmp = 0.d0
@@ -489,7 +489,7 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum1.eq.0)then
       lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1))
       else
-      lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dfloat (cnt1(i))
+      lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dble (cnt1(i))
       endif
 23195 i=i+1
       goto 23194
@@ -499,7 +499,7 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum2.eq.0)then
       lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1))
       else
-      lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dfloat (cnt2(i))
+      lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dble (cnt2(i))
       endif
 23200 i=i+1
       goto 23199
@@ -510,12 +510,12 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum3.eq.0)then
       lkhdnew = lkhdnew - dlog (tmp)
       else
-      lkhdnew = lkhdnew - dlog (tmp) * dfloat (cnt3(i))
+      lkhdnew = lkhdnew - dlog (tmp) * dble (cnt3(i))
       endif
 23205 i=i+1
       goto 23204
 23206 continue
-      lkhd = lkhd / dfloat (nobs)
+      lkhd = lkhd / dble (nobs)
       i=1
 23209 if(.not.(i.le.nt))goto 23211
       tmp = dasum (nqd, qdwt(1,1,i), 1) * dasum (nqd, qdwt(1,2,i), 1)
@@ -579,7 +579,7 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum1.eq.0)then
       lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1))
       else
-      lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dfloat (cnt1(i))
+      lkhd = lkhd - dlog (dasum (nqd, eta1(1,i), 1)) * dble (cnt1(i))
       endif
 23234 i=i+1
       goto 23233
@@ -589,7 +589,7 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum2.eq.0)then
       lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1))
       else
-      lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dfloat (cnt2(i))
+      lkhd = lkhd - dlog (dasum (nqd, eta2(1,i), 1)) * dble (cnt2(i))
       endif
 23239 i=i+1
       goto 23238
@@ -600,12 +600,12 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum3.eq.0)then
       lkhdnew = lkhdnew - dlog (tmp)
       else
-      lkhdnew = lkhdnew - dlog (tmp) * dfloat (cnt3(i))
+      lkhdnew = lkhdnew - dlog (tmp) * dble (cnt3(i))
       endif
 23244 i=i+1
       goto 23243
 23245 continue
-      lkhd = lkhd / dfloat (nobs)
+      lkhd = lkhd / dble (nobs)
       i=1
 23248 if(.not.(i.le.nt))goto 23250
       tmp = dasum (nqd, qdwt(1,1,i), 1) * dasum (nqd, qdwt(1,2,i), 1)
@@ -633,7 +633,7 @@ C Output from Public domain Ratfor, version 1.01
       call daxpy (nxis, -1.d0, mrs2, 1, muwk, 1)
       call dprmut (muwk, nxis, jpvt, 0)
       if(cntsum0.ne.0)then
-      call dscal (nxis, dsqrt(dfloat(cnt0(i))), muwk, 1)
+      call dscal (nxis, dsqrt(dble(cnt0(i))), muwk, 1)
       endif
       call dtrsl (v, nxis, nxis, muwk, 11, infowk)
       if(nxis-rkv.gt.0)then
@@ -660,7 +660,7 @@ C Output from Public domain Ratfor, version 1.01
       call daxpy (nxis, -1.d0, mrs2, 1, muwk, 1)
       call dprmut (muwk, nxis, jpvt, 0)
       if(cntsum1.ne.0)then
-      call dscal (nxis, dsqrt(dfloat(cnt1(i))), muwk, 1)
+      call dscal (nxis, dsqrt(dble(cnt1(i))), muwk, 1)
       endif
       call dtrsl (v, nxis, nxis, muwk, 11, infowk)
       if(nxis-rkv.gt.0)then
@@ -687,7 +687,7 @@ C Output from Public domain Ratfor, version 1.01
       call daxpy (nxis, -1.d0, mrs2, 1, muwk, 1)
       call dprmut (muwk, nxis, jpvt, 0)
       if(cntsum2.ne.0)then
-      call dscal (nxis, dsqrt(dfloat(cnt2(i))), muwk, 1)
+      call dscal (nxis, dsqrt(dble(cnt2(i))), muwk, 1)
       endif
       call dtrsl (v, nxis, nxis, muwk, 11, infowk)
       if(nxis-rkv.gt.0)then
@@ -725,7 +725,7 @@ C Output from Public domain Ratfor, version 1.01
       call daxpy (nxis, -1.d0, mrs2, 1, muwk, 1)
       call dprmut (muwk, nxis, jpvt, 0)
       if(cntsum3.ne.0)then
-      call dscal (nxis, dsqrt(dfloat(cnt3(i))), muwk, 1)
+      call dscal (nxis, dsqrt(dble(cnt3(i))), muwk, 1)
       endif
       call dtrsl (v, nxis, nxis, muwk, 11, infowk)
       if(nxis-rkv.gt.0)then
@@ -735,7 +735,7 @@ C Output from Public domain Ratfor, version 1.01
 23285 i=i+1
       goto 23284
 23286 continue
-      trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
+      trc = trc / dble(nobs) / (dble(nobs)-1.d0)
       call dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, muwk, 1)
       lkhd = lkhd - ddot (nxi, cdnew, 1, muwk, 1) / 2.d0
       mrs(1) = lkhd

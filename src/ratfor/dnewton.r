@@ -62,11 +62,11 @@ for (i=1;i<=nxis;i=i+1) {
     mrs(i) = 0.d0
     if (cntsum==0) {
         for (j=1;j<=nobs;j=j+1)  mrs(i) = mrs(i) + rs(i,j)
-        mrs(i) = mrs(i) / dfloat (nobs)
+        mrs(i) = mrs(i) / dble (nobs)
     }
     else {
-        for (j=1;j<=nobs;j=j+1)  mrs(i) = mrs(i) + rs(i,j) * dfloat (cnt(j))
-        mrs(i) = mrs(i) / dfloat (cntsum)
+        for (j=1;j<=nobs;j=j+1)  mrs(i) = mrs(i) + rs(i,j) * dble (cnt(j))
+        mrs(i) = mrs(i) / dble (cntsum)
     }
 }
 #   Initialization
@@ -84,11 +84,11 @@ fitmean = 0.d0
 for (i=1;i<=nobs;i=i+1) {
     tmp = ddot (nxis, rs(1,i), 1, cd, 1)
     fit(i) = dexp (tmp)
-    if (cntsum!=0)  tmp = tmp * dfloat (cnt(i))
+    if (cntsum!=0)  tmp = tmp * dble (cnt(i))
     fitmean = fitmean + tmp
 }
-if (cntsum==0)  fitmean = fitmean / dfloat (nobs)
-else  fitmean = fitmean / dfloat (cntsum)
+if (cntsum==0)  fitmean = fitmean / dble (nobs)
+else  fitmean = fitmean / dble (cntsum)
 call  dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
 lkhd = ddot (nxi, cd, 1, wk, 1) / 2.d0 - fitmean + norm
 iter = 0
@@ -160,11 +160,11 @@ repeat {
                     break
                 }
                 fitnew(i) = dexp (tmp)
-                if (cntsum!=0)  tmp = tmp * dfloat (cnt(i))
+                if (cntsum!=0)  tmp = tmp * dble (cnt(i))
                 fitmean = fitmean + tmp
             }
-            if (cntsum==0)  fitmean = fitmean / dfloat (nobs)
-            else  fitmean = fitmean / dfloat (cntsum)
+            if (cntsum==0)  fitmean = fitmean / dble (nobs)
+            else  fitmean = fitmean / dble (cntsum)
             call  dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
             lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean + norm
         }
@@ -238,22 +238,22 @@ repeat {
 for (i=1;i<=nobs;i=i+1) {
     call  daxpy (nxis, -1.d0, mrs, 1, rs(1,i), 1)
     call  dprmut (rs(1,i), nxis, jpvt, 0)
-    if (cntsum!=0)  call  dscal (nxis, dsqrt(dfloat(cnt(i))), rs(1,i), 1)
+    if (cntsum!=0)  call  dscal (nxis, dsqrt(dble(cnt(i))), rs(1,i), 1)
     call  dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
     if (nxis-rkv>0)  call  dset (nxis-rkv, 0.d0, rs(rkv+1,i), 1)
 }
 trc = ddot (nobs*nxis, rs, 1, rs, 1)
 if (cntsum==0) {
-    trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
+    trc = trc / dble(nobs) / (dble(nobs)-1.d0)
     lkhd = 0.d0
     for (i=1;i<=nobs;i=i+1)  lkhd = lkhd + dlog (fit(i))
-    lkhd = lkhd / dfloat (nobs)
+    lkhd = lkhd / dble (nobs)
 }
 else {
-    trc = trc / dfloat(cntsum) / (dfloat(cntsum)-1.d0)
+    trc = trc / dble(cntsum) / (dble(cntsum)-1.d0)
     lkhd = 0.d0
-    for (i=1;i<=nobs;i=i+1)  lkhd = lkhd + dfloat (cnt(i)) * dlog (fit(i))
-    lkhd = lkhd / dfloat (cntsum)
+    for (i=1;i<=nobs;i=i+1)  lkhd = lkhd + dble (cnt(i)) * dlog (fit(i))
+    lkhd = lkhd / dble (cntsum)
 }
 for (m=1;m<=nt;m=m+1)  lkhd = lkhd - bwt(m) * dlog (wtsum(m))
 mrs(1) = lkhd

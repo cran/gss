@@ -28,14 +28,14 @@ C Output from Public domain Ratfor, version 1.0
       toltot = tol
       endif
       toltot = toltot * nrmtot
-      dn = dfloat (n)
+      dn = dble (n)
       toluni = toltot * 6.d0 / dn / ( dn - 1.d0 ) / ( 2.d0 * dn - 1.d0 )
       tolcum = 0.d0
       j=1 
 23009 if(.not.(j.lt.n-1 ))goto 23011
       nrmtot = nrmtot - x(j,j) * x(j,j)
       nrmxj = ddot (n-j, x(j+1,j), 1, x(j+1,j), 1)
-      dn = dfloat (n-j)
+      dn = dble (n-j)
       tolcum = tolcum + toluni * dn * dn
       if( 2.d0 * nrmxj .le. tolcum )then
       x(j,j+1) = 0.d0

@@ -44,12 +44,12 @@ C Output from Public domain Ratfor, version 1.01
       if(cntsum.eq.0)then
       mrs(i) = mrs(i) + rs(i,j)
       else
-      mrs(i) = mrs(i) + rs(i,j) * dfloat (cnt(j))
+      mrs(i) = mrs(i) + rs(i,j) * dble (cnt(j))
       endif
 23004 j=j+1
       goto 23003
 23005 continue
-      mrs(i) = mrs(i) / dfloat (nobs)
+      mrs(i) = mrs(i) / dble (nobs)
 23001 i=i+1
       goto 23000
 23002 continue
@@ -71,13 +71,13 @@ C Output from Public domain Ratfor, version 1.01
       tmp = ddot (nxis, rs(1,i), 1, cd, 1)
       fit(i) = dexp (tmp)
       if(cntsum.ne.0)then
-      tmp = tmp * dfloat (cnt(i))
+      tmp = tmp * dble (cnt(i))
       endif
       fitmean = fitmean + tmp
 23015 i=i+1
       goto 23014
 23016 continue
-      fitmean = fitmean / dfloat (nobs) - dasum (nqd*nx, wt, 1)
+      fitmean = fitmean / dble (nobs) - dasum (nqd*nx, wt, 1)
       call dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
       lkhd = ddot (nxi, cd, 1, wk, 1) / 2.d0 - fitmean
       iter = 0
@@ -182,13 +182,13 @@ C Output from Public domain Ratfor, version 1.01
       endif
       fitnew(i) = dexp (tmp)
       if(cntsum.ne.0)then
-      tmp = tmp * dfloat (cnt(i))
+      tmp = tmp * dble (cnt(i))
       endif
       fitmean = fitmean + tmp
 23064 i=i+1
       goto 23063
 23065 continue
-      fitmean = fitmean / dfloat (nobs) - dasum (nqd*nx, wtnew, 1)
+      fitmean = fitmean / dble (nobs) - dasum (nqd*nx, wtnew, 1)
       call dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
       lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean
       endif
@@ -272,7 +272,7 @@ C Output from Public domain Ratfor, version 1.01
 23099 if(.not.(i.le.nt))goto 23101
       call dprmut (rs(1,i), nxis, jpvt, 0)
       if(cntsum.ne.0)then
-      call dscal (nxis, dsqrt(dfloat(cnt(i))), rs(1,i), 1)
+      call dscal (nxis, dsqrt(dble(cnt(i))), rs(1,i), 1)
       endif
       call dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
 23100 i=i+1
@@ -280,9 +280,9 @@ C Output from Public domain Ratfor, version 1.01
 23101 continue
       call dprmut (mrs, nxis, jpvt, 0)
       call dtrsl (v, nxis, nxis, mrs, 11, infowk)
-      trc = ddot (nxis*nt, rs, 1, rs, 1) - dfloat (nobs) * ddot (nxis, m
+      trc = ddot (nxis*nt, rs, 1, rs, 1) - dble (nobs) * ddot (nxis, m
      *rs, 1, mrs, 1)
-      trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
+      trc = trc / dble(nobs) / (dble(nobs)-1.d0)
       mrs(1) = fitmean
       mrs(2) = trc
       kk=1

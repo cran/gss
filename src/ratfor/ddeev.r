@@ -55,7 +55,7 @@ double precision  q(ldqr,ldqc,*), u(ldu,*), uaux(*), t(2,*), x(*),_
 #      work1-3    of sizes at least (n).
 
 #  Routines called directly:
-#      Fortran -- dfloat
+#      Fortran -- dble
 #      Blas    -- daxpy, dcopy, ddot, dscal
 #      Blas2   -- dgemv
 #      Linpack -- dpbfa, dpbsl, dqrsl
@@ -222,12 +222,12 @@ for (i=1;i<=nq;i=i+1) {
     
 #   compute the gradient
 if ( vmu == 'v' ) {
-    trc = dfloat (nobs) * 10.d0 ** (-nlaht) * varht / score
+    trc = dble (nobs) * 10.d0 ** (-nlaht) * varht / score
     for (i=1;i<=nq;i=i+1) {
         if ( theta(i) <= -25.d0 )  next
-        gra(i) = gwk1(i) / trc / trc - 2.d0 * score * gwk2(i) / trc / dfloat(nobs)
+        gra(i) = gwk1(i) / trc / trc - 2.d0 * score * gwk2(i) / trc / dble(nobs)
     }
-    call  dscal (nq, dfloat (nobs), gra, 1)
+    call  dscal (nq, dble (nobs), gra, 1)
 }
 if ( vmu == 'u' ) {
     dum = 10.d0 ** nlaht
@@ -235,15 +235,15 @@ if ( vmu == 'u' ) {
         if ( theta(i) <= -25.d0 )  next
         gra(i) = dum * dum * gwk1(i) - 2.d0 * varht * dum * gwk2(i)
     }
-    call  dscal (nq, 1.d0/dfloat (n), gra, 1)
+    call  dscal (nq, 1.d0/dble (n), gra, 1)
 }
 if ( vmu == 'm' ) {
     det = 10.d0 ** (-nlaht) * varht / score
     for (i=1;i<=nq;i=i+1) {
         if ( theta(i) <= -25.d0 )  next
-        gra(i) = gwk1(i) / det - dfloat (nobs) / dfloat (n) * score * gwk2(i)
+        gra(i) = gwk1(i) / det - dble (nobs) / dble (n) * score * gwk2(i)
     }
-    call  dscal (nq, 1.d0 / dfloat (nobs), gra, 1)
+    call  dscal (nq, 1.d0 / dble (nobs), gra, 1)
 }
 
 #   compute the Hessian
@@ -254,10 +254,10 @@ if ( vmu == 'v' ) {
             if ( theta(j) <= -25.d0 )  next
             hes(i,j) = hwk1(i,j) / trc / trc - 2.d0 * gwk1(i) * gwk2(j) / trc ** 3_
                       - 2.d0 * gwk1(j) * gwk2(i) / trc ** 3 - 2.d0 * score * hwk2(i,j)_
-                      / trc / dfloat (nobs) + 6.d0 * score * gwk2(i) * gwk2(j)_
-                      / trc / trc / dfloat (nobs)
+                      / trc / dble (nobs) + 6.d0 * score * gwk2(i) * gwk2(j)_
+                      / trc / trc / dble (nobs)
         }
-        call  dscal (i, dfloat (nobs), hes(i,1), ldh)
+        call  dscal (i, dble (nobs), hes(i,1), ldh)
     }
 }
 if ( vmu == 'u' ) {
@@ -267,7 +267,7 @@ if ( vmu == 'u' ) {
             if ( theta(j) <= -25.d0 )  next
             hes(i,j) = dum * dum * hwk1(i,j) - 2.d0 * varht * dum * hwk2(i,j)
         }
-        call  dscal (i, 1.d0/dfloat (n), hes(i,1), ldh)
+        call  dscal (i, 1.d0/dble (n), hes(i,1), ldh)
     }
 }
 if ( vmu == 'm' ) {
@@ -275,12 +275,12 @@ if ( vmu == 'm' ) {
         if ( theta(i) <= -25.d0 )  next
         for (j=1;j<=i;j=j+1) {
             if ( theta(j) <= -25.d0 )  next
-            hes(i,j) = hwk1(i,j) / det - gwk1(i) * gwk2(j) / det / dfloat (n)_
-                      - gwk1(j) * gwk2(i) / det / dfloat (n) - dfloat (nobs)_
-                      / dfloat (n) * score * hwk2(i,j) + dfloat (nobs)_
-                      / dfloat (n) ** 2 * score * gwk2(i) * gwk2(j)
+            hes(i,j) = hwk1(i,j) / det - gwk1(i) * gwk2(j) / det / dble (n)_
+                      - gwk1(j) * gwk2(i) / det / dble (n) - dble (nobs)_
+                      / dble (n) * score * hwk2(i,j) + dble (nobs)_
+                      / dble (n) ** 2 * score * gwk2(i) * gwk2(j)
         }
-        call  dscal (i, 1.d0 / dfloat (nobs), hes(i,1), ldh)
+        call  dscal (i, 1.d0 / dble (nobs), hes(i,1), ldh)
     }
 }
 

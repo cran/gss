@@ -1,6 +1,6 @@
 Package: gss
-Version: 2.2-4
-Date: 2023-03-14
+Version: 2.2-5
+Date: 2023-06-18
 Title: General Smoothing Splines
 Author: Chong Gu <chong@purdue.edu>
 Maintainer: Chong Gu <chong@purdue.edu>
@@ -8,7 +8,7 @@ Depends: R (>= 3.0.0), stats
 Description: A comprehensive package for structural multivariate
         function estimation using smoothing splines.
 License: GPL (>= 2)
-Packaged: 2023-03-15 00:37:23 UTC; chong
+Packaged: 2023-06-18 22:28:55 UTC; chong
 NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2023-03-15 01:00:02 UTC
+Date/Publication: 2023-06-18 23:10:02 UTC

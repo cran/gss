@@ -64,14 +64,14 @@ for (i=1;i<=nxis;i=i+1) {
     mrs(i) = 0.d0
     if (cntsum==0) {
         for (j=1;j<=nobs;j=j+1)  mrs(i) = mrs(i) + rs(i,j)
-        mrs(i) = mrs(i) / dfloat (nobs)
+        mrs(i) = mrs(i) / dble (nobs)
     }
     else {
         for (j=1;j<=nobs;j=j+1)  mrs(i) = mrs(i) + rs(i,j) * cnt(j)
         mrs(i) = mrs(i) / cnt1
     }
 }
-if (cntsum==0)  trc = 1.d0 / dfloat (nobs)
+if (cntsum==0)  trc = 1.d0 / dble (nobs)
 else  trc = 1.d0 / cnt1
 #   Initialization
 norm = 0.d0
@@ -234,10 +234,10 @@ for (i=1;i<=nobs;i=i+1) {
 }
 trc = ddot (nobs*nxis, rs, 1, rs, 1)
 if (cntsum==0) {
-    trc = trc / dfloat(nobs) / (dfloat(nobs)-1.d0)
+    trc = trc / dble(nobs) / (dble(nobs)-1.d0)
     lkhd = 0.d0
     for (i=1;i<=nobs;i=i+1)  lkhd = lkhd + dlog (fit(i))
-    lkhd = lkhd / dfloat (nobs)
+    lkhd = lkhd / dble (nobs)
 }
 else {
     trc = trc / cnt1 / (cnt1-1.d0)

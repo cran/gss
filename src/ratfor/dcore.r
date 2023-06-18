@@ -54,7 +54,7 @@ double precision  q(ldq,*), tol, z(*), limnla(2), nlaht, score(*), varht,_
 #      work       of size at least (nobs-nnull).
 
 #  Routines called directly:
-#      Fortran -- dfloat, dlog10
+#      Fortran -- dble, dlog10
 #      Blas    -- dasum, dcopy
 #      Linpack -- dqrsl
 #      Rkpack  -- deval, dgold, dsytr
@@ -108,15 +108,15 @@ if ( job <= 0 ) {
     #   compute score and estimate nlaht thru golden-section search
     call dgold (vmu, q(n0+1,n0+1), ldq, n, z(n0+1), low, upp, nlaht,_
                 score(1), varht, info, twk, work)
-    if ( vmu == 'v' )  score(1) = score(1) * dfloat (nobs) / dfloat (n)
-    if ( vmu == 'm' )  score(1) = score(1) * dfloat (n) / dfloat (nobs)
-    if ( vmu == 'u' )  score(1) = score(1) * dfloat (n) / dfloat (nobs) + 2.d0 * varht
+    if ( vmu == 'v' )  score(1) = score(1) * dble (nobs) / dble (n)
+    if ( vmu == 'm' )  score(1) = score(1) * dble (n) / dble (nobs)
+    if ( vmu == 'u' )  score(1) = score(1) * dble (n) / dble (nobs) + 2.d0 * varht
 }
 else {
     #   regular grid evaluation
     call  deval (vmu, q(n0+1,n0+1), ldq, n, z(n0+1), job, low, upp, nlaht,_
                  score, varht, info, twk, work)
-    dum = dfloat (nobs) / dfloat (n)
+    dum = dble (nobs) / dble (n)
     for (j=1;j<=job+1;j=j+1) {
         if ( vmu == 'v' )  score(j) = score(j) * dum
         if ( vmu == 'm' )  score(j) = score(j) / dum

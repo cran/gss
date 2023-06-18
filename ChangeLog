@@ -1,8 +1,14 @@
+Sun 18 Jun 2023 06:27:01 PM EDT, Chong Gu  <chong@purdue.edu>
+
+	* DESCRIPTION: Version 2.2-5.
+
+	* src: Replaced FORTRAN function dfloat by dble.
+
 Tue 14 Mar 2023 08:36:01 PM EDT, Chong Gu  <chong@purdue.edu>
 
 	* DESCRIPTION: Version 2.2-4.
 
-	* inst: edited CITATION to conform with new standard.
+	* inst: Edited CITATION to conform with new standard.
 
 	* R: Edited numerous functions to replace "class(obj)==string" by
 	"inherits(obj,string)".

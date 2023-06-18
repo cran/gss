@@ -47,7 +47,7 @@ double precision  x(ldx,*), tol, work(*)
 #      work       of size at least (n).
 
 #  Routines called directly:
-#      Fortran -- dfloat, dsqrt
+#      Fortran -- dble, dsqrt
 #      Blas    -- daxpy, ddot, dscal
 #      Blas2   -- dsymv, dsyr2
 
@@ -77,7 +77,7 @@ toltot = 4.d0 * toltot ** 2
 #   set truncation criterion
 if ( toltot < tol )  toltot = tol
 toltot = toltot * nrmtot
-dn = dfloat (n)
+dn = dble (n)
 toluni = toltot * 6.d0 / dn / ( dn - 1.d0 ) / ( 2.d0 * dn - 1.d0 )
 
 #   initialization
@@ -93,7 +93,7 @@ for ( j=1 ; j<n-1 ; j=j+1 ) {
     nrmxj = ddot (n-j, x(j+1,j), 1, x(j+1,j), 1)
 
     #   cumulate the tolarence
-    dn = dfloat (n-j)
+    dn = dble (n-j)
     tolcum = tolcum + toluni * dn * dn
 
     #   set diagonal separation if truncation applicable

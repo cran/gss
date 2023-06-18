@@ -48,11 +48,11 @@ wtsum = 0.d0
 for (i=1;i<=nobs;i=i+1) {
     tmp = ddot (nxis, rs(i,1), nobs, cd, 1)
     wt(i) = dexp (-tmp)
-    if (cntsum!=0)  wt(i) = wt(i) * dfloat (cnt(i))
+    if (cntsum!=0)  wt(i) = wt(i) * dble (cnt(i))
     wtsum = wtsum + wt(i)
 }
-if (cntsum==0)  lkhd = wtsum / dfloat (nobs)
-else  lkhd = wtsum / dfloat (cntsum)
+if (cntsum==0)  lkhd = wtsum / dble (nobs)
+else  lkhd = wtsum / dble (cntsum)
 lkhd = dlog (lkhd) + ddot (nxis, intrs, 1, cd, 1)
 call  dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
 lkhd = lkhd + ddot (nxi, cd, 1, wk, 1) / 2.d0
@@ -101,11 +101,11 @@ repeat {
                 break
             }
             wtnew(i) = dexp (-tmp)
-            if (cntsum!=0)  wtnew(i) = wtnew(i) * dfloat (cnt(i))
+            if (cntsum!=0)  wtnew(i) = wtnew(i) * dble (cnt(i))
             wtsumnew = wtsumnew + wtnew(i)
         }
-        if (cntsum==0)  lkhdnew = wtsumnew / dfloat (nobs)
-        else  lkhdnew = wtsumnew / dfloat (cntsum)
+        if (cntsum==0)  lkhdnew = wtsumnew / dble (nobs)
+        else  lkhdnew = wtsumnew / dble (cntsum)
         lkhdnew = dlog (lkhdnew) + ddot (nxis, intrs, 1, cdnew, 1)
         call  dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
         lkhdnew = lkhdnew + ddot (nxi, cdnew, 1, wk, 1) / 2.d0
@@ -114,7 +114,7 @@ repeat {
             call  dset (nxis, 0.d0, cd, 1)
             wtsum = 0.d0
             for (i=1;i<=nobs;i=i+1) {
-                if (cntsum!=0)  wt(i) = dfloat (cnt(i))
+                if (cntsum!=0)  wt(i) = dble (cnt(i))
                 else  wt(i) = 1.d0
                 wtsum = wtsum + wt(i)
             }
@@ -155,7 +155,7 @@ repeat {
         call  dset (nxis, 0.d0, cd, 1)
         wtsum = 0.d0
         for (i=1;i<=nobs;i=i+1) {
-            if (cntsum!=0)  wt(i) = dfloat (cnt(i))
+            if (cntsum!=0)  wt(i) = dble (cnt(i))
             else  wt(i) = 1.d0
             wtsum = wtsum + wt(i)
         }
@@ -193,7 +193,7 @@ for (i=1;i<=nobs;i=i+1) {
     call  dtrsl (v, nxis, nxis, wk, 11, infowk)
     call  dset (nxis-rkv, 0.d0, wk(rkv+1), 1)
     wtnew(i) = wt(i) * ddot (nxis, wk, 1, wk, 1)
-    if (cntsum!=0)  wtnew(i) = wtnew(i) / dfloat (cnt(i))
+    if (cntsum!=0)  wtnew(i) = wtnew(i) / dble (cnt(i))
 }
 call dcopy (nobs, wtnew, 1, wt, 1)
 

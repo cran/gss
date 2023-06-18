@@ -11,7 +11,7 @@ C Output from Public domain Ratfor, version 1.0
       return
       endif
       la = t(1,1)
-      alph = dfloat (n) / dasum (n, t(2,1), ldt)
+      alph = dble (n) / dasum (n, t(2,1), ldt)
       call dscal (n, alph, t(2,1), ldt)
       call dscal (n-1, alph, t(1,2), ldt)
       call dpbfa (t, ldt, n, 1, info)
@@ -30,8 +30,8 @@ C Output from Public domain Ratfor, version 1.0
 23007 j=j-1
       goto 23006
 23008 continue
-      nume = ddot (n, work, 1, work, 1) / dfloat (n)
-      deno = deno / dfloat (n)
+      nume = ddot (n, work, 1, work, 1) / dble (n)
+      deno = deno / dble (n)
       varht = alph * la * nume / deno
       score = nume / deno / deno
       endif
@@ -43,12 +43,12 @@ C Output from Public domain Ratfor, version 1.0
 23012 j=j-1
       goto 23011
 23013 continue
-      nume = ddot (n, z, 1, work, 1) / dfloat (n)
+      nume = ddot (n, z, 1, work, 1) / dble (n)
       varht = alph * la * nume
-      score = nume * dexp (2.d0 * deno / dfloat (n))
+      score = nume * dexp (2.d0 * deno / dble (n))
       endif
       if( vmu .eq. 'u' )then
-      nume = ddot (n, work, 1, work, 1) / dfloat (n)
+      nume = ddot (n, work, 1, work, 1) / dble (n)
       tmp = 1.d0 / t(2,n) / t(2,n)
       deno = tmp
       j=n-1
@@ -58,7 +58,7 @@ C Output from Public domain Ratfor, version 1.0
 23017 j=j-1
       goto 23016
 23018 continue
-      deno = deno / dfloat (n)
+      deno = deno / dble (n)
       score = alph * alph * la * la * nume - 2.d0 * varht * alph * la * 
      *deno
       endif
