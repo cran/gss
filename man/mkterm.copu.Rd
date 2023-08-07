@@ -11,7 +11,7 @@
 mkterm.copu(dm, order, symmetry, exclude)
 }
 \arguments{
-    \item{dim}{Dimension of the domain.}
+    \item{dm}{Dimension of the domain.}
     \item{order}{Highest order of interactions allowed in log density.}
     \item{symmetry}{Flag indicating whether to enforce symmetry, or
         invariance under coordinate permutation.}

@@ -82,7 +82,7 @@ c     fortran dsqrt
 c
 c     internal variables
 c
-      integer pu,pl,plp1,i,j,jp,jt,k,kb,km1,kp1,l,maxl
+      integer pu,pl,plp1,j,jp,jt,k,kb,km1,kp1,l,maxl
       double precision temp
       double precision maxdia
       logical swapk,negk

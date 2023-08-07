@@ -1,3 +1,11 @@
+Mon 07 Aug 2023 01:42:21 PM EDT, Chong Gu  <chong@purdue.edu>
+
+	* DESCRIPTION: Version 2.2-6.
+
+	* man: Minor fix in mkterm.copu.Rd.
+
+	* src: Numerous edits to comply with stricter compiler checks.
+
 Sun 18 Jun 2023 06:27:01 PM EDT, Chong Gu  <chong@purdue.edu>
 
 	* DESCRIPTION: Version 2.2-5.

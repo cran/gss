@@ -1,9 +1,9 @@
-C Output from Public domain Ratfor, version 1.01
+C Output from Public domain Ratfor, version 1.04
       subroutine reg (sr, nobs, nnull, q, nxi, y, method, alpha, varht, 
      *score, dc, mchpr, v, mu, jpvt, wk, rkv, info)
+      integer nobs, nnull, nxi, method, jpvt(*), rkv, info
       double precision sr(nobs,*), q(nxi,*), y(*), alpha, varht, score, 
      *dc(*), mchpr, v(nnull+nxi,*), mu(*), wk(*)
-      integer nobs, nnull, nxi, method, jpvt(*), rkv, info
       double precision ddot, dasum, rss, trc, dum
       integer i, j, nn, idamax, infowk, idum
       info = 0
@@ -152,8 +152,8 @@ C Output from Public domain Ratfor, version 1.01
       return
       end
       subroutine regaux (v, nn, jpvt, rkv, r, nr, sms, nnull, wk)
-      double precision v(nn,*), r(nn,*), sms(nnull,*), wk(nn,*)
       integer nn, jpvt(*), rkv, nr, nnull
+      double precision v(nn,*), r(nn,*), sms(nnull,*), wk(nn,*)
       double precision ddot
       integer i, j, infowk
       i=1

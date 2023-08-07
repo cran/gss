@@ -1,4 +1,4 @@
-C Output from Public domain Ratfor, version 1.0
+C Output from Public domain Ratfor, version 1.04
       subroutine dmudr1 (vmu, s, lds, nobs, nnull, q, ldqr, ldqc, nq, y,
      * tol, init, prec, maxite, theta, nlaht, score, varht, c, d, qraux,
      * jpvt, twk, traux, qwk, ywk, thewk, hes, gra, hwk1, hwk2, gwk1, gw
@@ -10,7 +10,7 @@ C Output from Public domain Ratfor, version 1.0
      * qwk(ldqr,*), ywk(*), thewk(*), hes(nq,*), gra(*), hwk1(nq,*), hwk
      *2(nq,*), gwk1(*), gwk2(*), kwk(nobs-nnull,nobs-nnull,*), work1(*),
      * work2(*)
-      character vmu
+      character*1 vmu
       double precision alph, scrold, scrwk, nlawk, limnla(2), tmp, dasum
      *, ddot
       integer n, n0, i, j, iwk, maxitwk, idamax, job
@@ -206,8 +206,8 @@ C Output from Public domain Ratfor, version 1.0
 23076 continue
       call dcopy (nq, thewk, 1, theta, 1)
       tmp = gra(idamax (nq, gra, 1)) ** 2
-      if( tmp .lt. prec ** 2 .or. scrold - scrwk .lt. prec * (scrwk + 1
-     *.d0) .and. tmp .lt. prec * (scrwk + 1.d0) ** 2 )then
+      if( tmp .lt. prec ** 2 .or. scrold - scrwk .lt. prec * (scrwk + 1.
+     *d0) .and. tmp .lt. prec * (scrwk + 1.d0) ** 2 )then
       goto 23031
       endif
       if( maxitwk .lt. 1 )then

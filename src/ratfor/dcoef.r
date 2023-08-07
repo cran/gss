@@ -44,7 +44,7 @@ double precision  s(lds,*), qraux(*), z(*), q(ldq,*), nlaht, c(*), d(*),_
 #  Written:  Chong Gu, Statistics, UW-Madison, 5/4/88 at Yale.
 
 double precision  dum, ddot
-integer           n, n0
+integer           n, n0, j
 
 info = 0
 

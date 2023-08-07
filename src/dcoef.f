@@ -1,11 +1,11 @@
-C Output from Public domain Ratfor, version 1.0
+C Output from Public domain Ratfor, version 1.04
       subroutine dcoef (s, lds, nobs, nnull, qraux, jpvt, z, q, ldq, nla
      *ht, c, d, info, twk)
       integer lds, nobs, nnull, jpvt(*), ldq, info
       double precision s(lds,*), qraux(*), z(*), q(ldq,*), nlaht, c(*), 
      *d(*), twk(2,*)
       double precision dum, ddot
-      integer n, n0
+      integer n, n0, j
       info = 0
       if( nnull .lt. 1 .or. nnull .ge. nobs .or. nobs .gt. lds .or. nobs
      * .gt. ldq )then

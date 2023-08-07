@@ -1,5 +1,5 @@
-2655fdb13da9632bb0774b01cbd82073 *ChangeLog
-bc5a5982b027cc930fceeb1b01c7adcd *DESCRIPTION
+6dc9d3c0fb9e06b36279a91fc42b8b95 *ChangeLog
+8c887f45463d9f5a1bc75fc1df548982 *DESCRIPTION
 24ff2b8f15521a49b59f6d19146ae6df *INDEX
 20c494cb2d9aaa1a65f87cf5afd95df6 *NAMESPACE
 1d00015b10d8256aaede525722621ffc *R/cdsscden.R
@@ -119,7 +119,7 @@ bc0e6abaa2ebea0f31a44a64a949e06b *man/mkint.Rd
 1af33c60eb4473b4e42b77be33bae270 *man/mkran.Rd
 38b7a5e17d1b385ff685a05809a6be5d *man/mkrk.nominal.Rd
 13383217513ca37d629f66987fb20764 *man/mkterm.Rd
-8dde47db81375f620a245f8889223514 *man/mkterm.copu.Rd
+d9acdbbba9d1394e05e4d4e60bc7fbb6 *man/mkterm.copu.Rd
 1fc2a21bfc2a4e3c0c40a037683092b8 *man/nlm0.Rd
 8ffe3ac3ec02519e6d8a0e0920756bd3 *man/nox.Rd
 1ced7f15a22206d634646c7d91fa8be4 *man/ozone.Rd
@@ -155,8 +155,8 @@ b764b3c234f939a11cd1ccee3b232504 *man/wesdr1.Rd
 584d5904a91448189414f16b1bb09180 *src/cdennewton.f
 1dc9a2352acfb46dc62fdaf9df5efb00 *src/cdennewton10.f
 f1383a9db3a2c3f57344e7d543304f69 *src/copu2newton.f
-1d0848b9a9c7ec70927d1385723b00fd *src/dchdc0.f
-7660189020bc629e33531dfccc58721f *src/dcoef.f
+49a626d6c2996e9689d6407d13ef3208 *src/dchdc0.f
+4b13a03ed2b66fe6609b5bbedaf5d4aa *src/dcoef.f
 0397f8ad2f424a537596daf5648c5788 *src/dcore.f
 b05ac68613d1536384c72933d4d089be *src/dcrdr.f
 b7e510c1afeb599a79115ae46c27d0a3 *src/ddeev.f
@@ -164,7 +164,7 @@ b7e510c1afeb599a79115ae46c27d0a3 *src/ddeev.f
 a94132bb1ece837eaddf785cf86b1428 *src/dgold.f
 d7f744ee2a26b279ae01823b7c071cc0 *src/dmcdc.f
 4ee8f16224deb7d3166028232a777a47 *src/dmudr0.f
-6c6f13458304e0da10e423bd76d76e97 *src/dmudr1.f
+e6c72e0c8b3de95a4d92ca970470241c *src/dmudr1.f
 549aafb61698709fb484eab18f8d2309 *src/dnewton.f
 5d0cb5eb02a0e4c1e7ada973306008aa *src/dnewton10.f
 578daa3fc73da505c7fe8147b6d0cf5c *src/dprmut.f
@@ -176,7 +176,7 @@ ccc38fe95e3e064831f2801ac62e4740 *src/drkl.f
 fcef4ec86358606bab842a5eb96e27cb *src/dstup.f
 9e3973564e31c2dff1657737f949c80f *src/dsytr.f
 6ccc43719ebac5b1c12931866f7787f9 *src/dtrev.f
-fd182860bce46df715d6618be98fd5a0 *src/gaussq.f
+20be902775d8abbf49e6bbbc786123ba *src/gaussq.f
 53df31681eb9b0911ec8bb3b5e9cc0c5 *src/hzdaux.f
 67356fadc8b9ffde37b6a21354e2fa4b *src/hzdnewton.f
 e34e6f895de41cf75ccc1c12ce835741 *src/hzdnewton10.f
@@ -185,7 +185,7 @@ f3314da76ddac6f573346ba745289e56 *src/init.c
 9b06d3b7095afeea4da280b856e2682d *src/ratfor/cdennewton.r
 cde4dbb84c176ad92b2ec57ad60edba4 *src/ratfor/cdennewton10.r
 790bb03fc8ca8f227716448825557de7 *src/ratfor/copu2newton.r
-a88394b27c51d87b94aaada67b8a36e5 *src/ratfor/dcoef.r
+57513875ad06d41c764fcb0836199c72 *src/ratfor/dcoef.r
 12e1a53c32afb2d47052dfc20c4123bb *src/ratfor/dcore.r
 a9e6c989d58c2f3f2b43225ce9f57f92 *src/ratfor/dcrdr.r
 a8c4f9f02a85391693329789f3bbb3d9 *src/ratfor/ddeev.r
@@ -193,7 +193,7 @@ a70f06d98f350507cf546180e258c97b *src/ratfor/deval.r
 39957e2b161d7124f09a0c54d85044de *src/ratfor/dgold.r
 242ec1b116c8ab74c8ffdd4bf2d6bd7f *src/ratfor/dmcdc.r
 8b6267008c0053f4a01bb41c6a7ebf23 *src/ratfor/dmudr0.r
-c08edaed0f31fc4de68fefc3dcc05168 *src/ratfor/dmudr1.r
+c0b96d0d61e69f8fa6d01e444f618cad *src/ratfor/dmudr1.r
 a6f32b6196b8a186f942724ca4336ef1 *src/ratfor/dnewton.r
 22ad33d73b8046ad76a1e48d756a54c3 *src/ratfor/dnewton10.r
 690c1d1d61531b1b4eb1f9736fc1baa1 *src/ratfor/dqrslm.r
@@ -207,6 +207,6 @@ bcdbcc551d93478fb042faab91d07de3 *src/ratfor/hzdaux.r
 e9993342278b5b4f8cb69cdfd3b84c08 *src/ratfor/hzdnewton.r
 74ca8881bb9fa849c90c64030a9eaa3d *src/ratfor/hzdnewton10.r
 21918327b72c64ab681fcb0ecf0afcde *src/ratfor/llrmnewton.r
-9419761662e55c153f9d804c84476e9e *src/ratfor/reg.r
-f8116b029bd2dbd56a2ce57584a13ded *src/reg.f
-f0fc28fe590bdd3864dfc733062d3c3f *src/smolyak.c
+1adfc4d2c5221073ab11fead8e648a23 *src/ratfor/reg.r
+2bc24e9a922a2c13117e11cc60e2d6ba *src/reg.f
+3f8514381eaa188051ff30b4b061dcc9 *src/smolyak.c

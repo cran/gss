@@ -81,6 +81,7 @@ c          compute pi using datan
 c          removed accuracy claims, description of method
 c          added single precision version
 c
+      integer n, kind, kpts, i, ierr
       double precision b(n), t(n), w(n), endpts(2), muzero, t1,
      x gam, solve, dsqrt, alpha, beta
 c
@@ -114,12 +115,14 @@ c           matrix, which has been modified as necessary.
 c           the method used is a ql-type method with origin shifting
 c
   100 w(1) = 1.0d0
-      do 105 i = 2, n
-  105    w(i) = 0.0d0
+      do i = 2, n
+         w(i) = 0.0d0
+      end do
 c
       call gausq2 (n, t, b, w, ierr)
-      do 110 i = 1, n
-  110    w(i) = muzero * w(i) * w(i)
+      do i = 1, n
+         w(i) = muzero * w(i) * w(i)
+      end do
 c
       return
       end
@@ -142,12 +145,14 @@ c       must be solved to obtain the appropriate changes in the lower
 c       2 by 2 submatrix of coefficients for orthogonal polynomials.
 c
 c
+      integer n, nm1, i
       double precision shift, a(n), b(n), alpha
 c
       alpha = a(1) - shift
       nm1 = n - 1
-      do 10 i = 2, nm1
-   10    alpha = a(i) - shift - b(i-1)**2/alpha
+      do i = 2, nm1
+         alpha = a(i) - shift - b(i-1)**2/alpha
+      end do
       solve = 1.0d0/alpha
       return
       end
@@ -176,6 +181,7 @@ c        jacobi polynomials, and the parameter beta is used only for
 c        jacobi polynomials.  the laguerre and jacobi polynomials
 c        require the gamma function.
 c
+      integer n, nm1, kind, i
       double precision a(n), b(n), muzero, alpha, beta
       double precision abi, a2b2, dgamma, pi, dsqrt, ab
 c
@@ -187,10 +193,11 @@ c              kind = 1:  legendre polynomials p(x)
 c              on (-1, +1), w(x) = 1.
 c
    10 muzero = 2.0d0
-      do 11 i = 1, nm1
+      do i = 1, nm1
          a(i) = 0.0d0
          abi = i
-   11    b(i) = abi/dsqrt(4*abi*abi - 1.0d0)
+         b(i) = abi/dsqrt(4*abi*abi - 1.0d0)
+      end do
       a(n) = 0.0d0
       return
 c
@@ -198,9 +205,10 @@ c              kind = 2:  chebyshev polynomials of the first kind t(x)
 c              on (-1, +1), w(x) = 1 / sqrt(1 - x*x)
 c
    20 muzero = pi
-      do 21 i = 1, nm1
+      do i = 1, nm1
          a(i) = 0.0d0
-   21    b(i) = 0.5d0
+         b(i) = 0.5d0
+      end do
       b(1) = dsqrt(0.5d0)
       a(n) = 0.0d0
       return
@@ -209,9 +217,10 @@ c              kind = 3:  chebyshev polynomials of the second kind u(x)
 c              on (-1, +1), w(x) = sqrt(1 - x*x)
 c
    30 muzero = pi/2.0d0
-      do 31 i = 1, nm1
+      do i = 1, nm1
          a(i) = 0.0d0
-   31    b(i) = 0.5d0
+         b(i) = 0.5d0
+      end do
       a(n) = 0.0d0
       return
 c
@@ -219,9 +228,10 @@ c              kind = 4:  hermite polynomials h(x) on (-infinity,
 c              +infinity), w(x) = exp(-x**2)
 c
    40 muzero = dsqrt(pi)
-      do 41 i = 1, nm1
+      do i = 1, nm1
          a(i) = 0.0d0
-   41    b(i) = dsqrt(i/2.0d0)
+         b(i) = dsqrt(i/2.0d0)
+      end do
       a(n) = 0.0d0
       return
 c
@@ -237,11 +247,12 @@ c
       b(1) = dsqrt(4.0d0*(1.0d0 + alpha)*(1.0d0 + beta)/((abi + 1.0d0)*
      1  abi*abi))
       a2b2 = beta*beta - alpha*alpha
-      do 51 i = 2, nm1
+      do i = 2, nm1
          abi = 2.0d0*i + ab
          a(i) = a2b2/((abi - 2.0d0)*abi)
-   51    b(i) = dsqrt (4.0d0*i*(i + alpha)*(i + beta)*(i + ab)/
+         b(i) = dsqrt (4.0d0*i*(i + alpha)*(i + beta)*(i + ab)/
      1   ((abi*abi - 1)*abi*abi))
+      end do
       abi = 2.0d0*n + ab
       a(n) = a2b2/((abi - 2.0d0)*abi)
       return
@@ -251,9 +262,10 @@ c              (0, +infinity), w(x) = exp(-x) * x**alpha, alpha greater
 c              than -1.
 c
    60 muzero = dgamma(alpha + 1.0d0)
-      do 61 i = 1, nm1
+      do i = 1, nm1
          a(i) = 2.0d0*i - 1.0d0 + alpha
-   61    b(i) = dsqrt(i*(i + alpha))
+         b(i) = dsqrt(i*(i + alpha))
+      end do
       a(n) = 2.0d0*n - 1 + alpha
       return
       end
@@ -359,7 +371,8 @@ c     :::::::::: for i=m-1 step -1 until l do -- ::::::::::
 c     :::::::::: form first component of vector ::::::::::
             f = z(i+1)
             z(i+1) = s * z(i) + c * f
-  200       z(i) = c * z(i) - s * f
+            z(i) = c * z(i) - s * f
+  200       continue
 c
          d(l) = d(l) - p
          e(l) = g

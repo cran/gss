@@ -262,8 +262,8 @@ repeat {
 
     #   check convergence
     tmp = gra(idamax (nq, gra, 1)) ** 2
-    if ( tmp < prec ** 2_                          #  zero gradient
-        | scrold - scrwk < prec * (scrwk + 1.d0)_  #  small change
+    if ( tmp < prec ** 2                          #  zero gradient
+        | scrold - scrwk < prec * (scrwk + 1.d0)  #  small change
         & tmp < prec * (scrwk + 1.d0) ** 2 ) {     #  small gradient
         break
     }

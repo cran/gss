@@ -27,7 +27,8 @@
 static double quafo;                         /* cubature result             */
 static double x[maxdim];                     /* function argument           */ 
 static double xnu[fn][uniw],dnu[fn][uniw];   /* Delta-parameter             */
-static double fsumme, wsum, wprod, summe;    /* working var's               */
+static double fsumme, summe;    /* working var's               */
+/* static double fsumme, wsum, wprod, summe;    /* working var's               */
 static int d, q;                             /* cubature formula parameter  */
 static int n[fn], ninv[fn], sw[gesfn];       /* working var's               */
        int count, wcount;       /* counter of f-calls and coefficient calls */
@@ -39,7 +40,7 @@ static int anzw[uniw],
   lookind[fn][uniw], 
   invlook[fn][uniw], maxind;          /* tree parameter              */  
 
-static int wind[maxdim];      /* Parameter for slow coefficient calculation */
+/* static int wind[maxdim];      /* Parameter for slow coefficient calculation */
 
 static double (*f)(int, double x[]);         /* integrand (global)          */
 static void formula(int,int);                /* sub-formula "between  
