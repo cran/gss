@@ -6,8 +6,9 @@
 subroutine  hzdnewton10 (cd, nxis, q, nxi, rs, nt, nobs, cntsum, cnt,
                          intrs, rho, prec, maxiter, mchpr, jpvt, wk, info)
 
-integer  nxis, nxi, nt, nobs, cntsum, cnt(*), maxiter, jpvt(*), info
-double precision  cd(*), q(nxi,*), rs(nt,*), intrs(*), rho(*), prec, mchpr, wk(*)
+integer  nxis, nxi, nt, nobs, maxiter, jpvt(*), info
+double precision  cd(*), q(nxi,*), rs(nt,*), cntsum, cnt(*), intrs(*), rho(*),
+                  prec, mchpr, wk(*)
 
 integer  iwt, imu, iv, icdnew, iwtnew, iwk
 
@@ -34,9 +35,9 @@ subroutine  hzdnewton101 (cd, nxis, q, nxi, rs, nt, nobs, cntsum, cnt,
                           intrs, rho, prec, maxiter, mchpr,
                           wt, mu, v, jpvt, cdnew, wtnew, wk, info)
 
-integer  nxis, nxi, nt, nobs, cntsum, cnt(*), maxiter, jpvt(*), info
-double precision  cd(*), q(nxi,*), rs(nt,*), intrs(*), rho(*), prec, mchpr,
-                  wt(*), mu(*), v(nxis,*), cdnew(*), wtnew(*), wk(*)
+integer  nxis, nxi, nt, nobs, maxiter, jpvt(*), info
+double precision  cd(*), q(nxi,*), rs(nt,*), cntsum, cnt(*), intrs(*), rho(*),
+                  prec, mchpr, wt(*), mu(*), v(nxis,*), cdnew(*), wtnew(*), wk(*)
 
 integer  i, j, k, iter, flag, rkv, idamax, infowk
 double precision  tmp, ddot, dasum, lkhd, mumax, lkhdnew, disc, disc0
@@ -46,7 +47,7 @@ info = 0
 for (i=1;i<=nt;i=i+1) {
     tmp = ddot (nxis, rs(i,1), nt, cd, 1)
     wt(i) = dexp (-tmp) * rho(i)
-    if (cntsum!=0)  wt(i) = wt(i) * dble (cnt(i))
+    if (cntsum>0.d0)  wt(i) = wt(i) * cnt(i)
 }
 call  dscal (nt, 1/dble(nobs), wt, 1)
 lkhd = dasum(nt, wt, 1) + ddot (nxis, intrs, 1, cd, 1)
@@ -94,7 +95,7 @@ repeat {
                 break
             }
             wtnew(i) = dexp (-tmp) * rho(i)
-            if (cntsum!=0)  wtnew(i) = wtnew(i) * dble (cnt(i))
+            if (cntsum>0.d0)  wtnew(i) = wtnew(i) * cnt(i)
         }
         call  dscal (nt, 1/dble(nobs), wtnew, 1)
         lkhdnew = dasum(nt, wtnew, 1) + ddot (nxis, intrs, 1, cdnew, 1)
@@ -105,7 +106,7 @@ repeat {
             call  dset (nxis, 0.d0, cd, 1)
             for (i=1;i<=nt;i=i+1) {
                 wt(i) = rho(i)
-                if (cntsum!=0)  wt(i) = wt(i) * dble (cnt(i))
+                if (cntsum>0.d0)  wt(i) = wt(i) * cnt(i)
             }
             call  dscal (nt, 1/dble(nobs), wt, 1)
             lkhd = dasum (nt, wt, 1)
@@ -144,7 +145,7 @@ repeat {
         call  dset (nxis, 0.d0, cd, 1)
         for (i=1;i<=nt;i=i+1) {
             wt(i) = rho(i)
-            if (cntsum!=0)  wt(i) = wt(i) * dble (cnt(i))
+            if (cntsum>0.d0)  wt(i) = wt(i) * cnt(i)
         }
         call  dscal (nt, 1/dble(nobs), wt, 1)
         lkhd = dasum (nt, wt, 1)
@@ -166,10 +167,10 @@ for (i=1;i<=nt;i=i+1) {
     call  dtrsl (v, nxis, nxis, wk, 11, infowk)
     call  dset (nxis-rkv, 0.d0, wk(rkv+1), 1)
     wtnew(i) = wt(i) * ddot (nxis, wk, 1, wk, 1)
-    if (cntsum!=0)  wtnew(i) = wtnew(i) / dble (cnt(i))
+    if (cntsum>0.d0)  wtnew(i) = wtnew(i) / cnt(i)
     tmp = tmp + wt(i) * (dexp (wtnew(i)/(1.d0-wtnew(i))) - 1.d0)
 #    tmp = tmp + wt(i) * (1.d0/(1.d0-wtnew(i))**2-1.d0)/2.d0
-    if (cntsum!=0) disc = disc + dble(cnt(i)) * wtnew(i)/(1.d0-wtnew(i))
+    if (cntsum>0.d0) disc = disc + cnt(i) * wtnew(i)/(1.d0-wtnew(i))
     else  disc = disc + wtnew(i)/(1.d0-wtnew(i))
 }
 wt(1) = lkhd

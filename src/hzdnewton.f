@@ -1,10 +1,9 @@
-C Output from Public domain Ratfor, version 1.01
+C Output from Public domain Ratfor, version 1.04
       subroutine hzdnewton (cd, nxis, q, nxi, rs, nt, nobs, cntsum, cnt,
      * qdrs, nqd, qdwt, nx, prec, maxiter, mchpr, jpvt, wk, info)
-      integer nxis, nxi, nt, nobs, cntsum, cnt(*), nqd, nx, maxiter, jpv
-     *t(*), info
-      double precision cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), qd
-     *wt(nqd,*), prec, mchpr, wk(*)
+      integer nxis, nxi, nt, nobs, nqd, nx, maxiter, jpvt(*), info
+      double precision cd(*), q(nxi,*), rs(nxis,*), cntsum, cnt(*), qdrs
+     *(nqd,nxis,*), qdwt(nqd,*), prec, mchpr, wk(*)
       integer imrs, iwt, ifit, imu, imuwk, iv, ivwk, icdnew, iwtnew, ifi
      *tnew, iwk
       imrs = 1
@@ -27,11 +26,11 @@ C Output from Public domain Ratfor, version 1.01
       subroutine hzdnewton1 (cd, nxis, q, nxi, rs, nt, nobs, cntsum, cnt
      *, qdrs, nqd, qdwt, nx, prec, maxiter, mchpr, mrs, wt, fit, mu, muw
      *k, v, vwk, jpvt, cdnew, wtnew, fitnew, wk, info)
-      integer nxis, nxi, nt, nobs, cntsum, cnt(*), nqd, nx, maxiter, jpv
-     *t(*), info
-      double precision cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), qd
-     *wt(nqd,*), prec, mchpr, mrs(*), wt(nqd,*), fit(*), mu(*), muwk(*),
-     * v(nxis,*), vwk(nxis,*), cdnew(*), wtnew(nqd,*), fitnew(*), wk(*)
+      integer nxis, nxi, nt, nobs, nqd, nx, maxiter, jpvt(*), info
+      double precision cd(*), q(nxi,*), rs(nxis,*), cntsum, cnt(*), qdrs
+     *(nqd,nxis,*), qdwt(nqd,*), prec, mchpr, mrs(*), wt(nqd,*), fit(*),
+     * mu(*), muwk(*), v(nxis,*), vwk(nxis,*), cdnew(*), wtnew(nqd,*), f
+     *itnew(*), wk(*)
       integer i, j, k, kk, iter, flag, rkv, idamax, infowk
       double precision tmp, ddot, fitmean, dasum, lkhd, mumax, lkhdnew, 
      *disc, disc0, trc
@@ -41,10 +40,10 @@ C Output from Public domain Ratfor, version 1.01
       mrs(i) = 0.d0
       j=1
 23003 if(.not.(j.le.nt))goto 23005
-      if(cntsum.eq.0)then
+      if(.not.(cntsum.gt.0.d0))then
       mrs(i) = mrs(i) + rs(i,j)
       else
-      mrs(i) = mrs(i) + rs(i,j) * dble (cnt(j))
+      mrs(i) = mrs(i) + rs(i,j) * cnt(j)
       endif
 23004 j=j+1
       goto 23003
@@ -70,8 +69,8 @@ C Output from Public domain Ratfor, version 1.01
 23014 if(.not.(i.le.nt))goto 23016
       tmp = ddot (nxis, rs(1,i), 1, cd, 1)
       fit(i) = dexp (tmp)
-      if(cntsum.ne.0)then
-      tmp = tmp * dble (cnt(i))
+      if(cntsum.gt.0.d0)then
+      tmp = tmp * cnt(i)
       endif
       fitmean = fitmean + tmp
 23015 i=i+1
@@ -181,8 +180,8 @@ C Output from Public domain Ratfor, version 1.01
       goto 23065
       endif
       fitnew(i) = dexp (tmp)
-      if(cntsum.ne.0)then
-      tmp = tmp * dble (cnt(i))
+      if(cntsum.gt.0.d0)then
+      tmp = tmp * cnt(i)
       endif
       fitmean = fitmean + tmp
 23064 i=i+1
@@ -271,8 +270,8 @@ C Output from Public domain Ratfor, version 1.01
       i=1
 23099 if(.not.(i.le.nt))goto 23101
       call dprmut (rs(1,i), nxis, jpvt, 0)
-      if(cntsum.ne.0)then
-      call dscal (nxis, dsqrt(dble(cnt(i))), rs(1,i), 1)
+      if(cntsum.gt.0.d0)then
+      call dscal (nxis, dsqrt(cnt(i)), rs(1,i), 1)
       endif
       call dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
 23100 i=i+1
@@ -280,8 +279,8 @@ C Output from Public domain Ratfor, version 1.01
 23101 continue
       call dprmut (mrs, nxis, jpvt, 0)
       call dtrsl (v, nxis, nxis, mrs, 11, infowk)
-      trc = ddot (nxis*nt, rs, 1, rs, 1) - dble (nobs) * ddot (nxis, m
-     *rs, 1, mrs, 1)
+      trc = ddot (nxis*nt, rs, 1, rs, 1) - dble (nobs) * ddot (nxis, mrs
+     *, 1, mrs, 1)
       trc = trc / dble(nobs) / (dble(nobs)-1.d0)
       mrs(1) = fitmean
       mrs(2) = trc

@@ -6,8 +6,9 @@
 subroutine  hzdnewton (cd, nxis, q, nxi, rs, nt, nobs, cntsum, cnt, qdrs, nqd,
                        qdwt, nx, prec, maxiter, mchpr, jpvt, wk, info)
 
-integer  nxis, nxi, nt, nobs, cntsum, cnt(*), nqd, nx, maxiter, jpvt(*), info
-double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), qdwt(nqd,*), prec, mchpr, wk(*)
+integer  nxis, nxi, nt, nobs, nqd, nx, maxiter, jpvt(*), info
+double precision  cd(*), q(nxi,*), rs(nxis,*), cntsum, cnt(*), qdrs(nqd,nxis,*),
+                  qdwt(nqd,*), prec, mchpr, wk(*)
 
 integer  imrs, iwt, ifit, imu, imuwk, iv, ivwk, icdnew, iwtnew, ifitnew, iwk
 
@@ -41,9 +42,9 @@ subroutine  hzdnewton1 (cd, nxis, q, nxi, rs, nt, nobs, cntsum, cnt, qdrs, nqd,
                         mrs, wt, fit, mu, muwk, v, vwk, jpvt, cdnew,
                         wtnew, fitnew, wk, info)
 
-integer  nxis, nxi, nt, nobs, cntsum, cnt(*), nqd, nx, maxiter, jpvt(*), info
-double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,nxis,*), qdwt(nqd,*),
-                  prec, mchpr, mrs(*), wt(nqd,*), fit(*), mu(*), muwk(*),
+integer  nxis, nxi, nt, nobs, nqd, nx, maxiter, jpvt(*), info
+double precision  cd(*), q(nxi,*), rs(nxis,*), cntsum, cnt(*), qdrs(nqd,nxis,*),
+                  qdwt(nqd,*), prec, mchpr, mrs(*), wt(nqd,*), fit(*), mu(*), muwk(*),
                   v(nxis,*), vwk(nxis,*), cdnew(*), wtnew(nqd,*), fitnew(*), wk(*)
 
 integer  i, j, k, kk, iter, flag, rkv, idamax, infowk
@@ -54,8 +55,8 @@ info = 0
 for (i=1;i<=nxis;i=i+1) {
     mrs(i) = 0.d0
     for (j=1;j<=nt;j=j+1) {
-        if (cntsum==0)  mrs(i) = mrs(i) + rs(i,j)
-        else  mrs(i) = mrs(i) + rs(i,j) * dble (cnt(j))
+        if (!(cntsum>0.d0))  mrs(i) = mrs(i) + rs(i,j)
+        else  mrs(i) = mrs(i) + rs(i,j) * cnt(j)
     }
     mrs(i) = mrs(i) / dble (nobs)
 }
@@ -68,7 +69,7 @@ fitmean = 0.d0
 for (i=1;i<=nt;i=i+1) {
     tmp = ddot (nxis, rs(1,i), 1, cd, 1)
     fit(i) = dexp (tmp)
-    if (cntsum!=0)  tmp = tmp * dble (cnt(i))
+    if (cntsum>0.d0)  tmp = tmp * cnt(i)
     fitmean = fitmean + tmp
 }
 fitmean = fitmean / dble (nobs) - dasum (nqd*nx, wt, 1)
@@ -137,7 +138,7 @@ repeat {
                     break
                 }
                 fitnew(i) = dexp (tmp)
-                if (cntsum!=0)  tmp = tmp * dble (cnt(i))
+                if (cntsum>0.d0)  tmp = tmp * cnt(i)
                 fitmean = fitmean + tmp
             }
             fitmean = fitmean / dble (nobs) - dasum (nqd*nx, wtnew, 1)
@@ -202,7 +203,7 @@ repeat {
 #   Calculate proxy loss
 for (i=1;i<=nt;i=i+1) {
     call  dprmut (rs(1,i), nxis, jpvt, 0)
-    if (cntsum!=0)  call  dscal (nxis, dsqrt(dble(cnt(i))), rs(1,i), 1)
+    if (cntsum>0.d0)  call  dscal (nxis, dsqrt(cnt(i)), rs(1,i), 1)
     call  dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
 }
 call  dprmut (mrs, nxis, jpvt, 0)

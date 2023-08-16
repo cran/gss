@@ -7,9 +7,9 @@ subroutine  dnewton (cd, nxis, q, nxi, rs, nobs, cntsum, cnt,
                      qdrs, nqd, nt, bwt, qdwt, prec, maxiter,
                      mchpr, jpvt, wk, info)
 
-integer  nxis, nxi, nobs, cntsum, cnt(*), nqd, nt, maxiter, jpvt(*), info
-double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,*), bwt(*), qdwt(nt,*),
-                  prec, mchpr, wk(*)
+integer  nxis, nxi, nobs,  nqd, nt, maxiter, jpvt(*), info
+double precision  cd(*), q(nxi,*), rs(nxis,*), cntsum, cnt(*), qdrs(nqd,*),
+                  bwt(*), qdwt(nt,*), prec, mchpr, wk(*)
 
 integer  imrs, iwt, iwtsum, ifit, imu, imuwk, iv, ivwk, icdnew,
          iwtnew, iwtsumnew, ifitnew, iwk
@@ -47,11 +47,11 @@ subroutine  dnewton1 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt,
                       mchpr, mrs, wt, wtsum, fit, mu, muwk, v, vwk,
                       jpvt, cdnew, wtnew, wtsumnew, fitnew, wk, info)
 
-integer  nxis, nxi, nobs, cntsum, cnt(*), nqd, nt, maxiter, jpvt(*), info
-double precision  cd(*), q(nxi,*), rs(nxis,*), qdrs(nqd,*), bwt(*), qdwt(nt,*),
-                  prec, mchpr, mrs(*), wt(nt,*), wtsum(*), fit(*), mu(*), muwk(*),
-                  v(nxis,*), vwk(nxis,*), cdnew(*), wtnew(nt,*), wtsumnew(*),
-                  fitnew(*), wk(*)
+integer  nxis, nxi, nobs, nqd, nt, maxiter, jpvt(*), info
+double precision  cd(*), q(nxi,*), rs(nxis,*), cntsum, cnt(*), qdrs(nqd,*),
+                  bwt(*), qdwt(nt,*), prec, mchpr, mrs(*), wt(nt,*), wtsum(*),
+                  fit(*), mu(*), muwk(*), v(nxis,*), vwk(nxis,*), cdnew(*),
+                  wtnew(nt,*), wtsumnew(*), fitnew(*), wk(*)
 
 integer  i, j, k, m, iter, flag, rkv, idamax, infowk
 double precision  norm, tmp, ddot, fitmean, lkhd, mumax, lkhdnew, disc, disc0, trc
@@ -60,13 +60,13 @@ double precision  norm, tmp, ddot, fitmean, lkhd, mumax, lkhdnew, disc, disc0, t
 info = 0
 for (i=1;i<=nxis;i=i+1) {
     mrs(i) = 0.d0
-    if (cntsum==0) {
+    if (!(cntsum>0.d0)) {
         for (j=1;j<=nobs;j=j+1)  mrs(i) = mrs(i) + rs(i,j)
         mrs(i) = mrs(i) / dble (nobs)
     }
     else {
-        for (j=1;j<=nobs;j=j+1)  mrs(i) = mrs(i) + rs(i,j) * dble (cnt(j))
-        mrs(i) = mrs(i) / dble (cntsum)
+        for (j=1;j<=nobs;j=j+1)  mrs(i) = mrs(i) + rs(i,j) * cnt(j)
+        mrs(i) = mrs(i) / cntsum
     }
 }
 #   Initialization
@@ -84,11 +84,11 @@ fitmean = 0.d0
 for (i=1;i<=nobs;i=i+1) {
     tmp = ddot (nxis, rs(1,i), 1, cd, 1)
     fit(i) = dexp (tmp)
-    if (cntsum!=0)  tmp = tmp * dble (cnt(i))
+    if (cntsum>0.d0)  tmp = tmp * cnt(i)
     fitmean = fitmean + tmp
 }
-if (cntsum==0)  fitmean = fitmean / dble (nobs)
-else  fitmean = fitmean / dble (cntsum)
+if (!(cntsum>0.d0))  fitmean = fitmean / dble (nobs)
+else  fitmean = fitmean / cntsum
 call  dsymv ('u', nxi, 1.d0, q, nxi, cd, 1, 0.d0, wk, 1)
 lkhd = ddot (nxi, cd, 1, wk, 1) / 2.d0 - fitmean + norm
 iter = 0
@@ -160,11 +160,11 @@ repeat {
                     break
                 }
                 fitnew(i) = dexp (tmp)
-                if (cntsum!=0)  tmp = tmp * dble (cnt(i))
+                if (cntsum>0.d0)  tmp = tmp * cnt(i)
                 fitmean = fitmean + tmp
             }
-            if (cntsum==0)  fitmean = fitmean / dble (nobs)
-            else  fitmean = fitmean / dble (cntsum)
+            if (!(cntsum>0.d0))  fitmean = fitmean / dble (nobs)
+            else  fitmean = fitmean / cntsum
             call  dsymv ('u', nxi, 1.d0, q, nxi, cdnew, 1, 0.d0, wk, 1)
             lkhdnew = ddot (nxi, cdnew, 1, wk, 1) / 2.d0 - fitmean + norm
         }
@@ -238,22 +238,22 @@ repeat {
 for (i=1;i<=nobs;i=i+1) {
     call  daxpy (nxis, -1.d0, mrs, 1, rs(1,i), 1)
     call  dprmut (rs(1,i), nxis, jpvt, 0)
-    if (cntsum!=0)  call  dscal (nxis, dsqrt(dble(cnt(i))), rs(1,i), 1)
+    if (cntsum>0.d0)  call  dscal (nxis, dsqrt(cnt(i)), rs(1,i), 1)
     call  dtrsl (v, nxis, nxis, rs(1,i), 11, infowk)
     if (nxis-rkv>0)  call  dset (nxis-rkv, 0.d0, rs(rkv+1,i), 1)
 }
 trc = ddot (nobs*nxis, rs, 1, rs, 1)
-if (cntsum==0) {
+if (!(cntsum>0.d0)) {
     trc = trc / dble(nobs) / (dble(nobs)-1.d0)
     lkhd = 0.d0
     for (i=1;i<=nobs;i=i+1)  lkhd = lkhd + dlog (fit(i))
     lkhd = lkhd / dble (nobs)
 }
 else {
-    trc = trc / dble(cntsum) / (dble(cntsum)-1.d0)
+    trc = trc / cntsum / (cntsum-1.d0)
     lkhd = 0.d0
-    for (i=1;i<=nobs;i=i+1)  lkhd = lkhd + dble (cnt(i)) * dlog (fit(i))
-    lkhd = lkhd / dble (cntsum)
+    for (i=1;i<=nobs;i=i+1)  lkhd = lkhd + cnt(i) * dlog (fit(i))
+    lkhd = lkhd / cntsum
 }
 for (m=1;m<=nt;m=m+1)  lkhd = lkhd - bwt(m) * dlog (wtsum(m))
 mrs(1) = lkhd

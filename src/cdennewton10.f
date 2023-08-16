@@ -1,9 +1,9 @@
-C Output from Public domain Ratfor, version 1.01
+C Output from Public domain Ratfor, version 1.04
       subroutine cdennewton10 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt, 
      *intrs, prec, maxiter, mchpr, jpvt, wk, info)
-      integer nxis, nxi, nobs, cntsum, cnt(*), maxiter, jpvt(*), info
-      double precision cd(*), q(nxi,*), rs(nobs,*), intrs(*), prec, mchp
-     *r, wk(*)
+      integer nxis, nxi, nobs, maxiter, jpvt(*), info
+      double precision cd(*), q(nxi,*), rs(nobs,*), cntsum, cnt(*), intr
+     *s(*), prec, mchpr, wk(*)
       integer iwt, imu, iv, icdnew, iwtnew, iwk
       iwt = 1
       imu = iwt + nobs
@@ -19,9 +19,10 @@ C Output from Public domain Ratfor, version 1.01
       subroutine cdennewton101 (cd, nxis, q, nxi, rs, nobs, cntsum, cnt,
      * intrs, prec, maxiter, mchpr, wt, mu, v, jpvt, cdnew, wtnew, wk, i
      *nfo)
-      integer nxis, nxi, nobs, cntsum, cnt(*), maxiter, jpvt(*), info
-      double precision cd(*), q(nxi,*), rs(nobs,*), intrs(*), prec, mchp
-     *r, wt(*), mu(*), v(nxis,*), cdnew(*), wtnew(*), wk(*)
+      integer nxis, nxi, nobs, maxiter, jpvt(*), info
+      double precision cd(*), q(nxi,*), rs(nobs,*), cntsum, cnt(*), intr
+     *s(*), prec, mchpr, wt(*), mu(*), v(nxis,*), cdnew(*), wtnew(*), wk
+     *(*)
       integer i, j, k, iter, flag, rkv, idamax, infowk
       double precision tmp, ddot, dasum, wtsum, lkhd, mumax, wtsumnew, l
      *khdnew, disc, disc0
@@ -30,8 +31,8 @@ C Output from Public domain Ratfor, version 1.01
 23000 if(.not.(i.le.nobs))goto 23002
       tmp = ddot (nxis, rs(i,1), nobs, cd, 1)
       wt(i) = dexp (-tmp)
-      if(cntsum.ne.0)then
-      wt(i) = wt(i) * dble (cnt(i))
+      if(cntsum.gt.0.d0)then
+      wt(i) = wt(i) * cnt(i)
       endif
 23001 i=i+1
       goto 23000
@@ -110,8 +111,8 @@ C Output from Public domain Ratfor, version 1.01
       goto 23035
       endif
       wtnew(i) = dexp (-tmp)
-      if(cntsum.ne.0)then
-      wtnew(i) = wtnew(i) * dble (cnt(i))
+      if(cntsum.gt.0.d0)then
+      wtnew(i) = wtnew(i) * cnt(i)
       endif
 23034 i=i+1
       goto 23033
@@ -123,10 +124,10 @@ C Output from Public domain Ratfor, version 1.01
       call dscal (nobs, 1.d0/wtsumnew, wtnew, 1)
       if(flag.eq.1)then
       call dset (nxis, 0.d0, cd, 1)
-      if(cntsum.ne.0)then
+      if(cntsum.gt.0.d0)then
       i=1
 23044 if(.not.(i.le.nobs))goto 23046
-      wt(i) = dble (cnt(i))
+      wt(i) = cnt(i)
 23045 i=i+1
       goto 23044
 23046 continue
@@ -183,10 +184,10 @@ C Output from Public domain Ratfor, version 1.01
       endif
       if(flag.eq.0)then
       call dset (nxis, 0.d0, cd, 1)
-      if(cntsum.ne.0)then
+      if(cntsum.gt.0.d0)then
       i=1
 23070 if(.not.(i.le.nobs))goto 23072
-      wt(i) = dble (cnt(i))
+      wt(i) = cnt(i)
 23071 i=i+1
       goto 23070
 23072 continue
@@ -250,8 +251,8 @@ C Output from Public domain Ratfor, version 1.01
       call dtrsl (v, nxis, nxis, wk, 11, infowk)
       call dset (nxis-rkv, 0.d0, wk(rkv+1), 1)
       wtnew(i) = wt(i) * ddot (nxis, wk, 1, wk, 1)
-      if(cntsum.ne.0)then
-      wtnew(i) = wtnew(i) / dble (cnt(i))
+      if(cntsum.gt.0.d0)then
+      wtnew(i) = wtnew(i) / cnt(i)
       endif
 23093 i=i+1
       goto 23092

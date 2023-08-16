@@ -191,7 +191,7 @@ sspdsty1 <- function(s,r,q,cnt,int,prec,maxiter,alpha)
                         cd=as.double(cd), as.integer(nxis),
                         as.double(10^(lambda+theta)*q), as.integer(nxi),
                         as.double(cbind(10^theta*r,s)), as.integer(nobs),
-                        as.integer(sum(cnt)), as.integer(cnt),
+                        as.double(sum(cnt)), as.double(cnt),
                         as.double(c(10^theta*int$r,int$s)),
                         as.double(prec), as.integer(maxiter),
                         as.double(.Machine$double.eps), integer(nxis),

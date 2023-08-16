@@ -32,7 +32,7 @@ double precision  s(lds,*), q(ldqr,ldqc,*), y(*), tol, prec,_
                   gwk1(*), gwk2(*), kwk(nobs-nnull,nobs-nnull,*),_
                   work1(*), work2(*)
 
-character*1       vmu
+character         vmu
 
 #  On entry:
 #      vmu        'v':  GCV criterion.

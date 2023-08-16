@@ -10,7 +10,7 @@ C Output from Public domain Ratfor, version 1.04
      * qwk(ldqr,*), ywk(*), thewk(*), hes(nq,*), gra(*), hwk1(nq,*), hwk
      *2(nq,*), gwk1(*), gwk2(*), kwk(nobs-nnull,nobs-nnull,*), work1(*),
      * work2(*)
-      character*1 vmu
+      character vmu
       double precision alph, scrold, scrwk, nlawk, limnla(2), tmp, dasum
      *, ddot
       integer n, n0, i, j, iwk, maxitwk, idamax, job

@@ -1,8 +1,8 @@
-C Output from Public domain Ratfor, version 1.0
+C Output from Public domain Ratfor, version 1.04
       subroutine ddeev (vmu, nobs, q, ldqr, ldqc, n, nq, u, ldu, uaux, t
      *, x, theta, nlaht, score, varht, hes, ldh, gra, hwk1, hwk2, gwk1, 
      *gwk2, kwk, ldk, work1, work2, work3, info)
-      character vmu
+      character*1 vmu
       integer nobs, ldqr, ldqc, n, nq, ldu, ldh, ldk, info
       double precision q(ldqr,ldqc,*), u(ldu,*), uaux(*), t(2,*), x(*), 
      *theta(*), nlaht, score, varht, hes(ldh,*), gra(*), hwk1(nq,*), hwk
@@ -256,8 +256,8 @@ C Output from Public domain Ratfor, version 1.0
       if( theta(i) .le. -25.d0 )then
       goto 23113
       endif
-      gra(i) = gwk1(i) / trc / trc - 2.d0 * score * gwk2(i) / trc / dflo
-     *at(nobs)
+      gra(i) = gwk1(i) / trc / trc - 2.d0 * score * gwk2(i) / trc / dble
+     *(nobs)
 23113 i=i+1
       goto 23112
 23114 continue
@@ -283,8 +283,7 @@ C Output from Public domain Ratfor, version 1.0
       if( theta(i) .le. -25.d0 )then
       goto 23127
       endif
-      gra(i) = gwk1(i) / det - dble (nobs) / dble (n) * score * gwk2
-     *(i)
+      gra(i) = gwk1(i) / det - dble (nobs) / dble (n) * score * gwk2(i)
 23127 i=i+1
       goto 23126
 23128 continue
@@ -303,8 +302,8 @@ C Output from Public domain Ratfor, version 1.0
       endif
       hes(i,j) = hwk1(i,j) / trc / trc - 2.d0 * gwk1(i) * gwk2(j) / trc 
      *** 3 - 2.d0 * gwk1(j) * gwk2(i) / trc ** 3 - 2.d0 * score * hwk2(i
-     *,j) / trc / dble (nobs) + 6.d0 * score * gwk2(i) * gwk2(j) / trc
-     * / trc / dble (nobs)
+     *,j) / trc / dble (nobs) + 6.d0 * score * gwk2(i) * gwk2(j) / trc /
+     * trc / dble (nobs)
 23139 j=j+1
       goto 23138
 23140 continue
@@ -344,10 +343,10 @@ C Output from Public domain Ratfor, version 1.0
       if( theta(j) .le. -25.d0 )then
       goto 23163
       endif
-      hes(i,j) = hwk1(i,j) / det - gwk1(i) * gwk2(j) / det / dble (n) 
-     *- gwk1(j) * gwk2(i) / det / dble (n) - dble (nobs) / dble (n
-     *) * score * hwk2(i,j) + dble (nobs) / dble (n) ** 2 * score * 
-     *gwk2(i) * gwk2(j)
+      hes(i,j) = hwk1(i,j) / det - gwk1(i) * gwk2(j) / det / dble (n) - 
+     *gwk1(j) * gwk2(i) / det / dble (n) - dble (nobs) / dble (n) * scor
+     *e * hwk2(i,j) + dble (nobs) / dble (n) ** 2 * score * gwk2(i) * gw
+     *k2(j)
 23163 j=j+1
       goto 23162
 23164 continue
