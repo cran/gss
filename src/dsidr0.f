@@ -1,4 +1,4 @@
-C Output from Public domain Ratfor, version 1.01
+C Output from Public domain Ratfor, version 1.05
       subroutine dsidr0 (vmu, s, lds, nobs, nnull, y, q, ldq, tol, job, 
      *limnla, nlaht, score, varht, c, d, qraux, jpvt, wk, info)
       integer vmu

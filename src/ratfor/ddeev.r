@@ -16,7 +16,7 @@ subroutine  ddeev (vmu, nobs,_
 #  Purpose:  This routine calculates the gradient and the Hessian of
 #      V(theta|lambda) or M(theta|lambda).
  
-character*1       vmu
+character         vmu
 integer           nobs, ldqr, ldqc, n, nq, ldu, ldh, ldk, info
 double precision  q(ldqr,ldqc,*), u(ldu,*), uaux(*), t(2,*), x(*),_
                   theta(*), nlaht, score, varht,_

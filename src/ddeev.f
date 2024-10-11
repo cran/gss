@@ -1,8 +1,8 @@
-C Output from Public domain Ratfor, version 1.04
+C Output from Public domain Ratfor, version 1.05
       subroutine ddeev (vmu, nobs, q, ldqr, ldqc, n, nq, u, ldu, uaux, t
      *, x, theta, nlaht, score, varht, hes, ldh, gra, hwk1, hwk2, gwk1, 
      *gwk2, kwk, ldk, work1, work2, work3, info)
-      character*1 vmu
+      character vmu
       integer nobs, ldqr, ldqc, n, nq, ldu, ldh, ldk, info
       double precision q(ldqr,ldqc,*), u(ldu,*), uaux(*), t(2,*), x(*), 
      *theta(*), nlaht, score, varht, hes(ldh,*), gra(*), hwk1(nq,*), hwk

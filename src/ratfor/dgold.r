@@ -9,7 +9,7 @@ subroutine  dgold (vmu, q, ldq, n, z, low, upp, nlaht, score, varht,_
 #  Purpose:  To evaluate GCV/GML function based on tridiagonal form and to
 #      search minimum on an interval by golden section search.
 
-character*1       vmu
+character         vmu
 integer           ldq, n, info
 double precision  q(ldq,*), z(*), low, upp, nlaht, score, varht, twk(2,*),_
                   work(*)

@@ -1,4 +1,4 @@
-C Output from Public domain Ratfor, version 1.0
+C Output from Public domain Ratfor, version 1.05
       subroutine dgold (vmu, q, ldq, n, z, low, upp, nlaht, score, varht
      *, info, twk, work)
       character vmu

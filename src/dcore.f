@@ -1,4 +1,4 @@
-C Output from Public domain Ratfor, version 1.0
+C Output from Public domain Ratfor, version 1.05
       subroutine dcore (vmu, q, ldq, nobs, nnull, tol, z, job, limnla, n
      *laht, score, varht, info, twk, work)
       character vmu

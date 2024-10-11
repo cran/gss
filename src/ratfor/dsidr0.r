@@ -10,7 +10,7 @@ integer           lds, nobs, nnull, ldq, job, jpvt(*), info
 double precision  s(lds,*), y(*), q(ldq,*), tol, limnla(2), nlaht, score(*),_
                   varht, c(*), d(*), qraux(*), wk(*)
 
-character*1       vmu1
+character         vmu1
 
 if ( vmu == 1 )  vmu1 = 'v'
 if ( vmu == 2 )  vmu1 = 'm'

@@ -1,4 +1,4 @@
-C Output from Public domain Ratfor, version 1.0
+C Output from Public domain Ratfor, version 1.05
       subroutine dtrev (vmu, t, ldt, n, z, score, varht, info, work)
       character vmu
       integer n, info

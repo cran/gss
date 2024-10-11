@@ -1,4 +1,4 @@
-C Output from Public domain Ratfor, version 1.01
+C Output from Public domain Ratfor, version 1.05
       subroutine dmudr0 (vmu, s, lds, nobs, nnull, q, ldqr, ldqc, nq, y,
      * tol, init, prec, maxite, theta, nlaht, score, varht, c, d, iwk, w
      *k, info)

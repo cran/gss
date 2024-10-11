@@ -12,7 +12,7 @@ double precision  s(lds,*), q(ldqr,ldqc,*), y(*), tol, prec,_
                   theta(*), nlaht, score, varht, c(*), d(*),_
                   wk(*)
 
-character*1       vmu1
+character         vmu1
 integer  n, n0
 integer  iqraux, itraux, itwk, iqwk, iywk, ithewk, ihes, igra, ihwk1, ihwk2,_
          igwk1, igwk2, ikwk, iwork1, iwork2, ijpvt, ipvtwk

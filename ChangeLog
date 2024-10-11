@@ -1,3 +1,9 @@
+Thu Sep 26 02:56:25 PM EDT 2024, Chong Gu <chong@purdue.edu>
+
+	* DESCRIPTION: Version 2.2-8
+
+	* src: Numerous edits to comply with newer FORTRAN syntax.
+
 Tue 15 Aug 2023 08:44:33 PM EDT, Chong Gu  <chong@purdue.edu>
 
 	* DESCRIPTION: Version 2.2-7.

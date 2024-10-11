@@ -13,7 +13,7 @@ subroutine  dtrev (vmu, t, ldt, n, z, score, varht, info, work)
 #  References:  1. Gu, Bates, Chen, and Wahba(1988), TR#823, Stat, UW-M.
 #               2. Dongarra et al. (1979) LINPACK User's Guide. (Chap. 4)
 
-character*1       vmu
+character         vmu
 integer           n, info
 double precision  t(ldt,*), z(*), score, varht, work(*)
 

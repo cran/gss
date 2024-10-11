@@ -1,5 +1,4 @@
-
-C     Output from Public domain Ratfor, version 1.0
+C Output from Public domain Ratfor, version 1.05
       subroutine deval (vmu, q, ldq, n, z, nint, low, upp, nlaht, score,
      * varht, info, twk, work)
       character vmu

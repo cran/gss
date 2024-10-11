@@ -10,7 +10,7 @@ subroutine  deval (vmu, q, ldq, n, z, nint, low, upp, nlaht, score, varht,_
 #      search minimum on an interval by equally spaced (in log10 scale) grid
 #      search.
 
-character*1       vmu
+character         vmu
 integer           ldq, n, nint, info
 double precision  q(ldq,*), z(*), low, upp, nlaht, score(*), varht,_
                   twk(2,*), work(*)

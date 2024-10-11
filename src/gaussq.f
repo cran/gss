@@ -83,7 +83,7 @@ c          added single precision version
 c
       integer n, kind, kpts, i, ierr
       double precision b(n), t(n), w(n), endpts(2), muzero, t1,
-     x gam, solve, dsqrt, alpha, beta
+     x gam, solve, alpha, beta
 c
       call class (kind, n, alpha, beta, b, t, muzero)
 c
@@ -183,11 +183,25 @@ c        require the gamma function.
 c
       integer n, nm1, kind, i
       double precision a(n), b(n), muzero, alpha, beta
-      double precision abi, a2b2, dgamma, pi, dsqrt, ab
+      double precision abi, a2b2, pi, ab
 c
       pi = 4.0d0 * datan(1.0d0)
       nm1 = n - 1
-      go to (10, 20, 30, 40, 50, 60), kind
+C     go to (10, 20, 30, 40, 50, 60), kind
+      select case(kind)
+      case(1)
+         go to 10
+      case(2)
+         go to 20
+      case(3)
+         go to 30
+      case(4)
+         go to 40
+      case(5)
+         go to 50
+      case(6)
+         go to 60
+      end select
 c
 c              kind = 1:  legendre polynomials p(x)
 c              on (-1, +1), w(x) = 1.
@@ -241,8 +255,8 @@ c              beta greater than -1
 c
    50 ab = alpha + beta
       abi = 2.0d0 + ab
-      muzero = 2.0d0 ** (ab + 1.0d0) * dgamma(alpha + 1.0d0) * dgamma(
-     x beta + 1.0d0) / dgamma(abi)
+      muzero = 2.0d0 ** (ab + 1.0d0) * gamma(alpha + 1.0d0) * gamma(
+     x beta + 1.0d0) / gamma(abi)
       a(1) = (beta - alpha)/abi
       b(1) = dsqrt(4.0d0*(1.0d0 + alpha)*(1.0d0 + beta)/((abi + 1.0d0)*
      1  abi*abi))
@@ -261,7 +275,7 @@ c              kind = 6:  laguerre polynomials l(alpha)(x) on
 c              (0, +infinity), w(x) = exp(-x) * x**alpha, alpha greater
 c              than -1.
 c
-   60 muzero = dgamma(alpha + 1.0d0)
+   60 muzero = gamma(alpha + 1.0d0)
       do i = 1, nm1
          a(i) = 2.0d0*i - 1.0d0 + alpha
          b(i) = dsqrt(i*(i + alpha))
@@ -316,7 +330,8 @@ c     ------------------------------------------------------------------
 c
       integer i, j, k, l, m, n, ii, mml, ierr
       double precision d(n), e(n), z(n), b, c, f, g, p, r, s, machep
-      double precision dsqrt, dabs, dsign, d1mach
+C      double precision dsqrt, dabs, dsign, d1mach
+      double precision d1mach
 c
       machep=d1mach(4)
 c
@@ -410,8 +425,8 @@ c     :::::::::: last card of gausq2 ::::::::::
 c
 c
 c
-      double precision function dgamma(x)
-      double precision x
-      dgamma = 1.0d0
-      return
-      end
+C      double precision function dgamma(x)
+C      double precision x
+C      dgamma = 1.0d0
+C      return
+C      end

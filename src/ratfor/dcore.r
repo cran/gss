@@ -11,7 +11,7 @@ subroutine  dcore (vmu, q, ldq, nobs, nnull, tol, z, job, limnla, nlaht,_
 #      either golden section search or regular grid search for minimizing
 #      n*lambda.
 
-character*1       vmu
+character         vmu
 integer           ldq, nobs, nnull, job, info
 double precision  q(ldq,*), tol, z(*), limnla(2), nlaht, score(*), varht,_
                   twk(2,*), work(*)
