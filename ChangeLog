@@ -1,3 +1,9 @@
+Sun Apr 13 12:40:30 PM EDT 2025, Chong Gu <chong@purdue.edu>
+
+	* DESCRIPTION: Version 2.2-9
+
+	* src: Added LINPACK routine dchdc.f.
+	
 Thu Sep 26 02:56:25 PM EDT 2024, Chong Gu <chong@purdue.edu>
 
 	* DESCRIPTION: Version 2.2-8

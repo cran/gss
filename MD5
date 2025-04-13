@@ -1,5 +1,5 @@
-44bc2640a03994b726e551278d8bccf9 *ChangeLog
-73852a7c18b2a13e6666783dfa1801d3 *DESCRIPTION
+9fb60c583ac9fe5d5d8bdfb52489d8e7 *ChangeLog
+df769bd89763c4c7f31401d41a212fee *DESCRIPTION
 24ff2b8f15521a49b59f6d19146ae6df *INDEX
 20c494cb2d9aaa1a65f87cf5afd95df6 *NAMESPACE
 1d00015b10d8256aaede525722621ffc *R/cdsscden.R
@@ -155,7 +155,7 @@ b764b3c234f939a11cd1ccee3b232504 *man/wesdr1.Rd
 37dca64bf73d7909f27cbd6d2cd3f2f0 *src/cdennewton.f
 4e67ce7d8cc4fd22060332890775b0f6 *src/cdennewton10.f
 f1383a9db3a2c3f57344e7d543304f69 *src/copu2newton.f
-49a626d6c2996e9689d6407d13ef3208 *src/dchdc0.f
+0de3a79777b1fd2b475dc860d56cf53d *src/dchdc.f
 4b13a03ed2b66fe6609b5bbedaf5d4aa *src/dcoef.f
 b41d218da20a8d0ad77be40d71f87033 *src/dcore.f
 b05ac68613d1536384c72933d4d089be *src/dcrdr.f
@@ -180,7 +180,7 @@ fcef4ec86358606bab842a5eb96e27cb *src/dstup.f
 53df31681eb9b0911ec8bb3b5e9cc0c5 *src/hzdaux.f
 03ff521546b84739f3fc89c7bc792739 *src/hzdnewton.f
 06ab6f66d7719b6b9bd51934acf20344 *src/hzdnewton10.f
-f3314da76ddac6f573346ba745289e56 *src/init.c
+afc06c23fe3ad8693d5291bcc3113ef1 *src/init.c
 c37f1e2c7bacbb8efe5d4e0b76fdbd7b *src/llrmnewton.f
 934daea975278086d73e39bde021d31d *src/ratfor/cdennewton.r
 7dc90bb33c247261b8a7a3d842feeaa6 *src/ratfor/cdennewton10.r
