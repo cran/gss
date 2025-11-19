@@ -258,8 +258,9 @@ dev.null.nbinomial <- function(y,wt,offset)
 {
     if (is.null(wt)) wt <- rep(1,dim(y)[1])
     p <- sum(wt*y[,2])/sum(wt*y)
+    q <- sum(wt*y[,1])/sum(wt*y)
     if (!is.null(offset)) {
-        eta <- log(p/(1-p)) - mean(offset)
+        eta <- log(p/q) - mean(offset)
         repeat {
             odds <- exp(eta+offset)
             p <- odds/(1+odds)
