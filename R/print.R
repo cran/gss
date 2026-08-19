@@ -293,3 +293,15 @@ print.sshzd2d <- function(x,...)
     ## the rest are suppressed
     invisible()
 }
+
+## Print function fot clone object
+print.clone <- function(x,...)
+{
+    cat("\nThis contains",x$nrep,"clones of a",class(x$fit)[1],"object.")
+    cat("\nUse as input to retroCI to produce retrospective confidence intervals.\n")
+    cat("\nBelow is the cloned object:\n")
+    print(x$fit)
+    cat("\n")
+    ## the rest are suppressed
+    invisible()
+}

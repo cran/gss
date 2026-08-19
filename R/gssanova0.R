@@ -66,7 +66,7 @@ gssanova0 <- function(formula,family,type=NULL,data=list(),weights,
         center.p <- attr(matx.p,"scaled:center")
         scale.p <- attr(matx.p,"scaled:scale")
         s <- cbind(s,matx.p)
-        part <- list(mt=mt.p,center=center.p,scale=scale.p)
+        part <- list(mt=mt.p,center=center.p,scale=scale.p,mf.p=mf.p)
     }
     else part <- lab.p <- NULL
     if (qr(s)$rank<dim(s)[2])
@@ -108,7 +108,7 @@ gssanova0 <- function(formula,family,type=NULL,data=list(),weights,
     ## Return the results
     obj <- c(list(call=match.call(),family=family,mf=mf,terms=term,desc=desc,
                   partial=part,lab.p=lab.p),z)
-    class(obj) <- c("gssanova0","ssanova0","gssanova")
+    class(obj) <- c("gssanova0","ssanova0","gssanova","ssanova")
     obj
 }
 

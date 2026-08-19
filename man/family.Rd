@@ -131,7 +131,7 @@ cv.polr(y, eta, wt, hat, nu, alpha)
 y0.polr(eta0)
 proj0.polr(y0, eta, wt, offset, nu)
 kl.polr(eta0, eta1, wt)
-cfit.polr(y, wt, offset)
+cfit.polr(y, wt, offset, nu)
 
 mkdata.weibull(y, eta, wt, offset, nu)
 dev.resid.weibull(y, eta, wt, nu)

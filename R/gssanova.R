@@ -80,7 +80,7 @@ gssanova <- function(formula,family,type=NULL,data=list(),weights,
         center.p <- attr(matx.p,"scaled:center")
         scale.p <- attr(matx.p,"scaled:scale")
         s <- cbind(s,matx.p)
-        part <- list(mt=mt.p,center=center.p,scale=scale.p)
+        part <- list(mt=mt.p,center=center.p,scale=scale.p,mf.p=mf.p)
     }
     else part <- lab.p <- NULL
     if (qr(s)$rank<dim(s)[2])
@@ -103,7 +103,7 @@ gssanova <- function(formula,family,type=NULL,data=list(),weights,
     }
     nu.wk <- list(NULL,FALSE)
     if ((family=="nbinomial")&is.vector(y)) nu.wk <- list(NULL,TRUE)
-    if (family%in%c("weibull","lognorm","loglogis")) {
+    if (family%in%c("weibull","lognorm","loglogis","polr")) {
         if (is.null(nu)) nu.wk <- list(nu,TRUE)
         else nu.wk <- list(nu,FALSE)
     }
@@ -148,7 +148,7 @@ sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     nn <- nxiz + nnull
     ## cv function
     cv <- function(lambda) {
-        if (nu[[2]]) {
+        if (nu.lam) {
             la.wk <- lambda[-2]
             nu.wk <- list(exp(lambda[2]),FALSE)
         }
@@ -185,26 +185,29 @@ sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     else ran.scal <- NULL
     if (nu[[2]]&is.null(nu[[1]])) {
         eta <- rep(0,nobs)
-        wk <- switch(family,
-                      nbinomial=mkdata.nbinomial(y,eta,wt,offset,NULL),
-                      weibull=mkdata.weibull(y,eta,wt,offset,nu),
-                      lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
-                      loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
-        nu[[1]] <- wk$nu[[1]]
-    }
-    if (family=="polr") {
-        if (is.null(wt)) P <- apply(y,2,sum)
-        else P <- apply(y*wt,2,sum)
-        P <- P/sum(P)
-        P <- cumsum(P)
-        nnu <- length(P)-2
-        dc[1] <- qlogis(P[1])
-        nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
+        if (family=="polr") {
+            if (is.null(wt)) P <- apply(y,2,sum)
+            else P <- apply(y*wt,2,sum)
+            P <- P/sum(P)
+            P <- cumsum(P)
+            nnu <- length(P)-2
+            dc[1] <- qlogis(P[1])
+            nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
+        }
+        else {
+            wk <- switch(family,
+                         nbinomial=mkdata.nbinomial(y,eta,wt,offset,NULL),
+                         weibull=mkdata.weibull(y,eta,wt,offset,nu),
+                         lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
+                         loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
+            nu[[1]] <- wk$nu[[1]]
+        }
     }
     ## lambda search
     fit <- NULL
     la <- log.la0
-    if (nu[[2]]) la <- c(la, log(nu[[1]]))
+    nu.lam <- nu[[2]]&(family!="polr")
+    if (nu.lam) la <- c(la, log(nu[[1]]))
     if (!is.null(random)) la <- c(la,random$init)
     if (length(la)-1) {
         counter <- 0
@@ -245,7 +248,7 @@ sspngreg <- function(family,s,r,q,y,wt,offset,alpha,nu,random)
     }
     ## return
     jk <- cv(zz$est)
-    if (nu[[2]]) {
+    if (nu.lam) {
         nu.wk <- exp(zz$est[2])
         zz$est <- zz$est[-2]
     }
@@ -284,7 +287,7 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
     nq <- dim(r)[3]
     ## cv function
     cv <- function(theta) {
-        if (nu[[2]]) {
+        if (nu.lam) {
             the.wk <- theta[-(nq+1)]
             nu.wk <- list(exp(theta[nq+1]),FALSE)
         }
@@ -345,7 +348,7 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
     log.th0 <- theta-log.la0
     ## lambda search
     z <- sspngreg(family,s,r.wk,r.wk[id.basis,],y,wt,offset,alpha,nu,random)
-    if (nu[[2]]|(family=="polr")) nu[[1]] <- z$nu
+    if (nu[[2]]|(family=="polr")) nu.wk0 <- z$nu
     nlambda <- z$nlambda
     log.th0 <- log.th0 + z$lambda
     theta <- theta + z$theta
@@ -368,7 +371,8 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
         dc[1] <- qlogis(P[1])
         nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
     }
-    if (nu[[2]]) theta <- c(theta, log(nu[[1]]))
+    nu.lam <- nu[[2]]&(family!="polr")
+    if (nu.lam) theta <- c(theta, log(nu[[1]]))
     if (!is.null(random)) theta <- c(theta,z$zeta)
     counter <- 0
     r.wk <- 0
@@ -398,7 +402,7 @@ mspngreg <- function(family,s,r,id.basis,y,wt,offset,alpha,nu,random,skip.iter)
     }
     ## return
     jk <- cv(zz$est)
-    if (nu[[2]]) {
+    if (nu.lam) {
         nu.wk <- exp(zz$est[nq+1])
         zz$est <- zz$est[-(nq+1)]
     }
@@ -477,14 +481,14 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
         dat <- switch(family,
                       binomial=mkdata.binomial(y,eta,wt,offset),
                       nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
-                      polr=mkdata.polr(y,eta,wt,offset,nu[[1]]),
+                      polr=mkdata.polr(y,eta,wt,offset,nu),
                       poisson=mkdata.poisson(y,eta,wt,offset),
                       Gamma=mkdata.Gamma(y,eta,wt,offset),
                       inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                       weibull=mkdata.weibull(y,eta,wt,offset,nu),
                       lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
                       loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
-        if (family=="polr") nu[[1]] <- dat$nu
+        if (family=="polr") nu[[1]] <- dat$nu[[1]]
         ## weighted least squares fit
         mumax <- 2*max(abs(t(sr)%*%dat$u+c(rep(0,nnull),q%*%dc[nnull+(1:nxi)])))
         w <- as.vector(sqrt(dat$wt))
@@ -593,14 +597,14 @@ ngreg <- function(dc,family,sr,q,y,wt,offset,nu,alpha)
     dat <- switch(family,
                   binomial=mkdata.binomial(y,eta,wt,offset),
                   nbinomial=mkdata.nbinomial(y,eta,wt,offset,nu),
-                  polr=mkdata.polr(y,eta,wt,offset,nu[[1]]),
+                  polr=mkdata.polr(y,eta,wt,offset,nu),
                   poisson=mkdata.poisson(y,eta,wt,offset),
                   Gamma=mkdata.Gamma(y,eta,wt,offset),
                   inverse.gaussian=mkdata.inverse.gaussian(y,eta,wt,offset),
                   weibull=mkdata.weibull(y,eta,wt,offset,nu),
                   lognorm=mkdata.lognorm(y,eta,wt,offset,nu),
                   loglogis=mkdata.loglogis(y,eta,wt,offset,nu))
-    if (family=="polr") nu[[1]] <- dat$nu
+    if (family=="polr") nu[[1]] <- dat$nu[[1]]
     ## weighted least squares fit
     w <- as.vector(sqrt(dat$wt))
     ywk <- w*dat$ywk

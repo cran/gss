@@ -284,98 +284,104 @@ mkdata.polr <- function(y,eta,wt,offset,nu)
 {
     if (is.null(wt)) wt <- rep(1,dim(y)[1])
     if (is.null(offset)) offset <- rep(0,dim(y)[1])
-    nnu <- length(nu)
+    nu.wk <- nu[[1]]
+    nnu <- length(nu.wk)
     hess <- matrix(0,nnu,nnu)
-    G <- c(0,cumsum(nu))
+    G <- c(0,cumsum(nu.wk))
     P <- exp(outer(eta,G,"+"))
     lkhd <- 0
     for (i in 1:(nnu+1))
         lkhd <- lkhd+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
-    for (i in 1:nnu) lkhd <- lkhd-sum(wt*y[,i+1])/sum(wt)*log(exp(nu[i])-1)
+    for (i in 1:nnu) lkhd <- lkhd-sum(wt*y[,i+1])/sum(wt)*log(exp(nu.wk[i])-1)
     if (nnu>1) {
         for (i in 1:(nnu-1)) {
             tmp <- 0
             for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
-            lkhd <- lkhd-tmp*nu[i]
+            lkhd <- lkhd-tmp*nu.wk[i]
         }
     }
-    dd <- log(nu)
-    repeat {
-        ## gradient and hessian
-        nu <- exp(dd)
-        G <- c(0,cumsum(nu))
-        P <- exp(outer(eta,G,"+"))
-        grad <- hess.wk <- NULL
-        for (i in 1:nnu) {
-            g.wk <- h.wk <- 0
-            for (j in (i+1):(nnu+1)) {
-                g.wk <- g.wk+sum(wt*(y[,j]+y[,j+1])*P[,j]/(1+P[,j]))/sum(wt)
-                if (j<=nnu) g.wk <- g.wk-sum(wt*y[,j+1])/sum(wt)
-                h.wk <- h.wk+sum(wt*(y[,j]+y[,j+1])*P[,j]/(1+P[,j])^2)/sum(wt)
-            }
-            g.wk <- g.wk-exp(nu[i])/(exp(nu[i])-1)*sum(wt*y[,i+1])/sum(wt)
-            grad <- c(grad,g.wk)
-            hess.wk <- c(hess.wk,h.wk)
-        }
-        for (i in 1:nnu) {
-            hess[1:i,i] <- hess.wk[i]
-            hess[i,i] <- hess[i,i]+exp(nu[i])/(exp(nu[i])-1)^2*sum(wt*y[,i+1])/sum(wt)
-        }
-        grad <- grad*nu
-        hess <- hess*outer(nu,nu)
-        diag(hess) <- diag(hess)+grad
-        ## modify hessian if necessary
-        if (nnu>1) {
-            z <- .Fortran("dmcdc",
-                          as.double(hess), as.integer(nnu), as.integer(nnu),
-                          ee=double(nnu),
-                          pivot=integer(nnu),
-                          integer(1), PACKAGE="gss")
-            if (max(z$ee)) {
-                z$ee[z$pivot] <- z$ee
-                hess <- hess+diag(z$ee)
-            }
-        }
-        else hess <- abs(hess)
-        ## update nu
-        mumax <- max(abs(grad))
-        dd.diff <- solve(hess,grad)
+    if (nu[[2]]) {
+        dd <- log(nu.wk)
         repeat {
-            lkhd.line <- function(x) {
-                ddnew <- dd-c(x)*dd.diff
-                nu <- exp(ddnew)
-                G <- c(0,cumsum(nu))
-                P <- exp(outer(eta,G,"+"))
-                lkhd <- 0
-                for (i in 1:(nnu+1))
-                    lkhd <- lkhd+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
-                for (i in 1:nnu) lkhd <- lkhd-sum(wt*y[,i+1])/sum(wt)*log(exp(nu[i])-1)
-                if (nnu>1) {
-                    for (i in 1:(nnu-1)) {
-                        tmp <- 0
-                        for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
-                        lkhd <- lkhd-tmp*nu[i]
-                    }
+            ## gradient and hessian
+            nu.wk <- exp(dd)
+            G <- c(0,cumsum(nu.wk))
+            P <- exp(outer(eta,G,"+"))
+            grad <- hess.wk <- NULL
+            for (i in 1:nnu) {
+                g.wk <- h.wk <- 0
+                for (j in (i+1):(nnu+1)) {
+                    g.wk <- g.wk+sum(wt*(y[,j]+y[,j+1])*P[,j]/(1+P[,j]))/sum(wt)
+                    if (j<=nnu) g.wk <- g.wk-sum(wt*y[,j+1])/sum(wt)
+                    h.wk <- h.wk+sum(wt*(y[,j]+y[,j+1])*P[,j]/(1+P[,j])^2)/sum(wt)
                 }
-                lkhd
+                g.wk <- g.wk-exp(nu.wk[i])/(exp(nu.wk[i])-1)*sum(wt*y[,i+1])/sum(wt)
+                grad <- c(grad,g.wk)
+                hess.wk <- c(hess.wk,h.wk)
             }
-            if (!is.finite(lkhdnew <- lkhd.line(1))) {
-                dd.diff <- dd.diff/2
-                next
+            for (i in 1:nnu) {
+                hess[1:i,i] <- hess.wk[i]
+                hess[i,i] <- hess[i,i]+exp(nu.wk[i])/(exp(nu.wk[i])-1)^2*sum(wt*y[,i+1])/sum(wt)
             }
-            ddnew <- dd-dd.diff
-            if (lkhdnew-lkhd<(1+abs(lkhd))*10*.Machine$double.eps) break
-            z <- nlm0(lkhd.line,c(0,1))
-            ddnew <- dd-z$est*dd.diff
-            lkhdnew <- z$min
-            break
+            grad <- grad*nu.wk
+            hess <- hess*outer(nu.wk,nu.wk)
+            diag(hess) <- diag(hess)+grad
+            ## modify hessian if necessary
+            if (nnu>1) {
+                z <- .Fortran("dmcdc",
+                              as.double(hess), as.integer(nnu), as.integer(nnu),
+                              ee=double(nnu),
+                              pivot=integer(nnu),
+                              integer(1), PACKAGE="gss")
+                if (max(z$ee)) {
+                    z$ee[z$pivot] <- z$ee
+                    hess <- hess+diag(z$ee)
+                }
+            }
+            else hess <- abs(hess)
+            ## update nu
+            mumax <- max(abs(grad))
+            dd.diff <- solve(hess,grad)
+            repeat {
+                lkhd.line <- function(x) {
+                    ddnew <- dd-c(x)*dd.diff
+                    nu.wk <- exp(ddnew)
+                    G <- c(0,cumsum(nu.wk))
+                    P <- exp(outer(eta,G,"+"))
+                    lkhd <- 0
+                    for (i in 1:(nnu+1))
+                        lkhd <- lkhd+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
+                    for (i in 1:nnu) lkhd <- lkhd-sum(wt*y[,i+1])/sum(wt)*log(exp(nu.wk[i])-1)
+                    if (nnu>1) {
+                        for (i in 1:(nnu-1)) {
+                            tmp <- 0
+                            for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
+                            lkhd <- lkhd-tmp*nu.wk[i]
+                        }
+                    }
+                    lkhd
+                }
+                if (!is.finite(lkhdnew <- lkhd.line(1))) {
+                    dd.diff <- dd.diff/2
+                    next
+                }
+                ddnew <- dd-dd.diff
+                if (lkhdnew-lkhd<(1+abs(lkhd))*10*.Machine$double.eps) break
+                z <- nlm0(lkhd.line,c(0,1))
+                ddnew <- dd-z$est*dd.diff
+                lkhdnew <- z$min
+                break
+            }
+            disc <- abs(lkhdnew-lkhd)/(1+abs(lkhd))
+            disc <- max(disc,max(abs(dd-ddnew)/(1+abs(dd))))
+            disc0 <- (mumax/(1+abs(lkhd)))^2
+            dd <- ddnew
+            lkhd <- lkhdnew
+            if (min(disc,disc0)<1e-7) break
         }
-        disc <- abs(lkhdnew-lkhd)/(1+abs(lkhd))
-        disc <- max(disc,max(abs(dd-ddnew)/(1+abs(dd))))
-        disc0 <- (mumax/(1+abs(lkhd)))^2
-        dd <- ddnew
-        lkhd <- lkhdnew
-        if (min(disc,disc0)<1e-7) break
+        nu[[1]] <- exp(dd)
+        G <- c(0,cumsum(nu[[1]]))
+        P <- exp(outer(eta,G,"+"))
     }
     u <- -1+y[,nnu+2]
     for (i in 1:(nnu+1)) u <- u+(y[,i]+y[,i+1])*P[,i]/(1+P[,i])
@@ -426,7 +432,7 @@ dev.null.polr <- function(y,wt,offset)
         eta0[-1] <- log(diff(P))
         lkhd <- function(eta) {
             eta <- cumsum(c(eta[1],exp(eta[-1])))
-            tmp <- 0
+            wk <- 0
             for (i in 1:nobs) {
               idx <- (1:J)[y[i,]]
               if (idx==1) wk <- wk-wt[i]*log(plogis(eta[1]+offset[i]))
@@ -434,6 +440,7 @@ dev.null.polr <- function(y,wt,offset)
               if ((idx>1)&(idx<J))
                   wk <- wk-wt[i]*log(plogis(eta[idx]+offset[i])-plogis(eta[idx-1]+offset[i]))
             }
+            wk
         }
         eta <- nlm(lkhd,eta0,stepmax=1)$est
         eta <- cumsum(c(eta[1],exp(eta[-1])))

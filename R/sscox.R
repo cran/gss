@@ -112,7 +112,7 @@ sscox <- function(formula,type=NULL,data=list(),weights=NULL,subset,
         scale.p <- attr(matx.p,"scaled:scale")
         s <- cbind(s,matx.p[yy$status,])
         qd.s <- cbind(qd.s,matx.p)
-        part <- list(mt=mt.p,center=center.p,scale=scale.p)
+        part <- list(mt=mt.p,center=center.p,scale=scale.p,mf.p=mf.p)
     }
     else part <- lab.p <- NULL
     ## Check s rank

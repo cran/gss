@@ -1,4 +1,5 @@
 \name{print}
+\alias{print.clone}
 \alias{print.ssanova}
 \alias{print.ssanova0}
 \alias{print.gssanova}
@@ -15,6 +16,7 @@
     Print functions for Smoothing Spline ANOVA models.
 }
 \usage{
+\method{print}{clone}(x, ...)
 \method{print}{ssanova}(x, ...)
 \method{print}{ssanova0}(x, ...)
 \method{print}{gssanova}(x, ...)

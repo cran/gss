@@ -1,3 +1,15 @@
+Mon Aug 10 07:35:19 PM EDT 2026, Chong Gu <chong@purdue.edu>
+
+	* DESCRIPTION: Version 3.0-0
+
+	* R: i) Added clone.ssanova, clone.gssanova, project1.ssanova,
+	project1.gssanova, and retroCI for retrospective inference,
+	ii) Edited proj0.polr, cfit.polr, project.gssanova, and
+	ngreg.proj to fix nu in KL projection for polr family.
+	iii) Some bug fixes.
+
+	* man: Added documentation for newly added functions.
+
 Tue Nov 18 11:48:54 AM EST 2025, Chong Gu <chong@purdue.edu>
 
 	* DESCRIPTION: Version 2.2-10

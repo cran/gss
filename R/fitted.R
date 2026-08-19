@@ -2,6 +2,7 @@
 fitted.ssanova <- function(object,...)
 {
     mf <- object$mf
+    if (!is.null(object$partial)) mf <- cbind(mf,object$partial$mf.p)
     if (!is.null(object$random)) mf$random <- I(object$random$z)
     predict(object,mf)
 }

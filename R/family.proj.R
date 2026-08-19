@@ -223,24 +223,24 @@ proj0.polr <- function(y0,eta,wt,offset,nu)
     y <- y0[,1]
     for (i in 2:(nnu+1)) y <- cbind(y,y0[,i]-y0[,i-1])
     y <- cbind(y,1-y0[,nnu+1])
-    lkhd <- function(log.nu) {
-        nu <- exp(log.nu)
-        G <- c(0,cumsum(nu))
-        P <- exp(outer(eta,G,"+"))
-        lkhd <- 0
-        for (i in 1:(nnu+1))
-            lkhd <- lkhd+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
-        for (i in 1:nnu) lkhd <- lkhd-sum(wt*y[,i+1])/sum(wt)*log(exp(nu[i])-1)
-        if (nnu>1) {
-            for (i in 1:(nnu-1)) {
-                tmp <- 0
-                for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
-                lkhd <- lkhd-tmp*nu[i]
-            }
-        }
-        lkhd
-    }
-    nu <- exp(nlm(lkhd,log(nu),stepmax=.5)$est)
+#    lkhd <- function(log.nu) {
+#        nu <- exp(log.nu)
+#        G <- c(0,cumsum(nu))
+#        P <- exp(outer(eta,G,"+"))
+#        lkhd <- 0
+#        for (i in 1:(nnu+1))
+#            lkhd <- lkhd+sum(wt*(y[,i]+y[,i+1])*log(1+P[,i]))/sum(wt)
+#        for (i in 1:nnu) lkhd <- lkhd-sum(wt*y[,i+1])/sum(wt)*log(exp(nu[i])-1)
+#        if (nnu>1) {
+#            for (i in 1:(nnu-1)) {
+#                tmp <- 0
+#                for (j in (i+1):nnu) tmp <- tmp+sum(wt*y[,j+1])/sum(wt)
+#                lkhd <- lkhd-tmp*nu[i]
+#            }
+#        }
+#        lkhd
+#    }
+#    nu <- exp(nlm(lkhd,log(nu),stepmax=.5)$est)
     G <- c(0,cumsum(nu))
     P <- exp(outer(eta,G,"+"))
     u <- -1+y[,nnu+2]
@@ -256,11 +256,15 @@ proj0.polr <- function(y0,eta,wt,offset,nu)
     P <- P/(1+P)
     for (i in 1:length(eta)) {
         tmp <- diff(c(0,P[i,],1))
-        if (min(tmp)<=0) kl <- Inf
-        else kl <- kl+wt[i]*sum(y[i,]*log(y[i,]/tmp))
+        if (!isTRUE(min(tmp)>0)) {
+            kl <- Inf
+            break
+        }
+        kl <- kl+wt[i]*sum(y[i,]*log(y[i,]/tmp))
     }
     kl <- kl/sum(wt)
     wt <- w*wt
+    if (is.nan(kl)) kl <- Inf
     list(ywk=ywk,wt=wt,kl=kl,nu=nu,u=wt*u)
 }
 kl.polr <- function(eta0,eta1,wt)
@@ -275,32 +279,21 @@ kl.polr <- function(eta0,eta1,wt)
     }
     kl/sum(wt)
 }
-cfit.polr <- function(y,wt,offset)
+cfit.polr <- function(y,wt,offset,nu)
 {
     nobs <- dim(y)[1]
-    P <- apply(y*wt,2,sum)
-    J <- length(P)
-    P <- P/sum(P)
-    P <- qlogis(cumsum(P[-J]))
-    if (!is.null(offset)) {
-        eta0 <- P-mean(offset)
-        eta0[-1] <- log(diff(P))
-        lkhd <- function(eta) {
-            eta[-1] <- cumsum(c(eta[1],exp(eta[-1])))
-            tmp <- 0
-            for (i in 1:nobs) {
-              idx <- (1:J)[y[i,]]
-              if (idx==1) wk <- wk-wt[i]*log(plogis(eta[1]+offset[i]))
-              if (idx==J) wk <- wk-wt[i]*log(1-plogis(eta[J-1]+offset[i]))
-              if ((idx>1)&(idx<J))
-                  wk <- wk-wt[i]*log(plogis(eta[idx]+offset[i])-plogis(eta[idx-1]+offset[i]))
-            }
-        }
-        eta <- nlm(lkhd,eta0,stepmax=1)$est
-        zz <- list(eta=eta[1]+offset,nu=exp(eta[-1]))
+    nnu <- length(nu)
+    lkhd <- function(eta) {
+        wk <- -(1-y[,nnu+2])*eta
+        for (i in 1:(nnu+1))
+            wk <- wk+(y[,i]+y[,i+1])*log(1+exp(eta+G[i]+offset))
+        sum(wt*wk)/sum(wt)
     }
-    else zz <- list(eta=rep(P[1],nobs),nu=diff(P))
-    zz
+    if (is.null(offset)) offset <- rep(0,nobs)
+    G <- c(0,cumsum(nu))
+    eta0 <- qlogis(sum(wt*y[,1])/sum(wt))-mean(offset)
+    eta <- nlm(lkhd,eta0,stepmax=1)$est
+    list(eta=eta+offset,nu=nu)
 }
 
 

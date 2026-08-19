@@ -44,7 +44,7 @@ project.gssanova <- function(object,include,...)
                    Gamma=cfit.Gamma(y,wt,offset),
                    inverse.gaussian=cfit.inverse.gaussian(y,wt,offset),
                    nbinomial=cfit.nbinomial(y,wt,offset,nu),
-                   polr=cfit.polr(y,wt,offset),
+                   polr=cfit.polr(y,wt,offset,nu),
                    weibull=cfit.weibull(y,wt,offset,nu),
                    lognorm=cfit.lognorm(y,wt,offset,nu),
                    loglogis=cfit.loglogis(y,wt,offset,nu))
@@ -122,7 +122,6 @@ project.gssanova <- function(object,include,...)
         }
         assign("dc",z$dc,inherits=TRUE)
         assign("eta1",z$eta,inherits=TRUE)
-        if (family=="polr") assign("nu",z$nu,inherits=TRUE)
         z$kl
     }
     cv.wk <- function(theta) cv.scale*my.wls(theta)+cv.shift
@@ -196,8 +195,23 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                    weibull=proj0.weibull(y0,eta,wt,offset,nu),
                    lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
                    loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
-    if (family=="polr") nu <- fit1$nu
     kl <- fit1$kl
+    if (!is.finite(kl)) {
+        dc <- rep(0,nn)
+        eta <- rep(0,nobs)
+        if (!is.null(offset)) eta <- eta + offset
+        fit1 <- switch(family,
+                       binomial=proj0.binomial(y0,eta,offset),
+                       poisson=proj0.poisson(y0,eta,wt,offset),
+                       Gamma=proj0.Gamma(y0,eta,wt,offset),
+                       inverse.gaussian=proj0.inverse.gaussian(y0,eta,wt,offset),
+                       nbinomial=proj0.nbinomial(y0,eta,wt,offset),
+                       polr=proj0.polr(y0,eta,wt,offset,nu),
+                       weibull=proj0.weibull(y0,eta,wt,offset,nu),
+                       lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
+                       loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
+        kl <- fit1$kl
+    }
     ## Newton iteration
     dc.new <- eta.new <- NULL
     kl.line <- function(x) {
@@ -216,7 +230,6 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                          lognorm=proj0.lognorm(y0,eta.new,wt,offset,nu),
                          loglogis=proj0.loglogis(y0,eta.new,wt,offset,nu))
         assign("fit1",fit.wk,inherits=TRUE)
-        if (family=="polr") nu <- fit1$nu
         fit1$kl
     }
     iter <- 0
@@ -229,16 +242,6 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
             if (flag) stop("gss error in project.gssanova: Newton iteration diverges")
             dc <- rep(0,nn)
             eta <- rep(0,nobs)
-            if (family=="polr") {
-                if (is.null(wt)) P <- apply(y0,2,sum)
-                else P <- apply(y0*wt,2,sum)
-                P <- P/sum(P)
-                P <- cumsum(P)
-                nnu <- length(P)-2
-                dc[1] <- qlogis(P[1])
-                nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
-                eta <- as.vector(sr%*%dc)
-            }
             if (!is.null(offset)) eta <- eta + offset
             fit1 <- switch(family,
                            binomial=proj0.binomial(y0,eta,offset),
@@ -250,7 +253,6 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                            weibull=proj0.weibull(y0,eta,wt,offset,nu),
                            lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
                            loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
-            if (family=="polr") nu <- fit1$nu
             kl <- fit1$kl
             iter <- 0
             flag <- 1
@@ -287,16 +289,6 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
             if (flag) stop("gss error in project.gssanova: Newton iteration diverges")
             dc <- rep(0,nn)
             eta <- rep(0,nobs)
-            if (family=="polr") {
-                if (is.null(wt)) P <- apply(y0,2,sum)
-                else P <- apply(y0*wt,2,sum)
-                P <- P/sum(P)
-                P <- cumsum(P)
-                nnu <- length(P)-2
-                dc[1] <- qlogis(P[1])
-                nu[[1]] <- diff(qlogis(P[-(nnu+2)]))
-                eta <- as.vector(sr%*%dc)
-            }
             if (!is.null(offset)) eta <- eta + offset
             fit1 <- switch(family,
                            binomial=proj0.binomial(y0,eta,offset),
@@ -305,11 +297,9 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                            inverse.gaussian=proj0.inverse.gaussian(y0,eta,wt,offset),
                            nbinomial=proj0.nbinomial(y0,eta,wt,offset),
                            polr=proj0.polr(y0,eta,wt,offset,nu),
-                           polr=proj0.polr(y0,eta,wt,offset),
                            weibull=proj0.weibull(y0,eta,wt,offset,nu),
                            lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
                            loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
-            if (family=="polr") nu <- fit1$nu
             kl <- fit1$kl
             iter <- 0
             flag <- 1
@@ -338,7 +328,6 @@ ngreg.proj <- function(dc,family,sr,q,y0,wt,offset,nu)
                    weibull=proj0.weibull(y0,eta,wt,offset,nu),
                    lognorm=proj0.lognorm(y0,eta,wt,offset,nu),
                    loglogis=proj0.loglogis(y0,eta,wt,offset,nu))
-    if (family=="polr") nu <- fit1$nu
     kl <- fit1$kl
     list(dc=dc,eta=eta,kl=kl,nu=nu)
 }

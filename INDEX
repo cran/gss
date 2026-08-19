@@ -1,9 +1,12 @@
 ## SSANOVA, GSSANOVA, SSDEN, SSCDEN, SSLLRM, SSHZD, AND SSCOX SUITES
 ssanova                     Fitting smoothing spline ANOVA models
+clone.ssanova		    Cloning smoothing spline ANOVA fits
+retroCI			    Obtaining retrospective CIs from clones
 predict.ssanova             Predicting from ssanova fits
 predict1.ssanova            Predicting from ssanova fits
 summary.ssanova             Summarizing ssanova fits
 project.ssanova             Projecting ssanova fits for model diagnostic
+project1.ssanova            Projecting ssanova fits, with retrospective p-value
 ssanova9                    Fitting smoothing spline ANOVA models with correlated data
 summary.ssanova9            Summarizing ssanova9 fits
 project.ssanova9            Projecting ssanova9 fits for model diagnostic
@@ -15,12 +18,15 @@ fitted.ssanova              Extracting the fitted values from ssanova objects
 print.ssanova               Print function for ssanova objects
 print.ssanova0              Print function for ssanova0 objects
 print.summary.ssanova       Print function for summary.ssanova objects
+print.clone		    Print function for clone objects
 
 gssanova                    Fitting smoothing spline ANOVA models with non Gaussian data
 gssanova1                   Fitting smoothing spline ANOVA models with non Gaussian data
+clone.gssanova		    Cloning smoothing spline ANOVA fits with non Gaussian data
 predict9.gssanova           Predicting from gssanova fits
 summary.gssanova            Summarizing gssanova fits
-project.gssanova            Projecting gssanova1 fits for model diagnostic
+project.gssanova            Projecting gssanova fits for model diagnostic
+project1.gssanova           Projecting gssanova fits, with retrospective p-value
 gssanova0                   Fitting smoothing spline ANOVA models with non Gaussian data
 summary.gssanova0           Summarizing gssanova0 fits
 residuals.gssanova          Extracting the residuals from gssanova objects

@@ -72,7 +72,7 @@ ssanova <- function(formula,type=NULL,data=list(),weights,subset,
         center.p <- attr(matx.p,"scaled:center")
         scale.p <- attr(matx.p,"scaled:scale")
         s <- cbind(s,matx.p)
-        part <- list(mt=mt.p,center=center.p,scale=scale.p)
+        part <- list(mt=mt.p,center=center.p,scale=scale.p,mf.p=mf.p)
     }
     else part <- lab.p <- NULL
     if (qr(s)$rank<dim(s)[2])
